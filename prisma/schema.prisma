@@ -13,8 +13,8 @@ model User {
   email               String    @unique
   emailVerified       DateTime?
   password            String?
-  role                String?
-  profileId            String?  
+  role                String
+  profileId           String?  
   isOnline            Boolean   @default(false)
   isActive            Boolean   @default(true)
   lastActiveAt DateTime?
