@@ -14,6 +14,7 @@
     "db:reset": "pnpm dlx prisma migrate reset --skip-generate && pnpm db-push",
     "db:studio": "pnpm dlx prisma studio",
     "email": "email dev --dir components/email --port 4000",
+    "postinstall": "pnpm db:generate",
     "seed": "tsx prisma/seed.ts"
   },
   "prisma": {
