@@ -91,40 +91,40 @@ export function getMenuList(): Group[] {
       ]
     },
     {
-      groupLabel: 'Tables',
+      groupLabel: 'Menu',
       menus: [
         {
-          href: '/dashboard/tables/lead-list',
+          href: '/dashboard/lead-list',
           label: 'Lead List',
           icon: Icons.table,
           submenus: []
         },
         {
-          href: '/dashboard/tables/leads',
+          href: '/dashboard/leads',
           label: 'Leads',
           icon: Icons.table,
           submenus: []
         },
         {
-          href: '/dashboard/tables/call-logs-details',
+          href: '/dashboard/call-logs-details',
           label: 'Call Logs Details (API)',
           icon: Icons.folder,
           submenus: []
         },
         {
-          href: '/dashboard/tables/meeting-tracker',
+          href: '/dashboard/meeting-tracker',
           label: 'Meeting Tracker',
           icon: Icons.handeShake,
           submenus: []
         },
         {
-          href: '/dashboard/tables/employees',
+          href: '/dashboard/employees',
           label: 'Employees',
           icon: Icons.folder,
           submenus: []
         },
         {
-          href: '/dashboard/tables/email-communication',
+          href: '/dashboard/email-communication',
           label: 'Email Communication',
           icon: Icons.inbox,
           submenus: []
