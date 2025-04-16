@@ -183,10 +183,18 @@ export default function UserForm({ user, onSuccess, isModal = false }: UserFormP
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="ADMIN">Admin</SelectItem>
-                      <SelectItem value="MANAGER">Manager</SelectItem>
-                      <SelectItem value="USER">User</SelectItem>
-                      <SelectItem value="GUEST">Guest</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="sales">Sales</SelectItem>
+                      <SelectItem value="finance">Finance</SelectItem>
+                      <SelectItem value="supply-chain">Supply Chain</SelectItem>
+                      <SelectItem value="logistics">Logistics</SelectItem>
+                      <SelectItem value="marketing">Marketing</SelectItem>
+                      <SelectItem value="accounting">Accounting</SelectItem>
+                      <SelectItem value="hr">HR</SelectItem>
+                      <SelectItem value="customer-support">Customer Support</SelectItem>
+                      <SelectItem value="manager">Manager</SelectItem>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="guest">Guest</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

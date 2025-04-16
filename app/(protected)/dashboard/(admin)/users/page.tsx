@@ -6,7 +6,7 @@ import UserContent from './_components/user-content'
 
 export default function UsersPage() {
   return (
-    <ContentLayout title='Dashboard'>
+    <ContentLayout title='User Management'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
