@@ -90,6 +90,7 @@ const UserTableSkeleton = React.memo(() => {
     </div>
   )
 });
+UserTableSkeleton.displayName = 'UserTableSkeleton';
 
 function UserContent() {
   const router = useRouter()
@@ -195,8 +196,7 @@ function UserContent() {
     } finally {
       setIsLoading(false)
     }
-  // Removed dependencies that cause re-rendering
-  }, []) 
+  }, [isLoading, users.length]) 
 
   // Effect for initializing data loading
   useEffect(() => {
@@ -450,5 +450,7 @@ function UserContent() {
   )
 }
 
-// Export a memoized version of the component to prevent unnecessary re-renders
-export default React.memo(UserContent);
+// Add displayName to the exported component at the end of the file
+const MemoizedUserContent = React.memo(UserContent);
+MemoizedUserContent.displayName = 'UserContent';
+export default MemoizedUserContent;
