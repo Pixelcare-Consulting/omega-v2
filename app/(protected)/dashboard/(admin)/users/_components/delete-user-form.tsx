@@ -36,7 +36,6 @@ export default function DeleteUserForm({ userId, onSuccess, isModal = false }: D
       } else {
         // Otherwise, navigate back to users page
         router.push('/dashboard/admin/users')
-        router.refresh()
       }
     } catch (err: any) {
       setError(err.message || 'Something went wrong')

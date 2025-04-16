@@ -48,31 +48,31 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
               submenus: []
             },
             {
-              href: '/dashboard/settings',
+              href: '/dashboard/admin/settings',
               label: 'Settings',
               icon: Icons.settings,
               submenus: []
             },
             {
-              href: '/dashboard/permissions',
+              href: '/dashboard/admin/permissions',
               label: 'Permissions',
               icon: Icons.lock,
               submenus: []
             },
             {
-              href: '/dashboard/Analytics',
+              href: '/dashboard/admin/analytics',
               label: 'Analytics',
               icon: Icons.report,
               submenus: []
             },
             {
-              href: '/dashboard/calendar',
+              href: '/dashboard/admin/calendar',
               label: 'Calendar',
               icon: Icons.calendar,
               submenus: []
             },
             {
-              href: '/dashboard/activity-log',
+              href: '/dashboard/admin/activity-log',
               label: 'Activity Logs',
               icon: Icons.history,
               submenus: []
@@ -83,37 +83,37 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
           groupLabel: 'Systems',
           menus: [
             {
-              href: '/dashboard/accounting',
+              href: '/dashboard/admin/accounting',
               label: 'Accounting',
               icon: Icons.wallet,
               submenus: []
             },
             {
-              href: '/dashboard/quality-control',
+              href: '/dashboard/admin/quality-control',
               label: 'Quality Control',
               icon: Icons.checkCircle,
               submenus: []
             },
             {
-              href: '/dashboard/crm',
+              href: '/dashboard/admin/crm',
               label: 'CRM',
               icon: Icons.handeShake,
               submenus: []
             },
             {
-              href: '/dashboard/global-procurement-system',
+              href: '/dashboard/admin/global-procurement',
               label: 'Global Procurement',
               icon: Icons.dollar,
               submenus: []
             },
             {
-              href: '/dashboard/warehouse-services',
+              href: '/dashboard/admin/warehouse-services',
               label: 'Warehouse Services',
               icon: Icons.truck,
               submenus: []
             },
             {
-              href: '/dashboard/document-library',
+              href: '/dashboard/admin/document-library',
               label: 'Document Library',
               icon: Icons.fileText,
               submenus: []

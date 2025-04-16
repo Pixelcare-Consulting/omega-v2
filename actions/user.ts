@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/db'
 import { Prisma, User } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
 export async function getUserByEmail(email: string) {
   try {
@@ -73,9 +74,17 @@ export async function getUsers(page = 1, pageSize = 10, searchTerm = '') {
 // Create a new user
 export async function createUser(userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) {
   try {
+    // Hash password if provided
+    let dataToCreate = { ...userData };
+    
+    if (dataToCreate.password) {
+      const salt = await bcrypt.genSalt(10);
+      dataToCreate.password = await bcrypt.hash(dataToCreate.password, salt);
+    }
+    
     const user = await prisma.user.create({
       data: {
-        ...userData,
+        ...dataToCreate,
         profile: {
           create: { 
             details: {} 
@@ -99,6 +108,12 @@ export async function updateUser(id: string, userData: Partial<User>) {
   try {
     // Remove fields that shouldn't be directly updated
     const { id: userId, createdAt, updatedAt, ...updateData } = userData as any
+    
+    // Hash password if provided
+    if (updateData.password) {
+      const salt = await bcrypt.genSalt(10);
+      updateData.password = await bcrypt.hash(updateData.password, salt);
+    }
     
     const user = await prisma.user.update({
       where: { id },

@@ -1,5 +1,8 @@
+'use client'
+
 import React from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { User } from '@prisma/client'
 import { CheckCircle, Edit, Trash2, XCircle } from 'lucide-react'
 
@@ -44,6 +47,15 @@ interface UserTableProps {
 }
 
 export function UserTable({ users, pagination, onEdit, onDelete }: UserTableProps) {
+  const searchParams = useSearchParams()
+  
+  // Helper function to create URLs with pagination
+  const createPaginationUrl = (pageNum: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('page', pageNum.toString())
+    return `?${params.toString()}`
+  }
+
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
@@ -126,7 +138,7 @@ export function UserTable({ users, pagination, onEdit, onDelete }: UserTableProp
           <PaginationContent>
             {pagination.page > 1 && (
               <PaginationItem>
-                <PaginationPrevious href={`?page=${pagination.page - 1}`} />
+                <PaginationPrevious href={createPaginationUrl(pagination.page - 1)} />
               </PaginationItem>
             )}
 
@@ -141,7 +153,7 @@ export function UserTable({ users, pagination, onEdit, onDelete }: UserTableProp
                 return (
                   <PaginationItem key={pageNumber}>
                     <PaginationLink
-                      href={`?page=${pageNumber}`}
+                      href={createPaginationUrl(pageNumber)}
                       isActive={pageNumber === pagination.page}
                     >
                       {pageNumber}
@@ -167,7 +179,7 @@ export function UserTable({ users, pagination, onEdit, onDelete }: UserTableProp
 
             {pagination.page < pagination.pageCount && (
               <PaginationItem>
-                <PaginationNext href={`?page=${pagination.page + 1}`} />
+                <PaginationNext href={createPaginationUrl(pagination.page + 1)} />
               </PaginationItem>
             )}
           </PaginationContent>
