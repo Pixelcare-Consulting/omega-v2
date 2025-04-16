@@ -103,7 +103,7 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
             {
               href: '/dashboard/global-procurement-system',
               label: 'Global Procurement',
-              icon: Icons.cirleDollar,
+              icon: Icons.dollar,
               submenus: []
             },
             {
@@ -311,7 +311,7 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
             {
               href: '/dashboard/boms-items',
               label: 'BOMS Items',
-              icon: Icons.receiptText,
+              icon: Icons.receipt,
               submenus: []
             },
             {
