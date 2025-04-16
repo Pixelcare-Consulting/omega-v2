@@ -47,8 +47,9 @@ const DashboardContent = ({ user }: { user?: ExtendedUser }) => {
   }
 
   const renderWelcomeBanner = () => (
-    <div className="mt-5 mb-0 p-6 rounded-lg bg-card border shadow-sm">
-      <div className="flex justify-between items-start">
+  <Card className='mt-5'>
+    <CardContent className='p-6'> 
+    <div className="flex justify-between items-start">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <div className="h-8 w-1 bg-primary rounded-full"></div>
@@ -87,7 +88,10 @@ const DashboardContent = ({ user }: { user?: ExtendedUser }) => {
           </Badge>
         )}
       </div>
-    </div>
+    </CardContent>
+  </Card>
+
+  
   )
 
   const renderQuickActions = () => (
