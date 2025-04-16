@@ -161,7 +161,7 @@ export default function UsersPage() {
       )}
 
       <Dialog open={isModalOpen} onOpenChange={(open) => !open && handleModalClose()}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto [&>button]:hidden">
           {isModalLoading ? (
             <div className="flex items-center justify-center py-10">
               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
