@@ -22,9 +22,19 @@ export default auth((req) => {
   const isApiAuthRoute = nextUrl.pathname.startsWith(authApiPrefix)
   const isAuthRoute = authRoutes.includes(nextUrl.pathname)
   const isProtectedRoute = protectedRoutes.some((route) => nextUrl.pathname.startsWith(route))
+  const isRootPage = nextUrl.pathname === '/'
 
   //* if the request is for an API route, pass it to the next handler
   if (isApiAuthRoute) return NextResponse.next()
+
+  //* Handle root path redirection
+  if (isRootPage) {
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
+    } else {
+      return NextResponse.redirect(new URL('/login', nextUrl))
+    }
+  }
 
   //* if the request is for an auth route, check if the user is authenticated, if authenticated redirect to the default login redirect, if not proceed to the next handler
   if (isAuthRoute) {

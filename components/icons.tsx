@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  Check,
   CheckCircle2,
   CircleAlertIcon,
   Folder,
@@ -8,6 +9,7 @@ import {
   Info,
   LayoutGrid,
   Loader2,
+  LogIn,
   LucideIcon,
   MoonIcon,
   Settings,
@@ -36,5 +38,7 @@ export const Icons = {
   folder: Folder,
   handeShake: Handshake,
   inbox: Inbox,
-  arrowLeft: ArrowLeft
+  arrowLeft: ArrowLeft,
+  check: Check,
+  login: LogIn
 }
