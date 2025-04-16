@@ -8,7 +8,7 @@ export default async function ProtectedRouteLayout({ children }: { children: Rea
 
   return (
     <SessionProvider session={session}>
-      <PanelLayout>{children}</PanelLayout>
+      <PanelLayout user={session?.user}>{children}</PanelLayout>
     </SessionProvider>
   )
 }

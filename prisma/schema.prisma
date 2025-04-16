@@ -7,6 +7,8 @@ generator client {
   provider = "prisma-client-js"
 }
 
+//** role - admin, sales, supply-chain, finance, logistics, accounting
+
 model User {
   id                  String    @id @default(uuid())
   name                String?

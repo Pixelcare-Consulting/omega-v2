@@ -18,6 +18,7 @@ import {
 import { ExtendedUser } from '@/auth'
 import { getInitials, titleCase } from '@/lib/utils'
 import { signOut } from 'next-auth/react'
+import { Badge } from '@/components/ui/badge'
 
 type UserNavProps = {
   user?: ExtendedUser
@@ -42,6 +43,7 @@ export function UserNav({ user }: UserNavProps) {
                   <AvatarImage className='object-cover object-center' src={user?.profile?.image ?? ''} alt='Avatar' />
                   <AvatarFallback className='bg-transparent'>{getInitials(user.name ?? '').toUpperCase()}</AvatarFallback>
                 </Avatar>
+                <span className='absolute -bottom-0.5 start-5 size-3 rounded-full border-2 border-white bg-green-500 dark:border-gray-800' />
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
@@ -51,9 +53,18 @@ export function UserNav({ user }: UserNavProps) {
 
       <DropdownMenuContent className='w-56' align='end' forceMount>
         <DropdownMenuLabel className='font-normal'>
-          <div className='flex flex-col space-y-1'>
+          <div className='flex flex-col items-center gap-y-2'>
+            <Button variant='outline' className='relative size-12 rounded-full'>
+              <Avatar className='size-12'>
+                <AvatarImage className='object-cover object-center' src={user?.profile?.image ?? ''} alt='Avatar' />
+                <AvatarFallback className='bg-transparent'>{getInitials(user.name ?? '').toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <span className='absolute -bottom-0.5 start-7 size-4 rounded-full border-2 border-white bg-green-500 dark:border-gray-800' />
+            </Button>
+
             <p className='text-sm font-medium leading-none'>{titleCase(user.name)}</p>
             <p className='text-xs leading-none text-muted-foreground'>{user.email}</p>
+            <Badge className='w-fit'>{user.role}</Badge>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
