@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getUsers, getUserById } from '@/actions/user'
 import { PlusCircle, RefreshCw, Search, X } from 'lucide-react'
-
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { UserTable } from '@/app/(protected)/dashboard/(admin)/users/_components/user-table'
@@ -18,7 +18,10 @@ import {
   DialogTitle,
   DialogClose
 } from '@/components/ui/dialog'
-
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb'
+import { Card, CardContent } from '@/components/ui/card'
+import { ContentLayout } from '@/app/(protected)/_components/content-layout'
+import DashboardContent from '../../_components/dashboard-content'
 type ModalType = 'add' | 'edit' | 'delete' | null
 
 export default function UsersPage() {
@@ -52,7 +55,7 @@ export default function UsersPage() {
     }
 
     loadUsers()
-  }, [page, size, search])
+  }, [page, size, search, searchParams])
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -67,7 +70,15 @@ export default function UsersPage() {
   }
 
   const handleRefresh = () => {
-    router.refresh()
+    setIsLoading(true)
+    getUsers(page, size, search).then(result => {
+      setUsers(result.users)
+      setPagination(result.pagination)
+      setIsLoading(false)
+    }).catch(error => {
+      console.error('Failed to refresh users:', error)
+      setIsLoading(false)
+    })
   }
 
   const handleModalClose = () => {
@@ -78,11 +89,14 @@ export default function UsersPage() {
 
   const handleActionSuccess = () => {
     handleModalClose()
-    router.refresh()
-    // Reload users data
+    setIsLoading(true)
     getUsers(page, size, search).then(result => {
       setUsers(result.users)
       setPagination(result.pagination)
+      setIsLoading(false)
+    }).catch(error => {
+      console.error('Failed to reload users after action:', error)
+      setIsLoading(false)
     })
   }
 
@@ -119,7 +133,26 @@ export default function UsersPage() {
   const isModalOpen = modalType !== null
 
   return (
-    <div className="p-6 space-y-6">
+    <ContentLayout title='Dashboard'>
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+            <Link href='/'>Home</Link>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>Dashboard</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+
+    <Card className='mt-6 rounded-lg border-none'>
+      <CardContent className='p-6'>
+        <div className='flex min-h-[calc(100vh-56px-64px-20px-24px-56px-48px)] min-w-full justify-center'>
+          <div className='relative flex h-full w-full flex-col'>
+          <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">User Management</h1>
         <Button onClick={() => setModalType('add')}>
@@ -245,5 +278,12 @@ export default function UsersPage() {
         </DialogContent>
       </Dialog>
     </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  </ContentLayout>
+   
+
   )
 } 

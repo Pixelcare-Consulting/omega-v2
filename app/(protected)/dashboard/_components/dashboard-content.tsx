@@ -15,7 +15,6 @@ import { Chart9 } from './dashboard-chart-9'
 import { Chart10 } from './dashboard-chart-10'
 import { Chart11 } from './dashboard-chart-11'
 import { Chart12 } from './dashboard-chart-12'
-import { Plus } from 'lucide-react'
 
 const DashboardContent = ({ user }: { user?: ExtendedUser }) => {
   if (!user) return null
@@ -133,7 +132,7 @@ const DashboardContent = ({ user }: { user?: ExtendedUser }) => {
           <div className='flex flex-col gap-y-7'>
             <div className='grid gap-5 md:grid-cols-12'>
               <div className='col-span-12 inline-flex h-full w-full cursor-pointer items-center justify-center rounded-lg bg-primary text-white dark:text-slate-800 md:col-span-4'>
-                <Plus className='mr-2 size-7' />
+                <Icons.plus className='mr-2 size-7' />
                 New Expense Report
               </div>
 
@@ -163,7 +162,7 @@ const DashboardContent = ({ user }: { user?: ExtendedUser }) => {
           <div className='flex flex-col gap-y-7'>
             <div className='grid gap-5 md:grid-cols-12'>
               <div className='col-span-12 inline-flex h-full w-full cursor-pointer items-center justify-center rounded-lg bg-primary text-white dark:text-slate-800 md:col-span-4'>
-                <Plus className='mr-2 size-7' />
+                <Icons.plus className='mr-2 size-7' />
                 New Expense Report
               </div>
 
