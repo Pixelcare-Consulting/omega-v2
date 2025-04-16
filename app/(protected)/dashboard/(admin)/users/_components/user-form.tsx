@@ -6,6 +6,7 @@ import { User } from '@prisma/client'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import bcrypt from 'bcryptjs'
 
 import { createUser, updateUser } from '@/actions/user'
 import { Button } from '@/components/ui/button'
@@ -78,6 +79,10 @@ export default function UserForm({ user, onSuccess, isModal = false }: UserFormP
         // If password is empty, remove it from form data
         if (!formData.password) {
           delete formData.password
+        } else {
+          // Hash the password if it's provided for existing user
+          const salt = await bcrypt.genSalt(10)
+          formData.password = await bcrypt.hash(formData.password, salt)
         }
         await updateUser(user.id, formData as any)
       } else {
@@ -87,9 +92,15 @@ export default function UserForm({ user, onSuccess, isModal = false }: UserFormP
           setIsSubmitting(false)
           return
         }
+        
+        // Hash the password for new user
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(data.password, salt)
+        
         // Add defaults for missing required fields
         const fullUserData = {
           ...data,
+          password: hashedPassword,
           emailVerified: null,
           profileId: null,
           isOnline: false,
