@@ -17,19 +17,19 @@ const chartData = [
 const chartConfig = {
   desktop: {
     label: 'Desktop',
-    color: 'hsl(var(--chart-3))'
+    color: 'hsl(var(--chart-1))'
   },
   mobile: {
     label: 'Mobile',
-    color: 'hsl(var(--chart-4))'
+    color: 'hsl(var(--chart-2))'
   }
 } satisfies ChartConfig
 
-export function Chart2() {
+export function Chart6() {
   return (
     <Card className='h-full'>
       <CardHeader>
-        <CardTitle>Revenue</CardTitle>
+        <CardTitle>BDR Employee Calls</CardTitle>
         <CardDescription>January - June 2025</CardDescription>
       </CardHeader>
       <CardContent>
@@ -63,7 +63,7 @@ export function Chart2() {
             <div className='flex items-center gap-2 font-medium leading-none'>
               Trending up by 5.2% this month <TrendingUp className='h-4 w-4' />
             </div>
-            <div className='leading-none text-muted-foreground'>Showing total revenue for the last 6 months</div>
+            <div className='leading-none text-muted-foreground'>Showing total calls for the last 6 months</div>
           </div>
         </div>
       </CardFooter>

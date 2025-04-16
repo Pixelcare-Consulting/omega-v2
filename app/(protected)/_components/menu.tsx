@@ -11,14 +11,16 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
 import { getMenuList } from '@/constant/menu'
 import { CollapseMenuButton } from './collapse-menu-button'
+import { ExtendedUser } from '@/auth'
 
 interface MenuProps {
   isOpen: boolean | undefined
+  user: ExtendedUser
 }
 
-export function Menu({ isOpen }: MenuProps) {
+export function Menu({ isOpen, user }: MenuProps) {
   const pathname = usePathname()
-  const menuList = getMenuList()
+  const menuList = getMenuList(user.role)
 
   return (
     <ScrollArea className='[&>div>div[style]]:!block'>
