@@ -106,15 +106,15 @@ const chartConfig = {
   },
   desktop: {
     label: 'Item 1',
-    color: 'hsl(var(--chart-3))'
+    color: 'hsl(var(--chart-1))'
   },
   mobile: {
     label: 'Item 2',
-    color: 'hsl(var(--chart-4))'
+    color: 'hsl(var(--chart-2))'
   }
 } satisfies ChartConfig
 
-export function Chart3() {
+export function Chart7() {
   const [timeRange, setTimeRange] = React.useState('90d')
 
   const filteredData = chartData.filter((item) => {
@@ -135,8 +135,8 @@ export function Chart3() {
     <Card className='h-full'>
       <CardHeader className='flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row'>
         <div className='grid flex-1 gap-1 text-center sm:text-left'>
-          <CardTitle>Orders</CardTitle>
-          <CardDescription>Showing total orders for the last 3 months</CardDescription>
+          <CardTitle>Customers</CardTitle>
+          <CardDescription>Showing total customers for the last 3 months</CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger className='w-[160px] rounded-lg sm:ml-auto' aria-label='Select a value'>

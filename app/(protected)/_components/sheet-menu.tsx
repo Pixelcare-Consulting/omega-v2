@@ -6,8 +6,15 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetHeader, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
 import { Menu } from './menu'
 import { Icons } from '@/components/icons'
+import { ExtendedUser } from '@/auth'
 
-export function SheetMenu() {
+type SheetMenuProps = {
+  user?: ExtendedUser
+}
+
+export function SheetMenu({ user }: SheetMenuProps) {
+  if (!user) return null
+
   return (
     <Sheet>
       <SheetTrigger className='lg:hidden' asChild>
@@ -24,7 +31,7 @@ export function SheetMenu() {
             </Link>
           </Button>
         </SheetHeader>
-        <Menu isOpen />
+        <Menu user={user} isOpen />
       </SheetContent>
     </Sheet>
   )

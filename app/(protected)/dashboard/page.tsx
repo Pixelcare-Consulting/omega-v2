@@ -4,8 +4,11 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 
 import { ContentLayout } from '../_components/content-layout'
 import DashboardContent from './_components/dashboard-content'
+import { getCurrentUser } from '@/actions/auth'
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const user = await getCurrentUser()
+
   return (
     <ContentLayout title='Dashboard'>
       <Breadcrumb>
@@ -22,7 +25,7 @@ export default function DashboardPage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <DashboardContent />
+      <DashboardContent user={user} />
     </ContentLayout>
   )
 }
