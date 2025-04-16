@@ -17,19 +17,19 @@ const chartData = [
 const chartConfig = {
   desktop: {
     label: 'Desktop',
-    color: 'hsl(var(--chart-3))'
+    color: 'hsl(var(--chart-1))'
   },
   mobile: {
     label: 'Mobile',
-    color: 'hsl(var(--chart-4))'
+    color: 'hsl(var(--chart-2))'
   }
 } satisfies ChartConfig
 
-export function Chart1() {
+export function Chart5() {
   return (
     <Card className='h-full'>
       <CardHeader>
-        <CardTitle>Sales</CardTitle>
+        <CardTitle>Sales Employee Outbound Calls</CardTitle>
         <CardDescription>January - June 2025</CardDescription>
       </CardHeader>
       <CardContent>

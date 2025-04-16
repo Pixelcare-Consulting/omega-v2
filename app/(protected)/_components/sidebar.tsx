@@ -8,8 +8,9 @@ import Link from 'next/link'
 import { Menu } from './menu'
 import { SidebarToggle } from './sidebar-toggle'
 import { Icons } from '@/components/icons'
+import { ExtendedUser } from '@/auth'
 
-export function Sidebar() {
+export function Sidebar({ user }: { user: ExtendedUser }) {
   const sidebar = useStore(useSidebar, (x) => x)
 
   if (!sidebar) return null
@@ -48,7 +49,7 @@ export function Sidebar() {
           </Link>
         </Button>
 
-        <Menu isOpen={getOpenState()} />
+        <Menu isOpen={getOpenState()} user={user} />
       </div>
     </aside>
   )

@@ -53,6 +53,8 @@ export default auth((req) => {
     return NextResponse.redirect(new URL(`/login?callbackUrl=${encodedCallbackUrl}`, nextUrl))
   }
 
+  //TODO: route authorization check based on roles - can be implemented in middleware or protected layout
+
   return NextResponse.next()
 })
 
