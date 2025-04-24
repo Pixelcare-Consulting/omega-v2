@@ -17,7 +17,7 @@ export const authRoutes = ['/login']
  * These routes requires authentication.
  * @type {string[]}
  */
-export const protectedRoutes = ['/dashboard']
+export const protectedRoutes = ['/dashboard', '/crm', '/accounting']
 
 /**
  * The prefix for all API routes that is used for authentication.

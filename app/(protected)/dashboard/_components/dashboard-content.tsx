@@ -47,7 +47,7 @@ const DashboardContent = ({ user }: { user?: ExtendedUser }) => {
   }
 
   const renderWelcomeBanner = () => (
-  <Card className='mt-5'>
+  <Card className='mt-2'>
     <CardContent className='p-6'> 
     <div className="flex justify-between items-start">
         <div>

@@ -12,6 +12,7 @@ type Menu = {
   active?: boolean
   icon: Icon
   submenus?: Submenu[]
+  target?: string
 }
 
 type MenuGroup = {
@@ -42,30 +43,6 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
               submenus: []
             },
             {
-              href: '/dashboard/users',
-              label: 'Users',
-              icon: Icons.users,
-              submenus: []
-            },
-            {
-              href: '/dashboard/admin/settings',
-              label: 'Settings',
-              icon: Icons.settings,
-              submenus: []
-            },
-            {
-              href: '/dashboard/admin/permissions',
-              label: 'Permissions',
-              icon: Icons.lock,
-              submenus: []
-            },
-            {
-              href: '/dashboard/admin/analytics',
-              label: 'Analytics',
-              icon: Icons.report,
-              submenus: []
-            },
-            {
               href: '/dashboard/admin/calendar',
               label: 'Calendar',
               icon: Icons.calendar,
@@ -75,6 +52,12 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
               href: '/dashboard/admin/activity-log',
               label: 'Activity Logs',
               icon: Icons.history,
+              submenus: []
+            },
+            {
+              href: '/dashboard/admin/settings',
+              label: 'Settings',
+              icon: Icons.settings,
               submenus: []
             }
           ]
@@ -98,7 +81,32 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
               href: '/dashboard/admin/crm',
               label: 'CRM',
               icon: Icons.handeShake,
-              submenus: []
+              submenus: [
+                {
+                  href: '/dashboard/admin/crm/dashboard',
+                  label: 'Dashboard',
+                },
+                {
+                  href: '/dashboard/admin/crm/lead-lists',
+                  label: 'Lead Lists',
+                },
+                {
+                  href: '/dashboard/admin/crm/leads',
+                  label: 'Leads',
+                },
+                {
+                  href: '/dashboard/admin/crm/call-logs',
+                  label: 'Call Logs Details (API)',
+                },
+                {
+                  href: '/dashboard/admin/crm/meetings',
+                  label: 'Meeting Tracker',
+                },
+                {
+                  href: '/dashboard/admin/crm/employees',
+                  label: 'Employees',
+                },
+              ]
             },
             {
               href: '/dashboard/admin/global-procurement',
@@ -129,21 +137,22 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
           groupLabel: 'CRM',
           menus: [
             {
-              href: '/dashboard',
+              href: '/crm',
               label: 'Dashboard',
               icon: Icons.dashboard,
               submenus: []
             },
             {
-              href: '/dashboard/users',
+              href: '/crm/users',
               label: 'Users',
               icon: Icons.users,
               submenus: []
             },
             {
-              href: '/dashboard/settings',
+              href: '/crm/settings',
               label: 'Settings',
-              icon: Icons.settings
+              icon: Icons.settings,
+              submenus: []
             }
           ]
         },
@@ -151,37 +160,37 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
           groupLabel: 'Menu',
           menus: [
             {
-              href: '/dashboard/lead-list',
+              href: '/crm/lead-list',
               label: 'Lead List',
               icon: Icons.table,
               submenus: []
             },
             {
-              href: '/dashboard/leads',
+              href: '/crm/leads',
               label: 'Leads',
               icon: Icons.table,
               submenus: []
             },
             {
-              href: '/dashboard/call-logs-details',
+              href: '/crm/call-logs-details',
               label: 'Call Logs Details (API)',
               icon: Icons.folder,
               submenus: []
             },
             {
-              href: '/dashboard/meeting-tracker',
+              href: '/crm/meeting-tracker',
               label: 'Meeting Tracker',
               icon: Icons.handeShake,
               submenus: []
             },
             {
-              href: '/dashboard/employees',
+              href: '/crm/employees',
               label: 'Employees',
               icon: Icons.folder,
               submenus: []
             },
             {
-              href: '/dashboard/email-communication',
+              href: '/crm/email-communication',
               label: 'Email Communication',
               icon: Icons.inbox,
               submenus: []
@@ -743,7 +752,7 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
   //* filter menu group by role
   const menusGroups = roleBasedMenuGroups.find((item) => item.role === role)
 
-  console.log(menusGroups)
+  // console.log(menusGroups)
 
   return menusGroups?.menuGroups || roleBasedMenuGroups[0].menuGroups
 }

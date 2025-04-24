@@ -36,7 +36,7 @@ const AuthStatusModal = ({
   onClose: () => void;
 }) => {
   const [countdown, setCountdown] = useState(5);
-  const router = useRouter();
+  // const router = useRouter();
   
   useEffect(() => {
     let timer: NodeJS.Timeout;
