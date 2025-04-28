@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { LogOut, User } from 'lucide-react'
+import { HelpCircle, LogOut, User } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -70,9 +70,15 @@ export function UserNav({ user }: UserNavProps) {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem className='hover:cursor-pointer' asChild>
-            <Link href='/dashboard' className='flex items-center'>
+            <Link href='/dashboard/profile' className='flex items-center'>
               <User className='mr-3 h-4 w-4 text-muted-foreground' />
-              Account
+              My Profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem className='hover:cursor-pointer' asChild>
+            <Link href='/dashboard/help' className='flex items-center'>
+              <HelpCircle className='mr-3 h-4 w-4 text-muted-foreground' />
+              Help & Support
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>

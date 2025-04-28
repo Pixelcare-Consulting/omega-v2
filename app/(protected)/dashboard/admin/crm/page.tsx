@@ -8,4 +8,4 @@ export const metadata: Metadata = {
 
 export default async function CRMDashboard() {
   return <CrmClient />
-} 
+}

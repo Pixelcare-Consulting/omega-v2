@@ -9,6 +9,7 @@ import { SessionProvider } from 'next-auth/react'
 import { getMetadata } from '@/app/lib/metadata'
 import { registerSyncfusionLicense } from '@/lib/syncfusion-license'
 import NextTopLoader from 'nextjs-toploader';
+import { Toaster } from "@/components/ui/toaster"
 
 // Register Syncfusion license
 registerSyncfusionLicense()
@@ -59,7 +60,7 @@ export default async function RootLayout({
             <TailwindIndicatorProvider />
           </ThemeProvider>
           <ToastProvider />
-     
+          <Toaster />
         </SessionProvider>
       </body>
     </html>
