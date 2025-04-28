@@ -165,7 +165,8 @@ const DashboardContent = ({ user }: { user?: ExtendedUser }) => {
   };
 
   const renderContent = (role: string | null | undefined) => {
-    if (!role) return null
+    // Default to a basic view if role is undefined or null
+    const userRole = role?.toLowerCase() || 'user';
 
     const ADMIN_METRICS = [
       { title: 'Total Users', value: '9', percentage: 'All registered users', icon: User2, color: 'blue' as const },
@@ -213,7 +214,7 @@ const DashboardContent = ({ user }: { user?: ExtendedUser }) => {
       );
     }
 
-    switch (role) {
+    switch (userRole) {
       case 'admin':
         return (
           <>
@@ -399,6 +400,7 @@ const DashboardContent = ({ user }: { user?: ExtendedUser }) => {
         )
 
       case 'supply-chain':
+      case 'supplychain':
         return (
           <Tabs defaultValue='sales-pipeline-dashboard' className=''>
             <div className="flex justify-between items-center mb-4">
@@ -530,6 +532,7 @@ const DashboardContent = ({ user }: { user?: ExtendedUser }) => {
         )
 
       case 'finance':
+      case 'accounting':
         return (
           <div className='flex flex-col gap-y-7'>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-4">
@@ -585,80 +588,6 @@ const DashboardContent = ({ user }: { user?: ExtendedUser }) => {
                   <div>
                   <CardTitle>Financial Overview</CardTitle>
                     <CardDescription>Year-to-date financial performance</CardDescription>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="gap-1.5 h-9 px-3 rounded-md border-dashed transition-all hover:border-primary hover:text-primary"
-                  >
-                    <FileDown className="h-4 w-4" />
-                    Export
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Chart9 />
-              </CardContent>
-            </Card>
-          </div>
-        )
-
-      case 'accounting':
-        return (
-          <div className='flex flex-col gap-y-7'>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-4">
-              {FINANCE_ACCOUNTING_CARD_VALUES.map((value, index) => (
-                <StatCard
-                  key={index}
-                  title={value.title}
-                  value={value.value}
-                  percentage={`${value.percentage} ${value.trend ? `(${value.trend})` : ''}`}
-                  icon={value.title.includes('Payment') ? FileDown : 
-                       value.title.includes('Reports') ? FileText : 
-                       value.title.includes('Revenue') ? BarChart4 : 
-                       value.title.includes('Account') ? User2 : 
-                       PieChart}
-                  color={value.up ? "green" : "orange"}
-                />
-              ))}
-            </div>
-
-            <div className="flex flex-col md:flex-row gap-5 mb-6">
-              <Card className='flex-1 border-t-4 border-primary hover:shadow-md transition-all duration-200'>
-                <CardContent className="p-6 flex flex-col items-center justify-center">
-                  <div className='h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4'>
-                    <PlusCircle className='h-6 w-6 text-primary' />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">New Expense Report</h3>
-                  <p className="text-muted-foreground text-center mb-4">Create a new expense report for approval</p>
-                  <Button className="w-full gap-1.5 shadow-sm transition-transform hover:translate-y-[-2px]">
-                    <PlusCircle className="h-4 w-4" />
-                    Create Report
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className='flex-1 border-t-4 border-green-500 hover:shadow-md transition-all duration-200'>
-                <CardContent className="p-6 flex flex-col items-center justify-center">
-                  <div className='h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center mb-4'>
-                    <FileText className='h-6 w-6 text-green-500' />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">Accounting Reports</h3>
-                  <p className="text-muted-foreground text-center mb-4">Access all accounting reports and analytics</p>
-                  <Button variant="outline" className="w-full gap-1.5 border-green-500/30 text-green-700 hover:bg-green-50">
-                    <FileDown className="h-4 w-4" />
-                    View Reports
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="border shadow-sm transition-all hover:shadow-md">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div>
-                  <CardTitle>Accounting Overview</CardTitle>
-                    <CardDescription>Year-to-date accounting metrics</CardDescription>
                   </div>
                   <Button 
                     variant="outline" 
@@ -762,7 +691,15 @@ const DashboardContent = ({ user }: { user?: ExtendedUser }) => {
         )
 
       default:
-        return null
+        // Default dashboard for users with unknown roles
+        return (
+          <div className="grid gap-6">
+            <div className="border rounded-lg shadow-sm p-5 bg-card">
+              <h3 className="text-lg font-medium mb-4">Welcome to Your Dashboard</h3>
+              <p className="text-muted-foreground">Your personalized view is being configured. Please contact your administrator if you need access to additional features.</p>
+            </div>
+          </div>
+        )
     }
   }
 

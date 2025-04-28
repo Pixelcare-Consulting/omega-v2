@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -17,9 +17,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { Shield, Key, Smartphone, History } from "lucide-react"
+import { Key, Smartphone } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
+import { updatePassword } from "../_actions/profile"
+import { useSession } from "next-auth/react"
+import type { ExtendedUser } from "@/types/next-auth"
+import { TwoFactorSetup } from "./two-factor-setup"
 
 const securityFormSchema = z.object({
   currentPassword: z.string().min(8, {
@@ -27,7 +30,12 @@ const securityFormSchema = z.object({
   }),
   newPassword: z.string().min(8, {
     message: "Password must be at least 8 characters.",
-  }),
+  }).regex(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    {
+      message: "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character.",
+    }
+  ),
   confirmPassword: z.string().min(8, {
     message: "Password must be at least 8 characters.",
   }),
@@ -40,9 +48,11 @@ type SecurityFormValues = z.infer<typeof securityFormSchema>
 
 export function SecuritySettings() {
   const { toast } = useToast()
+  const { data: session, update: updateSession } = useSession()
   const [isLoading, setIsLoading] = useState(false)
+  const [isTwoFactorLoading, setIsTwoFactorLoading] = useState(false)
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
-  const [sessionControl, setSessionControl] = useState(false)
+  const [showTwoFactorSetup, setShowTwoFactorSetup] = useState(false)
 
   const form = useForm<SecurityFormValues>({
     resolver: zodResolver(securityFormSchema),
@@ -53,11 +63,43 @@ export function SecuritySettings() {
     },
   })
 
+  // Load 2FA settings
+  useEffect(() => {
+    const loadTwoFactorSettings = async () => {
+      try {
+        const user = session?.user as ExtendedUser | undefined
+        const enabled = user?.settings?.systemSettings?.twoFactorEnabled ?? false
+        setTwoFactorEnabled(enabled)
+      } catch (error) {
+        console.error("Failed to load 2FA settings:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load 2FA settings. Please try again later.",
+          variant: "destructive",
+        })
+      }
+    }
+
+    if (session?.user) {
+      loadTwoFactorSettings()
+    }
+  }, [session, toast])
+
   async function onSubmit(data: SecurityFormValues) {
     setIsLoading(true)
     try {
-      // TODO: Implement password change logic
-      console.log(data)
+      const result = await updatePassword({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      })
+
+      if (!result.success) {
+        throw new Error(result.error)
+      }
+
+      // Update session after password change
+      await updateSession()
+
       toast({
         title: "Password updated",
         description: "Your password has been changed successfully.",
@@ -66,12 +108,56 @@ export function SecuritySettings() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
         variant: "destructive",
       })
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleTwoFactorChange = async (enabled: boolean) => {
+    if (enabled) {
+      // Show setup dialog when enabling
+      setShowTwoFactorSetup(true)
+      return
+    }
+
+    // Handle disabling 2FA
+    setIsTwoFactorLoading(true)
+    try {
+      const response = await fetch('/api/2fa/disable', {
+        method: 'POST',
+      })
+      const data = await response.json()
+
+      if (!response.ok) throw new Error(data.error)
+
+      // Update session to reflect new 2FA status
+      await updateSession()
+      setTwoFactorEnabled(false)
+
+      toast({
+        title: "2FA Disabled",
+        description: "Two-factor authentication has been disabled for your account.",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to disable 2FA",
+        variant: "destructive",
+      })
+      // Revert the switch if there was an error
+      setTwoFactorEnabled(true)
+    } finally {
+      setIsTwoFactorLoading(false)
+    }
+  }
+
+  const handleSetupSuccess = async () => {
+    setShowTwoFactorSetup(false)
+    setTwoFactorEnabled(true)
+    await updateSession()
   }
 
   return (
@@ -122,7 +208,7 @@ export function SecuritySettings() {
                       />
                     </FormControl>
                     <FormDescription>
-                      Password must be at least 8 characters long
+                      Password must be at least 8 characters long and contain uppercase, lowercase, number and special characters.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -180,7 +266,8 @@ export function SecuritySettings() {
             </div>
             <Switch
               checked={twoFactorEnabled}
-              onCheckedChange={setTwoFactorEnabled}
+              onCheckedChange={handleTwoFactorChange}
+              disabled={isTwoFactorLoading}
               className="data-[state=checked]:bg-red-500"
             />
           </div>
@@ -194,52 +281,12 @@ export function SecuritySettings() {
         </CardContent>
       </Card>
 
-      {/* Session Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <History className="h-5 w-5 text-red-500" />
-            Session Management
-          </CardTitle>
-          <CardDescription>
-            Manage your active sessions and security preferences
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h4 className="text-sm font-medium">Active Sessions Control</h4>
-              <p className="text-sm text-muted-foreground">
-                Automatically log out from other devices when signing in
-              </p>
-            </div>
-            <Switch
-              checked={sessionControl}
-              onCheckedChange={setSessionControl}
-              className="data-[state=checked]:bg-red-500"
-            />
-          </div>
-
-          <Separator />
-
-          <div className="space-y-4">
-            <h4 className="text-sm font-medium">Active Sessions</h4>
-            <div className="rounded-md border p-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">Current Session</p>
-                  <p className="text-xs text-muted-foreground">
-                    Windows • Chrome • Last active: Now
-                  </p>
-                </div>
-                <Button variant="outline" size="sm" className="text-red-500 border-red-500 hover:bg-red-50">
-                  End Session
-                </Button>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* 2FA Setup Dialog */}
+      <TwoFactorSetup
+        isOpen={showTwoFactorSetup}
+        onClose={() => setShowTwoFactorSetup(false)}
+        onSuccess={handleSetupSuccess}
+      />
     </div>
   )
 } 

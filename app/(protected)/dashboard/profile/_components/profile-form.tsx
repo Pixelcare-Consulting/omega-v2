@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -18,7 +18,9 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useToast } from "@/components/ui/use-toast"
-import { Camera, User, Mail, Pencil } from "lucide-react"
+import { Camera, User, Pencil, Loader2 } from "lucide-react"
+import { updateProfile, updateProfilePicture } from "../_actions/profile"
+import { useSession } from "next-auth/react"
 
 const profileFormSchema = z.object({
   name: z.string().min(2, {
@@ -33,8 +35,11 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>
 
 export function ProfileForm() {
   const { toast } = useToast()
+  const { data: session, update: updateSession } = useSession()
   const [isLoading, setIsLoading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [avatarUrl, setAvatarUrl] = useState("/placeholder-avatar.png")
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -44,11 +49,32 @@ export function ProfileForm() {
     },
   })
 
+  useEffect(() => {
+    if (session?.user) {
+      form.reset({
+        name: session.user.name || "",
+        email: session.user.email || "",
+      })
+      
+      // Set avatar URL directly from user
+      if (session.user.avatarUrl) {
+        setAvatarUrl(session.user.avatarUrl)
+      }
+    }
+  }, [session, form])
+
   async function onSubmit(data: ProfileFormValues) {
     setIsLoading(true)
     try {
-      // TODO: Implement the API call to update profile
-      console.log(data)
+      const result = await updateProfile(data)
+      
+      if (!result.success) {
+        throw new Error(result.error)
+      }
+
+      // Update the session to reflect the changes
+      await updateSession()
+
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully.",
@@ -56,7 +82,7 @@ export function ProfileForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -64,15 +90,54 @@ export function ProfileForm() {
     }
   }
 
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
   const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (file) {
-      // TODO: Implement file upload logic
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setAvatarUrl(reader.result as string)
+    if (!file) return
+
+    // Add timestamp to force image refresh when updating
+    const timestamp = Date.now()
+    
+    setIsUploading(true)
+    try {
+      // Create FormData and append file
+      const formData = new FormData()
+      formData.append("file", file, file.name)
+
+      const result = await updateProfilePicture(formData)
+
+      if (!result.success) {
+        throw new Error(result.error)
       }
-      reader.readAsDataURL(file)
+
+      // Update avatar preview with cache-busting timestamp
+      if (result.avatarUrl) {
+        setAvatarUrl(`${result.avatarUrl}?t=${timestamp}`)
+      }
+      
+      // Update session to reflect changes
+      await updateSession()
+
+      toast({
+        title: "Success",
+        description: "Profile picture updated successfully.",
+      })
+    } catch (error) {
+      console.error("[AVATAR_UPLOAD_ERROR]", error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update profile picture.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsUploading(false)
+      // Reset the input value to allow uploading the same file again
+      event.target.value = ''
     }
   }
 
@@ -90,27 +155,40 @@ export function ProfileForm() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center space-y-4 pt-4">
-          <div className="relative group cursor-pointer">
-            <Avatar className="h-40 w-40 border-4 border-background shadow-2xl">
-              <AvatarImage src={avatarUrl} alt="Profile picture" className="object-cover" />
-              <AvatarFallback className="bg-red-100 dark:bg-red-900">
-                <User className="h-16 w-16 text-red-500" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200">
-              <label className="cursor-pointer p-3 rounded-full hover:bg-white/20 transition-colors">
-                <Pencil className="h-6 w-6 text-white" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                  className="hidden"
-                />
-              </label>
+          <div className="relative group">
+            <div 
+              className="relative cursor-pointer"
+              onClick={!isUploading ? triggerFileInput : undefined}
+            >
+              <Avatar className="h-40 w-40 border-4 border-background shadow-2xl">
+                <AvatarImage src={avatarUrl} alt="Profile picture" className="object-cover" />
+                <AvatarFallback className="bg-red-100 dark:bg-red-900">
+                  <User className="h-16 w-16 text-red-500" />
+                </AvatarFallback>
+              </Avatar>
+              {isUploading ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full">
+                  <Loader2 className="h-8 w-8 text-white animate-spin" />
+                </div>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200">
+                  <div className="p-3 rounded-full hover:bg-white/20 transition-colors">
+                    <Pencil className="h-6 w-6 text-white" />
+                  </div>
+                </div>
+              )}
             </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              disabled={isUploading}
+              className="hidden"
+            />
           </div>
           <p className="text-sm text-muted-foreground text-center">
-            Click the image to upload a new profile picture
+            {isUploading ? "Uploading..." : "Click the image to upload a new profile picture"}
           </p>
         </CardContent>
       </Card>

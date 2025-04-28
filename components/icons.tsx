@@ -50,11 +50,17 @@ import {
   FileEdit,
   Clock,
   ClipboardList,
+  Copy,
+  Shield,
+  ShieldCheck,
+  AlertCircle,
+  QrCode,
 } from 'lucide-react'
 
 export type Icon = LucideIcon
 
 export const Icons = {
+  qrCode: QrCode,
   watch: Watch,
   info: Info,
   triangleAlert: TriangleAlert,
@@ -69,9 +75,12 @@ export const Icons = {
   table: Sheet,
   folder: Folder,
   handeShake: Handshake,
+  shield: Shield,
+  shieldCheck: ShieldCheck,
+  alertCircle: AlertCircle,
+  check: Check,
   inbox: Inbox,
   arrowLeft: ArrowLeft,
-  check: Check,
   login: LogIn,
   plus: Plus,
   pencil: Pencil,
@@ -107,4 +116,5 @@ export const Icons = {
   clock: Clock,
   clipboardPen: ClipboardEdit,
   dollar: DollarSign,
+  copy: Copy,
 }

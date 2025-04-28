@@ -1,46 +1,42 @@
 import { prisma } from '@/lib/db';
 import { Prisma } from '@prisma/client';
 
-export type ActivityEventType = 'user' | 'system' | 'security' | 'data';
-export type ActivitySeverity = 'info' | 'warning' | 'error' | 'critical';
-
-interface LogActivityOptions {
-  user: string;
+export interface LogActivityOptions {
   action: string;
-  eventType: ActivityEventType;
-  severity: ActivitySeverity;
+  user: string;
+  eventType: "user" | "system" | "security" | "data";
+  severity: "info" | "warning" | "error" | "critical";
   details: string;
+  metadata?: Record<string, any>;
   ipAddress?: string;
   userAgent?: string;
-  metadata?: Record<string, any>;
 }
 
 export async function logActivity({
-  user,
   action,
+  user,
   eventType,
   severity,
   details,
+  metadata,
   ipAddress,
   userAgent,
-  metadata,
 }: LogActivityOptions) {
   try {
-    const data: Prisma.ActivityLogCreateInput = {
-      user,
-      action,
-      eventType,
-      severity,
-      details,
-      ipAddress,
-      userAgent,
-      metadata: metadata ? (metadata as Prisma.InputJsonValue) : Prisma.JsonNull,
-    };
-
-    await prisma.activityLog.create({ data });
+    await prisma.activityLog.create({
+      data: {
+        user,
+        action,
+        eventType,
+        severity,
+        details,
+        metadata,
+        ipAddress,
+        userAgent,
+      },
+    });
   } catch (error) {
-    console.error('Failed to log activity:', error);
-    // Don't throw the error to prevent disrupting the main application flow
+    console.error("[ACTIVITY_LOG_ERROR]", error);
   }
 }
 

@@ -14,9 +14,33 @@ export async function getUserByEmail(email: string) {
 
 export async function getUserById(id: string) {
   try {
-    return await prisma.user.findUnique({ where: { id }, include: { profile: true } })
+    if (!id) {
+      console.error("getUserById called with empty id");
+      return null;
+    }
+    
+    const user = await prisma.user.findUnique({ 
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        emailVerified: true,
+        role: true,
+        isOnline: true,
+        isActive: true,
+        lastActiveAt: true
+      }
+    });
+    
+    if (!user) {
+      console.log(`No user found with id: ${id}`);
+    }
+    
+    return user;
   } catch (err) {
-    return null
+    console.error(`Error fetching user with id: ${id}`, err);
+    return null;
   }
 }
 

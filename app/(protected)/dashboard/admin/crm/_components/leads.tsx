@@ -61,7 +61,7 @@ export function Leads() {
       <Card>
         <CardContent>
           {/* Lead Info Card */}
-          <div className="bg-green-50 rounded-xl p-8 mb-6">
+          <div className="bg-white border rounded-xl p-8 mb-6">
             <div className="grid grid-cols-12 gap-6">
               {/* Left Side */}
               <div className="col-span-4 space-y-4">

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ExtendedUser } from '@/auth';
 import DashboardContent from './dashboard-content';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from 'next/navigation';
 
 interface DashboardContentWrapperProps {
   user?: ExtendedUser;
@@ -12,16 +13,23 @@ interface DashboardContentWrapperProps {
 export default function DashboardContentWrapper({ user }: DashboardContentWrapperProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
   // Simulate loading state for smoother transition
   useEffect(() => {
     setMounted(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
+      
+      // If no user after loading, redirect to login
+      if (!user && !isLoading) {
+        console.error("Authentication error: No user data available");
+        router.push('/login');
+      }
     }, 500);
     
     return () => clearTimeout(timer);
-  }, []);
+  }, [user, isLoading, router]);
 
   if (!mounted) {
     return <DashboardContentSkeleton />;
@@ -29,6 +37,26 @@ export default function DashboardContentWrapper({ user }: DashboardContentWrappe
 
   if (isLoading) {
     return <DashboardContentSkeleton />;
+  }
+
+  // Extra check for user data
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full min-h-[50vh]">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Authentication Error</h2>
+          <p className="text-muted-foreground mb-4">
+            Unable to load user data. Please try logging in again.
+          </p>
+          <button 
+            onClick={() => router.push('/login')}
+            className="px-4 py-2 bg-primary text-white rounded-md"
+          >
+            Return to Login
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return <DashboardContent user={user} />;

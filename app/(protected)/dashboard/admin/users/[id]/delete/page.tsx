@@ -7,7 +7,7 @@ import { getUserById } from '@/actions/user'
 import { Button } from '@/components/ui/button'
 import DeleteUserForm from '@/app/(protected)/dashboard/admin/users/_components/delete-user-form'
 
-interface DeleteUserPageProps {
+type DeleteUserPageProps = {
   params: { id: string }
 }
 

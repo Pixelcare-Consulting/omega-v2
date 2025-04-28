@@ -23,6 +23,15 @@ import {
   DialogDescription 
 } from '@/components/ui/dialog'
 
+// Loading tips to show during authentication
+const LOADING_TIPS = [
+  "Ensuring a secure connection...",
+  "Verifying your credentials...",
+  "Checking account status...",
+  "Preparing your workspace...",
+  "Almost there...",
+] as const;
+
 // Auth Status Modal Component
 const AuthStatusModal = ({ 
   isOpen, 
@@ -36,12 +45,29 @@ const AuthStatusModal = ({
   onClose: () => void;
 }) => {
   const [countdown, setCountdown] = useState(5);
-  // const router = useRouter();
+  const [currentTip, setCurrentTip] = useState(0);
+  const [progress, setProgress] = useState(0);
   
   useEffect(() => {
     let timer: NodeJS.Timeout;
+    let progressTimer: NodeJS.Timeout;
+    let tipTimer: NodeJS.Timeout;
     
-    if (status === 'success' && isOpen) {
+    if (status === 'loading' && isOpen) {
+      // Progress animation
+      progressTimer = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 90) return prev; // Cap at 90% until success
+          return prev + Math.random() * 15;
+        });
+      }, 500);
+
+      // Rotate through tips
+      tipTimer = setInterval(() => {
+        setCurrentTip(prev => (prev + 1) % LOADING_TIPS.length);
+      }, 2000);
+    } else if (status === 'success' && isOpen) {
+      setProgress(100);
       timer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
@@ -52,17 +78,28 @@ const AuthStatusModal = ({
         });
       }, 1000);
     } else {
+      setProgress(0);
+      setCurrentTip(0);
       setCountdown(5);
     }
     
     return () => {
       if (timer) clearInterval(timer);
+      if (progressTimer) clearInterval(progressTimer);
+      if (tipTimer) clearInterval(tipTimer);
     };
   }, [status, isOpen]);
   
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md border-none bg-background/95 backdrop-blur-md shadow-lg dark:bg-gray-900/95">
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={onClose}
+      modal={true}
+    >
+      <DialogContent 
+        className="sm:max-w-md border-none bg-background/95 backdrop-blur-md shadow-lg dark:bg-gray-900/95"
+        onInteractOutside={status === 'loading' ? (e) => e.preventDefault() : undefined}
+      >
         <DialogHeader className="pb-2">
           <DialogTitle className={`text-center text-xl ${status === 'success' ? 'text-primary' : ''}`}>
             {status === 'loading' ? 'Authenticating...' : 
@@ -87,9 +124,24 @@ const AuthStatusModal = ({
                 </div>
               </div>
               
+              {/* Loading tip */}
+              <div className="text-center space-y-2">
+                <p className="text-sm text-muted-foreground animate-fade-in">
+                  {LOADING_TIPS[currentTip]}
+                </p>
+              </div>
+              
               {/* Progress indication */}
-              <div className="w-full max-w-[200px] h-1 bg-gray-100 rounded-full overflow-hidden dark:bg-gray-800">
-                <div className="h-full bg-primary animate-pulse-slow"></div>
+              <div className="w-full max-w-[200px] space-y-2">
+                <div className="h-1 bg-gray-100 rounded-full overflow-hidden dark:bg-gray-800">
+                  <div 
+                    className="h-full bg-primary transition-all duration-300 ease-out"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-center text-muted-foreground">
+                  {Math.round(progress)}% Complete
+                </p>
               </div>
             </div>
           )}
@@ -151,9 +203,27 @@ const AuthStatusModal = ({
   );
 };
 
+interface LoginResponse {
+  success?: boolean;
+  error?: string;
+  message?: string;
+  user?: {
+    role?: string;
+  };
+  code?: number;
+  action?: string;
+  redirectUrl?: string;
+}
+
+interface ActionResponse {
+  data?: LoginResponse;
+  error?: string;
+}
+
 const SigninForm = () => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
+  const [showTotpInput, setShowTotpInput] = useState(false);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     status: 'loading' | 'success' | 'error';
@@ -170,7 +240,12 @@ const SigninForm = () => {
 
   const form = useForm<LoginForm>({
     mode: 'onChange',
-    defaultValues: { email: '', password: '', callbackUrl },
+    defaultValues: { 
+      email: '', 
+      password: '', 
+      callbackUrl,
+      totpCode: '' 
+    },
     resolver: zodResolver(loginFormSchema)
   });
 
@@ -188,10 +263,22 @@ const SigninForm = () => {
     });
 
     try {
-      const response = await executeAsync(formValues);
+      const response = await executeAsync(formValues) as ActionResponse;
       const result = response?.data;
 
-      if (result && !result.error) {
+      // Handle connection errors
+      if (response?.error) {
+        setModalState({
+          isOpen: true,
+          status: 'error',
+          message: `Connection error: ${response.error}`
+        });
+        setError(response.error);
+        return;
+      }
+
+      // Check for success
+      if (result?.success) {
         // Show success modal
         setModalState({
           isOpen: true,
@@ -202,23 +289,50 @@ const SigninForm = () => {
         setSuccess('Successfully logged in!');
         form.reset();
         
-        // Redirect will happen after countdown or when user clicks the button
+        // Determine redirect destination
+        const redirectDestination = result.redirectUrl || formValues.callbackUrl || callbackUrl || '/dashboard';
+        
+        // We don't actually redirect here, just set it for the modal close handler
         return;
       }
 
-      if (result && result.error) {
-        setError(result.message);
-        // Show error modal
+      // Handle errors
+      if (result?.error) {
+        // Handle 2FA required for non-admin users
+        if (result.message === '2FA Code required!' || result.message === '2FA_REQUIRED') {
+          setShowTotpInput(true);
+          setModalState({ isOpen: false, status: 'loading', message: '' });
+          setError('Please enter your two-factor authentication code.');
+          return;
+        }
+
+        // Handle invalid 2FA code
+        if (result.message === 'Invalid authentication code. Please try again.' || result.message === 'INVALID_2FA_CODE') {
+          setError('Invalid authentication code. Please try again.');
+          setModalState({ isOpen: false, status: 'loading', message: '' });
+          return;
+        }
+
+        // Handle other errors
+        setError(result.message || 'Authentication failed');
         setModalState({
           isOpen: true,
           status: 'error',
           message: result.message || 'Authentication failed. Please verify your credentials and try again.'
         });
+      } else {
+        // Unexpected response format
+        setError('Unexpected response from server');
+        setModalState({
+          isOpen: true,
+          status: 'error',
+          message: 'Unexpected response from the authentication server. Please try again.'
+        });
       }
     } catch (err) {
-      console.error(err);
-      setError('Something went wrong! Please try again later.');
-      // Show error modal
+      console.error("Login error:", err);
+      const errorMessage = err instanceof Error ? err.message : 'Something went wrong!';
+      setError(errorMessage);
       setModalState({
         isOpen: true,
         status: 'error',
@@ -228,9 +342,10 @@ const SigninForm = () => {
   };
   
   const handleModalClose = () => {
+    // If success, always redirect regardless of previous state
     if (modalState.status === 'success') {
-      // Redirect to dashboard or callback URL
-      router.push(callbackUrl);
+      const redirectDestination = searchParams.get('callbackUrl') || '/dashboard';
+      router.push(redirectDestination);
     }
     setModalState(prev => ({ ...prev, isOpen: false }));
   };
@@ -302,6 +417,27 @@ const SigninForm = () => {
                 </Button>
               </div>
             </div>
+
+            {showTotpInput && (
+              <div className='space-y-1'>
+                <InputField
+                  control={form.control}
+                  name='totpCode'
+                  label='Authentication Code'
+                  extendedProps={{ 
+                    inputProps: { 
+                      placeholder: 'Enter 6-digit code',
+                      type: 'text',
+                      maxLength: 6,
+                      className: 'h-11 text-center tracking-widest'
+                    }
+                  }}
+                />
+                <p className='text-xs text-muted-foreground text-center'>
+                  Enter the 6-digit code from your authenticator app
+                </p>
+              </div>
+            )}
 
             <LoadingButton 
               type='submit' 

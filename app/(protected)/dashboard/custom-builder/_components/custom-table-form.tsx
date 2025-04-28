@@ -22,12 +22,10 @@ import {
   FormLabel,
   FormMessage 
 } from '@/components/ui/form';
-import { Card, CardContent } from '@/components/ui/card';
 import { Plus, Trash2 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { CustomTableProps } from '@/utils/dashboard-builder';
 
 // Form schema for custom table
 const customTableSchema = z.object({
@@ -43,6 +41,20 @@ type Column = {
   header: string;
 };
 
+type RowData = Record<string, string>;
+
+type CustomTableProps = {
+  title: string;
+  description?: string;
+  height: string;
+  columns: Column[];
+  rows: RowData[];
+  footer?: {
+    label: string;
+    value: string;
+  };
+};
+
 type CustomTableFormProps = {
   onAddTable: (table: CustomTableProps) => void;
   trigger: React.ReactNode;
@@ -50,21 +62,14 @@ type CustomTableFormProps = {
 
 export function CustomTableForm({ onAddTable, trigger }: CustomTableFormProps) {
   const [columns, setColumns] = useState<Column[]>([
-    { key: 'id', header: 'ID' },
-    { key: 'name', header: 'Name' }
+    { key: "id", header: "ID" },
+    { key: "name", header: "Name" },
   ]);
-  const [newColumnKey, setNewColumnKey] = useState('');
-  const [newColumnHeader, setNewColumnHeader] = useState('');
+  const [rows, setRows] = useState<RowData[]>([]);
+  const [newRowData, setNewRowData] = useState<RowData>({});
+  const [newColumnKey, setNewColumnKey] = useState("");
+  const [newColumnHeader, setNewColumnHeader] = useState("");
   
-  // Sample data that will be used for preview
-  const [rows, setRows] = useState<Record<string, any>[]>([
-    { id: '1', name: 'Sample Row 1' },
-    { id: '2', name: 'Sample Row 2' }
-  ]);
-  const [newRowData, setNewRowData] = useState<Record<string, any>>({
-    id: '', name: ''
-  });
-
   // @ts-ignore - Ignoring type errors with react-hook-form
   const form = useForm({
     resolver: zodResolver(customTableSchema),
@@ -147,17 +152,17 @@ export function CustomTableForm({ onAddTable, trigger }: CustomTableFormProps) {
     });
   };
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: z.infer<typeof customTableSchema>) => {
     const tableData: CustomTableProps = {
       title: data.title,
       description: data.description,
       columns: columns,
-      data: rows,
-      height: data.height
+      rows: rows,
+      height: data.height || '400px'
     };
     
     if (data.footerLabel && data.footerValue) {
-      tableData.footer = {
+        tableData.footer = {
         label: data.footerLabel,
         value: data.footerValue
       };

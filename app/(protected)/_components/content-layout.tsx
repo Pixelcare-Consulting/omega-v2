@@ -36,7 +36,7 @@ export async function ContentLayout({ title, children }: ContentLayoutProps) {
   return (
     <div>
       <Suspense fallback={<NavbarSkeleton />}>
-        <Navbar title={title} user={user} />
+        <Navbar title={title} user={user || undefined} />
       </Suspense>
       <div className='container-fluid px-2 pb-4 pt-4 sm:px-8 max-w-[2000px] mx-auto'>{children}</div>
     </div>

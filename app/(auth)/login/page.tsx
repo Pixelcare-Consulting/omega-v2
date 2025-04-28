@@ -33,7 +33,34 @@ const SigninPage = () => {
             <div className='rounded-xl border border-gray-100 bg-white/50 p-6 shadow-sm backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/50'>
               <Suspense 
                 fallback={
-                  <div className='h-[450px] w-full animate-pulse rounded-lg bg-muted' />
+                  <div className='flex flex-col gap-8 animate-pulse'>
+                    {/* Header skeleton */}
+                    <div className='flex flex-col items-center gap-3 text-center'>
+                      <div className='h-8 w-48 rounded-lg bg-muted'></div>
+                      <div className='h-4 w-64 rounded bg-muted'></div>
+                    </div>
+
+                    {/* Form skeleton */}
+                    <div className='space-y-6'>
+                      <div className='space-y-2'>
+                        <div className='h-4 w-16 rounded bg-muted'></div>
+                        <div className='h-11 w-full rounded-md bg-muted'></div>
+                      </div>
+                      <div className='space-y-2'>
+                        <div className='h-4 w-20 rounded bg-muted'></div>
+                        <div className='h-11 w-full rounded-md bg-muted'></div>
+                        <div className='flex justify-end'>
+                          <div className='h-4 w-24 rounded bg-muted'></div>
+                        </div>
+                      </div>
+                      <div className='h-11 w-full rounded-md bg-muted'></div>
+                    </div>
+
+                    {/* Footer skeleton */}
+                    <div className='flex justify-center'>
+                      <div className='h-4 w-48 rounded bg-muted'></div>
+                    </div>
+                  </div>
                 }
               >
                 <LoginForm />
