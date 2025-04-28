@@ -7,11 +7,11 @@ import { getUserById } from '@/actions/user'
 import { Button } from '@/components/ui/button'
 import DeleteUserForm from '@/app/(protected)/dashboard/admin/users/_components/delete-user-form'
 
-type DeleteUserPageProps = {
-  params: { id: string }
-}
-
-export default async function DeleteUserPage({ params }: DeleteUserPageProps) {
+export default async function DeleteUserPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const user = await getUserById(params.id)
 
   if (!user) {
