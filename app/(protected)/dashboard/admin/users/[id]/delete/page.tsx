@@ -7,13 +7,35 @@ import { getUserById } from '@/actions/user'
 import { Button } from '@/components/ui/button'
 import DeleteUserForm from '@/app/(protected)/dashboard/admin/users/_components/delete-user-form'
 
-export default async function DeleteUserPage({
+// Define the page component as a regular function (not async) with explicit typing
+export default function DeleteUserPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const user = await getUserById(params.id)
+  // Use async/await inside the component
+  const fetchData = async () => {
+    const user = await getUserById(params.id)
+    if (!user) return null
+    return user
+  }
+  
+  // This will be rendered as a React Server Component
+  return (
+    <DeleteUserContent userId={params.id} fetchData={fetchData} />
+  )
+}
 
+// Separate async component to handle data fetching
+async function DeleteUserContent({ 
+  userId, 
+  fetchData 
+}: { 
+  userId: string;
+  fetchData: () => Promise<any>;
+}) {
+  const user = await fetchData()
+  
   if (!user) {
     notFound()
   }
