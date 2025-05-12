@@ -1,15 +1,16 @@
 import 'next-auth/jwt'
 
 import NextAuth, { NextAuthConfig } from 'next-auth'
-import bcrypt from 'bcryptjs'
 import { PrismaAdapter } from '@auth/prisma-adapter'
-import Credentials from 'next-auth/providers/credentials'
 import authConfig from './auth.config'
 import { prisma } from './lib/db'
-import { loginFormSchema } from './schema/auth'
-import { getAccountByUserId, getUserById } from './actions/user'
+import { isProd } from './constant/common'
 
-// Define absolute minimal user type
+//* use secure cookies only for production and prefix with __Secure-
+const isSecureCookies = isProd ? true : false
+const cookiePrefix = isSecureCookies ? '__Secure-' : ''
+
+//* module augmentation for next-auth
 export type ExtendedUser = {
   id: string
   name: string | null
@@ -38,43 +39,43 @@ declare module 'next-auth/jwt' {
 export const callbacks: NextAuthConfig['callbacks'] = {
   jwt: async ({ token, session, trigger, user: adapterUser }) => {
     try {
-      // Initialize with minimal data from token claims
+      //* Initialize with minimal data from token claims
       if (adapterUser) {
-        // Initial sign in
+        //* Initial sign in
         token.sub = adapterUser.id || ''
         token.name = adapterUser.name
         token.email = adapterUser.email
         token.role = (adapterUser as any).role
-        
-        // Query only the avatar URL separately - avoid including profile in token
+
+        //* Query only the avatar URL separately - avoid including profile in token
         const userProfile = await prisma.profile.findUnique({
           where: { userId: adapterUser.id },
           select: { details: true }
-        });
-        
+        })
+
         if (userProfile?.details) {
-          const details = userProfile.details as Record<string, any>;
-          token.avatarUrl = details.avatarUrl || null;
+          const details = userProfile.details as Record<string, any>
+          token.avatarUrl = details.avatarUrl || null
         }
       }
 
-      // Handle session updates
+      //* Handle session updates
       if (trigger === 'update' && session) {
-        // Only update specific fields to keep token small
+        //* Only update specific fields to keep token small
         if (session.user.avatarUrl !== undefined) {
-          token.avatarUrl = session.user.avatarUrl;
+          token.avatarUrl = session.user.avatarUrl
         }
-        if (session.user.name) token.name = session.user.name;
-        if (session.user.email) token.email = session.user.email;
+        if (session.user.name) token.name = session.user.name
+        if (session.user.email) token.email = session.user.email
       }
 
       return token
     } catch (error) {
-      console.error("Error in JWT callback:", error);
-      return token;
+      console.error('Error in JWT callback:', error)
+      return token
     }
   },
-  
+
   session: async ({ token, session }) => {
     try {
       if (token && token.sub) {
@@ -82,34 +83,34 @@ export const callbacks: NextAuthConfig['callbacks'] = {
           id: token.sub,
           name: token.name || null,
           email: token.email || '',
-          emailVerified: null, // Add this field to satisfy type requirements
+          emailVerified: null, //* Add this field to satisfy type requirements
           role: token.role || null,
           avatarUrl: token.avatarUrl || null
         }
       }
       return session
     } catch (error) {
-      console.error("Error in session callback:", error);
-      return session;
+      console.error('Error in session callback:', error)
+      return session
     }
   }
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  session: { 
+  session: {
     strategy: 'jwt',
-    maxAge: 8 * 60 * 60, // 8 hours
-    updateAge: 4 * 60 * 60, // 4 hours
+    maxAge: 8 * 60 * 60, //* 8 hours
+    updateAge: 4 * 60 * 60 //* 4 hours
   },
   cookies: {
     sessionToken: {
-      name: `__Secure-next-auth.session-token`,
+      name: `${cookiePrefix}authjs.session-token`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: true
+        secure: isSecureCookies
       }
     }
   },
@@ -118,14 +119,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: '/login',
     error: '/auth-error'
   },
-  debug: false, // Disable debug to reduce token size from logs
+  debug: false, //* Disable debug to reduce token size from logs
   logger: {
     error(error: Error) {
-      console.error(`Auth error:`, error);
+      console.error(`Auth error:`, error)
     },
     warn(code: string) {
       if (code !== 'debug-enabled') {
-        console.warn(`Auth warning (${code})`);
+        console.warn(`Auth warning (${code})`)
       }
     }
   },

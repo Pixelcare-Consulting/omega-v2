@@ -55,7 +55,13 @@ import {
   ShieldCheck,
   AlertCircle,
   QrCode,
-} from 'lucide-react'
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
+  MoreHorizontal,
+} from "lucide-react"
 
 export type Icon = LucideIcon
 
@@ -117,4 +123,10 @@ export const Icons = {
   clipboardPen: ClipboardEdit,
   dollar: DollarSign,
   copy: Copy,
+  chevUp: ChevronUp,
+  chevDown: ChevronDown,
+  chevLeft: ChevronLeft,
+  chevRight: ChevronRight,
+  chevUpDown: ChevronsUpDown,
+  moreHorizontal: MoreHorizontal,
 }

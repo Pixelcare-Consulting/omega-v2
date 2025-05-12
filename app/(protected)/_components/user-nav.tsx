@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { HelpCircle, LogOut, User } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -26,8 +25,6 @@ type UserNavProps = {
 }
 
 export function UserNav({ user }: UserNavProps) {
-  const router = useRouter()
-  
   if (!user || !user.name) return null
 
   const handleLogout = async () => {
@@ -36,21 +33,21 @@ export function UserNav({ user }: UserNavProps) {
         redirect: false,
         callbackUrl: '/login'
       })
-      
-      // Clear any existing cookies
-      document.cookie.split(';').forEach(cookie => {
+
+      //* Clear any existing cookies
+      document.cookie.split(';').forEach((cookie) => {
         const [name] = cookie.split('=')
         document.cookie = `${name.trim()}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;`
       })
-      
-      router.push('/login')
-      router.refresh()
+
+      //* hard redirect to login page
+      window.location.assign('/login')
     } catch (error) {
       console.error('Logout error:', error)
     }
   }
 
-  // Get avatar URL directly from user 
+  // Get avatar URL directly from user
   const avatarUrl = user.avatarUrl || ''
 
   return (

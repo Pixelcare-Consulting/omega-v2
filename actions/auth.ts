@@ -12,37 +12,36 @@ import { DEFAULT_LOGIN_REDIRECT } from '@/constant/route'
 export async function getCurrentUser() {
   try {
     const session = await auth()
-    
+
     if (!session?.user) {
-      console.log("No active session or user data found");
-      return null;
+      console.log('No active session or user data found')
+      return null
     }
-    
+
     // Log successful session retrieval
-    console.log(`Session retrieved for user: ${session.user.email}`);
-    return session.user;
+    console.log(`Session retrieved for user: ${session.user.email}`)
+    return session.user
   } catch (error) {
-    console.error("Error retrieving current user session:", error);
-    return null;
+    console.error('Error retrieving current user session:', error)
+    return null
   }
 }
 
 async function cleanupSessionTokens() {
   try {
     const cookieStore = await cookies()
-    const sessionTokens = cookieStore.getAll()
-      .filter(cookie => cookie.name.startsWith('authjs.session-token'))
-    
-    // Keep only the most recent token
-    sessionTokens.slice(1).forEach(cookie => {
+    const sessionTokens = cookieStore.getAll().filter((cookie) => cookie.name.startsWith('authjs.session-token'))
+
+    //* Keep only the most recent token
+    sessionTokens.slice(1).forEach((cookie) => {
       cookieStore.delete(cookie.name)
     })
-    
+
     if (sessionTokens.length > 1) {
-      console.log(`Cleaned up ${sessionTokens.length - 1} old session tokens`);
+      console.log(`Cleaned up ${sessionTokens.length - 1} old session tokens`)
     }
   } catch (error) {
-    console.error("Error cleaning up session tokens:", error);
+    console.error('Error cleaning up session tokens:', error)
   }
 }
 
@@ -53,36 +52,36 @@ export const loginUser = action.schema(loginFormSchema).action(async ({ parsedIn
     const user = await getUserByEmail(email)
 
     if (!user || !user.email || !user.password) {
-      return { 
-        error: true, 
-        code: 401, 
-        message: 'User does not exist!', 
-        action: 'SIGNIN_USER' 
+      return {
+        error: true,
+        code: 401,
+        message: 'User does not exist!',
+        action: 'SIGNIN_USER'
       }
     }
 
-    // Clean up any existing session tokens
+    //* Clean up any existing session tokens
     await cleanupSessionTokens()
-    
+
     try {
-      // IMPORTANT: DO NOT use redirectTo here, let the client handle redirects
+      //? IMPORTANT: DO NOT use redirectTo here, let the client handle redirects
       const result = await signIn('credentials', {
         email,
         password,
-        redirect: false // Don't redirect automatically from server
+        redirect: false //* Don't redirect automatically from server
       })
-      
+
       if (result?.error) {
-        return { 
-          error: true, 
-          code: 401, 
-          message: result.error || 'Authentication failed', 
-          action: 'SIGNIN_USER' 
+        return {
+          error: true,
+          code: 401,
+          message: result.error || 'Authentication failed',
+          action: 'SIGNIN_USER'
         }
       }
-      
-      return { 
-        success: true, 
+
+      return {
+        success: true,
         message: 'Login successful!',
         redirectUrl: callbackUrl || DEFAULT_LOGIN_REDIRECT,
         action: 'SIGNIN_USER'
@@ -91,11 +90,11 @@ export const loginUser = action.schema(loginFormSchema).action(async ({ parsedIn
       if (signInError instanceof AuthError) {
         const authError = signInError as any
 
-        console.error("Authentication error:", { 
+        console.error('Authentication error:', {
           code: authError?.code,
           message: authError?.message,
           cause: authError?.cause
-        });
+        })
 
         switch (authError?.code) {
           case 'credentials':
@@ -106,21 +105,21 @@ export const loginUser = action.schema(loginFormSchema).action(async ({ parsedIn
             return { error: true, code: 500, message: 'Failed to login! Please try again later.', action: 'SIGNIN_USER' }
         }
       }
-      
-      console.error("Sign-in error:", signInError);
-      return { 
-        error: true, 
-        code: 500, 
-        message: signInError instanceof Error ? signInError.message : 'Connection error during authentication', 
-        action: 'SIGNIN_USER' 
+
+      console.error('Sign-in error:', signInError)
+      return {
+        error: true,
+        code: 500,
+        message: signInError instanceof Error ? signInError.message : 'Connection error during authentication',
+        action: 'SIGNIN_USER'
       }
     }
   } catch (error) {
-    console.error("Login error:", error);
-    return { 
-      error: true, 
-      code: 500, 
-      message: error instanceof Error ? error.message : 'An unexpected error occurred', 
+    console.error('Login error:', error)
+    return {
+      error: true,
+      code: 500,
+      message: error instanceof Error ? error.message : 'An unexpected error occurred',
       action: 'SIGNIN_USER'
     }
   }

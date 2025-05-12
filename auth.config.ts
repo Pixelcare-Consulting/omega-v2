@@ -7,12 +7,12 @@ import { prisma } from './lib/db'
 import { logActivity } from './lib/activity-logger'
 
 const getClientInfo = (req: Request) => {
-  const forwardedFor = req.headers.get('x-forwarded-for');
-  const userAgent = req.headers.get('user-agent') || undefined;
-  const ipAddress = forwardedFor ? forwardedFor.split(',')[0] : undefined;
-  
-  return { ipAddress, userAgent };
-};
+  const forwardedFor = req.headers.get('x-forwarded-for')
+  const userAgent = req.headers.get('user-agent') || undefined
+  const ipAddress = forwardedFor ? forwardedFor.split(',')[0] : undefined
+
+  return { ipAddress, userAgent }
+}
 
 export default {
   providers: [
@@ -24,14 +24,14 @@ export default {
           if (validatedFields.success) {
             try {
               const { email, password, totpCode } = validatedFields.data
-              const { ipAddress, userAgent } = getClientInfo(request);
+              const { ipAddress, userAgent } = getClientInfo(request)
 
-              const user = await prisma.user.findUnique({ 
-                where: { email }, 
-                include: { 
+              const user = await prisma.user.findUnique({
+                where: { email },
+                include: {
                   profile: true,
-                  settings: true 
-                } 
+                  settings: true
+                }
               })
 
               if (!user || !user.password) {
@@ -45,8 +45,8 @@ export default {
                   ipAddress,
                   userAgent,
                   metadata: { reason: 'user_not_found' }
-                });
-                return null;
+                })
+                return null
               }
 
               const isPasswordMatch = await bcrypt.compare(password, user.password)
@@ -62,8 +62,8 @@ export default {
                   ipAddress,
                   userAgent,
                   metadata: { reason: 'invalid_credentials' }
-                });
-                return null;
+                })
+                return null
               }
 
               // Check if 2FA is enabled
@@ -96,12 +96,12 @@ export default {
                       ipAddress,
                       userAgent,
                       metadata: { reason: 'invalid_2fa' }
-                    });
+                    })
                     throw new Error('INVALID_2FA_CODE')
                   }
                 } catch (fetchError) {
-                  console.error("2FA verification error:", fetchError);
-                  throw new Error('2FA_VERIFICATION_ERROR');
+                  console.error('2FA verification error:', fetchError)
+                  throw new Error('2FA_VERIFICATION_ERROR')
                 }
               }
 
@@ -115,7 +115,9 @@ export default {
                 ipAddress,
                 userAgent,
                 metadata: { userId: user.id }
-              });
+              })
+
+              console.log('trigger success login returned')
 
               return {
                 id: user.id,
@@ -126,15 +128,17 @@ export default {
             } catch (authError) {
               // Handle specific auth errors
               if (authError instanceof Error) {
-                if (authError.message === '2FA_REQUIRED' || 
-                    authError.message === 'INVALID_2FA_CODE' ||
-                    authError.message === '2FA_VERIFICATION_ERROR') {
-                  throw authError;
+                if (
+                  authError.message === '2FA_REQUIRED' ||
+                  authError.message === 'INVALID_2FA_CODE' ||
+                  authError.message === '2FA_VERIFICATION_ERROR'
+                ) {
+                  throw authError
                 }
               }
-              
-              console.error("User authentication error:", authError);
-              return null;
+
+              console.error('User authentication error:', authError)
+              return null
             }
           }
 
@@ -142,16 +146,14 @@ export default {
         } catch (error) {
           // Throw specific errors for 2FA
           if (error instanceof Error) {
-            if (error.message === '2FA_REQUIRED' || 
-                error.message === 'INVALID_2FA_CODE' ||
-                error.message === '2FA_VERIFICATION_ERROR') {
-              throw error;
+            if (error.message === '2FA_REQUIRED' || error.message === 'INVALID_2FA_CODE' || error.message === '2FA_VERIFICATION_ERROR') {
+              throw error
             }
           }
 
           // Log system error during login
           if (credentials && typeof credentials === 'object' && 'email' in credentials) {
-            const { ipAddress, userAgent } = getClientInfo(request);
+            const { ipAddress, userAgent } = getClientInfo(request)
             await logActivity({
               user: credentials.email as string,
               action: 'Login Error',
@@ -161,9 +163,9 @@ export default {
               ipAddress,
               userAgent,
               metadata: { error: error instanceof Error ? error.message : 'Unknown error' }
-            });
+            })
           }
-          console.error("Authorization error:", error);
+          console.error('Authorization error:', error)
           return null
         }
       }

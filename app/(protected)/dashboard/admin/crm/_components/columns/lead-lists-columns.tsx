@@ -4,13 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal, Pencil, Trash } from "lucide-react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 export type LeadList = {
   id: string
@@ -18,11 +12,11 @@ export type LeadList = {
   listType: string
   contactTierLevel: string
   bdr: string
-  importLeads: boolean
-  percentageOfListCompleted: number
-  numberOfLeadRecords: number
-  numberOfLeadRecordsEntered: number
-  numberOfLeadRecordsCompleted: number
+  importLeads: string
+  percentageOfListCompleted: string
+  numberOfLeadRecords: string
+  numberOfLeadRecordsEntered: string
+  numberOfLeadRecordsCompleted: string
 }
 
 export const columns: ColumnDef<LeadList>[] = [
@@ -34,12 +28,8 @@ export const columns: ColumnDef<LeadList>[] = [
     accessorKey: "listType",
     header: "List Type",
     cell: ({ row }) => {
-      return (
-        <Badge variant="outline">
-          {row.getValue("listType")}
-        </Badge>
-      )
-    }
+      return <Badge variant='outline'>{row.getValue("listType")}</Badge>
+    },
   },
   {
     accessorKey: "contactTierLevel",
@@ -55,14 +45,11 @@ export const columns: ColumnDef<LeadList>[] = [
     cell: ({ row }) => {
       const percentage = row.getValue("percentageOfListCompleted") as number
       return (
-        <div className="w-full bg-gray-200 rounded-full h-2.5">
-          <div
-            className="bg-blue-600 h-2.5 rounded-full"
-            style={{ width: `${percentage}%` }}
-          />
+        <div className='h-2.5 w-full rounded-full bg-gray-200'>
+          <div className='h-2.5 rounded-full bg-blue-600' style={{ width: `${percentage}%` }} />
         </div>
       )
-    }
+    },
   },
   {
     accessorKey: "numberOfLeadRecords",
@@ -84,24 +71,20 @@ export const columns: ColumnDef<LeadList>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant='ghost' className='h-8 w-8 p-0'>
+              <span className='sr-only'>Open menu</span>
+              <MoreHorizontal className='h-4 w-4' />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(leadList.id)}
-            >
-              Copy lead list ID
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(leadList.id)}>Copy lead list ID</DropdownMenuItem>
             <DropdownMenuItem>
-              <Pencil className="mr-2 h-4 w-4" />
+              <Pencil className='mr-2 h-4 w-4' />
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">
-              <Trash className="mr-2 h-4 w-4" />
+            <DropdownMenuItem className='text-red-600'>
+              <Trash className='mr-2 h-4 w-4' />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -109,4 +92,4 @@ export const columns: ColumnDef<LeadList>[] = [
       )
     },
   },
-] 
+]
