@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client'
-import { hash } from 'bcryptjs'
+import { PrismaClient, Role } from "@prisma/client"
+import { hash } from "bcryptjs"
 
 const prisma = new PrismaClient()
 
@@ -14,7 +14,7 @@ const defaultRoles = [
       database: true,
       settings: true,
     },
-    isSystem: true
+    isSystem: true,
   },
   {
     id: "accounting",
@@ -26,7 +26,7 @@ const defaultRoles = [
       database: true,
       settings: false,
     },
-    isSystem: true
+    isSystem: true,
   },
   {
     id: "logistics",
@@ -38,7 +38,7 @@ const defaultRoles = [
       database: true,
       settings: false,
     },
-    isSystem: true
+    isSystem: true,
   },
   {
     id: "finance",
@@ -50,7 +50,7 @@ const defaultRoles = [
       database: true,
       settings: false,
     },
-    isSystem: true
+    isSystem: true,
   },
   {
     id: "supply-chain",
@@ -62,7 +62,7 @@ const defaultRoles = [
       database: true,
       settings: false,
     },
-    isSystem: true
+    isSystem: true,
   },
   {
     id: "sales",
@@ -74,8 +74,8 @@ const defaultRoles = [
       database: true,
       settings: false,
     },
-    isSystem: true
-  }
+    isSystem: true,
+  },
 ]
 
 const defaultUsers = [
@@ -84,64 +84,69 @@ const defaultUsers = [
     email: "admin@omega.com",
     password: "admin123",
     role: "admin",
-    isActive: true
+    isActive: true,
   },
   {
     name: "Accounting User",
     email: "accounting@omega.com",
     password: "accounting123",
     role: "accounting",
-    isActive: true
+    isActive: true,
   },
   {
     name: "Logistics User",
     email: "logistics@omega.com",
     password: "logistics123",
     role: "logistics",
-    isActive: true
+    isActive: true,
   },
   {
     name: "Finance User",
     email: "finance@omega.com",
     password: "finance123",
     role: "finance",
-    isActive: true
+    isActive: true,
   },
   {
     name: "Supply Chain User",
     email: "supply-chain@omega.com",
     password: "supplychain123",
     role: "supply-chain",
-    isActive: true
+    isActive: true,
   },
   {
     name: "Sales User",
     email: "sales@omega.com",
     password: "sales123",
     role: "sales",
-    isActive: true
-  }
+    isActive: true,
+  },
 ]
 
 async function main() {
-  console.log('Start seeding...')
+  console.log("Start seeding...")
+
+  const roles: Role[] = []
 
   // Create roles
   for (const role of defaultRoles) {
     const exists = await prisma.role.findUnique({
-      where: { id: role.id }
+      where: { id: role.id },
     })
 
     if (!exists) {
-      await prisma.role.create({
+      const roleResult = await prisma.role.create({
         data: {
           id: role.id,
+          code: role.name.toLowerCase().replaceAll(" ", "-"),
           name: role.name,
           description: role.description,
-          permissions: role.permissions,
-          isSystem: role.isSystem
-        }
+          isSystem: role.isSystem,
+        },
       })
+
+      roles.push(roleResult)
+
       console.log(`Created role: ${role.name}`)
     } else {
       console.log(`Role already exists: ${role.name}`)
@@ -151,19 +156,24 @@ async function main() {
   // Create users
   for (const user of defaultUsers) {
     const exists = await prisma.user.findUnique({
-      where: { email: user.email }
+      where: { email: user.email },
     })
 
     if (!exists) {
       const hashedPassword = await hash(user.password, 12)
+      const randomRoleIndex = Math.floor(Math.random() * roles.length)
+      const randomRole = roles[randomRoleIndex]
+
+      if (!randomRole) continue
+
       await prisma.user.create({
         data: {
           name: user.name,
           email: user.email,
           password: hashedPassword,
-          role: user.role,
-          isActive: user.isActive
-        }
+          roleId: randomRole.id,
+          isActive: user.isActive,
+        },
       })
       console.log(`Created user: ${user.name}`)
     } else {
@@ -171,7 +181,7 @@ async function main() {
     }
   }
 
-  console.log('Seeding finished.')
+  console.log("Seeding finished.")
 }
 
 main()
@@ -181,4 +191,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect()
-  }) 
+  })

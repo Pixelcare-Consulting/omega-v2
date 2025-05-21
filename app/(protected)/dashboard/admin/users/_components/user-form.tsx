@@ -49,7 +49,7 @@ export default function UserForm({ user, onSuccess, isModal = false }: UserFormP
       name: user?.name || "",
       email: user?.email || "",
       password: "",
-      role: user?.role || "USER",
+      role: user?.role.code || "USER",
       isActive: user?.isActive ?? true,
     },
   })

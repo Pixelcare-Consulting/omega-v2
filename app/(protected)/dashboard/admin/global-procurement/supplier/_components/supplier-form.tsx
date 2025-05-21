@@ -544,9 +544,9 @@ export default function SupplierForm() {
                         </div>
                       </div>
 
-                      <div className='flex gap-2'>
-                        <Button>Save</Button>
+                      <div className='flex items-center justify-end gap-2'>
                         <Button variant='secondary'>Cancel</Button>
+                        <Button>Save</Button>
                       </div>
                     </CardContent>
                   </Card>

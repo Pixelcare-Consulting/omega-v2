@@ -1,20 +1,13 @@
-'use client'
+"use client"
 
-import React from 'react'
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
-import { User } from '@prisma/client'
-import { CheckCircle, Edit, Trash2, XCircle } from 'lucide-react'
+import React from "react"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { Prisma, User } from "@prisma/client"
+import { CheckCircle, Edit, Trash2, XCircle } from "lucide-react"
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 import {
   Pagination,
   PaginationContent,
@@ -23,10 +16,10 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/components/ui/pagination'
-import { Badge } from '@/components/ui/badge'
+} from "@/components/ui/pagination"
+import { Badge } from "@/components/ui/badge"
 
-interface UserWithProfile extends User {
+interface UserWithProfile extends Prisma.UserGetPayload<{ include: { role: true } }> {
   profile: {
     id: string
     userId: string
@@ -48,17 +41,17 @@ interface UserTableProps {
 
 export function UserTable({ users, pagination, onEdit, onDelete }: UserTableProps) {
   const searchParams = useSearchParams()
-  
+
   // Helper function to create URLs with pagination
   const createPaginationUrl = (pageNum: number) => {
     const params = new URLSearchParams(searchParams.toString())
-    params.set('page', pageNum.toString())
+    params.set("page", pageNum.toString())
     return `?${params.toString()}`
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-md border">
+    <div className='space-y-4'>
+      <div className='rounded-md border'>
         <Table>
           <TableHeader>
             <TableRow>
@@ -66,61 +59,61 @@ export function UserTable({ users, pagination, onEdit, onDelete }: UserTableProp
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className='text-right'>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
+                <TableCell colSpan={5} className='py-6 text-center text-muted-foreground'>
                   No users found
                 </TableCell>
               </TableRow>
             ) : (
               users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name || 'N/A'}</TableCell>
+                  <TableCell className='font-medium'>{user.name || "N/A"}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="capitalize">
-                      {user.role.toLowerCase()}
+                    <Badge variant='outline' className='capitalize'>
+                      {user.role.code.toLowerCase()}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     {user.isActive ? (
-                      <div className="flex items-center">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
+                      <div className='flex items-center'>
+                        <CheckCircle className='mr-1 h-4 w-4 text-green-500' />
                         <span>Active</span>
                       </div>
                     ) : (
-                      <div className="flex items-center">
-                        <XCircle className="h-4 w-4 text-red-500 mr-1" />
+                      <div className='flex items-center'>
+                        <XCircle className='mr-1 h-4 w-4 text-red-500' />
                         <span>Inactive</span>
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
+                  <TableCell className='text-right'>
+                    <div className='flex justify-end space-x-2'>
                       {onEdit ? (
-                        <Button variant="outline" size="icon" onClick={() => onEdit(user.id)}>
-                          <Edit className="h-4 w-4" />
+                        <Button variant='outline' size='icon' onClick={() => onEdit(user.id)}>
+                          <Edit className='h-4 w-4' />
                         </Button>
                       ) : (
                         <Link href={`/dashboard/admin/users/${user.id}`}>
-                          <Button variant="outline" size="icon">
-                            <Edit className="h-4 w-4" />
+                          <Button variant='outline' size='icon'>
+                            <Edit className='h-4 w-4' />
                           </Button>
                         </Link>
                       )}
-                      
+
                       {onDelete ? (
-                        <Button variant="outline" size="icon" onClick={() => onDelete(user.id)}>
-                          <Trash2 className="h-4 w-4" />
+                        <Button variant='outline' size='icon' onClick={() => onDelete(user.id)}>
+                          <Trash2 className='h-4 w-4' />
                         </Button>
                       ) : (
                         <Link href={`/dashboard/admin/users/${user.id}/delete`}>
-                          <Button variant="outline" size="icon">
-                            <Trash2 className="h-4 w-4" />
+                          <Button variant='outline' size='icon'>
+                            <Trash2 className='h-4 w-4' />
                           </Button>
                         </Link>
                       )}
@@ -152,10 +145,7 @@ export function UserTable({ users, pagination, onEdit, onDelete }: UserTableProp
               ) {
                 return (
                   <PaginationItem key={pageNumber}>
-                    <PaginationLink
-                      href={createPaginationUrl(pageNumber)}
-                      isActive={pageNumber === pagination.page}
-                    >
+                    <PaginationLink href={createPaginationUrl(pageNumber)} isActive={pageNumber === pagination.page}>
                       {pageNumber}
                     </PaginationLink>
                   </PaginationItem>
@@ -187,4 +177,4 @@ export function UserTable({ users, pagination, onEdit, onDelete }: UserTableProp
       )}
     </div>
   )
-} 
+}
