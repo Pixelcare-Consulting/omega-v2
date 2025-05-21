@@ -1,14 +1,14 @@
 "use client"
 
 import { Control, FieldPath, FieldValues } from "react-hook-form"
+
 import { FormField, FormItem, FormLabel, FormDescription, FormControl, FormMessage } from "../ui/form"
+import { Textarea, TextareaProps } from "../ui/textarea"
 import { FormExtendedProps } from "@/types/form"
-import { Input, InputProps } from "../ui/input"
-import { cn } from "@/lib/utils"
 
-type ExtendedProps = FormExtendedProps & { inputProps?: InputProps }
+type ExtendedProps = FormExtendedProps & { textAreaProps?: TextareaProps }
 
-type InputFieldProps<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>> = {
+type TextAreaFieldProps<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>> = {
   control: Control<TFieldValues>
   name: TName
   label: string
@@ -17,16 +17,14 @@ type InputFieldProps<TFieldValues extends FieldValues = FieldValues, TName exten
   isRequired?: boolean
 }
 
-//? if className is passed among the properties of extendedProps, the specified or default className will be overridden
-
-export default function InputField<T extends FieldValues>({
+export default function TextAreaField<T extends FieldValues>({
   control,
   name,
   label,
   description,
   extendedProps,
   isRequired,
-}: InputFieldProps<T>) {
+}: TextAreaFieldProps<T>) {
   return (
     <FormField
       control={control}
@@ -38,7 +36,7 @@ export default function InputField<T extends FieldValues>({
               {label}
             </FormLabel>
             <FormControl>
-              <Input {...field} {...extendedProps?.inputProps} />
+              <Textarea className='resize-none' {...field} {...extendedProps?.textAreaProps} />
             </FormControl>
             {description && <FormDescription {...extendedProps?.descriptionProps}>{description}</FormDescription>}
             <FormMessage {...extendedProps?.messageProps} />
