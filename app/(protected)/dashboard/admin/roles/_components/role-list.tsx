@@ -12,11 +12,11 @@ import { DataTableViewOptions } from "@/components/data-table/data-table-view-op
 import { useDataTable } from "@/hooks/use-data-table"
 import { getColumns } from "./role-table-columns"
 
-export type RolesClientProps = {
+export type RoleListProps = {
   roles: Awaited<ReturnType<typeof getRoles>>
 }
 
-export default function RolesListClient({ roles }: RolesClientProps) {
+export default function RoleList({ roles }: RoleListProps) {
   const router = useRouter()
 
   const columns = useMemo(() => getColumns(), [])
@@ -38,7 +38,7 @@ export default function RolesListClient({ roles }: RolesClientProps) {
       description='Each role is granted access to predefined menus and features, ensuring users have access to the necessary
               functions based on their assigned role.'
       addButton={{
-        label: "Add Roles",
+        label: "Add Role",
         onClick: () => router.push("/dashboard/admin/roles/add"),
       }}
     >

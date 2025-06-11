@@ -1,6 +1,6 @@
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/Breadcrumbs"
-import RolesListClient from "./_components/role-list"
+import RoleList from "./_components/role-list"
 import { getRoles } from "@/actions/role"
 
 export default async function RolesPage() {
@@ -18,7 +18,7 @@ export default async function RolesPage() {
       />
 
       <div className='min-h-[calc(100vh-56px-64px-20px-24px-56px-48px)]'>
-        <RolesListClient roles={roles} />
+        <RoleList roles={roles} />
       </div>
     </ContentLayout>
   )

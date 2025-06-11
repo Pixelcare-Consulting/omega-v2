@@ -4,7 +4,7 @@ import { ColumnFiltersState, Table } from "@tanstack/react-table"
 
 import { Label } from "../ui/label"
 import { Input } from "../ui/input"
-import { Button } from "../ui/button"
+import { Button, ButtonProps } from "../ui/button"
 import { Icons } from "../icons"
 import { cn } from "@/lib/utils"
 import { Calendar, CalendarProps } from "../ui/calendar"
@@ -32,6 +32,7 @@ type DataTableFilterProps<TData> = {
   columnFilters: ColumnFiltersState
   children?: React.ReactNode
   className?: string
+  buttonProps?: ButtonProps
 }
 
 //TODO: Add data-range & multi select filter type
@@ -43,7 +44,10 @@ function DataTableFilterComponent<TData>({
   columnFilters,
   children,
   className,
+  buttonProps,
 }: DataTableFilterProps<TData>) {
+  const [open, setOpen] = useState(false)
+
   const filterCount = columnFilters?.length || 0
 
   const getFilterFields = (field: FilterFields, table: Table<TData>) => {
@@ -82,7 +86,7 @@ function DataTableFilterComponent<TData>({
 
   if (mode === "block") {
     return (
-      <div className={cn("w-full bg-red-500", className)}>
+      <div className={cn("w-full", className)}>
         <div className='flex flex-col space-y-1.5 text-center sm:text-left'>
           <h1 className='text-lg font-semibold leading-none tracking-tight'>Advanced Filters</h1>
           <p className='text-muted-foregroun text-sm'>Filter the table by column</p>
@@ -103,7 +107,7 @@ function DataTableFilterComponent<TData>({
     return (
       <Popover>
         <PopoverTrigger asChild>
-          <Button className={cn("flex items-center", className)} variant='outline'>
+          <Button className={cn("flex items-center", className)} variant='outline' {...buttonProps}>
             <Icons.funnel className='mr-2 size-4' />
             Filter
             {filterCount > 0 && <Badge className='text-xs'>{filterCount}</Badge>}
@@ -144,9 +148,9 @@ function DataTableFilterComponent<TData>({
 
   if (mode == "dialog") {
     return (
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button className={cn("flex items-center", className)} variant='outline'>
+          <Button className={cn("flex items-center", className)} variant='outline' {...buttonProps}>
             <Icons.funnel className='mr-2 size-4' />
             Filter
             {filterCount > 0 && <Badge className='text-xs'>{filterCount}</Badge>}
@@ -160,7 +164,7 @@ function DataTableFilterComponent<TData>({
 
           <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
             {filterFields.map((field, i) => (
-              <div key={i}>{getFilterFields(field, table)}</div>
+              <div key={field.columnId}>{getFilterFields(field, table)}</div>
             ))}
 
             {children}
@@ -202,24 +206,10 @@ type FilterInputProps = {
 } & ComponentPropsWithoutRef<"input">
 
 const FilterInput = memo(function FilterInput({ columnId, label, value, onChange, debounce = 500, ...props }: FilterInputProps) {
-  const [inputValue, setInputValue] = useState(value || "")
-
-  useEffect(() => {
-    setInputValue(value || "")
-  }, [value])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange(inputValue)
-    }, debounce)
-
-    return () => clearTimeout(timeout)
-  }, [inputValue, debounce, onChange])
-
   return (
     <div className='space-y-2'>
       <Label htmlFor={columnId}>{label}</Label>
-      <Input {...props} value={inputValue} id={columnId} onChange={(e) => setInputValue(String(e.target.value))} />
+      <Input {...props} value={value || ""} id={columnId} onChange={(e) => onChange(String(e.target.value))} />
     </div>
   )
 })
@@ -283,7 +273,7 @@ type FilterDateProps = {
   disabledFuture?: boolean
 } & CalendarProps
 
-const FilterDate = memo(function FilterDate<TData>({ columnId, label, value, onChange, ...props }: FilterDateProps) {
+const FilterDate = memo(function FilterDate({ columnId, label, value, onChange, ...props }: FilterDateProps) {
   const [open, setOpen] = useState(false)
   const [dateValue, setDateValue] = useState(value)
 
@@ -323,7 +313,6 @@ const FilterDate = memo(function FilterDate<TData>({ columnId, label, value, onC
             defaultMonth={dateValue as Date}
             selected={dateValue}
             onSelect={(value: any) => {
-              console.log("sasdasdsa")
               onChange(value)
               setDateValue(value)
               setOpen(false)

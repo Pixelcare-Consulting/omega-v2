@@ -13,24 +13,23 @@ import {
 } from "@tanstack/react-table"
 import { useState } from "react"
 interface UseDataTableProps<TData> extends Omit<TableOptions<TData>, "getCoreRowModel"> {
-  //* Extend to make the sorting id typesafe
-  initialState?: Omit<Partial<TableState>, "sorting"> & {
-    sorting?: {
-      id: Extract<keyof TData, string>
-      desc: boolean
-    }[]
-  }
+  initialState?: Partial<TableState>
 }
 
 export function useDataTable<TData>(props: UseDataTableProps<TData>) {
-  const [rowSelection, setRowSelection] = useState({})
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
+  const {
+    initialState = {}, // default to empty object
+    ...rest
+  } = props
+
+  const [rowSelection, setRowSelection] = useState(initialState.rowSelection || {})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(initialState.columnVisibility || {})
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(initialState.columnFilters || [])
+  const [sorting, setSorting] = useState<SortingState>(initialState.sorting || [])
+  const [pagination, setPagination] = useState(initialState.pagination || { pageIndex: 0, pageSize: 10 })
 
   const table = useReactTable({
-    ...props,
+    ...rest,
     state: {
       rowSelection,
       columnFilters,

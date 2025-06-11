@@ -90,7 +90,10 @@ export function getColumns(): ColumnDef<RolesData>[] {
               if (!response || !result) throw { message: "Failed to delete role!", unExpectedError: true }
 
               if (!result.error) {
-                router.refresh()
+                setTimeout(() => {
+                  router.refresh()
+                }, 1500)
+
                 return result.message
               }
 

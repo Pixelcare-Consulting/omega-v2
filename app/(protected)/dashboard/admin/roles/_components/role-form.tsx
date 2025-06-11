@@ -14,7 +14,7 @@ import { FormDebug } from "@/components/form/form-debug"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Form } from "@/components/ui/form"
 import { Label } from "@/components/ui/label"
-import { type RoleForm, roleSchema } from "@/schema/role"
+import { type RoleForm, roleFormSchema } from "@/schema/role"
 import { useAction } from "next-safe-action/hooks"
 import { getRoleById, upsertRole } from "@/actions/role"
 import { toast } from "sonner"
@@ -22,6 +22,7 @@ import { useRouter } from "nextjs-toploader/app"
 import { Button } from "@/components/ui/button"
 import LoadingButton from "@/components/loading-button"
 import { getPermissions } from "@/actions/permissions"
+import { Separator } from "@/components/ui/separator"
 
 // TODO: Stored it in db to easily access and add on demand
 //* Actions data
@@ -38,7 +39,7 @@ type RoleFormProps = {
 }
 
 export default function RoleForm({ role, permissions }: RoleFormProps) {
-  const rounter = useRouter()
+  const router = useRouter()
 
   const defaultValues = useMemo(() => {
     if (!role) return { id: "add", code: "", name: "", description: "", permissions: [] }
@@ -57,7 +58,7 @@ export default function RoleForm({ role, permissions }: RoleFormProps) {
   const form = useForm<RoleForm>({
     mode: "onChange",
     defaultValues,
-    resolver: zodResolver(roleSchema),
+    resolver: zodResolver(roleFormSchema),
   })
 
   const { executeAsync, isExecuting } = useAction(upsertRole)
@@ -84,10 +85,10 @@ export default function RoleForm({ role, permissions }: RoleFormProps) {
       toast.success(result?.message)
 
       if (result?.data && result.data.role && "id" in result.data.role) {
-        rounter.refresh()
+        router.refresh()
 
         setTimeout(() => {
-          rounter.push(`/dashboard/admin/roles/${result.data.role.id}`)
+          router.push(`/dashboard/admin/roles/${result.data.role.id}`)
         }, 1500)
       }
     } catch (err) {
@@ -199,92 +200,89 @@ export default function RoleForm({ role, permissions }: RoleFormProps) {
       {/* <FormDebug form={form} /> */}
 
       <PageLayout title='Roles & Permissions' description="Add and set role and assign each of its respective permission's access.">
-        <Card className='shadow-none'>
-          <CardContent className='py-0'>
-            <Form {...form}>
-              <form className='grid grid-cols-12 gap-x-6 gap-y-4' onSubmit={form.handleSubmit(onSubmit)}>
-                <div className='col-span-12 space-y-4 lg:col-span-6'>
-                  <InputField
-                    control={form.control}
-                    name='name'
-                    label='Role Name'
-                    extendedProps={{ inputProps: { placeholder: "Enter role name" } }}
-                    isRequired
-                  />
+        <Form {...form}>
+          <form className='grid grid-cols-12 gap-x-6 gap-y-4' onSubmit={form.handleSubmit(onSubmit)}>
+            <div className='col-span-12 space-y-4 lg:col-span-6'>
+              <InputField
+                control={form.control}
+                name='name'
+                label='Role Name'
+                extendedProps={{ inputProps: { placeholder: "Enter role name" } }}
+                isRequired
+              />
+            </div>
+
+            <div className='col-span-12 space-y-4 lg:col-span-6'>
+              <InputField
+                control={form.control}
+                name='code'
+                label='Role Code'
+                description='Role code must be unique'
+                isRequired
+                extendedProps={{ inputProps: { value: code } }}
+              />
+            </div>
+
+            <div className='col-span-12'>
+              <TextAreaField
+                control={form.control}
+                name='description'
+                label='Role Description'
+                extendedProps={{ textAreaProps: { placeholder: "Enter role description" } }}
+              />
+            </div>
+
+            <div className='col-span-12 mb-5 mt-2 space-y-4'>
+              <Separator />
+
+              <div>
+                <h1 className='text-base font-bold'>Permissions</h1>
+                <p className='text-xs text-muted-foreground'>Set role permissions</p>
+              </div>
+            </div>
+
+            <div className='col-span-12 flex flex-col justify-center gap-4'>
+              <div className='flex w-full items-center justify-between border-b pb-4'>
+                <h2 className='flex items-center gap-1 text-base font-medium'>
+                  <Icons.shieldCheck className='size-5 shrink-0' /> Administrator Access
+                </h2>
+
+                <div className='flex items-center gap-2 text-sm'>
+                  <Checkbox checked={isSelectedAll ? true : isEmpty ? false : "indeterminate"} onCheckedChange={toggleSelectAll} />
+                  <Label>Select All</Label>
                 </div>
+              </div>
 
-                <div className='col-span-12 space-y-4 lg:col-span-6'>
-                  <InputField
-                    control={form.control}
-                    name='code'
-                    label='Role Code'
-                    description='Role code must be unique'
-                    isRequired
-                    extendedProps={{ inputProps: { value: code } }}
-                  />
-                </div>
-
-                <div className='col-span-12'>
-                  <TextAreaField
-                    control={form.control}
-                    name='description'
-                    label='Role Description'
-                    extendedProps={{ textAreaProps: { placeholder: "Enter role description" } }}
-                  />
-                </div>
-
-                <div className='col-span-12 mb-5 mt-2'>
-                  <h1 className='text-xl font-bold'>Permissions</h1>
-                  <p className='text-sm text-muted-foreground'>Set role permissions</p>
-                </div>
-
-                <div className='col-span-12 flex flex-col justify-center gap-4'>
-                  <div className='flex w-full items-center justify-between border-b pb-4'>
-                    <h2 className='flex items-center gap-1 text-base font-medium'>
-                      <Icons.shieldCheck className='size-5 shrink-0' /> Administrator Access
-                    </h2>
-
-                    <div className='flex items-center gap-2 text-sm'>
-                      <Checkbox checked={isSelectedAll ? true : isEmpty ? false : "indeterminate"} onCheckedChange={toggleSelectAll} />
-                      <Label>Select All</Label>
+              <div className='grid grid-cols-12 divide-y'>
+                {permissions.map((p, i) => (
+                  <div key={p.id} className='text-s col-span-12 grid grid-cols-12 px-3 py-3 hover:bg-muted/75'>
+                    <div className='col-span-4 flex flex-col justify-center'>
+                      <p className='text-sm font-semibold'>{p.name}</p>
+                      <p className='-mt-0.5 text-xs text-muted-foreground'>{p.description}</p>
+                    </div>
+                    <div className='col-span-8 flex items-center justify-end gap-4'>
+                      {ACTIONS.map((action, i) => (
+                        <div key={`${action.code}-${i}`} className='flex items-center gap-2 text-sm'>
+                          <Checkbox checked={isActionSelected(p.id, action.code)} onCheckedChange={() => toggleAction(p.id, action.code)} />
+                          <Label>{action.name}</Label>
+                        </div>
+                      ))}
                     </div>
                   </div>
+                ))}
+              </div>
 
-                  <div className='grid grid-cols-12 divide-y'>
-                    {permissions.map((p, i) => (
-                      <div key={p.id} className='text-s col-span-12 grid grid-cols-12 py-3'>
-                        <div className='col-span-4 flex flex-col justify-center'>
-                          <p className='text-sm font-semibold'>{p.name}</p>
-                          <p className='-mt-0.5 text-xs text-muted-foreground'>{p.description}</p>
-                        </div>
-                        <div className='col-span-8 flex items-center justify-end gap-4'>
-                          {ACTIONS.map((action, i) => (
-                            <div key={`${action.code}-${i}`} className='flex items-center gap-2 text-sm'>
-                              <Checkbox
-                                checked={isActionSelected(p.id, action.code)}
-                                onCheckedChange={() => toggleAction(p.id, action.code)}
-                              />
-                              <Label>{action.name}</Label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>
-                    <Button type='button' variant='secondary' onClick={() => rounter.push(`/dashboard/admin/roles`)}>
-                      Cancel
-                    </Button>
-                    <LoadingButton isLoading={isExecuting} type='submit'>
-                      Save
-                    </LoadingButton>
-                  </div>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+              <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>
+                <Button type='button' variant='secondary' onClick={() => router.push(`/dashboard/admin/roles`)}>
+                  Cancel
+                </Button>
+                <LoadingButton isLoading={isExecuting} type='submit'>
+                  Save
+                </LoadingButton>
+              </div>
+            </div>
+          </form>
+        </Form>
       </PageLayout>
     </>
   )

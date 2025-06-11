@@ -1,4 +1,4 @@
-import { FormDescriptionProps, FormItemProps, FormLabelProps, FormMessageProps } from '@/components/ui/form'
+import { FormDescriptionProps, FormItemProps, FormLabelProps, FormMessageProps } from "@/components/ui/form"
 
 export type FormExtendedProps = {
   itemProps?: FormItemProps

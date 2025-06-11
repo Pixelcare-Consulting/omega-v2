@@ -2,12 +2,15 @@
 
 import { prisma } from "@/lib/db"
 import { action } from "@/lib/safe-action"
-import { paramsFormSchema } from "@/schema/common"
-import { roleSchema } from "@/schema/role"
+import { paramsSchema } from "@/schema/common"
+import { roleFormSchema } from "@/schema/role"
 
 export async function getRoles() {
   try {
-    return await prisma.role.findMany({ where: { deletedAt: null }, include: { permissions: { include: { permission: true } } } })
+    return await prisma.role.findMany({
+      where: { deletedAt: null, deletedBy: null },
+      include: { permissions: { include: { permission: true } } },
+    })
   } catch (error) {
     console.error(error)
     return []
@@ -24,7 +27,7 @@ export async function getRoleById(id: string) {
 }
 
 //TODO: Add authentication & authorization middleware to server action using save action's createMiddleware
-export const upsertRole = action.schema(roleSchema).action(async ({ ctx, parsedInput: data }) => {
+export const upsertRole = action.schema(roleFormSchema).action(async ({ ctx, parsedInput: data }) => {
   const { id, code, name, description, permissions } = data
 
   try {
@@ -77,14 +80,14 @@ export const upsertRole = action.schema(roleSchema).action(async ({ ctx, parsedI
 
     return {
       error: true,
-      code: 500,
+      status: 500,
       message: error instanceof Error ? error.message : "An unexpected error occurred",
       action: "UPSERT_ROLE",
     }
   }
 })
 
-export const deleleteRole = action.schema(paramsFormSchema).action(async ({ ctx, parsedInput: data }) => {
+export const deleleteRole = action.schema(paramsSchema).action(async ({ ctx, parsedInput: data }) => {
   try {
     const role = await prisma.role.findUnique({ where: { id: data.id } })
 
@@ -97,7 +100,7 @@ export const deleleteRole = action.schema(paramsFormSchema).action(async ({ ctx,
     console.error(error)
     return {
       error: true,
-      code: 500,
+      status: 500,
       message: error instanceof Error ? error.message : "An unexpected error occurred",
       action: "DELETE_ROLE",
     }

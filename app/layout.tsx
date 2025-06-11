@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import "./globals.css"
+import "./styles/globals.css"
 import { ThemeProvider } from "@/components/provider/theme-provider"
 import TailwindIndicatorProvider from "@/components/provider/tailwind-indicator-provider"
 import ToastProvider from "@/components/provider/toast-provider"
@@ -11,13 +11,14 @@ import { registerSyncfusionLicense } from "@/lib/syncfusion-license"
 import NextTopLoader from "nextjs-toploader"
 import { Toaster } from "@/components/ui/toaster"
 import ACLGuardProvider from "@/components/provider/acl-guard-provider"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 // Register Syncfusion license
 registerSyncfusionLicense()
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-inter",
+  // variable: "--font-inter",
 })
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -49,8 +50,10 @@ export default async function RootLayout({
             showAtBottom={false}
           />
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem={true} disableTransitionOnChange storageKey='omega-theme'>
-            <ACLGuardProvider session={session}>{children}</ACLGuardProvider>
-            <TailwindIndicatorProvider />
+            <TooltipProvider>
+              <ACLGuardProvider session={session}>{children}</ACLGuardProvider>
+              <TailwindIndicatorProvider />
+            </TooltipProvider>
           </ThemeProvider>
           <ToastProvider />
           <Toaster />

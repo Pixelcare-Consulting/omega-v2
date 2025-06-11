@@ -33,7 +33,7 @@ type ExtendedProps = FormExtendedProps & {
 }
 
 type ComboboxFieldProps<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>> = {
-  data: FormOption[]
+  data: (FormOption & { [key: string]: any })[]
   isLoading?: boolean
   control: Control<TFieldValues>
   name: TName
@@ -43,6 +43,7 @@ type ComboboxFieldProps<TFieldValues extends FieldValues = FieldValues, TName ex
   isRequired?: boolean
 }
 
+//TODO: Add custom command item render
 export function ComboboxField<T extends FieldValues>({
   data,
   isLoading,

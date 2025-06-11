@@ -20,7 +20,7 @@ export default async function RolePage({ params }: { params: { id: string } }) {
           { label: "Dashboard", href: "/dashboard" },
           { label: "Settings", href: "/dashboard/admin/settings" },
           { label: "Roles & Permissions", href: "/dashboard/admin/roles" },
-          { label: id },
+          { label: id !== "add" && role ? role.name : "Add" },
         ]}
       />
 

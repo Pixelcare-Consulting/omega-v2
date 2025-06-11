@@ -7,12 +7,14 @@ import { ComboboxField } from "@/components/form/combobox-field"
 import DatePickerField from "@/components/form/date-picker-field"
 import { FormDebug } from "@/components/form/form-debug"
 import InputField from "@/components/form/input-field"
+import MinimalRichTextEditorField from "@/components/form/minimal-rich-text-editor-field"
 import MonthPickerField from "@/components/form/month-picker-field"
 import MultiSelectField from "@/components/form/multi-select-field"
 import RadioGroupField from "@/components/form/radio-group-field"
 import SelectField from "@/components/form/select-field"
 import SwitchField from "@/components/form/switch-field"
 import TextAreaField from "@/components/form/textarea-field"
+import HtmlContent from "@/components/minimal-tiptap/html-content"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -79,6 +81,7 @@ const exampleFormSchema = z.object({
   isDefault: z.boolean().default(false),
   framework: z.string().min(1, { message: "Please select a framework." }),
   frameworks: z.array(z.string()).min(1, { message: "Please select atleast one framework." }),
+  content1: z.string().min(1, { message: "Please enter a content 1." }),
 })
 
 export type ExampleFormValues = z.infer<typeof exampleFormSchema>
@@ -96,6 +99,7 @@ export function ExampleForm() {
       body: "",
       frameworks: [],
       favoriteColor: [],
+      content1: "",
     },
     resolver: zodResolver(exampleFormSchema),
   })
@@ -247,6 +251,32 @@ export function ExampleForm() {
               label='Default Mode'
               description='This is a sample switch description.'
             />
+          </div>
+
+          <div className='mb-5 space-y-2'>
+            <h1 className='text-lg font-bold'>Rich Text Editor (Minimal)</h1>
+
+            <MinimalRichTextEditorField
+              control={form.control}
+              name='content1'
+              label='Content 1'
+              isRequired
+              extendedProps={{
+                minimalRichTextEditorProps: {
+                  className: "h-full w-full rounded-xl",
+                  throttleDelay: 1000,
+                  editorClassName: "focus:outline-none px-5 py-4 h-full w-full",
+                  editorContentClassName: "overflow-auto h-full",
+                  placeholder: "Type your content 1 here...",
+                  output: "html",
+                  editable: true,
+                },
+              }}
+            />
+
+            <h1 className='text-lg font-bold'>Content</h1>
+
+            <HtmlContent value={form.getValues("content1")} />
           </div>
 
           <div className='flex justify-end'>

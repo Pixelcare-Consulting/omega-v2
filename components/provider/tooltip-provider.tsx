@@ -22,11 +22,9 @@ export default function ActionTooltipProvider({
   }
 
   return (
-    <TooltipProvider>
-      <Tooltip delayDuration={delayDuration}>
-        <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent {...props}>{renderLabel(label)}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Tooltip delayDuration={delayDuration}>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent {...props}>{renderLabel(label)}</TooltipContent>
+    </Tooltip>
   )
 }
