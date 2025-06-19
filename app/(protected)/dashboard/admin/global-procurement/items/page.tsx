@@ -1,24 +1,23 @@
+import { getItems } from "@/actions/item"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/Breadcrumbs"
-import React from "react"
-import CustomerList from "./_components/customer-list"
-import { getCustomers } from "@/actions/customer"
+import ItemList from "./_components/item-list"
 
-export default async function CustomersPage() {
-  const customers = await getCustomers()
+export default async function ItemsPage() {
+  const items = await getItems()
 
   return (
-    <ContentLayout title='Customers'>
+    <ContentLayout title='Items'>
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Customers", href: "/dashboard/admin/global-procurement/customers" },
+          { label: "items", href: "/dashboard/admin/global-procurement/items" },
         ]}
       />
 
       <div className='min-h-[calc(100vh-56px-64px-20px-24px-56px-48px)]'>
-        <CustomerList customers={customers} />
+        <ItemList items={items} />
       </div>
     </ContentLayout>
   )

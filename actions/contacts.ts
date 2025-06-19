@@ -45,6 +45,8 @@ export const upsertContact = action
       const newContact = await prisma.contact.create({ data: { ...data, createdBy: userId, updatedBy: userId } })
       return { status: 200, message: "Contact created successfully!", data: { contact: newContact }, action: "UPSERT_CONTACT" }
     } catch (error) {
+      console.error(error)
+
       return {
         error: true,
         status: 500,

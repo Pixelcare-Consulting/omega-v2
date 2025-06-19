@@ -1,11 +1,10 @@
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/Breadcrumbs"
-import React from "react"
-import CustomerList from "./_components/customer-list"
-import { getCustomers } from "@/actions/customer"
+import SupplierList from "./_components/supplier-list"
+import { getSuppliers } from "@/actions/supplier"
 
 export default async function CustomersPage() {
-  const customers = await getCustomers()
+  const suppliers = await getSuppliers()
 
   return (
     <ContentLayout title='Customers'>
@@ -13,12 +12,12 @@ export default async function CustomersPage() {
         items={[
           { label: "Home", href: "/" },
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Customers", href: "/dashboard/admin/global-procurement/customers" },
+          { label: "Suppliers", href: "/dashboard/admin/global-procurement/suppliers" },
         ]}
       />
 
       <div className='min-h-[calc(100vh-56px-64px-20px-24px-56px-48px)]'>
-        <CustomerList customers={customers} />
+        <SupplierList suppliers={suppliers} />
       </div>
     </ContentLayout>
   )

@@ -42,7 +42,7 @@ export function getColumns(): ColumnDef<ContactData>[] {
       accessorKey: "phone",
       header: ({ column }) => <DataTableColumnHeader column={column} title='phone' />,
       cell: ({ row }) => (
-        <Link href={`tel:${row.original.phone}`} className='text-sm text-slate-800 decoration-1 hover:underline'>
+        <Link href={`tel:${row.original.phone}`} className='text-xs text-slate-800 decoration-1 hover:underline'>
           {row.original.phone}
         </Link>
       ),

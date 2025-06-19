@@ -44,7 +44,7 @@ export default function ActivityList({ activities }: LeadListProps) {
       title='Activities'
       description="Manage and track your lead's activities"
       addButton={{
-        label: "Add Activities",
+        label: "Add Activity",
         onClick: () => router.push("/dashboard/admin/crm/activities/add"),
       }}
     >

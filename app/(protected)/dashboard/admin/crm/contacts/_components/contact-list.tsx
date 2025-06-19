@@ -22,7 +22,7 @@ export default function ContactList({ contacts }: ContactListProps) {
 
   const columns = useMemo(() => getColumns(), [])
 
-  const filterFields: FilterFields[] = useMemo(() => {
+  const filterFields = useMemo((): FilterFields[] => {
     return [
       { label: "Name", columnId: "name", type: "text" },
       { label: "Email", columnId: "email", type: "text" },
@@ -45,7 +45,7 @@ export default function ContactList({ contacts }: ContactListProps) {
       title='Contacts'
       description='Manage and track your contacts effectively'
       addButton={{
-        label: "Add Contacts",
+        label: "Add Contact",
         onClick: () => router.push("/dashboard/admin/crm/contacts/add"),
       }}
     >

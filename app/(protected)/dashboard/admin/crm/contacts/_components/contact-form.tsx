@@ -144,7 +144,7 @@ export default function ContactForm({ contact, leads }: ContactFormProps) {
                     extendedProps={{ buttonProps: { disabled: true } }}
                   />
                 </div>
-                <div className='col-span-12 mt-auto gap-4 lg:col-span-4'>
+                <div className='col-span-12 mt-5 gap-4 lg:col-span-4'>
                   <SwitchField
                     control={form.control}
                     layout='default'
