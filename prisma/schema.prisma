@@ -37,9 +37,9 @@ model User {
   updatedLeads Lead[] @relation("user-updated-leads")
   deletedLeads Lead[] @relation("user-deleted-leads")
 
-  createdContacts Contact[] @relation("user-created-contacts")
-  updatedContacts Contact[] @relation("user-updated-contacts")
-  deletedContacts Contact[] @relation("user-deleted-contacts")
+  // createdContacts Contact[] @relation("user-created-contacts")
+  // updatedContacts Contact[] @relation("user-updated-contacts")
+  // deletedContacts Contact[] @relation("user-deleted-contacts")
 
   createdLeadActivities LeadActivity[] @relation("user-created-lead-activities")
   updatedLeadActivities LeadActivity[] @relation("user-updated-lead-activities")
@@ -161,13 +161,83 @@ model RolePermissions {
   @@unique([roleId, permissionId])
 }
 
+model CompanyAccount {
+  id                String   @id @default(cuid())
+  name              String
+  email             String?  @default("")
+  phone             String?  @default("")
+  website           String?  @default("")
+  industry          String[] @default([])
+  isActive          Boolean? @default(true)
+  street            String?  @default("")
+  streetNo          String?  @default("")
+  buildingFloorRoom String?  @default("")
+  block             String?  @default("")
+  city              String?  @default("")
+  zipCode           String?  @default("")
+  county            String?  @default("")
+  state             String?  @default("")
+  country           String?  @default("")
+  gln               String?  @default("")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+
+  contacts CompanyAccountContact[]
+  leads    Lead[]
+}
+
+model CompanyAccountContact {
+  id        String @id @default(cuid())
+  accountId String
+  contactId String
+
+  account CompanyAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  contact Contact        @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, contactId])
+}
+
+model Contact {
+  id                String   @id @default(cuid())
+  name              String
+  email             String
+  phone             String
+  title             String?  @default("")
+  isActive          Boolean? @default(true)
+  street            String?  @default("")
+  streetNo          String?  @default("")
+  buildingFloorRoom String?  @default("")
+  block             String?  @default("")
+  city              String?  @default("")
+  zipCode           String?  @default("")
+  county            String?  @default("")
+  state             String?  @default("")
+  country           String?  @default("")
+  gln               String?  @default("")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+
+  accountContacts CompanyAccountContact[]
+  leadContacts    LeadContact[]
+}
+
 model Lead {
   id                String   @id @default(cuid())
   name              String   @default("")
   email             String   @default("")
   phone             String   @default("")
   title             String?  @default("")
-  company           String?  @default("")
+  accountId         String?
   status            String   @default("")
   isFavorite        Boolean  @default(false)
   street            String?  @default("")
@@ -190,10 +260,23 @@ model Lead {
   deletedBy String?
 
   activities LeadActivity[]
+  contacts   LeadContact[]
 
-  createdByUser User? @relation("user-created-leads", fields: [createdBy], references: [id], onDelete: Cascade)
-  updatedByUser User? @relation("user-updated-leads", fields: [updatedBy], references: [id], onDelete: Cascade)
-  deletedByUser User? @relation("user-deleted-leads", fields: [deletedBy], references: [id], onDelete: Cascade)
+  account       CompanyAccount? @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  createdByUser User?           @relation("user-created-leads", fields: [createdBy], references: [id], onDelete: Cascade)
+  updatedByUser User?           @relation("user-updated-leads", fields: [updatedBy], references: [id], onDelete: Cascade)
+  deletedByUser User?           @relation("user-deleted-leads", fields: [deletedBy], references: [id], onDelete: Cascade)
+}
+
+model LeadContact {
+  id        String @id @default(cuid())
+  leadId    String
+  contactId String
+
+  lead    Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([leadId, contactId])
 }
 
 model LeadActivity {
@@ -223,32 +306,6 @@ model LeadActivity {
   deletedByUser User? @relation("user-deleted-lead-activities", fields: [deletedBy], references: [id], onDelete: Cascade)
 
   @@map("LeadActivities")
-}
-
-model Contact {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  phone     String
-  contactId String   @unique
-  isActive  Boolean  @default(true)
-  title     String?
-  company   String?
-  type      String
-  priority  String
-  comments  String?  @default("")
-  industry  String[] @default([])
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  createdBy String?
-  updatedBy String?
-  deletedBy String?
-
-  createdByUser User? @relation("user-created-contacts", fields: [createdBy], references: [id], onDelete: Cascade)
-  updatedByUser User? @relation("user-updated-contacts", fields: [updatedBy], references: [id], onDelete: Cascade)
-  deletedByUser User? @relation("user-deleted-contacts", fields: [deletedBy], references: [id], onDelete: Cascade)
 }
 
 model Customer {

@@ -1,5 +1,5 @@
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
-import Breadcrumbs from "@/components/Breadcrumbs"
+import Breadcrumbs from "@/components/breadcrumbs"
 import CustomerForm from "../_components/customer-form"
 import { getCustomerById } from "@/actions/customer"
 import { notFound } from "next/navigation"

@@ -1,5 +1,5 @@
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
-import Breadcrumbs from "@/components/Breadcrumbs"
+import Breadcrumbs from "@/components/breadcrumbs"
 import RoleForm from "../_components/role-form"
 import { getRoleById } from "@/actions/role"
 import { notFound } from "next/navigation"

@@ -17,6 +17,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 type BreadcrumbItemType = {
   label: string
   href?: string
+  isPage?: boolean
 }
 
 type BreadcrumbProps = {
@@ -83,8 +84,10 @@ export default function Breadcrumbs({ items }: BreadcrumbProps) {
                   <BreadcrumbLink asChild>
                     <Link href={item.href}>{item.label}</Link>
                   </BreadcrumbLink>
-                ) : (
+                ) : item.isPage ? (
                   <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                ) : (
+                  item.label
                 )}
               </BreadcrumbItem>
               <BreadcrumbSeparator />
@@ -99,8 +102,10 @@ export default function Breadcrumbs({ items }: BreadcrumbProps) {
                 <BreadcrumbLink asChild>
                   <Link href={item.href}>{item.label}</Link>
                 </BreadcrumbLink>
-              ) : (
+              ) : item.isPage ? (
                 <BreadcrumbPage>{item.label}</BreadcrumbPage>
+              ) : (
+                item.label
               )}
             </BreadcrumbItem>
             {/* Don't render separator after the last item */}

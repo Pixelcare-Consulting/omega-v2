@@ -1,5 +1,5 @@
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
-import Breadcrumbs from "@/components/Breadcrumbs"
+import Breadcrumbs from "@/components/breadcrumbs"
 import SupplierForm from "../_components/supplier-form"
 import { getSupplierById } from "@/actions/supplier"
 

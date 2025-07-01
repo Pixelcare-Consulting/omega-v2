@@ -119,7 +119,7 @@
     "uuid": "^11.1.0",
     "vaul": "^1.1.2",
     "zod": "^3.24.2",
-    "zustand": "^5.0.3"
+    "zustand": "4.5.5"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",

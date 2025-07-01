@@ -86,6 +86,11 @@ import {
   ExternalLink,
   Link,
   CircleUser,
+  Eye,
+  MoreVertical,
+  Phone,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react"
 
 export type Icon = LucideIcon
@@ -101,6 +106,7 @@ export const Icons = {
   sun: SunIcon,
   moon: MoonIcon,
   dashboard: LayoutGrid,
+  circleUser: CircleUser,
   users: Users,
   cicleUser: CircleUser,
   settings: Settings,
@@ -164,7 +170,9 @@ export const Icons = {
   arrowLeft: ArrowLeft,
   arrowRight: ArrowRight,
   eyeOff: EyeOff,
+  eye: Eye,
   moreHorizontal: MoreHorizontal,
+  moreVertical: MoreVertical,
   adjustmentHorizontal: Settings2,
   funnel: FunnelIcon,
   send: Send,
@@ -179,4 +187,7 @@ export const Icons = {
   userMinus: UserMinus,
   externalLink: ExternalLink,
   link: Link,
+  phone: Phone,
+  thumbsUp: ThumbsUp,
+  thumbsDown: ThumbsDown,
 }

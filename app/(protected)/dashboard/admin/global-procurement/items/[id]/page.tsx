@@ -1,6 +1,6 @@
 import { getItemById } from "@/actions/item"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
-import Breadcrumbs from "@/components/Breadcrumbs"
+import Breadcrumbs from "@/components/breadcrumbs"
 import { notFound } from "next/navigation"
 import React from "react"
 import ItemForm from "../_components/item-form"

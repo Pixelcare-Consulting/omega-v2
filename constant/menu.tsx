@@ -82,22 +82,35 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
               label: "CSRM",
               icon: Icons.handeShake,
               submenus: [
+                {
+                  href: "/dashboard/crm/accounts",
+                  label: "Accounts",
+                },
+                {
+                  href: "/dashboard/crm/leads",
+                  label: "Leads",
+                },
+                {
+                  href: "/dashboard/crm/contacts",
+                  label: "Contacts",
+                },
+
                 // {
                 //   href: "/dashboard/admin/crm/lead-lists",
                 //   label: "Lead Lists",
                 // },
-                {
-                  href: "/dashboard/admin/crm/leads",
-                  label: "Leads",
-                },
-                {
-                  href: "/dashboard/admin/crm/activities",
-                  label: "Activities",
-                },
-                {
-                  href: "/dashboard/admin/crm/contacts",
-                  label: "Contacts",
-                },
+                // {
+                //   href: "/dashboard/admin/crm/leads",
+                //   label: "Leads",
+                // },
+                // {
+                //   href: "/dashboard/admin/crm/activities",
+                //   label: "Activities",
+                // },
+                // {
+                //   href: "/dashboard/admin/crm/contacts",
+                //   label: "Contacts",
+                // },
                 // {
                 //   href: "/dashboard/admin/crm/call-logs",
                 //   label: "Call Logs Details (API)",

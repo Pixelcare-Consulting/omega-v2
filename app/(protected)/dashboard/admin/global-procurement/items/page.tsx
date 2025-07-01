@@ -1,6 +1,6 @@
 import { getItems } from "@/actions/item"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
-import Breadcrumbs from "@/components/Breadcrumbs"
+import Breadcrumbs from "@/components/breadcrumbs"
 import ItemList from "./_components/item-list"
 
 export default async function ItemsPage() {

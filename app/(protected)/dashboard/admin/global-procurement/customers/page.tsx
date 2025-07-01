@@ -1,5 +1,5 @@
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
-import Breadcrumbs from "@/components/Breadcrumbs"
+import Breadcrumbs from "@/components/breadcrumbs"
 import React from "react"
 import CustomerList from "./_components/customer-list"
 import { getCustomers } from "@/actions/customer"

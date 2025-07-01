@@ -40,14 +40,25 @@ export const leadFormSchema = z
     email: z.string().min(1, { message: "Email is required" }).email({ message: "Please enter a valid email address" }),
     phone: z.string().min(1, { message: "Phone is required" }),
     title: z.string().nullish(),
-    company: z.string().nullish(),
+    accountId: z.string().nullish(),
     status: z.string().min(1, { message: "Status is required" }),
+    relatedContacts: z.array(z.string()).nullish(),
   })
   .merge(addressFormSchema)
 
 export const updateStatusSchema = z.object({
   id: z.string().min(1, { message: "ID is required" }),
   status: z.string().min(1, { message: "Status is required" }),
+})
+
+export const deleteLeadContactSchema = z.object({
+  leadId: z.string().min(1, { message: "Lead ID is required" }),
+  contactId: z.string().min(1, { message: "Contact ID is required" }),
+})
+
+export const deleteLeadAccountSchema = z.object({
+  leadId: z.string().min(1, { message: "Lead ID is required" }),
+  accountId: z.string().min(1, { message: "Account ID is required" }),
 })
 
 //* Types
