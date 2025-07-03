@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 
 import { getLeads } from "@/actions/lead"
-import { getColumns } from "./lead-table-columns"
+import { getColumns } from "./lead-table-column"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableFilter, FilterFields } from "@/components/data-table/data-table-filter"

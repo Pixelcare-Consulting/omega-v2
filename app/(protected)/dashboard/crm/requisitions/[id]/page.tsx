@@ -1,52 +1,56 @@
-import Link from "next/link"
 import { notFound } from "next/navigation"
+import Link from "next/link"
 
-import { getAccountById } from "@/actions/account"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
-import AccountForm from "../_components/account-form"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
-import { Card } from "@/components/ui/card"
+import RequisitionForm from "../_components/requisition-form"
+import { getUsers } from "@/actions/user"
+import { getCustomers } from "@/actions/customer"
+import { getItems } from "@/actions/item"
 
-export default async function AccountPage({ params }: { params: { id: string } }) {
+export default async function RequisitionPage({ params }: { params: { id: string } }) {
   const { id } = params
-  const account = id === "add" ? null : await getAccountById(id)
+
+  const [requisition, users, customers, items] = await Promise.all([null as any, getUsers(), getCustomers(), getItems()])
 
   const getPageMetadata = () => {
-    if (!account || !account?.id || id === "add") return { title: "Add Account", description: "Fill in the form to create a new account." }
-    return { title: "Edit Account", description: "Edit the form to update this account's information." }
+    if (!requisition || !requisition?.id || id === "add")
+      return { title: "Add Requisition", description: "Fill in the form to create a new requisition." }
+    return { title: "Edit Requisition", description: "Edit the form to update this requisition's information." }
   }
 
   const pageMetadata = getPageMetadata()
 
-  if (id !== "add" && !account) notFound()
+  if (id !== "add" && !requisition) notFound()
 
   return (
-    <ContentLayout title='Accounts'>
+    <ContentLayout title='Requisitions'>
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
           { label: "Dashboard", href: "/dashboard" },
           { label: "CRM" },
-          { label: "Accounts", href: "/dashboard/crm/accounts" },
-          { label: id !== "add" && account ? account.name : "Add", isPage: true },
+          { label: "Requisitions", href: "/dashboard/crm/requisitions" },
+          { label: id !== "add" && requisition ? requisition.name : "Add", isPage: true },
         ]}
       />
+
       <ContentContainer>
         <PageWrapper
           title={pageMetadata.title}
           description={pageMetadata.description}
           actions={
             <div className='flex items-center gap-2'>
-              <Link className={buttonVariants({ variant: "outline-primary" })} href={`/dashboard/crm/accounts`}>
+              <Link className={buttonVariants({ variant: "outline-primary" })} href={`/dashboard/crm/requisitions`}>
                 Back
               </Link>
 
-              {account && (
+              {requisition && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant='default' size='icon'>
@@ -55,7 +59,7 @@ export default async function AccountPage({ params }: { params: { id: string } }
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end'>
                     <DropdownMenuItem asChild>
-                      <Link href={`/dashboard/crm/accounts/${account.id}/view`}>
+                      <Link href={`/dashboard/crm/requisitions/${requisition.id}/view`}>
                         <Icons.eye className='mr-2 size-4' /> View
                       </Link>
                     </DropdownMenuItem>
@@ -65,9 +69,7 @@ export default async function AccountPage({ params }: { params: { id: string } }
             </div>
           }
         >
-          <Card className='p-6'>
-            <AccountForm account={account} />
-          </Card>
+          <RequisitionForm requisition={requisition} users={users} customers={customers} items={items} />
         </PageWrapper>
       </ContentContainer>
     </ContentLayout>

@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { getUsers, getUserById } from "@/actions/user"
+import { getPaginatedUsers, getUserById } from "@/actions/user"
 import { CheckCircle, FileDown, Filter, Pencil, PlusCircle, RefreshCw, Search, ShieldCheck, Trash2, Truck, User2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -174,7 +174,7 @@ function UserContent() {
 
     setIsLoading(true)
     try {
-      const result = await getUsers(page, size, search)
+      const result = await getPaginatedUsers(page, size, search)
 
       // Save to state
       setUsers(result.users)

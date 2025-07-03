@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
-import { contactFormSchema, deleteContactAccountSchema, deleteContactLeadSchema } from "@/schema/contact2"
+import { contactFormSchema, deleteContactAccountSchema, deleteContactLeadSchema } from "@/schema/contact"
 
 export async function getContacts() {
   try {

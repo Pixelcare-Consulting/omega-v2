@@ -172,7 +172,7 @@ export default function ViewLead({ lead, accounts, leads }: ViewLeadProps) {
         <Tabs defaultValue='1' className='w-full'>
           <TabsList className='mb-2'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
-            <TabsTrigger value='2'>Company</TabsTrigger>
+            <TabsTrigger value='2'>Account</TabsTrigger>
             <TabsTrigger value='3'>Contacts</TabsTrigger>
             <TabsTrigger value='4'>Activities</TabsTrigger>
             <TabsTrigger value='5'>Quotes</TabsTrigger>

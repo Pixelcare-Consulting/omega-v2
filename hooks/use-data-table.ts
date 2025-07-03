@@ -1,6 +1,7 @@
 import { globalSearchFilter } from "@/lib/data-table/data-table"
 import {
   ColumnFiltersState,
+  ColumnPinningState,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -27,6 +28,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(initialState.columnFilters || [])
   const [sorting, setSorting] = useState<SortingState>(initialState.sorting || [])
   const [pagination, setPagination] = useState(initialState.pagination || { pageIndex: 0, pageSize: 10 })
+  const [columnPinning, setColumnPinning] = useState<ColumnPinningState>(initialState.columnPinning || {})
 
   const table = useReactTable({
     ...rest,
@@ -36,10 +38,12 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       columnVisibility,
       sorting,
       pagination,
+      columnPinning,
     },
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnPinningChange: setColumnPinning,
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),

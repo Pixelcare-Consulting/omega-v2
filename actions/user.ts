@@ -52,8 +52,17 @@ export async function getAccountByUserId(userId: string) {
   }
 }
 
+export async function getUsers() {
+  try {
+    return await prisma.user.findMany({ where: { deletedAt: null, deletedBy: null } })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
 // Get all users with pagination
-export async function getUsers(page = 1, pageSize = 10, searchTerm = "") {
+export async function getPaginatedUsers(page = 1, pageSize = 10, searchTerm = "") {
   try {
     const skip = (page - 1) * pageSize
 

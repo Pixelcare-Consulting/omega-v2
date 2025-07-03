@@ -54,6 +54,7 @@ export const INDUSTRY_OPTIONS = [
   { label: "Cleaning Services", value: "cleaning-services" },
 ]
 
+//* Zod Schema
 export const accountFormSchema = z
   .object({
     id: z.string().min(1, { message: "ID is required" }),

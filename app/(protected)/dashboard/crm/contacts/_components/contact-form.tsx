@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import { getContactById, upsertContact } from "@/actions/contacts"
-import { type ContactForm, contactFormSchema } from "@/schema/contact2"
+import { type ContactForm, contactFormSchema } from "@/schema/contact"
 import { Form } from "@/components/ui/form"
 import InputField from "@/components/form/input-field"
 import SwitchField from "@/components/form/switch-field"
