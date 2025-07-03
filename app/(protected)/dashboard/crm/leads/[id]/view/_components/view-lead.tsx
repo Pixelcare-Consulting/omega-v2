@@ -4,7 +4,7 @@ import Link from "next/link"
 
 import { getLeadById, getLeads, updateLeadStatus } from "@/actions/lead"
 import { Icons } from "@/components/icons"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Card } from "@/components/ui/card"
@@ -94,7 +94,9 @@ export default function ViewLead({ lead, accounts, leads }: ViewLeadProps) {
       description='View the comprehensive details of this lead.'
       actions={
         <div className='flex items-center gap-2'>
-          <Button variant='outline-primary'>Back</Button>
+          <Link className={buttonVariants({ variant: "outline-primary" })} href={`/dashboard/crm/leads`}>
+            Back
+          </Link>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
