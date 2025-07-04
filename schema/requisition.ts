@@ -7,9 +7,9 @@ export const URGENCY_OPTIONS = [
   { label: "Normal - BOM Scrub", value: "normal-bom-scrub" },
   { label: "Low - Cost Savings", value: "low-cost-savings" },
   { label: "Low - Other", value: "low-other" },
-  { label: "Normal", value: "normal" },
-  { label: "Purchasing Initiated", value: "purchasing-initiated" },
-  { label: "Sales Initiated", value: "sales-initiated" },
+  // { label: "Normal", value: "normal" },
+  // { label: "Purchasing Initiated", value: "purchasing-initiated" },
+  // { label: "Sales Initiated", value: "sales-initiated" },
 ]
 
 export const BROKER_BUY_OPTIONS = [
@@ -32,7 +32,7 @@ export const PURCHASING_STATUS_OPTIONS = [
   { label: "Master List", value: "master-list" },
 ]
 
-export const RESULT_OPTIONS = [
+export const REASON_OPTIONS = [
   { label: "Not Quoted", value: "not-quoted" },
   { label: "Quoted - Waiting", value: "quoted-waiting" },
   { label: "Need to Re-Quote", value: "need-to-re-quote" },
@@ -56,7 +56,7 @@ export const RESULT_OPTIONS = [
   { label: "Purchasing Initiated-Quoted Waiting", value: "purchasing-initiated-quoted-waiting" },
 ]
 
-export const REASON_OPTIONS = [
+export const RESULT_OPTIONS = [
   { label: "Won", value: "won" },
   { label: "Lost", value: "lost" },
 ]
