@@ -370,7 +370,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
                     control={requestedItemsForm.control}
                     name='customerStandardPrice'
                     label='Cust. Standard Price'
-                    extendedProps={{ inputProps: { placeholder: "0.000", type: "number" } }}
+                    extendedProps={{ inputProps: { placeholder: "0.000", type: "number", startContent: "$" } }}
                   />
                 </div>
 
@@ -379,7 +379,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
                     control={requestedItemsForm.control}
                     name='customerStandardOpportunityValue'
                     label='Cust. Standard Opportunity Value'
-                    extendedProps={{ inputProps: { placeholder: "0.00", type: "number" } }}
+                    extendedProps={{ inputProps: { placeholder: "0.00", type: "number", startContent: "$" } }}
                   />
                 </div>
 
@@ -434,7 +434,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
                 control={form.control}
                 name='franchisePrice'
                 label='Franchise Price'
-                extendedProps={{ inputProps: { placeholder: "$ 0.00" } }}
+                extendedProps={{ inputProps: { placeholder: "$ 0.00", startContent: "$" } }}
               />
             </div>
 
@@ -443,7 +443,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
                 control={form.control}
                 name='sapQuoteNumber'
                 label='SAP Quote #'
-                extendedProps={{ inputProps: { placeholder: "$ 0.00" } }}
+                extendedProps={{ inputProps: { placeholder: "Enter SAP Quote #" } }}
               />
             </div>
 
@@ -470,7 +470,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
                 control={form.control}
                 name='priceQuotedToCust'
                 label='Price Quoted to Customer'
-                extendedProps={{ inputProps: { placeholder: "0.00", type: "number" } }}
+                extendedProps={{ inputProps: { placeholder: "0.00", type: "number", startContent: "$" } }}
               />
             </div>
 
@@ -479,7 +479,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
                 control={form.control}
                 name='quotedOpportunityValue'
                 label='Quoted Opportunity Value'
-                extendedProps={{ inputProps: { placeholder: "0.00", type: "number" } }}
+                extendedProps={{ inputProps: { placeholder: "0.00", type: "number", startContent: "$" } }}
               />
             </div>
 
