@@ -175,18 +175,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
     ]
   }, [JSON.stringify(form.watch("requestedItems"))])
 
-  const filterFields = useMemo((): FilterFields[] => {
-    return [
-      { label: "Name", columnId: "name", type: "text" },
-      { label: "MPN", columnId: "mpn", type: "text" },
-      { label: "MFR", columnId: "mfr", type: "text" },
-      { label: "Quantity", columnId: "quantity", type: "text" },
-      { label: "Customer Standard Price", columnId: "cust. standard price", type: "text" },
-      { label: "Customer Standard Opportunity Value", columnId: "cust. standard opportunity value", type: "text" },
-    ]
-  }, [])
-
-  const { table, columnFilters, columnVisibility } = useDataTable({
+  const { table } = useDataTable({
     data: requestedItems || [],
     columns: columns,
     initialState: { pagination: { pageIndex: 0, pageSize: 5 } },
@@ -220,7 +209,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
 
   return (
     <>
-      {/* <FormDebug form={form} /> */}
+      <FormDebug form={form} />
 
       <Form {...form}>
         <form className='grid grid-cols-12 gap-4' onSubmit={form.handleSubmit(onSubmit)}>
@@ -396,16 +385,6 @@ export default function RequisitionForm({ requisition, users, customers, items }
                   <DataTable table={table}>
                     <div className='flex flex-col items-stretch justify-center gap-2 md:flex-row md:items-center md:justify-between'>
                       <DataTableSearch table={table} className='' />
-
-                      <div className='flex items-center gap-2'>
-                        <DataTableFilter
-                          className='w-full md:w-fit'
-                          table={table}
-                          filterFields={filterFields}
-                          columnFilters={columnFilters}
-                        />
-                        <DataTableViewOptions className='w-full md:w-fit' table={table} columnVisibility={columnVisibility} />
-                      </div>
                     </div>
                   </DataTable>
                 </div>
