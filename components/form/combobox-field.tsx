@@ -32,8 +32,10 @@ type ExtendedProps = FormExtendedProps & {
   commandEmptyProps?: CommandEmptyProps
 }
 
+type ComboboxFieldData = (FormOption & { [key: string]: any })[]
+
 type ComboboxFieldProps<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>> = {
-  data: (FormOption & { [key: string]: any })[]
+  data: ComboboxFieldData
   isLoading?: boolean
   control: Control<TFieldValues>
   name: TName
@@ -41,6 +43,8 @@ type ComboboxFieldProps<TFieldValues extends FieldValues = FieldValues, TName ex
   description?: string
   extendedProps?: ExtendedProps
   isRequired?: boolean
+  renderItem?: (item: ComboboxFieldData[number], selected: boolean) => React.ReactNode
+  callback?: () => void
 }
 
 //TODO: Add custom command item render
@@ -53,6 +57,8 @@ export function ComboboxField<T extends FieldValues>({
   description,
   extendedProps,
   isRequired,
+  renderItem,
+  callback,
 }: ComboboxFieldProps<T>) {
   const [open, setOpen] = React.useState(false)
 
@@ -88,20 +94,32 @@ export function ComboboxField<T extends FieldValues>({
 
                   <CommandList {...extendedProps?.commandListProps}>
                     {!isLoading && data && data.length > 0
-                      ? data.map((item, i) => (
-                          <CommandItem
-                            key={`${i}-${item.value}`}
-                            value={item.value}
-                            onSelect={() => {
-                              field.onChange(item.value)
-                              setOpen(false)
-                            }}
-                            {...extendedProps?.commandItemProps}
-                          >
-                            <Check className={cn("mr-2 h-4 w-4", field.value === item.value ? "opacity-100" : "opacity-0")} />
-                            {item.label}
-                          </CommandItem>
-                        ))
+                      ? data.map((item, i) => {
+                          const selected = field.value === item.value
+
+                          return (
+                            <CommandItem
+                              key={`${i}-${item.value}`}
+                              value={item.value}
+                              onSelect={() => {
+                                field.onChange(item.value)
+                                setOpen(false)
+
+                                if (callback) callback()
+                              }}
+                              {...extendedProps?.commandItemProps}
+                            >
+                              {renderItem && renderItem.length > 0 ? (
+                                renderItem(item, selected)
+                              ) : (
+                                <>
+                                  <Check className={cn("mr-2 h-4 w-4", selected ? "opacity-100" : "opacity-0")} />
+                                  {item.label}
+                                </>
+                              )}
+                            </CommandItem>
+                          )
+                        })
                       : null}
                   </CommandList>
                 </Command>

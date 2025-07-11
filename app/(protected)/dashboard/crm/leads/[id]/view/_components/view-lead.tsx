@@ -138,13 +138,15 @@ export default function ViewLead({ lead, accounts, leads }: ViewLeadProps) {
         </Card>
 
         <Card className='flex items-center rounded-lg p-6 shadow-md'>
-          <div className='flex w-full flex-col flex-wrap items-center gap-2 md:flex-row'>
-            <div className='flex size-12 items-center justify-center rounded-full bg-muted font-bold'>{getInitials(lead.name)}</div>
+          <div className='flex w-full items-center gap-3'>
+            <div className='flex size-12 flex-shrink-0 items-center justify-center rounded-full bg-muted font-bold'>
+              {getInitials(lead.name)}
+            </div>
 
-            <div className='flex flex-col items-center md:items-start'>
+            <div className='flex flex-col gap-y-2 md:gap-0'>
               <h1 className='mb-0 text-sm font-semibold'>{lead.name}</h1>
 
-              <div className='flex w-fit items-center gap-2'>
+              <div className='flex w-fit flex-wrap items-center gap-2'>
                 <div className='flex items-center gap-1'>
                   <Icons.mail className='size-4 text-muted-foreground/75' />
                   <Link href={`mailto:${lead.email}`} className='text-sm text-muted-foreground/75 decoration-1 hover:underline'>
@@ -172,7 +174,7 @@ export default function ViewLead({ lead, accounts, leads }: ViewLeadProps) {
         </Card>
 
         <Tabs defaultValue='1' className='w-full'>
-          <TabsList className='mb-2'>
+          <TabsList className='mb-2 h-fit flex-wrap'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
             <TabsTrigger value='2'>Account</TabsTrigger>
             <TabsTrigger value='3'>Contacts</TabsTrigger>

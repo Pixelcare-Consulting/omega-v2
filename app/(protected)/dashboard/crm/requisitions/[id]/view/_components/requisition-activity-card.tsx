@@ -9,23 +9,27 @@ import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn, getInitials } from "@/lib/utils"
-import { ACTIVITY_ICONS, ACTIVITY_STATUSES_COLORS, ACTIVITY_STATUSES_OPTIONS } from "@/schema/activity"
+import {
+  REQUISITION_ACTIVITY_ICONS,
+  REQUISITION_ACTIVITY_STATUSES_COLORS,
+  REQUISITION_ACTIVITY_STATUSES_OPTIONS,
+} from "@/schema/requisition-activity"
 import { format } from "date-fns"
 import AlertModal from "@/components/alert-modal"
 import { toast } from "sonner"
 import { useAction } from "next-safe-action/hooks"
-import { deletedActivity } from "@/actions/activity"
+import { deleteRequisitionActivity } from "@/actions/requisition-activity"
 import { useRouter } from "nextjs-toploader/app"
-import { Activity } from "./lead-activities-tab"
+import { RequisitionActivity } from "./tabs/requisition-activities-tab"
 
-type ActivityCardProps = {
-  activity: Activity
-  setActivity: (value: Activity | null) => void
+type RequisitionActivityCardProps = {
+  activity: RequisitionActivity
+  setActivity: (value: RequisitionActivity | null) => void
   setIsOpen: (value: boolean) => void
 }
 
-export default function ActivityCard({ activity, setActivity, setIsOpen }: ActivityCardProps) {
-  const Icon = ACTIVITY_ICONS.find((item: any) => item.value === activity.type)?.icon ?? Icons.notebookPen
+export default function RequisitionActivityCard({ activity, setActivity, setIsOpen }: RequisitionActivityCardProps) {
+  const Icon = REQUISITION_ACTIVITY_ICONS.find((item: any) => item.value === activity.type)?.icon ?? Icons.notebookPen
 
   switch (activity.type) {
     case "meeting":
@@ -100,8 +104,8 @@ export default function ActivityCard({ activity, setActivity, setIsOpen }: Activ
 }
 
 type ActivityHeaderProps = {
-  activity: Activity
-  setActivity: (value: Activity | null) => void
+  activity: RequisitionActivity
+  setActivity: (value: RequisitionActivity | null) => void
   setIsOpen: (value: boolean) => void
 }
 
@@ -109,7 +113,7 @@ function ActivityHeader({ activity, setActivity, setIsOpen }: ActivityHeaderProp
   const router = useRouter()
 
   const [showConfirmation, setShowConfirmation] = useState(false)
-  const { executeAsync } = useAction(deletedActivity)
+  const { executeAsync } = useAction(deleteRequisitionActivity)
 
   const meetingSchedule = (date: Date | null, startTime: string | null, endTime: string | null) => {
     if (!date || !startTime || !endTime) return ""
@@ -136,8 +140,8 @@ function ActivityHeader({ activity, setActivity, setIsOpen }: ActivityHeaderProp
   const StatusBadge = ({ type, status }: StatusBadgeProps) => {
     if (type === "note") return null
 
-    const label = ACTIVITY_STATUSES_OPTIONS.find((item: any) => item.value === status)?.label ?? "Pending"
-    const color = ACTIVITY_STATUSES_COLORS.find((item: any) => item.value === status)?.color ?? "slate"
+    const label = REQUISITION_ACTIVITY_STATUSES_OPTIONS.find((item: any) => item.value === status)?.label ?? "Pending"
+    const color = REQUISITION_ACTIVITY_STATUSES_COLORS.find((item: any) => item.value === status)?.color ?? "slate"
 
     const STATUS_CLASSES: Record<string, string> = {
       slate: "bg-slate-50 text-slate-600 ring-slate-500/10",

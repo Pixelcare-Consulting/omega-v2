@@ -5,6 +5,7 @@ import { getLeads } from "@/actions/lead"
 import LeadList from "./_components/lead-list"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Icons } from "@/components/icons"
+import { Card } from "@/components/ui/card"
 
 export default async function LeadsPage() {
   const leads = await getLeads()
@@ -30,7 +31,9 @@ export default async function LeadsPage() {
             icon: Icons.plus,
           }}
         >
-          <LeadList leads={leads} />
+          <Card className='p-6'>
+            <LeadList leads={leads} />
+          </Card>
         </PageWrapper>
       </ContentContainer>
     </ContentLayout>

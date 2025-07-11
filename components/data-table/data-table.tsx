@@ -16,7 +16,7 @@ export function DataTable<TData>({ table, children, className, ...props }: DataT
     <div className={cn("w-full space-y-2.5 overflow-auto p-1", className)} {...props}>
       {children}
       <div className='overflow-hidden rounded-md border'>
-        <Table>
+        <Table className='text-xs'>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

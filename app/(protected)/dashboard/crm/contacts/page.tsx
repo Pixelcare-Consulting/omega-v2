@@ -5,6 +5,7 @@ import ContactList from "./_components/contact-list"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Icons } from "@/components/icons"
+import { Card } from "@/components/ui/card"
 
 export default async function ContactsPage() {
   const contacts = await getContacts()
@@ -30,7 +31,9 @@ export default async function ContactsPage() {
             icon: Icons.plus,
           }}
         >
-          <ContactList contacts={contacts} />
+          <Card className='p-6'>
+            <ContactList contacts={contacts} />
+          </Card>
         </PageWrapper>
       </ContentContainer>
     </ContentLayout>

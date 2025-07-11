@@ -98,7 +98,7 @@ export const deleteLead = action
     try {
       const lead = await prisma.lead.findUnique({ where: { id: data.id } })
 
-      if (!lead) return { status: 404, message: "Lead not found!", action: "DELETE_LEAD" }
+      if (!lead) return { error: true, status: 404, message: "Lead not found!", action: "DELETE_LEAD" }
 
       await prisma.lead.update({ where: { id: data.id }, data: { deletedAt: new Date(), deletedBy: ctx.userId } })
       return { status: 200, message: "Lead deleted successfully!", action: "DELETE_LEAD" }
@@ -123,7 +123,7 @@ export const updateLeadStatus = action
 
       const lead = await prisma.lead.findUnique({ where: { id } })
 
-      if (!lead) return { status: 404, message: "Lead not found!", action: "UPDATE_LEAD_STATUS" }
+      if (!lead) return { error: true, status: 404, message: "Lead not found!", action: "UPDATE_LEAD_STATUS" }
 
       const updatedLead = await prisma.lead.update({ where: { id }, data: { status, createdBy: ctx.userId } })
       return { status: 200, message: "Lead status updated successfully!", data: { lead: updatedLead }, action: "UPDATE_LEAD_STATUS" }
@@ -146,7 +146,7 @@ export const deleteLeadAccount = action
     try {
       const leadAccount = await prisma.lead.findFirst({ where: { id: data.leadId, accountId: data.accountId } })
 
-      if (!leadAccount) return { status: 404, message: "lead account not found!", action: "DELETE_LEAD_ACCOUNT" }
+      if (!leadAccount) return { error: true, status: 404, message: "lead account not found!", action: "DELETE_LEAD_ACCOUNT" }
 
       await prisma.lead.update({ where: { id: leadAccount.id }, data: { accountId: null, updatedBy: ctx.userId } })
       return { status: 200, message: "lead account removed successfully!", action: "DELETE_LEAD_ACCOUNT" }
@@ -169,7 +169,7 @@ export const deleteLeadContact = action
     try {
       const leadContact = await prisma.leadContact.findUnique({ where: { leadId_contactId: { ...data } } })
 
-      if (!leadContact) return { status: 404, message: "Lead contact not found!", action: "DELETE_LEAD_CONTACT" }
+      if (!leadContact) return { error: true, status: 404, message: "Lead contact not found!", action: "DELETE_LEAD_CONTACT" }
 
       await prisma.leadContact.delete({ where: { leadId_contactId: { ...data } } })
       return { status: 200, message: "Lead contact removed successfully!", action: "DELETE_LEAD_CONTACT" }

@@ -34,11 +34,13 @@ type ExtendedProps = FormExtendedProps & {
   badgeGroupItemButton?: React.ComponentProps<"button">
 }
 
+type MultiSelectFieldData = (FormOption & { [key: string]: any })[]
+
 type MultiSelectFieldProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
-  data: FormOption[]
+  data: MultiSelectFieldData
   isLoading?: boolean
   control: Control<TFieldValues>
   name: TName
@@ -46,6 +48,7 @@ type MultiSelectFieldProps<
   description?: string
   extendedProps?: ExtendedProps
   isRequired?: boolean
+  renderItem?: (item: MultiSelectFieldData[number], selected: boolean) => React.ReactNode
 }
 
 export default function MultiSelectField<T extends FieldValues>({
@@ -57,6 +60,7 @@ export default function MultiSelectField<T extends FieldValues>({
   description,
   extendedProps,
   isRequired,
+  renderItem,
 }: MultiSelectFieldProps<T>) {
   const [open, setOpen] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
@@ -172,26 +176,27 @@ export default function MultiSelectField<T extends FieldValues>({
                         {isLoading && <CommandEmpty {...extendedProps?.commandEmptyProps}>Loading...</CommandEmpty>}
 
                         <CommandGroup className='h-full overflow-auto' {...extendedProps?.commandGroupProps}>
-                          {!isLoading &&
-                            selectables.map((option) => {
-                              return (
-                                <CommandItem
-                                  key={option.value}
-                                  onMouseDown={(e) => {
-                                    e.preventDefault()
-                                    e.stopPropagation()
-                                  }}
-                                  onSelect={(value) => {
-                                    setInputValue("")
-                                    field.onChange([...field.value, option.value])
-                                  }}
-                                  className='cursor-pointer'
-                                  {...extendedProps?.commandItemProps}
-                                >
-                                  {option.label}
-                                </CommandItem>
-                              )
-                            })}
+                          {selectables.map((option) => {
+                            const selected = field?.value?.includes(option.value)
+
+                            return (
+                              <CommandItem
+                                key={option.value}
+                                onMouseDown={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                }}
+                                onSelect={(value) => {
+                                  setInputValue("")
+                                  field.onChange([...field.value, option.value])
+                                }}
+                                className='cursor-pointer'
+                                {...extendedProps?.commandItemProps}
+                              >
+                                {renderItem ? renderItem(option, selected) : option.label}
+                              </CommandItem>
+                            )
+                          })}
                         </CommandGroup>
                       </div>
                     ) : null}

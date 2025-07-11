@@ -56,15 +56,19 @@ export default function ViewAccount({ account, accounts, contacts, leads }: View
     >
       <div className='flex flex-col gap-4'>
         <Card className='flex items-center rounded-lg p-6 shadow-md'>
-          <div className='flex items-center gap-2'>
-            <div className='flex size-12 items-center justify-center rounded-full bg-muted font-bold'>{getInitials(account.name)}</div>
-            <div className='flex flex-col'>
+          <div className='flex items-center gap-3'>
+            <div className='flex size-12 flex-shrink-0 items-center justify-center rounded-full bg-muted font-bold'>
+              {getInitials(account.name)}
+            </div>
+
+            <div className='flex flex-col gap-y-2 md:gap-0'>
               <h1 className='mb-0 text-sm font-semibold'>{account.name}</h1>
-              <div className='flex items-center gap-2'>
+
+              <div className='flex flex-wrap items-center gap-2'>
                 {account.email && (
                   <div className='flex items-center gap-1'>
-                    <Icons.mail className='size-4 text-muted-foreground/75' />
-                    <Link href={`mailto:${account.email}`} className='text-sm text-muted-foreground/75 decoration-1 hover:underline'>
+                    <Icons.mail className='size-4 text-muted-foreground' />
+                    <Link href={`mailto:${account.email}`} className='text-sm text-muted-foreground decoration-1 hover:underline'>
                       {account.email}
                     </Link>
                   </div>
@@ -72,8 +76,8 @@ export default function ViewAccount({ account, accounts, contacts, leads }: View
 
                 {account.phone && (
                   <div className='flex items-center gap-1'>
-                    <Icons.phone className='size-4 text-muted-foreground/75' />
-                    <Link href={`tel:${account.email}`} className='text-sm text-muted-foreground/75 decoration-1 hover:underline'>
+                    <Icons.phone className='size-4 text-muted-foreground' />
+                    <Link href={`tel:${account.email}`} className='text-sm text-muted-foreground decoration-1 hover:underline'>
                       {account.phone}
                     </Link>
                   </div>
@@ -93,7 +97,7 @@ export default function ViewAccount({ account, accounts, contacts, leads }: View
         </Card>
 
         <Tabs defaultValue='1' className='w-full'>
-          <TabsList className='mb-2'>
+          <TabsList className='mb-2 h-fit flex-wrap'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
             <TabsTrigger value='2'>Contacts</TabsTrigger>
             <TabsTrigger value='3'>Leads</TabsTrigger>

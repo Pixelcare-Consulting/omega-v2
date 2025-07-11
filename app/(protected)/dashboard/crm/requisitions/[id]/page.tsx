@@ -12,11 +12,17 @@ import RequisitionForm from "../_components/requisition-form"
 import { getUsers } from "@/actions/user"
 import { getCustomers } from "@/actions/customer"
 import { getItems } from "@/actions/item"
+import { getRequisitionById } from "@/actions/requisition"
 
 export default async function RequisitionPage({ params }: { params: { id: string } }) {
   const { id } = params
 
-  const [requisition, users, customers, items] = await Promise.all([null as any, getUsers(), getCustomers(), getItems()])
+  const [requisition, users, customers, items] = await Promise.all([
+    id === "add" ? null : getRequisitionById(id),
+    getUsers(),
+    getCustomers(),
+    getItems(),
+  ])
 
   const getPageMetadata = () => {
     if (!requisition || !requisition?.id || id === "add")
@@ -36,7 +42,7 @@ export default async function RequisitionPage({ params }: { params: { id: string
           { label: "Dashboard", href: "/dashboard" },
           { label: "CRM" },
           { label: "Requisitions", href: "/dashboard/crm/requisitions" },
-          { label: id !== "add" && requisition ? requisition.name : "Add", isPage: true },
+          { label: id !== "add" && requisition ? requisition.id : "Add", isPage: true },
         ]}
       />
 

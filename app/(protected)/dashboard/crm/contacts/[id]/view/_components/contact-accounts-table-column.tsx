@@ -22,13 +22,13 @@ export function getColumns(contactId: string): ColumnDef<ContactAccountData>[] {
       header: ({ column }) => <DataTableColumnHeader column={column} title='Name' />,
       size: 150,
       cell: ({ row }) => (
-        <div className='flex flex-col text-sm'>
+        <div className='flex flex-col'>
           <span className='font-semibold'>{row.original.name}</span>
 
           {row.original.email && (
             <div className='flex items-center'>
               <Icons.mail className='mr-1 size-4 text-muted-foreground/75' />
-              <Link href={`mailto:${row.original.email}`} className='text-sm text-muted-foreground/75 decoration-1 hover:underline'>
+              <Link href={`mailto:${row.original.email}`} className='text-muted-foreground/75 decoration-1 hover:underline'>
                 {row.original.email}
               </Link>
             </div>
@@ -47,7 +47,7 @@ export function getColumns(contactId: string): ColumnDef<ContactAccountData>[] {
         if (!row.original.phone) return null
 
         return (
-          <Link href={`tel:${row.original.phone}`} className='text-sm text-slate-800 decoration-1 hover:underline'>
+          <Link href={`tel:${row.original.phone}`} className='text-slate-800 decoration-1 hover:underline'>
             {row.original.phone}
           </Link>
         )

@@ -2,13 +2,14 @@
 
 import { useParams } from "next/navigation"
 import { useRouter } from "nextjs-toploader/app"
-import { useFieldArray, useForm, useWatch } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useAction } from "next-safe-action/hooks"
+import { toast } from "sonner"
 
 import {
-  BROKER_BUY_OPTIONS,
-  COMMODITY_TYPE_OPTIONS,
+  SALES_CATEGORY_OPTIONS,
   PURCHASING_STATUS_OPTIONS,
   REASON_OPTIONS,
   REQ_REVIEW_RESULT_OPTIONS,
@@ -38,14 +39,14 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { useDataTable } from "@/hooks/use-data-table"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
-import { DataTableFilter, FilterFields } from "@/components/data-table/data-table-filter"
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
-import TextAreaField from "@/components/form/textarea-field"
 import LoadingButton from "@/components/loading-button"
+import { Badge } from "@/components/badge"
+import { useSession } from "next-auth/react"
+import { getRequisitionById, upsertRequisition } from "@/actions/requisition"
 import { FormDebug } from "@/components/form/form-debug"
 
 type RequisitionFormProps = {
-  requisition: any
+  requisition: Awaited<ReturnType<typeof getRequisitionById>>
   users: Awaited<ReturnType<typeof getUsers>>
   customers: Awaited<ReturnType<typeof getCustomers>>
   items: Awaited<ReturnType<typeof getItems>>
@@ -54,11 +55,24 @@ type RequisitionFormProps = {
 export default function RequisitionForm({ requisition, users, customers, items }: RequisitionFormProps) {
   const router = useRouter()
   const { id } = useParams() as { id: string }
+  const { data: session } = useSession()
 
   const isCreate = id === "add" || !requisition
 
   const values = useMemo(() => {
-    if (requisition) return requisition
+    if (requisition) {
+      const { salesPersons, omegaBuyers, requestedItems, quantity, customerStandardPrice, customerStandardOpportunityValue, ...data } =
+        requisition
+      return {
+        ...data,
+        requestedItems: [],
+        salesPersons: [],
+        omegaBuyers: [],
+        quantity: quantity as any,
+        customerStandardPrice: customerStandardPrice as any,
+        customerStandardOpportunityValue: customerStandardOpportunityValue as any,
+      }
+    }
 
     if (id === "add" || !requisition) {
       return {
@@ -67,21 +81,20 @@ export default function RequisitionForm({ requisition, users, customers, items }
         contactId: null,
         customerPn: "",
         requestedItems: [],
-        crossAlternatePn: "",
-        commodityType: "",
-        franchisePrice: 0,
-        sapQuoteNumber: "",
         date: new Date(),
         urgency: "",
         salesPersons: [],
         omegaBuyers: [],
-        brokerBuy: "",
+        salesCategory: "",
         isPurchasingInitiated: false,
         isActiveFollowUp: false,
         purchasingStatus: "new",
         result: "",
         reason: "",
         reqReviewResult: [],
+        quantity: 0,
+        customerStandardPrice: 0,
+        customerStandardOpportunityValue: 0,
       }
     }
 
@@ -94,23 +107,26 @@ export default function RequisitionForm({ requisition, users, customers, items }
     resolver: zodResolver(requisitionFormSchema),
   })
 
+  const { executeAsync, isExecuting } = useAction(upsertRequisition)
+
   const requestedItemsForm = useForm({
     mode: "onChange",
-    defaultValues: {
+    values: {
       id: "",
       name: "",
       mpn: "",
       mfr: "",
-      quantity: 0,
-      customerStandardPrice: 0,
-      customerStandardOpportunityValue: 0,
     },
     resolver: zodResolver(requestedItemFormSchema),
   })
 
+  // quantity: 0,
+  // customerStandardPrice: 0,
+  // customerStandardOpportunityValue: 0,
+
   const usersOptions = useMemo(() => {
     if (!users) return []
-    return users.map((user) => ({ label: user.name || user.email, value: user.id }))
+    return users.map((user) => ({ label: user.name || user.email, value: user.id, user }))
   }, [JSON.stringify(users)])
 
   const customersOptions = useMemo(() => {
@@ -125,39 +141,55 @@ export default function RequisitionForm({ requisition, users, customers, items }
 
     //* only show items that are not already in the requested items
     return items
-      .filter((item) => !requestedItems.find((requestedItem) => requestedItem.id === item.id))
+      .filter((item) => !requestedItems.find((reqItem) => reqItem.id === item.id))
       .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.id }))
-  }, [JSON.stringify(customers), JSON.stringify(form.watch("requestedItems"))])
+  }, [JSON.stringify(items), JSON.stringify(form.watch("requestedItems"))])
 
   const requestedItems = useWatch({ control: form.control, name: "requestedItems" })
 
   const columns = useMemo((): ColumnDef<RequestedItemForm>[] => {
     return [
-      { accessorKey: "name", header: ({ column }) => <DataTableColumnHeader column={column} title='Name' /> },
+      {
+        accessorKey: "name",
+        enableSorting: false,
+        header: ({ column }) => <DataTableColumnHeader column={column} title='Item' />,
+      },
+      {
+        accessorFn: (row, index) => (index === 0 ? "primary" : "alternative"),
+        id: "type",
+        enableSorting: false,
+        header: ({ column }) => <DataTableColumnHeader column={column} title='Type' />,
+        cell: ({ row }) => {
+          const index = row.index
+          const isPrimary = index === 0
+          return (
+            <Badge className='w-fit' variant={isPrimary ? "soft-sky" : "soft-amber"}>
+              {isPrimary ? "Primary" : "Alternative"}
+            </Badge>
+          )
+        },
+      },
       {
         accessorKey: "mpn",
         header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
+        enableSorting: false,
+        cell: ({ row }) => {
+          const mpn = row.original?.mpn
+          if (!mpn) return null
+          return <Badge variant='soft-slate'>{mpn}</Badge>
+        },
       },
       {
         accessorKey: "mfr",
         header: ({ column }) => <DataTableColumnHeader column={column} title='MFR' />,
+        enableSorting: false,
+        cell: ({ row }) => {
+          const mfr = row.original?.mfr
+          if (!mfr) return null
+          return <Badge variant='soft-slate'>{mfr}</Badge>
+        },
       },
-      {
-        accessorKey: "quantity",
-        header: ({ column }) => <DataTableColumnHeader column={column} title='Quantity' />,
-      },
-      {
-        accessorKey: "customerStandardPrice",
-        id: "cust. standard price",
-        filterFn: "weakEquals",
-        header: ({ column }) => <DataTableColumnHeader column={column} title='Cust. Standard Price' />,
-      },
-      {
-        accessorKey: "customerStandardOpportunityValue",
-        id: "cust. standard opportunity value",
-        filterFn: "weakEquals",
-        header: ({ column }) => <DataTableColumnHeader column={column} title='Cust. Standard Opportunity Value' />,
-      },
+
       {
         accessorKey: "action",
         header: "Action",
@@ -181,7 +213,30 @@ export default function RequisitionForm({ requisition, users, customers, items }
     initialState: { pagination: { pageIndex: 0, pageSize: 5 } },
   })
 
-  const onSubmit = async (formData: RequisitionForm) => {}
+  const onSubmit = async (formData: RequisitionForm) => {
+    try {
+      const response = await executeAsync(formData)
+      const result = response?.data
+
+      if (result?.error) {
+        toast.error(result.message)
+        return
+      }
+
+      toast.success(result?.message)
+
+      if (result?.data && result?.data?.requisition && "id" in result?.data?.requisition) {
+        router.refresh()
+
+        setTimeout(() => {
+          router.push(`/dashboard/crm/requisitions/${result.data.requisition.id}`)
+        }, 1500)
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error("Something went wrong! Please try again later.")
+    }
+  }
 
   const handleAddRequestedItem = () => {
     const currentValues = form.getValues("requestedItems") || []
@@ -190,6 +245,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
 
     form.setValue("requestedItems", [...currentValues, requestedItem])
     requestedItemsForm.reset()
+    form.clearErrors("requestedItems")
   }
 
   //* auto populate mpn and mfr if item is selected
@@ -206,6 +262,45 @@ export default function RequisitionForm({ requisition, users, customers, items }
       }
     }
   }, [requestedItemsForm.watch("id"), JSON.stringify(items)])
+
+  //* set requested items if data requisition exists
+  useEffect(() => {
+    if (requisition && items.length > 0) {
+      const selectedRequestedItems = requisition?.requestedItems as string[] | null
+
+      const requestedItems =
+        selectedRequestedItems?.map((itemId) => {
+          const selectedItem = items.find((item) => itemId === item.id)
+          if (selectedItem) {
+            return { id: itemId, name: selectedItem.ItemName, mpn: selectedItem.ManufacturerPn, mfr: selectedItem.Manufacturer }
+          }
+          return null
+        }) || []
+
+      form.setValue(
+        "requestedItems",
+        requestedItems.filter((item) => item !== null)
+      )
+    }
+  }, [JSON.stringify(requisition), JSON.stringify(items)])
+
+  //* set sales person & omega buyers if data requisition exists
+  useEffect(() => {
+    if (requisition && usersOptions.length > 0) {
+      const selectedSalesPersons = requisition.salesPersons?.map((salesPerson) => salesPerson.userId) || []
+      const selectedOmegaBuyers = requisition.omegaBuyers?.map((omegaBuyer) => omegaBuyer.userId) || []
+
+      form.setValue("salesPersons", selectedSalesPersons)
+      form.setValue("omegaBuyers", selectedOmegaBuyers)
+    }
+  }, [JSON.stringify(requisition), JSON.stringify(usersOptions)])
+
+  //* set salesperson based on session user
+  useEffect(() => {
+    if (session?.user && isCreate) {
+      form.setValue("salesPersons", [session.user.id])
+    }
+  }, [JSON.stringify(session)])
 
   return (
     <>
@@ -231,15 +326,41 @@ export default function RequisitionForm({ requisition, users, customers, items }
             </div>
 
             <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <MultiSelectField data={usersOptions} control={form.control} name='salesPersons' label='Salesperson' />
+              <MultiSelectField
+                data={usersOptions}
+                control={form.control}
+                name='salesPersons'
+                label='Salesperson'
+                renderItem={(item, selected) => {
+                  return (
+                    <div className='flex flex-col justify-center'>
+                      <span>{item.label}</span>
+                      {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
+                    </div>
+                  )
+                }}
+              />
             </div>
 
             <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <ComboboxField data={BROKER_BUY_OPTIONS} control={form.control} name='brokerBuy' label='Broker Buy' />
+              <ComboboxField data={SALES_CATEGORY_OPTIONS} control={form.control} name='salesCategory' label='Sales Category' isRequired />
             </div>
 
             <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <MultiSelectField data={usersOptions} control={form.control} name='omegaBuyers' label='Omega Buyers' />
+              <MultiSelectField
+                data={usersOptions}
+                control={form.control}
+                name='omegaBuyers'
+                label='Omega Buyers'
+                renderItem={(item, selected) => {
+                  return (
+                    <div className='flex flex-col justify-center'>
+                      <span>{item.label}</span>
+                      {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
+                    </div>
+                  )
+                }}
+              />
             </div>
 
             <div className='col-span-12 md:col-span-6 md:mt-4 lg:col-span-3'>
@@ -257,8 +378,8 @@ export default function RequisitionForm({ requisition, users, customers, items }
                 control={form.control}
                 layout='default'
                 name='isActiveFollowUp'
-                label='Active Follow-Up'
-                description='Is this requisition has active follow-up?'
+                label='For Follow-Up'
+                description='Is this requisition for active follow-up?'
               />
             </div>
 
@@ -274,7 +395,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
               <ComboboxField data={REASON_OPTIONS} control={form.control} name='reason' label='Reason' />
             </div>
 
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <div className='col-span-12 md:col-span-6'>
               <MultiSelectField data={REQ_REVIEW_RESULT_OPTIONS} control={form.control} name='reqReviewResult' label='REQ Review Result' />
             </div>
 
@@ -321,13 +442,47 @@ export default function RequisitionForm({ requisition, users, customers, items }
               )}
             </div>
 
+            <div className='col-span-12 md:col-span-4'>
+              <InputField
+                control={form.control}
+                name='quantity'
+                label='Requested Quantity'
+                extendedProps={{ inputProps: { placeholder: "Enter Requested Quantity", type: "number" } }}
+              />
+            </div>
+
+            <div className='col-span-12 md:col-span-4'>
+              <InputField
+                control={form.control}
+                name='customerStandardPrice'
+                label='Cust. Standard Price'
+                extendedProps={{ inputProps: { placeholder: "0.000", type: "number", startContent: "$" } }}
+              />
+            </div>
+
+            <div className='col-span-12 md:col-span-4'>
+              <InputField
+                control={form.control}
+                name='customerStandardOpportunityValue'
+                label='Cust. Standard Opportunity Value'
+                extendedProps={{ inputProps: { placeholder: "0.00", type: "number", startContent: "$" } }}
+              />
+            </div>
+
             <Form {...requestedItemsForm}>
               <div className='col-span-12 grid grid-cols-12 gap-4 rounded-lg border p-4'>
-                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={itemsOptions} control={requestedItemsForm.control} name='id' label='Item' isRequired />
+                <div className='col-span-12 md:col-span-4'>
+                  <ComboboxField
+                    data={itemsOptions}
+                    control={requestedItemsForm.control}
+                    name='id'
+                    label='Item'
+                    isRequired
+                    callback={() => requestedItemsForm.handleSubmit(handleAddRequestedItem)()}
+                  />
                 </div>
 
-                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                <div className='col-span-12 md:col-span-4'>
                   <FormItem className='space-y-2'>
                     <FormLabel className='space-x-1'>MPN</FormLabel>
                     <FormControl>
@@ -336,7 +491,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
                   </FormItem>
                 </div>
 
-                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                <div className='col-span-12 md:col-span-4'>
                   <FormItem className='space-y-2'>
                     <FormLabel className='space-x-1'>MFR</FormLabel>
                     <FormControl>
@@ -345,128 +500,25 @@ export default function RequisitionForm({ requisition, users, customers, items }
                   </FormItem>
                 </div>
 
-                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <InputField
-                    control={requestedItemsForm.control}
-                    name='quantity'
-                    label='Requested Quantity'
-                    extendedProps={{ inputProps: { placeholder: "Enter Requested Quantity", type: "number" } }}
-                  />
-                </div>
-
-                <div className='col-span-12 md:col-span-6'>
-                  <InputField
-                    control={requestedItemsForm.control}
-                    name='customerStandardPrice'
-                    label='Cust. Standard Price'
-                    extendedProps={{ inputProps: { placeholder: "0.000", type: "number", startContent: "$" } }}
-                  />
-                </div>
-
-                <div className='col-span-12 md:col-span-6'>
-                  <InputField
-                    control={requestedItemsForm.control}
-                    name='customerStandardOpportunityValue'
-                    label='Cust. Standard Opportunity Value'
-                    extendedProps={{ inputProps: { placeholder: "0.00", type: "number", startContent: "$" } }}
-                  />
-                </div>
-
-                <div className='col-span-12 flex items-center justify-end gap-2 border-b pb-4'>
-                  <Button variant='secondary' type='button' onClick={() => requestedItemsForm.reset()}>
-                    Clear Item
-                  </Button>
-                  <Button variant='outline-primary' type='button' onClick={() => requestedItemsForm.handleSubmit(handleAddRequestedItem)()}>
-                    <Icons.plus className='size-4' /> Add Item
-                  </Button>
+                <div className='col-span-12'>
+                  <Separator />
                 </div>
 
                 <div className='col-span-12'>
                   <DataTable table={table}>
                     <div className='flex flex-col items-stretch justify-center gap-2 md:flex-row md:items-center md:justify-between'>
-                      <DataTableSearch table={table} className='' />
+                      <DataTableSearch table={table} />
                     </div>
                   </DataTable>
                 </div>
               </div>
             </Form>
 
-            <div className='col-span-12'>
-              <Separator className='mt-2' />
-            </div>
-
-            <div className='col-span-12'>
-              <TextAreaField
-                control={form.control}
-                name='crossAlternatePn'
-                label='Cross/Alternate PN'
-                extendedProps={{ textAreaProps: { placeholder: "Enter Cross/Alternate PN" } }}
-              />
-            </div>
-
-            <div className='col-span-12 md:col-span-6'>
-              <ComboboxField data={COMMODITY_TYPE_OPTIONS} control={form.control} name='commodityType' label='Commodity Type' />
-            </div>
-
-            <div className='col-span-12 md:col-span-6'>
-              <InputField
-                control={form.control}
-                name='franchisePrice'
-                label='Franchise Price'
-                extendedProps={{ inputProps: { placeholder: "$ 0.00", startContent: "$" } }}
-              />
-            </div>
-
-            <div className='col-span-12'>
-              <InputField
-                control={form.control}
-                name='sapQuoteNumber'
-                label='SAP Quote #'
-                extendedProps={{ inputProps: { placeholder: "Enter SAP Quote #" } }}
-              />
-            </div>
-
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <InputField
-                control={form.control}
-                name='quotedMpn'
-                label='Quoted MPN'
-                extendedProps={{ inputProps: { placeholder: "Enter Quoted MPN" } }}
-              />
-            </div>
-
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <InputField
-                control={form.control}
-                name='quotedQuantity'
-                label='Quoted Quantity'
-                extendedProps={{ inputProps: { placeholder: "Enter Quoted Quantity" } }}
-              />
-            </div>
-
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <InputField
-                control={form.control}
-                name='priceQuotedToCust'
-                label='Price Quoted to Customer'
-                extendedProps={{ inputProps: { placeholder: "0.00", type: "number", startContent: "$" } }}
-              />
-            </div>
-
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <InputField
-                control={form.control}
-                name='quotedOpportunityValue'
-                label='Quoted Opportunity Value'
-                extendedProps={{ inputProps: { placeholder: "0.00", type: "number", startContent: "$" } }}
-              />
-            </div>
-
             <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>
-              <Button type='button' variant='secondary' disabled={false} onClick={() => router.push(`/dashboard/crm/requisitions`)}>
+              <Button type='button' variant='secondary' disabled={isExecuting} onClick={() => router.push(`/dashboard/crm/requisitions`)}>
                 Cancel
               </Button>
-              <LoadingButton isLoading={false} type='submit'>
+              <LoadingButton isLoading={isExecuting} type='submit'>
                 Save
               </LoadingButton>
             </div>

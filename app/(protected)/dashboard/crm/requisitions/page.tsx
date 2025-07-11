@@ -4,52 +4,12 @@ import Breadcrumbs from "@/components/breadcrumbs"
 import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import RequisitionList from "./_components/requisition-list"
+import { getRequisitions } from "@/actions/requisition"
+import { getItems } from "@/actions/item"
+import { Card } from "@/components/ui/card"
 
-export default function RequisitionsPage() {
-  const requisitions = [
-    {
-      date: "7/3/2025",
-      customer: "Moon Corp",
-      customerPoHitRate: "1.86%",
-      salesperson: "John Doe",
-      brokerBuy: "",
-      urgency: "Hot! - Shortage",
-      purchasingStatus: "New",
-      result: "Not Quoted",
-      mpn: "SM3ZS067U215AAS1499",
-      mfr: "Microchip",
-      requestedQuantity: "100",
-      omegaBuyer: "Kennen Johnson",
-    },
-    {
-      date: "7/3/2025",
-      customer: "Rocket Inc.",
-      customerPoHitRate: "30.24%",
-      salesperson: "Kitty Doe",
-      brokerBuy: "Broker Buy",
-      urgency: "Normal - VMI",
-      purchasingStatus: "Answers Back",
-      result: "Not Quoted",
-      mpn: "SK3ZS088U211BBS1488",
-      mfr: "Intel",
-      requestedQuantity: "45",
-      omegaBuyer: "PO Won",
-    },
-    {
-      date: "7/3/2025",
-      customer: "Platinum Corp.",
-      customerPoHitRate: "56%",
-      salesperson: "Sam Willy",
-      brokerBuy: "Broker Buy",
-      urgency: "Hot! - Shortage",
-      purchasingStatus: "New",
-      result: "Quoted - Waiting",
-      mpn: "SK3ZS088U222CCS1477",
-      mfr: "Nvidia",
-      requestedQuantity: "200",
-      omegaBuyer: "Jerry Mio",
-    },
-  ]
+export default async function RequisitionsPage() {
+  const [requisitions, items] = await Promise.all([await getRequisitions(), await getItems()])
 
   return (
     <ContentLayout title='Requisitions'>
@@ -72,7 +32,9 @@ export default function RequisitionsPage() {
             icon: Icons.plus,
           }}
         >
-          <RequisitionList requisitions={requisitions} />
+          <Card className='p-6'>
+            <RequisitionList requisitions={requisitions} items={items} />
+          </Card>
         </PageWrapper>
       </ContentContainer>
     </ContentLayout>

@@ -35,15 +35,15 @@ export function DataTableColumnHeader<TData, TValue>({ column, title, className,
             }
             variant='ghost'
             size='sm'
-            className='-ml-3 h-8 data-[state=open]:bg-accent'
+            className='-ml-3 data-[state=open]:bg-accent'
           >
-            <span>{title ?? children}</span>
+            <span className='text-xs'>{title ?? children}</span>
             {column.getCanSort() && column.getIsSorted() === "desc" ? (
               <Icons.arrowDown className='ml-2 size-4' aria-hidden='true' />
             ) : column.getIsSorted() === "asc" ? (
               <Icons.arrowUp className='ml-2 size-4' aria-hidden='true' />
             ) : (
-              <Icons.chevUpDown className='ml-2 size-4' aria-hidden='true' />
+              column.getCanSort() && <Icons.chevUpDown className='ml-2 size-4' aria-hidden='true' />
             )}
           </Button>
         </DropdownMenuTrigger>

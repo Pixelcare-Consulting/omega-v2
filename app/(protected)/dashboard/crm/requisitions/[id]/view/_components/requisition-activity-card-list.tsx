@@ -4,34 +4,39 @@ import { memo, useMemo } from "react"
 import { format } from "date-fns"
 import { ColumnFiltersState, Table as TanstackTable } from "@tanstack/react-table"
 
-import { getLeadById } from "@/actions/lead"
+import { getRequisitionById } from "@/actions/requisition"
 import { Icons } from "@/components/icons"
-import ActivityCard from "./activity-card"
+import RequisitionActivityCard from "./requisition-activity-card"
 import { getInitials } from "@/lib/utils"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
-import { Activity } from "./lead-activities-tab"
+import { RequisitionActivity } from "./tabs/requisition-activities-tab"
 
-type ActivityCardListProps<TData> = {
+type RequisitionActivityCardListProps<TData> = {
   table: TanstackTable<TData>
   columnFilters: ColumnFiltersState
-  lead?: Awaited<ReturnType<typeof getLeadById>>
-  setActivity: (value: Activity | null) => void
+  requisition?: Awaited<ReturnType<typeof getRequisitionById>>
+  setActivity: (value: RequisitionActivity | null) => void
   setIsOpen: (value: boolean) => void
 }
 
-function ActivityCardListComponent<TData>({ table, lead, setActivity, setIsOpen }: ActivityCardListProps<TData>) {
-  if (!lead) return null
+function RequisitionActivityCardListComponent<TData>({
+  table,
+  requisition,
+  setActivity,
+  setIsOpen,
+}: RequisitionActivityCardListProps<TData>) {
+  if (!requisition) return null
 
-  const user = lead.createdByUser
+  const user = requisition.createdByUser
   const tableRow = table.getRowModel().rows || []
-  const activities = tableRow.map((row) => row.original) as Activity[]
+  const activities = tableRow.map((row) => row.original) as RequisitionActivity[]
 
   return (
     <ol className='relative border-s border-gray-200 dark:border-gray-700'>
       {activities
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .map((activity) => (
-          <ActivityCard key={activity.id} activity={activity} setActivity={setActivity} setIsOpen={setIsOpen} />
+          <RequisitionActivityCard key={activity.id} activity={activity} setActivity={setActivity} setIsOpen={setIsOpen} />
         ))}
 
       <li className='mb-10 ms-6'>
@@ -46,12 +51,12 @@ function ActivityCardListComponent<TData>({ table, lead, setActivity, setIsOpen 
         <header className='mb-2 flex flex-col items-center lg:flex-row lg:justify-between'>
           <p className='flex items-center gap-2 text-sm font-medium'>
             <span>Creation:</span>
-            <ActionTooltipProvider label='Lead Created'>
-              <span className='inline-block max-w-[512px] truncate font-extrabold uppercase'>Lead Created</span>
+            <ActionTooltipProvider label='Requisition Created'>
+              <span className='inline-block max-w-[512px] truncate font-extrabold uppercase'>Requisition Created</span>
             </ActionTooltipProvider>
           </p>
 
-          <p className='text-xs text-muted-foreground'>{format(lead.createdAt, "PPpp")}</p>
+          <p className='text-xs text-muted-foreground'>{format(requisition.createdAt, "PPpp")}</p>
         </header>
 
         <div className='flex flex-col'>
@@ -74,7 +79,9 @@ function ActivityCardListComponent<TData>({ table, lead, setActivity, setIsOpen 
               </div>
             </div>
 
-            <div className='px-4 pt-4 text-sm'>Addded {lead.name}</div>
+            <div className='px-4 pt-4 text-sm'>
+              Addded requisition for {requisition.customer?.CardName || requisition.customer?.CardCode}
+            </div>
           </div>
         </div>
       </li>
@@ -82,10 +89,11 @@ function ActivityCardListComponent<TData>({ table, lead, setActivity, setIsOpen 
   )
 }
 
-const ActivityCardList = memo(
-  ActivityCardListComponent,
+const RequisitionActivityCardList = memo(
+  RequisitionActivityCardListComponent,
   (prev, next) =>
-    JSON.stringify(prev.lead) === JSON.stringify(next.lead) && JSON.stringify(prev.columnFilters) === JSON.stringify(next.columnFilters)
-) as typeof ActivityCardListComponent
+    JSON.stringify(prev.requisition) === JSON.stringify(next.requisition) &&
+    JSON.stringify(prev.columnFilters) === JSON.stringify(next.columnFilters)
+) as typeof RequisitionActivityCardListComponent
 
-export default ActivityCardList
+export default RequisitionActivityCardList

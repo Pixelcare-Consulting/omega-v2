@@ -97,7 +97,7 @@ export const deleteContact = action
     try {
       const contact = await prisma.contact.findUnique({ where: { id: data.id } })
 
-      if (!contact) return { status: 404, message: "Contact not found!", action: "DELETE_CONTACT" }
+      if (!contact) return { error: true, status: 404, message: "Contact not found!", action: "DELETE_CONTACT" }
 
       await prisma.contact.update({ where: { id: data.id }, data: { deletedAt: new Date(), deletedBy: ctx.userId } })
       return { status: 200, message: "Contact deleted successfully!", action: "DELETE_CONTACT" }
@@ -120,7 +120,7 @@ export const deleteContactAccount = action
     try {
       const contactAccount = await prisma.companyAccountContact.findUnique({ where: { accountId_contactId: { ...data } } })
 
-      if (!contactAccount) return { status: 404, message: "Account not found!", action: "DELETE_CONTACT_ACCOUNT" }
+      if (!contactAccount) return { error: true, status: 404, message: "Account not found!", action: "DELETE_CONTACT_ACCOUNT" }
 
       await prisma.companyAccountContact.delete({ where: { accountId_contactId: { ...data } } })
       return { status: 200, message: "Account removed successfully!", action: "DELETE_CONTACT_ACCOUNT" }
@@ -143,7 +143,7 @@ export const deleteContactLead = action
     try {
       const contactLead = await prisma.leadContact.findUnique({ where: { leadId_contactId: { ...data } } })
 
-      if (!contactLead) return { status: 404, message: "Lead not found!", action: "DELETE_CONTACT_LEAD" }
+      if (!contactLead) return { error: true, status: 404, message: "Lead not found!", action: "DELETE_CONTACT_LEAD" }
 
       await prisma.leadContact.delete({ where: { leadId_contactId: { ...data } } })
       return { status: 200, message: "Lead removed successfully!", action: "DELETE_CONTACT_LEAD" }

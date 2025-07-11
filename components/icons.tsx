@@ -91,6 +91,12 @@ import {
   Phone,
   ThumbsUp,
   ThumbsDown,
+  ShieldClose,
+  Globe,
+  Database,
+  UserRoundCog,
+  Construction,
+  XCircle,
 } from "lucide-react"
 
 export type Icon = LucideIcon
@@ -102,6 +108,7 @@ export const Icons = {
   triangleAlert: TriangleAlert,
   circleAlert: CircleAlertIcon,
   checkCircle: CheckCircle2,
+  xCicle: XCircle,
   spinner: Loader2,
   sun: SunIcon,
   moon: MoonIcon,
@@ -115,6 +122,7 @@ export const Icons = {
   handeShake: Handshake,
   shield: Shield,
   shieldCheck: ShieldCheck,
+  shieldClose: ShieldClose,
   alertCircle: AlertCircle,
   check: Check,
   inbox: Inbox,
@@ -185,9 +193,13 @@ export const Icons = {
   landPlot: LandPlot,
   userPlus: UserPlus,
   userMinus: UserMinus,
+  userRoundCog: UserRoundCog,
   externalLink: ExternalLink,
   link: Link,
   phone: Phone,
   thumbsUp: ThumbsUp,
   thumbsDown: ThumbsDown,
+  globe: Globe,
+  database: Database,
+  construction: Construction,
 }

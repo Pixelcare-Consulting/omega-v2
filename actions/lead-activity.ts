@@ -3,9 +3,9 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
-import { activityFormSchema } from "@/schema/activity"
+import { leadActivityFormSchema } from "@/schema/lead-activity"
 
-export async function getActivities(leadId?: string) {
+export async function getLeadActivities(leadId?: string) {
   try {
     return await prisma.leadActivity.findMany({
       where: { ...(leadId ? { leadId } : {}), deletedAt: null, deletedBy: null },
@@ -17,7 +17,7 @@ export async function getActivities(leadId?: string) {
   }
 }
 
-export async function getAcvtityById(id: string) {
+export async function getLeadAcvtityById(id: string) {
   try {
     return await prisma.leadActivity.findUnique({ where: { id }, include: { lead: true } })
   } catch (error) {
@@ -26,9 +26,9 @@ export async function getAcvtityById(id: string) {
   }
 }
 
-export const upsertActivity = action
+export const upsertLeadActivity = action
   .use(authenticationMiddleware)
-  .schema(activityFormSchema)
+  .schema(leadActivityFormSchema)
   .action(async ({ ctx, parsedInput }) => {
     try {
       const { id, ...data } = parsedInput
@@ -36,11 +36,21 @@ export const upsertActivity = action
 
       if (id && id !== "add") {
         const updatedActivity = await prisma.leadActivity.update({ where: { id }, data: { ...data, updatedBy: userId } })
-        return { status: 200, message: "Activity updated successfully!", data: { activity: updatedActivity }, action: "UPSERT_ACTIVITY" }
+        return {
+          status: 200,
+          message: "Lead activity updated successfully!",
+          data: { activity: updatedActivity },
+          action: "UPSERT_LEAD_ACTIVITY",
+        }
       }
 
       const newActivity = await prisma.leadActivity.create({ data: { ...data, createdBy: userId, updatedBy: userId } })
-      return { status: 200, message: "Activity created successfully!", data: { activity: newActivity }, action: "UPSERT_ACTIVITY" }
+      return {
+        status: 200,
+        message: "Lead activity created successfully!",
+        data: { activity: newActivity },
+        action: "UPSERT_LEAD_ACTIVITY",
+      }
     } catch (error) {
       console.error(error)
 
@@ -48,7 +58,7 @@ export const upsertActivity = action
         error: true,
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
-        action: "UPSERT_ACTIVITY",
+        action: "UPSERT_LEAD_ACTIVITY",
       }
     }
   })
@@ -60,10 +70,10 @@ export const deletedActivity = action
     try {
       const activity = await prisma.leadActivity.findUnique({ where: { id: data.id } })
 
-      if (!activity) return { error: true, status: 404, message: "Activity not found!", action: "DELETE_ACTIVITY" }
+      if (!activity) return { error: true, status: 404, message: "Lead activity not found!", action: "DELETE_LEAD_ACTIVITY" }
 
       await prisma.leadActivity.update({ where: { id: data.id }, data: { deletedAt: new Date(), deletedBy: ctx.userId } })
-      return { status: 200, message: "Activity deleted successfully!", action: "DELETE_ACTIVITY" }
+      return { status: 200, message: "Lead activity deleted successfully!", action: "DELETE_LEAD_ACTIVITY" }
     } catch (error) {
       console.error(error)
 
@@ -71,7 +81,7 @@ export const deletedActivity = action
         error: true,
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
-        action: "DELETE_ACTIVITY",
+        action: "DELETE_LEAD_ACTIVITY",
       }
     }
   })

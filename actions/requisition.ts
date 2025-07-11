@@ -3,11 +3,25 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
-import { requisitionFormSchema } from "@/schema/requisition"
+import { requisitionFormSchema, updateRequisitionReqItemsSchema } from "@/schema/requisition"
 
 export async function getRequisitions() {
   try {
-    return await prisma.requisition.findMany({ where: { deletedAt: null, deletedBy: null } })
+    const result = await prisma.requisition.findMany({
+      where: { deletedAt: null, deletedBy: null },
+      include: {
+        salesPersons: { include: { user: { select: { name: true, email: true } } } },
+        omegaBuyers: { include: { user: { select: { name: true, email: true } } } },
+        customer: { select: { CardName: true, CardCode: true } },
+      },
+    })
+
+    return result.map((req) => ({
+      ...req,
+      quantity: req.quantity?.toString(),
+      customerStandardPrice: req.customerStandardPrice?.toString(),
+      customerStandardOpportunityValue: req.customerStandardPrice?.toString(),
+    }))
   } catch (error) {
     console.error(error)
     return []
@@ -16,7 +30,28 @@ export async function getRequisitions() {
 
 export async function getRequisitionById(id: string) {
   try {
-    return await prisma.requisition.findUnique({ where: { id } })
+    const result = await prisma.requisition.findUnique({
+      where: { id },
+      include: {
+        salesPersons: { include: { user: { select: { name: true, email: true } } } },
+        omegaBuyers: { include: { user: { select: { name: true, email: true } } } },
+        customer: { select: { CardName: true, CardCode: true } },
+        activities: {
+          where: { deletedAt: null, deletedBy: null },
+          include: { createdByUser: true },
+        },
+        createdByUser: true,
+      },
+    })
+
+    if (!result) return null
+
+    return {
+      ...result,
+      quantity: result.quantity?.toString(),
+      customerStandardPrice: result.customerStandardPrice?.toString(),
+      customerStandardOpportunityValue: result.customerStandardPrice?.toString(),
+    }
   } catch (error) {
     console.error(error)
     return null
@@ -29,12 +64,16 @@ export const upsertRequisition = action
   .action(async ({ ctx, parsedInput }) => {
     const { id, salesPersons, omegaBuyers, ...data } = parsedInput
     const { userId } = ctx
+    const requestedItems = data.requestedItems.map((item) => item.id)
 
     try {
       if (id && id !== "add") {
         const [updatedRequisition] = await prisma.$transaction([
           //* update requisition
-          prisma.requisition.update({ where: { id }, data: { ...data, reqReviewResult: data?.reqReviewResult || [], updatedBy: userId } }),
+          prisma.requisition.update({
+            where: { id },
+            data: { ...data, requestedItems, reqReviewResult: data?.reqReviewResult || [], updatedBy: userId },
+          }),
 
           //* delete the existing requisition's salespersons
           prisma.requisitionSalesPerson.deleteMany({ where: { requisitionId: id } }),
@@ -64,6 +103,7 @@ export const upsertRequisition = action
       const newRequisition = await prisma.requisition.create({
         data: {
           ...data,
+          requestedItems,
           reqReviewResult: data?.reqReviewResult || [],
           createdBy: userId,
           updatedBy: userId,
@@ -101,9 +141,9 @@ export const deleteRequisition = action
     try {
       const requisition = await prisma.requisition.findUnique({ where: { id: data.id } })
 
-      if (!requisition) return { status: 404, message: "Requisition not found!", action: "DELETE_REQUISITION" }
+      if (!requisition) return { error: true, status: 404, message: "Requisition not found!", action: "DELETE_REQUISITION" }
 
-      await prisma.requisition.update({ where: { id: data.id }, data: { deletedAt: new Date(), deletedBy: ctx.userId } })
+      await prisma.requisition.update({ where: { id: requisition.id }, data: { deletedAt: new Date(), deletedBy: ctx.userId } })
       return { status: 200, message: "Requisition deleted successfully!", action: "DELETE_REQUISITION" }
     } catch (error) {
       console.error(error)
@@ -113,6 +153,34 @@ export const deleteRequisition = action
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
         action: "DELETE_REQUISITION",
+      }
+    }
+  })
+
+export const updateRequisitionReqItems = action
+  .use(authenticationMiddleware)
+  .schema(updateRequisitionReqItemsSchema)
+  .action(async ({ ctx, parsedInput: data }) => {
+    try {
+      const requisition = await prisma.requisition.findUnique({ where: { id: data.reqId } })
+      const requestedItems = data.requestedItems.map((item) => item.id)
+
+      if (!requisition) return { error: true, status: 404, message: "Requisition not found!", action: "UPDATE_REQUISITION_REQ_ITEMS" }
+
+      await prisma.requisition.update({
+        where: { id: requisition.id },
+        data: { requestedItems, updatedBy: ctx.userId },
+      })
+
+      return { status: 200, message: "Requested items updated successfully!", action: "UPDATE_REQUISITION_REQ_ITEMS" }
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Something went wrong!",
+        action: "UPDATE_REQUISITION_REQ_ITEMS",
       }
     }
   })

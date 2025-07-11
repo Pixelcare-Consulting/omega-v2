@@ -22,12 +22,12 @@ export function getColumns(): ColumnDef<ContactData>[] {
       header: ({ column }) => <DataTableColumnHeader column={column} title='Contact' />,
       size: 150,
       cell: ({ row }) => (
-        <div className='flex flex-col text-sm'>
+        <div className='flex flex-col'>
           <span className='font-semibold'>{row.original.name}</span>
 
           <div className='flex items-center'>
             <Icons.mail className='mr-1 size-4 text-muted-foreground/75' />
-            <Link href={`mailto:${row.original.email}`} className='text-sm text-muted-foreground/75 decoration-1 hover:underline'>
+            <Link href={`mailto:${row.original.email}`} className='text-muted-foreground/75 decoration-1 hover:underline'>
               {row.original.email}
             </Link>
           </div>
@@ -42,7 +42,7 @@ export function getColumns(): ColumnDef<ContactData>[] {
       accessorKey: "phone",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Phone' />,
       cell: ({ row }) => (
-        <Link href={`tel:${row.original.phone}`} className='text-sm text-slate-800 decoration-1 hover:underline'>
+        <Link href={`tel:${row.original.phone}`} className='text-slate-800 decoration-1 hover:underline'>
           {row.original.phone}
         </Link>
       ),
@@ -50,7 +50,7 @@ export function getColumns(): ColumnDef<ContactData>[] {
     {
       accessorKey: "title",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Title' />,
-      cell: ({ row }) => <div className='text-sm'>{row.original?.title || ""}</div>,
+      cell: ({ row }) => <div className=''>{row.original?.title || ""}</div>,
     },
     {
       accessorFn: (row) => String(row.isActive),

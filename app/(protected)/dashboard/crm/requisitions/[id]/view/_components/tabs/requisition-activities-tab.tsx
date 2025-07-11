@@ -4,35 +4,35 @@ import { useRouter } from "nextjs-toploader/app"
 import React, { useMemo, useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 
-import { getLeadById } from "@/actions/lead"
+import { getRequisitionById } from "@/actions/requisition"
 import { Icons } from "@/components/icons"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import LeadActivityFormDrawer from "../lead-activity-form-drawer"
+import RequisitionActivityFormDrawer from "../requisition-activity-form-drawer"
 import { useDialogStore } from "@/hooks/use-dialog"
-import LeadActivityCardList from "../lead-activity-card-list"
+import RequisitionActivityCardList from "../requisition-activity-card-list"
 import { useDataTable } from "@/hooks/use-data-table"
 import { dateFilter, dateSort } from "@/lib/data-table/data-table"
 import { DataTableFilter, FilterFields } from "@/components/data-table/data-table-filter"
-import { LEAD_ACTIVITY_STATUSES_OPTIONS, LEAD_ACTIVITY_TYPES_OPTIONS } from "@/schema/lead-activity"
+import { REQUISITION_ACTIVITY_STATUSES_OPTIONS, REQUISITION_ACTIVITY_TYPES_OPTIONS } from "@/schema/requisition-activity"
 
-export type Lead = NonNullable<Awaited<ReturnType<typeof getLeadById>>>
-export type Activity = Lead["activities"][number]
+export type Requisition = NonNullable<Awaited<ReturnType<typeof getRequisitionById>>>
+export type RequisitionActivity = Requisition["activities"][number]
 
-type LeadActivitiesTabProps = {
-  lead: NonNullable<Awaited<ReturnType<typeof getLeadById>>>
+type RequisitionActivitiesTabProps = {
+  requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionById>>>
 }
 
-export default function LeadActivitiesTab({ lead }: LeadActivitiesTabProps) {
+export default function RequisitionActivitiesTab({ requisition }: RequisitionActivitiesTabProps) {
   const router = useRouter()
-  const leadActivities = lead?.activities || []
+  const requisitionActivities = requisition?.activities || []
 
-  const [activity, setActivity] = useState<Activity | null>(null)
+  const [activity, setActivity] = useState<RequisitionActivity | null>(null)
 
   const { setIsOpen } = useDialogStore(["setIsOpen"])
 
-  const columns = useMemo((): ColumnDef<Activity>[] => {
+  const columns = useMemo((): ColumnDef<RequisitionActivity>[] => {
     return [
       { accessorKey: "title" },
       { accessorKey: "type" },
@@ -62,14 +62,14 @@ export default function LeadActivitiesTab({ lead }: LeadActivitiesTabProps) {
   const filterFields = useMemo((): FilterFields[] => {
     return [
       { label: "Title", columnId: "title", type: "text" },
-      { label: "Type", columnId: "type", type: "select", options: LEAD_ACTIVITY_TYPES_OPTIONS },
+      { label: "Type", columnId: "type", type: "select", options: REQUISITION_ACTIVITY_TYPES_OPTIONS },
       { label: "Owner", columnId: "owner", type: "text" },
       { label: "Schedule", columnId: "schedule", type: "date" },
-      { label: "Status", columnId: "status", type: "select", options: LEAD_ACTIVITY_STATUSES_OPTIONS },
+      { label: "Status", columnId: "status", type: "select", options: REQUISITION_ACTIVITY_STATUSES_OPTIONS },
     ]
   }, [])
 
-  const { table, columnFilters } = useDataTable({ data: leadActivities, columns: columns })
+  const { table, columnFilters } = useDataTable({ data: requisitionActivities, columns: columns })
 
   const Actions = () => {
     return (
@@ -87,7 +87,7 @@ export default function LeadActivitiesTab({ lead }: LeadActivitiesTabProps) {
           <DataTableFilter table={table} filterFields={filterFields} columnFilters={columnFilters} buttonProps={{ variant: "ghost" }} />
         </div>
 
-        {lead && <LeadActivityFormDrawer activity={activity} setActivity={setActivity} leadId={lead.id} />}
+        {requisition && <RequisitionActivityFormDrawer activity={activity} setActivity={setActivity} requisitionId={requisition.id} />}
       </div>
     )
   }
@@ -95,11 +95,22 @@ export default function LeadActivitiesTab({ lead }: LeadActivitiesTabProps) {
   return (
     <Card className='rounded-lg p-6 shadow-md'>
       <div className='grid grid-cols-12 gap-5'>
-        <ReadOnlyFieldHeader className='col-span-12' title='Activities' description='Lead activities details' actions={<Actions />} />
+        <ReadOnlyFieldHeader
+          className='col-span-12'
+          title='Activities'
+          description='Requisition activities details'
+          actions={<Actions />}
+        />
       </div>
 
       <div className='p-4'>
-        <LeadActivityCardList table={table} lead={lead} setActivity={setActivity} setIsOpen={setIsOpen} columnFilters={columnFilters} />
+        <RequisitionActivityCardList
+          table={table}
+          requisition={requisition}
+          setActivity={setActivity}
+          setIsOpen={setIsOpen}
+          columnFilters={columnFilters}
+        />
       </div>
     </Card>
   )

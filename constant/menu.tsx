@@ -49,13 +49,13 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
               submenus: [],
             },
             {
-              href: "/dashboard/admin/activity-log",
+              href: "/dashboard/activity-logs",
               label: "Activity Logs",
               icon: Icons.history,
               submenus: [],
             },
             {
-              href: "/dashboard/admin/settings",
+              href: `/dashboard/settings/${role}`,
               label: "Settings",
               icon: Icons.settings,
               submenus: [],
@@ -143,11 +143,11 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
                 //   label: "Supplier Quotes",
                 // },
                 {
-                  href: "/dashboard/admin/global-procurement/customers",
+                  href: "/dashboard/global-procurement/customers",
                   label: "Customers",
                 },
                 {
-                  href: "/dashboard/admin/global-procurement/suppliers",
+                  href: "/dashboard/global-procurement/suppliers",
                   label: "Suppliers",
                 },
                 // {
@@ -195,7 +195,7 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
                 //   label: "BOMS",
                 // },
                 {
-                  href: "/dashboard/admin/global-procurement/items",
+                  href: "/dashboard/global-procurement/items",
                   label: "Items",
                 },
                 // {

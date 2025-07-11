@@ -5,6 +5,7 @@ import AccountList from "./_components/account-list"
 import { getAccounts } from "@/actions/account"
 import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
+import { Card } from "@/components/ui/card"
 
 export default async function AccountsPage() {
   const accounts = await getAccounts()
@@ -30,7 +31,9 @@ export default async function AccountsPage() {
             icon: Icons.plus,
           }}
         >
-          <AccountList accounts={accounts} />
+          <Card className='p-6'>
+            <AccountList accounts={accounts} />
+          </Card>
         </PageWrapper>
       </ContentContainer>
     </ContentLayout>

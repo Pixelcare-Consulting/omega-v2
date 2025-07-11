@@ -13,30 +13,30 @@ import { Icons } from "@/components/icons"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Form } from "@/components/ui/form"
 import {
-  ACTIVITY_STATUSES_OPTIONS,
-  ACTIVITY_TYPES_COLORS,
-  ACTIVITY_TYPES_OPTIONS,
-  type ActivityForm,
-  activityFormSchema,
-} from "@/schema/activity"
+  REQUISITION_ACTIVITY_STATUSES_OPTIONS,
+  REQUISITION_ACTIVITY_TYPES_COLORS,
+  REQUISITION_ACTIVITY_TYPES_OPTIONS,
+  type RequisitionActivityForm,
+  requisitionActivityFormSchema,
+} from "@/schema/requisition-activity"
 import InputField from "@/components/form/input-field"
 import { cn } from "@/lib/utils"
 import DatePickerField from "@/components/form/date-picker-field"
 import MinimalRichTextEditorField from "@/components/form/minimal-rich-text-editor-field"
 import LoadingButton from "@/components/loading-button"
-import { upsertActivity } from "@/actions/activity"
+import { upsertRequisitionActivity } from "@/actions/requisition-activity"
 import { ComboboxField } from "@/components/form/combobox-field"
-import { Activity } from "./tabs/lead-activities-tab"
+import { RequisitionActivity } from "./tabs/requisition-activities-tab"
 import { useDialogStore } from "@/hooks/use-dialog"
 import { FormDebug } from "@/components/form/form-debug"
 
-type ActivityFormDrawerProps = {
-  activity: Activity | null
-  setActivity: (value: Activity | null) => void
-  leadId: string
+type RequisitionActivityFormDrawerProps = {
+  activity: RequisitionActivity | null
+  setActivity: (value: RequisitionActivity | null) => void
+  requisitionId: string
 }
 
-export default function ActivityFormDrawer({ leadId, activity, setActivity }: ActivityFormDrawerProps) {
+export default function RequisitionActivityFormDrawer({ requisitionId, activity, setActivity }: RequisitionActivityFormDrawerProps) {
   const router = useRouter()
 
   const { isOpen, setIsOpen } = useDialogStore(["isOpen", "setIsOpen"])
@@ -46,7 +46,7 @@ export default function ActivityFormDrawer({ leadId, activity, setActivity }: Ac
 
     return {
       id: "add",
-      leadId,
+      requisitionId,
       title: "",
       type: "",
       body: "",
@@ -61,20 +61,20 @@ export default function ActivityFormDrawer({ leadId, activity, setActivity }: Ac
     }
   }, [JSON.stringify(activity)])
 
-  const form = useForm<ActivityForm>({
+  const form = useForm<RequisitionActivityForm>({
     mode: "onChange",
     values,
-    resolver: zodResolver(activityFormSchema),
+    resolver: zodResolver(requisitionActivityFormSchema),
   })
 
-  const { executeAsync, isExecuting } = useAction(upsertActivity)
+  const { executeAsync, isExecuting } = useAction(upsertRequisitionActivity)
 
   const type = useWatch({ control: form.control, name: "type" })
 
   const typeMetadata = useMemo(() => {
     const value = type || "note"
-    const label = ACTIVITY_TYPES_OPTIONS.find((item: any) => item.value === value)?.label ?? "Note"
-    const color = ACTIVITY_TYPES_COLORS.find((item: any) => item.value === value)?.color ?? "slate"
+    const label = REQUISITION_ACTIVITY_TYPES_OPTIONS.find((item: any) => item.value === value)?.label ?? "Note"
+    const color = REQUISITION_ACTIVITY_TYPES_COLORS.find((item: any) => item.value === value)?.color ?? "slate"
 
     const STATUS_CLASSES: Record<string, string> = {
       slate: "bg-slate-50 text-slate-600 ring-slate-500/10",
@@ -92,7 +92,7 @@ export default function ActivityFormDrawer({ leadId, activity, setActivity }: Ac
     setActivity(null)
   }
 
-  const onSubmit = async (formData: ActivityForm) => {
+  const onSubmit = async (formData: RequisitionActivityForm) => {
     try {
       const response = await executeAsync(formData)
       const result = response?.data
@@ -116,42 +116,44 @@ export default function ActivityFormDrawer({ leadId, activity, setActivity }: Ac
     }
   }
 
-  if (!leadId || leadId === "add") return null
+  if (!requisitionId || requisitionId === "add") return null
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen} direction='right' dismissible={false} modal={false}>
       <DrawerTrigger asChild>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className='relative' type='button' variant='outline-primary'>
-              <Icons.plus className='size-4' />
-              New Activity
-            </Button>
-          </DropdownMenuTrigger>
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className='relative' type='button' variant='outline-primary'>
+                <Icons.plus className='size-4' />
+                New Activity
+              </Button>
+            </DropdownMenuTrigger>
 
-          <DropdownMenuContent>
-            <DropdownMenuLabel>Type</DropdownMenuLabel>
-            <DropdownMenuItem
-              className='flex items-center gap-2'
-              onClick={() => {
-                setIsOpen(true)
-                form.setValue("type", "meeting")
-              }}
-            >
-              <Icons.clock className='size-4' /> <span>Meeting</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className='flex items-center gap-2'
-              onClick={() => {
-                setIsOpen(true)
-                form.setValue("type", "note")
-                form.setValue("status", "")
-              }}
-            >
-              <Icons.notebookPen className='size-4' /> <span>Note</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Type</DropdownMenuLabel>
+              <DropdownMenuItem
+                className='flex items-center gap-2'
+                onClick={() => {
+                  setIsOpen(true)
+                  form.setValue("type", "meeting")
+                }}
+              >
+                <Icons.clock className='size-4' /> <span>Meeting</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className='flex items-center gap-2'
+                onClick={() => {
+                  setIsOpen(true)
+                  form.setValue("type", "note")
+                  form.setValue("status", "")
+                }}
+              >
+                <Icons.notebookPen className='size-4' /> <span>Note</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </DrawerTrigger>
 
       <DrawerContent className='righ-0 fixed left-auto h-fit w-[540px] overflow-hidden rounded-lg shadow-2xl'>
@@ -183,7 +185,7 @@ export default function ActivityFormDrawer({ leadId, activity, setActivity }: Ac
               <>
                 <div className='col-span-4'>
                   <ComboboxField
-                    data={ACTIVITY_STATUSES_OPTIONS}
+                    data={REQUISITION_ACTIVITY_STATUSES_OPTIONS}
                     control={form.control}
                     name='status'
                     label='Status'

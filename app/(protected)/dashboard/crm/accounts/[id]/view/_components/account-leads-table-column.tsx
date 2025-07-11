@@ -28,7 +28,7 @@ export function getColumns(accountId: string): ColumnDef<LeadData>[] {
 
           <div className='flex items-center'>
             <Icons.mail className='mr-1 size-4 text-muted-foreground/75' />
-            <Link href={`mailto:${row.original.email}`} className='text-sm text-muted-foreground/75 decoration-1 hover:underline'>
+            <Link href={`mailto:${row.original.email}`} className='text-muted-foreground/75 decoration-1 hover:underline'>
               {row.original.email}
             </Link>
           </div>
@@ -73,9 +73,9 @@ export function getColumns(accountId: string): ColumnDef<LeadData>[] {
     },
     {
       accessorKey: "phone",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='phone' />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Phone' />,
       cell: ({ row }) => (
-        <Link href={`tel:${row.original.phone}`} className='text-sm text-slate-800 decoration-1 hover:underline'>
+        <Link href={`tel:${row.original.phone}`} className='text-slate-800 decoration-1 hover:underline'>
           {row.original.phone}
         </Link>
       ),
