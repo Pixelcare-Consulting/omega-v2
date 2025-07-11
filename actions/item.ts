@@ -38,17 +38,38 @@ export const upsertItem = action
       if (existingItem) return { error: true, status: 401, message: "Item code already exists!" }
 
       const isManageBatchNumbers = data?.ManageBatchNumbers ? "Y" : "N"
+      const isPurchaseItem = data?.PurchaseItem ? "Y" : "N"
+      const isSalesItem = data?.SalesItem ? "Y" : "N"
+      const isInventoryItem = data?.InventoryItem ? "Y" : "N"
+      const isVatLiable = data?.VatLiable ? "Y" : "N"
 
       if (id && id != "add") {
         const updatedItem = await prisma.item.update({
           where: { id },
-          data: { ...data, ManageBatchNumbers: isManageBatchNumbers, updatedBy: userId },
+          data: {
+            ...data,
+            ManageBatchNumbers: isManageBatchNumbers,
+            PurchaseItem: isPurchaseItem,
+            SalesItem: isSalesItem,
+            InventoryItem: isInventoryItem,
+            VatLiable: isVatLiable,
+            updatedBy: userId,
+          },
         })
         return { status: 200, message: "Item updated successfully!", data: { item: updatedItem }, action: "UPSERT_ITEM" }
       }
 
       const newItem = await prisma.item.create({
-        data: { ...data, ManageBatchNumbers: isManageBatchNumbers, createdBy: userId, updatedBy: userId },
+        data: {
+          ...data,
+          ManageBatchNumbers: isManageBatchNumbers,
+          PurchaseItem: isPurchaseItem,
+          SalesItem: isSalesItem,
+          InventoryItem: isInventoryItem,
+          VatLiable: isVatLiable,
+          createdBy: userId,
+          updatedBy: userId,
+        },
       })
       return { status: 200, message: "Item created successfully!", data: { item: newItem }, action: "UPSERT_ITEM" }
     } catch (error) {

@@ -26,6 +26,15 @@ export async function getRoleById(id: string) {
   }
 }
 
+export async function getRoleByCode(code: string) {
+  try {
+    return await prisma.role.findUnique({ where: { code }, include: { permissions: true } })
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}
+
 //TODO: Add authentication & authorization middleware to server action using save action's createMiddleware
 export const upsertRole = action.schema(roleFormSchema).action(async ({ ctx, parsedInput: data }) => {
   const { id, code, name, description, permissions } = data

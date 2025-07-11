@@ -1,6 +1,9 @@
 "use server"
 
 import { prisma } from "@/lib/db"
+import { action, authenticationMiddleware } from "@/lib/safe-action"
+import { paramsSchema } from "@/schema/common"
+import { userFormSchema } from "@/schema/user"
 import { Prisma, User } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
@@ -35,6 +38,7 @@ export async function getUserById(id: string) {
 
     if (!user) {
       console.log(`No user found with id: ${id}`)
+      return null
     }
 
     return user
@@ -54,161 +58,95 @@ export async function getAccountByUserId(userId: string) {
 
 export async function getUsers() {
   try {
-    return await prisma.user.findMany({ where: { deletedAt: null, deletedBy: null } })
+    return await prisma.user.findMany({
+      where: { deletedAt: null, deletedBy: null },
+      include: { role: true, profile: true },
+    })
   } catch (error) {
     console.error(error)
     return []
   }
 }
 
-// Get all users with pagination
-export async function getPaginatedUsers(page = 1, pageSize = 10, searchTerm = "") {
-  try {
-    const skip = (page - 1) * pageSize
+export const upsertUser = action
+  .use(authenticationMiddleware)
+  .schema(userFormSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { id, password, confirmPassword, oldPassword, newPassword, newConfirmPassword, ...data } = parsedInput
+    const { userId } = ctx
 
-    let where: Prisma.UserWhereInput = { deletedAt: null }
+    try {
+      if (id && id !== "add") {
+        const user = await prisma.user.findUnique({ where: { id } })
 
-    if (searchTerm) {
-      where = {
-        ...where,
-        OR: [
-          { name: { contains: searchTerm, mode: "insensitive" as Prisma.QueryMode } },
-          { email: { contains: searchTerm, mode: "insensitive" as Prisma.QueryMode } },
-        ],
+        if (!user) return { error: true, status: 404, message: "User not found!", action: "DELETE_USER" }
+
+        let hashedPassword = user.password
+
+        if (oldPassword && newPassword) {
+          //* if old password is provided, check if it matches the current password
+          if (user.password) {
+            const isPasswordMatch = await bcrypt.compare(oldPassword, user.password)
+            if (!isPasswordMatch) return { error: true, status: 409, message: "Old password does not match", action: "DELETE_USER" }
+          }
+
+          hashedPassword = await bcrypt.hash(newPassword, 10)
+        }
+
+        const updatedUser = await prisma.user.update({
+          where: { id },
+          data: { ...data, password: hashedPassword, updatedBy: userId },
+        })
+
+        return { status: 200, message: "User updated successfully", action: "UPSERT_USER", data: { user: updatedUser } }
       }
-    }
 
-    const [users, total] = await Promise.all([
-      prisma.user.findMany({
-        where,
-        include: { profile: true, role: true },
-        skip,
-        take: pageSize,
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.user.count({ where }),
-    ])
+      const hashedPassword = await bcrypt.hash(password!, 10)
 
-    return {
-      users,
-      pagination: {
-        total,
-        pageCount: Math.ceil(total / pageSize),
-        page,
-        pageSize,
-      },
-    }
-  } catch (error) {
-    console.error("Error fetching users:", error)
-    throw new Error("Failed to fetch users")
-  }
-}
-
-// Create a new user
-export async function createUser(userData: Omit<User, "id" | "createdAt" | "updatedAt">) {
-  try {
-    // Hash password if provided
-    const dataToCreate = { ...userData }
-
-    if (dataToCreate.password) {
-      const salt = await bcrypt.genSalt(10)
-      dataToCreate.password = await bcrypt.hash(dataToCreate.password, salt)
-    }
-
-    const user = await prisma.user.create({
-      data: {
-        ...dataToCreate,
-        profile: {
-          create: {
-            details: {},
+      const newUser = await prisma.user.create({
+        data: {
+          ...data,
+          password: hashedPassword,
+          createdBy: userId,
+          updatedBy: userId,
+          profile: {
+            create: { details: {} },
           },
         },
-      },
-      include: {
-        profile: true,
-      },
-    })
+      })
 
-    return user
-  } catch (error) {
-    console.error("Error creating user:", error)
-    throw new Error("Failed to create user")
-  }
-}
+      return { status: 200, message: "User created successfully", action: "UPSERT_USER", data: { user: newUser } }
+    } catch (error) {
+      console.error(error)
 
-// Update an existing user
-export async function updateUser(id: string, userData: Partial<User>) {
-  try {
-    // Remove fields that shouldn't be directly updated
-    const { id: userId, createdAt, updatedAt, ...updateData } = userData as any
-
-    // Hash password if provided
-    if (updateData.password) {
-      const salt = await bcrypt.genSalt(10)
-      updateData.password = await bcrypt.hash(updateData.password, salt)
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Something went wrong!",
+        action: "UPSERT_USER",
+      }
     }
+  })
 
-    const user = await prisma.user.update({
-      where: { id },
-      data: updateData,
-      include: {
-        profile: true,
-      },
-    })
+export const deleteUser = action
+  .use(authenticationMiddleware)
+  .schema(paramsSchema)
+  .action(async ({ ctx, parsedInput: data }) => {
+    try {
+      const user = await prisma.user.findUnique({ where: { id: data.id } })
 
-    return user
-  } catch (error) {
-    console.error("Error updating user:", error)
-    throw new Error("Failed to update user")
-  }
-}
+      if (!user) return { error: true, status: 404, message: "User not found!", action: "DELETE_USER" }
 
-// Soft delete a user (set deletedAt field)
-export async function deleteUser(id: string, deletedBy?: string) {
-  try {
-    const user = await prisma.user.update({
-      where: { id },
-      data: {
-        deletedAt: new Date(),
-        deletedBy,
-      },
-    })
+      await prisma.user.update({ where: { id: data.id }, data: { deletedAt: new Date(), deletedBy: ctx.userId } })
+      return { status: 200, message: "User deleted successfully!", action: "DELETE_USER" }
+    } catch (error) {
+      console.error(error)
 
-    return user
-  } catch (error) {
-    console.error("Error deleting user:", error)
-    throw new Error("Failed to delete user")
-  }
-}
-
-// Hard delete a user (remove from database)
-export async function hardDeleteUser(id: string) {
-  try {
-    const user = await prisma.user.delete({
-      where: { id },
-    })
-
-    return user
-  } catch (error) {
-    console.error("Error hard deleting user:", error)
-    throw new Error("Failed to hard delete user")
-  }
-}
-
-// Restore a soft-deleted user
-export async function restoreUser(id: string) {
-  try {
-    const user = await prisma.user.update({
-      where: { id },
-      data: {
-        deletedAt: null,
-        deletedBy: null,
-      },
-    })
-
-    return user
-  } catch (error) {
-    console.error("Error restoring user:", error)
-    throw new Error("Failed to restore user")
-  }
-}
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Something went wrong!",
+        action: "DELETE_USER",
+      }
+    }
+  })

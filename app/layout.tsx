@@ -18,6 +18,8 @@ registerSyncfusionLicense()
 
 const inter = Inter({
   subsets: ["latin"],
+  display: "swap",
+  adjustFontFallback: false,
   // variable: "--font-inter",
 })
 

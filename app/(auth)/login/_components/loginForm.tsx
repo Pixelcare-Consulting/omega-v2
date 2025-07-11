@@ -1,42 +1,44 @@
-'use client'
+"use client"
 
-import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import { useAction } from 'next-safe-action/hooks'
+import Link from "next/link"
+import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { Button } from "@/components/ui/button"
+import { useAction } from "next-safe-action/hooks"
 
-import Alert from '@/components/alert'
-import { Form } from '@/components/ui/form'
-import InputField from '@/components/form/input-field'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { LoginForm, loginFormSchema } from '@/schema/auth'
-import { loginUser } from '@/actions/auth'
-import { useSearchParams, useRouter } from 'next/navigation'
-import LoadingButton from '@/components/loading-button'
-import { Icons } from '@/components/icons'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { DEFAULT_LOGIN_REDIRECT } from '@/constant/route'
+import Alert from "@/components/alert"
+import { Form } from "@/components/ui/form"
+import InputField from "@/components/form/input-field"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { LoginForm, loginFormSchema } from "@/schema/auth"
+import { loginUser } from "@/actions/auth"
+import { useSearchParams, useRouter } from "next/navigation"
+import LoadingButton from "@/components/loading-button"
+import { Icons } from "@/components/icons"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { DEFAULT_LOGIN_REDIRECT } from "@/constant/route"
 
 //* Loading tips to show during authentication
 const LOADING_TIPS = [
-  'Ensuring a secure connection...',
-  'Verifying your credentials...',
-  'Checking account status...',
-  'Preparing your workspace...',
-  'Almost there...'
+  "Ensuring a secure connection...",
+  "Verifying your credentials...",
+  "Checking account status...",
+  "Preparing your workspace...",
+  "Connecting to external services...",
+  "Almost there...",
 ] as const
 
 type AuthStatusModalProps = {
   isOpen: boolean
-  status: 'loading' | 'success' | 'error'
+  status: "loading" | "success" | "error" | "warning"
   message: string
   onClose: () => void
   redirectUrl?: string
+  sapError?: string
 }
 
 //* Auth Status Modal Component
-const AuthStatusModal = ({ isOpen, status, message, onClose, redirectUrl }: AuthStatusModalProps) => {
+const AuthStatusModal = ({ isOpen, status, message, onClose, redirectUrl, sapError }: AuthStatusModalProps) => {
   const [countdown, setCountdown] = useState(5)
   const [currentTip, setCurrentTip] = useState(0)
   const [progress, setProgress] = useState(0)
@@ -46,7 +48,7 @@ const AuthStatusModal = ({ isOpen, status, message, onClose, redirectUrl }: Auth
     let progressTimer: NodeJS.Timeout
     let tipTimer: NodeJS.Timeout
 
-    if (status === 'loading' && isOpen) {
+    if (status === "loading" && isOpen) {
       //* Progress animation
       progressTimer = setInterval(() => {
         setProgress((prev) => {
@@ -59,7 +61,7 @@ const AuthStatusModal = ({ isOpen, status, message, onClose, redirectUrl }: Auth
       tipTimer = setInterval(() => {
         setCurrentTip((prev) => (prev + 1) % LOADING_TIPS.length)
       }, 2000)
-    } else if (status === 'success' && isOpen) {
+    } else if ((status === "success" || status === "warning") && isOpen) {
       setProgress(100)
       timer = setInterval(() => {
         setCountdown((prev) => {
@@ -91,17 +93,25 @@ const AuthStatusModal = ({ isOpen, status, message, onClose, redirectUrl }: Auth
     <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
       <DialogContent
         className='border-none bg-background/95 shadow-lg backdrop-blur-md dark:bg-gray-900/95 sm:max-w-md'
-        onInteractOutside={status === 'loading' ? (e) => e.preventDefault() : undefined}
+        onInteractOutside={status === "loading" ? (e) => e.preventDefault() : undefined}
       >
         <DialogHeader className='pb-2'>
-          <DialogTitle className={`text-center text-xl ${status === 'success' ? 'text-primary' : ''}`}>
-            {status === 'loading' ? 'Authenticating...' : status === 'success' ? 'Welcome Back!' : 'Authentication Error'}
+          <DialogTitle
+            className={`text-center text-xl ${status === "success" ? "text-primary" : status === "warning" ? "text-amber-600" : ""}`}
+          >
+            {status === "loading"
+              ? "Authenticating..."
+              : status === "success"
+                ? "Welcome Back!"
+                : status === "warning"
+                  ? "Login Successful"
+                  : "Authentication Error"}
           </DialogTitle>
           <DialogDescription className='pt-1 text-center'>{message}</DialogDescription>
         </DialogHeader>
 
         <div className='flex items-center justify-center pb-2'>
-          {status === 'loading' && (
+          {status === "loading" && (
             <div className='flex flex-col items-center gap-6'>
               {/* Elegant spinner with Omega branding */}
               <div className='relative h-24 w-24'>
@@ -116,7 +126,7 @@ const AuthStatusModal = ({ isOpen, status, message, onClose, redirectUrl }: Auth
 
               {/* Loading tip */}
               <div className='space-y-2 text-center'>
-                <p className='animate-fade-in text-sm text-muted-foreground'>{LOADING_TIPS[currentTip]}</p>
+                <p className='animate-fade-in animate-pulse text-sm text-primary'>{LOADING_TIPS[currentTip]}</p>
               </div>
 
               {/* Progress indication */}
@@ -129,7 +139,7 @@ const AuthStatusModal = ({ isOpen, status, message, onClose, redirectUrl }: Auth
             </div>
           )}
 
-          {status === 'success' && (
+          {status === "success" && (
             <div className='flex flex-col items-center gap-6'>
               {/* Success animation */}
               <div className='relative flex h-24 w-24 items-center justify-center'>
@@ -155,7 +165,61 @@ const AuthStatusModal = ({ isOpen, status, message, onClose, redirectUrl }: Auth
             </div>
           )}
 
-          {status === 'error' && (
+          {status === "warning" && (
+            <div className='flex flex-col items-center gap-6'>
+              {/* Warning animation */}
+              <div className='relative flex h-24 w-24 items-center justify-center'>
+                <div className='absolute inset-0 rounded-full border-4 border-amber-100 dark:border-amber-900/30'></div>
+                <div className='rounded-full bg-amber-50 p-4 animate-in zoom-in-50 dark:bg-amber-900/30'>
+                  <Icons.triangleAlert className='size-10 text-amber-500' />
+                </div>
+              </div>
+
+              {/* SAP Connection Warning */}
+              {sapError && (
+                <div className='w-full rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20'>
+                  <div className='flex items-start gap-3'>
+                    <Icons.triangleAlert className='mt-0.5 size-4 text-amber-500' />
+                    <div className='flex-1'>
+                      <h4 className='text-sm font-medium text-amber-800 dark:text-amber-200'>SAP Service Layer Connection Issue</h4>
+                      <p className='mt-1 text-sm text-amber-700 dark:text-amber-300'>{sapError}</p>
+                      <p className='mt-2 text-xs text-amber-600 dark:text-amber-400'>
+                        You can still access the application, but SAP-related features may be limited.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Progress bar */}
+              <div className='w-full space-y-2'>
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='text-amber-600 dark:text-amber-400'>Redirecting in {countdown}s</span>
+                  <span className='text-amber-600 dark:text-amber-400'>100%</span>
+                </div>
+                <div className='h-2 w-full overflow-hidden rounded-full bg-amber-100 dark:bg-amber-900/30'>
+                  <div className='h-full bg-amber-500 transition-all duration-300 ease-out' style={{ width: "100%" }}></div>
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className='flex w-full gap-3'>
+                <Button className='flex-1' variant='outline' onClick={onClose}>
+                  Continue Anyway
+                </Button>
+                <Button
+                  className='flex-1'
+                  onClick={() => {
+                    if (redirectUrl) window.location.assign(redirectUrl)
+                  }}
+                >
+                  Go to Dashboard
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {status === "error" && (
             <div className='flex flex-col items-center gap-6'>
               {/* Error animation */}
               <div className='relative flex h-24 w-24 items-center justify-center'>
@@ -187,6 +251,10 @@ interface LoginResponse {
   code?: number
   action?: string
   redirectUrl?: string
+  sapConnection?: {
+    status: "connected" | "failed" | "unknown"
+    error?: string
+  }
 }
 
 interface ActionResponse {
@@ -200,39 +268,41 @@ const SigninForm = () => {
   const [showTotpInput, setShowTotpInput] = useState(false)
   const [modalState, setModalState] = useState<{
     isOpen: boolean
-    status: 'loading' | 'success' | 'error'
+    status: "loading" | "success" | "error" | "warning"
     message: string
+    sapError?: string
   }>({
     isOpen: false,
-    status: 'loading',
-    message: ''
+    status: "loading",
+    message: "",
+    sapError: undefined,
   })
 
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_LOGIN_REDIRECT
+  const callbackUrl = searchParams.get("callbackUrl") || DEFAULT_LOGIN_REDIRECT
 
   const form = useForm<LoginForm>({
-    mode: 'onChange',
+    mode: "onChange",
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
       callbackUrl,
-      totpCode: ''
+      totpCode: "",
     },
-    resolver: zodResolver(loginFormSchema)
+    resolver: zodResolver(loginFormSchema),
   })
 
   const { executeAsync, isExecuting } = useAction(loginUser)
 
   const handleSubmit = async (formValues: LoginForm) => {
-    setError('')
-    setSuccess('')
+    setError("")
+    setSuccess("")
 
     //* Show loading modal
     setModalState({
       isOpen: true,
-      status: 'loading',
-      message: 'Verifying your credentials...'
+      status: "loading",
+      message: "Signing in...", //* Initial message
     })
 
     try {
@@ -243,8 +313,8 @@ const SigninForm = () => {
       if (response?.error) {
         setModalState({
           isOpen: true,
-          status: 'error',
-          message: `Connection error: ${response.error}`
+          status: "error",
+          message: `Connection error: ${response.error}`,
         })
         setError(response.error)
         return
@@ -252,14 +322,25 @@ const SigninForm = () => {
 
       //* Check for success
       if (result?.success) {
-        //* Show success modal
-        setModalState({
-          isOpen: true,
-          status: 'success',
-          message: `Welcome back, ${formValues.email.split('@')[0]}!`
-        })
+        //* Check SAP connection status
+        if (result.sapConnection?.status === "failed") {
+          //* Show warning modal for SAP connection failure
+          setModalState({
+            isOpen: true,
+            status: "warning",
+            message: `Welcome back, ${formValues.email.split("@")[0]}! However, there's an issue with the SAP connection.`,
+            sapError: result.sapConnection.error,
+          })
+        } else {
+          //* Show success modal
+          setModalState({
+            isOpen: true,
+            status: "success",
+            message: `Welcome back, ${formValues.email.split("@")[0]}!`,
+          })
+        }
 
-        setSuccess('Successfully logged in!')
+        setSuccess("Successfully logged in!")
         form.reset()
 
         //* We don't actually redirect here, just set it for the modal close handler
@@ -269,51 +350,51 @@ const SigninForm = () => {
       //* Handle errors
       if (result?.error) {
         //* Handle 2FA required for non-admin users
-        if (result.message === '2FA Code required!' || result.message === '2FA_REQUIRED') {
+        if (result.message === "2FA Code required!" || result.message === "2FA_REQUIRED") {
           setShowTotpInput(true)
-          setModalState({ isOpen: false, status: 'loading', message: '' })
-          setError('Please enter your two-factor authentication code.')
+          setModalState({ isOpen: false, status: "loading", message: "" }) //* Close modal for 2FA input
+          setError("Please enter your two-factor authentication code.")
           return
         }
 
         //* Handle invalid 2FA code
-        if (result.message === 'Invalid authentication code. Please try again.' || result.message === 'INVALID_2FA_CODE') {
-          setError('Invalid authentication code. Please try again.')
-          setModalState({ isOpen: false, status: 'loading', message: '' })
+        if (result.message === "Invalid authentication code. Please try again." || result.message === "INVALID_2FA_CODE") {
+          setError("Invalid authentication code. Please try again.")
+          setModalState({ isOpen: false, status: "loading", message: "" }) //* Close modal for invalid 2FA
           return
         }
 
         //* Handle other errors
-        setError(result.message || 'Authentication failed')
+        setError(result.message || "Authentication failed")
         setModalState({
           isOpen: true,
-          status: 'error',
-          message: result.message || 'Authentication failed. Please verify your credentials and try again.'
+          status: "error",
+          message: result.message || "Authentication failed. Please verify your credentials and try again.",
         })
       } else {
         //* Unexpected response format
-        setError('Unexpected response from server')
+        setError("Unexpected response from server")
         setModalState({
           isOpen: true,
-          status: 'error',
-          message: 'Unexpected response from the authentication server. Please try again.'
+          status: "error",
+          message: "Unexpected response from the authentication server. Please try again.",
         })
       }
     } catch (err) {
-      console.error('Login error:', err)
-      const errorMessage = err instanceof Error ? err.message : 'Something went wrong!'
+      console.error("Login error:", err)
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong!"
       setError(errorMessage)
       setModalState({
         isOpen: true,
-        status: 'error',
-        message: 'Connection error. Please check your internet connection and try again.'
+        status: "error",
+        message: "Connection error. Please check your internet connection and try again.",
       })
     }
   }
 
   const handleModalClose = () => {
     //* If success, always redirect regardless of previous state
-    if (modalState.status === 'success') window.location.assign(callbackUrl)
+    if (modalState.status === "success") window.location.assign(callbackUrl)
     setModalState((prev) => ({ ...prev, isOpen: false }))
   }
 
@@ -338,9 +419,9 @@ const SigninForm = () => {
               label='Email'
               extendedProps={{
                 inputProps: {
-                  placeholder: 'm@example.com',
-                  className: 'h-11'
-                }
+                  placeholder: "m@example.com",
+                  className: "h-11",
+                },
               }}
             />
 
@@ -351,10 +432,10 @@ const SigninForm = () => {
                 label='Password'
                 extendedProps={{
                   inputProps: {
-                    placeholder: '••••••••',
-                    type: 'password',
-                    className: 'h-11'
-                  }
+                    placeholder: "••••••••",
+                    type: "password",
+                    className: "h-11",
+                  },
                 }}
               />
 
@@ -375,11 +456,11 @@ const SigninForm = () => {
                   label='Authentication Code'
                   extendedProps={{
                     inputProps: {
-                      placeholder: 'Enter 6-digit code',
-                      type: 'text',
+                      placeholder: "Enter 6-digit code",
+                      type: "text",
                       maxLength: 6,
-                      className: 'h-11 text-center tracking-widest'
-                    }
+                      className: "h-11 text-center tracking-widest",
+                    },
                   }}
                 />
                 <p className='text-center text-xs text-muted-foreground'>Enter the 6-digit code from your authenticator app</p>
@@ -401,7 +482,7 @@ const SigninForm = () => {
 
       <div className='text-center'>
         <span className='text-sm text-muted-foreground'>
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <Button asChild variant='link' className='h-auto p-0 text-sm font-normal hover:text-primary'>
             <Link href='/register'>Create an account</Link>
           </Button>
@@ -415,6 +496,7 @@ const SigninForm = () => {
         message={modalState.message}
         onClose={handleModalClose}
         redirectUrl={callbackUrl}
+        sapError={modalState.sapError}
       />
     </div>
   )
