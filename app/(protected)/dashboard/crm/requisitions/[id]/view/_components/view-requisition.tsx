@@ -64,7 +64,7 @@ export default function ViewRequisition({ requisition, items }: ViewRequisitionP
             <h1 className='mb-0 text-sm font-semibold'>{customer}</h1>
 
             <div className='flex flex-wrap items-center gap-2'>
-              <p className='text-sm text-muted-foreground'>{requisition.id}</p>
+              <p className='text-sm text-muted-foreground'>#{requisition.code}</p>
               <Badge variant='soft-slate'>{salesCategory}</Badge>
               {urgency && <Badge variant='soft-amber'>{urgency}</Badge>}
               {purchasingStatus && <Badge variant='soft-blue'>{purchasingStatus}</Badge>}

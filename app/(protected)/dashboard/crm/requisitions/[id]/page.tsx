@@ -42,7 +42,7 @@ export default async function RequisitionPage({ params }: { params: { id: string
           { label: "Dashboard", href: "/dashboard" },
           { label: "CRM" },
           { label: "Requisitions", href: "/dashboard/crm/requisitions" },
-          { label: id !== "add" && requisition ? requisition.id : "Add", isPage: true },
+          { label: id !== "add" && requisition ? String(requisition.code) : "Add", isPage: true },
         ]}
       />
 

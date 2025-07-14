@@ -23,7 +23,7 @@ export default async function ViewRequisitionPage({ params }: { params: { id: st
           { label: "Dashboard", href: "/dashboard" },
           { label: "CRM" },
           { label: "Requisitions", href: "/dashboard/crm/requisitions" },
-          { label: requisition.id },
+          { label: String(requisition.code) },
           { label: "View", isPage: true },
         ]}
       />
