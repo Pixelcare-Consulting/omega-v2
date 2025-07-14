@@ -21,6 +21,7 @@ export type ExtendedUser = {
   roleId: string
   avatarUrl?: string | null
   rolePermissions: { id: string; code: string; actions: string[] }[]
+  sapSession?: { b1session: string; routeid: string }
 }
 
 declare module "next-auth" {
@@ -38,7 +39,7 @@ declare module "next-auth/jwt" {
     roleId: string
     avatarUrl?: string | null
     rolePermissions: { id: string; code: string; actions: string[] }[]
-    sapSession?: { b1session: string; routeid: string } //* Add SAP session to JWT type
+    sapSession?: { b1session: string; routeid: string }
   }
 }
 
@@ -119,6 +120,7 @@ export const callbacks: NextAuthConfig["callbacks"] = {
           roleId: token.roleId,
           rolePermissions: token.rolePermissions,
           avatarUrl: token.avatarUrl || null,
+          sapSession: token.sapSession,
         }
       }
 
