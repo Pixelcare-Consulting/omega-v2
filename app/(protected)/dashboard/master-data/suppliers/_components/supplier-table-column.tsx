@@ -29,20 +29,20 @@ export default function getColumns(): ColumnDef<SupplierData>[] {
       accessorKey: "GroupName",
       id: "group name",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Group' />,
-      cell: ({ row }) => <Badge variant='soft-blue'>{row.original.GroupName || "-"}</Badge>,
+      cell: ({ row }) => <Badge variant='soft-blue'>{row.original.GroupName || ""}</Badge>,
     },
     {
       accessorKey: "CntctPrsn",
       id: "contact person",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Contact Person' />,
-      cell: ({ row }) => <div>{row.original.CntctPrsn || "-"}</div>,
+      cell: ({ row }) => <div>{row.original.CntctPrsn || ""}</div>,
     },
     {
       accessorKey: "Phone1",
       id: "phone",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Phone' />,
       cell: ({ row }) => {
-        if (!row.original.Phone1) return "-"
+        if (!row.original.Phone1) return ""
 
         return (
           <Link href={`tel:${row.original.Phone1}`} className='text-slate-800 decoration-1 hover:underline'>
@@ -55,7 +55,7 @@ export default function getColumns(): ColumnDef<SupplierData>[] {
       accessorKey: "Currency",
       id: "currency",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Currency' />,
-      cell: ({ row }) => <div>{row.original.Currency || "-"}</div>,
+      cell: ({ row }) => <div>{row.original.Currency || ""}</div>,
     },
     {
       accessorKey: "status",
