@@ -148,7 +148,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
         if (!requestedItems || requestedItems.length < 1) return null
 
         const primaryRequestedItem = requestedItems[0]
-        const item = items.find((item) => item.id === primaryRequestedItem)
+        const item = items.find((item) => item.ItemCode === primaryRequestedItem)
 
         return item?.ItemCode || ""
       },
@@ -159,7 +159,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
         if (!requestedItems || requestedItems.length < 1) return null
 
         const primaryRequestedItem = requestedItems[0]
-        const item = items.find((item) => item.id === primaryRequestedItem)
+        const item = items.find((item) => item.ItemCode === primaryRequestedItem)
 
         return (
           <div className='min-w-[150px]'>
@@ -174,7 +174,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
         if (!requestedItems || requestedItems.length < 1) return null
 
         const primaryRequestedItem = requestedItems[0]
-        const item = items.find((item) => item.id === primaryRequestedItem)
+        const item = items.find((item) => item.ItemCode === primaryRequestedItem)
 
         return item?.FirmName || ""
       },
@@ -185,7 +185,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
         if (!requestedItems || requestedItems.length < 1) return null
 
         const primaryRequestedItem = requestedItems[0]
-        const item = items.find((item) => item.id === primaryRequestedItem)
+        const item = items.find((item) => item.ItemCode === primaryRequestedItem)
 
         return <Badge variant='soft-slate'>{item?.FirmName || ""}</Badge>
       },
