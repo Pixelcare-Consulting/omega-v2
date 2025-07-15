@@ -78,7 +78,7 @@ export const requestedItemFormSchema = z.object({
   mfr: z.string().nullish(),
 })
 
-export const requestedItemsFormSchema = z.array(requestedItemFormSchema).min(1, { message: "Please add at least one item" })
+export const requestedItemsFormSchema = z.array(requestedItemFormSchema).min(1, { message: "Please select at least one item" })
 
 export const requisitionFormSchema = z.object({
   id: z.string().min(1, { message: "ID is required" }),

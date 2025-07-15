@@ -130,96 +130,115 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
               ],
             },
             {
-              href: "/dashboard/admin/global-procurement",
-              label: "Global Procurement",
-              icon: Icons.dollar,
+              href: "/dashboard/master-data",
+              label: "Master Data",
+              icon: Icons.database,
               submenus: [
-                // {
-                //   href: "/dashboard/admin/global-procurement/requisitions",
-                //   label: "Requisitions",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/supplier-quotes",
-                //   label: "Supplier Quotes",
-                // },
                 {
-                  href: "/dashboard/global-procurement/customers",
+                  href: "/dashboard/master-data/customers",
                   label: "Customers",
                 },
                 {
-                  href: "/dashboard/global-procurement/suppliers",
+                  href: "/dashboard/master-data/suppliers",
                   label: "Suppliers",
                 },
-                // {
-                //   href: "/dashboard/admin/global-procurement/contacts",
-                //   label: "Contacts",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/employees",
-                //   label: "Employees (New)",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/so-report",
-                //   label: "SO Report",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/commission",
-                //   label: "Commission",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/commission-adjustments",
-                //   label: "Commission Adjustments",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/employee-commission-adjustments",
-                //   label: "Employee Commission Adjustments",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/product-brands",
-                //   label: "Product Brands",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/product-availability",
-                //   label: "Product Availability",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/product-commodities",
-                //   label: "Product Commodities",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/incoming-tracking",
-                //   label: "Incoming Tracking",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/boms",
-                //   label: "BOMS",
-                // },
                 {
-                  href: "/dashboard/global-procurement/items",
+                  href: "/dashboard/master-data/items",
                   label: "Items",
                 },
-                // {
-                //   href: "/dashboard/admin/global-procurement/boms-items-quotes",
-                //   label: "BOMS Items Quotes",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/customer-excess",
-                //   label: "Customer Excess",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/supplier-offers",
-                //   label: "Supplier Offers",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/documents",
-                //   label: "Documents",
-                // },
-                // {
-                //   href: "/dashboard/admin/global-procurement/requisitions-kpi",
-                //   label: "Requisitions KPI Table",
-                // },
               ],
             },
+            // {
+            //   href: "/dashboard/admin/global-procurement",
+            //   label: "Global Procurement",
+            //   icon: Icons.dollar,
+            //   submenus: [
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/requisitions",
+            //     //   label: "Requisitions",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/supplier-quotes",
+            //     //   label: "Supplier Quotes",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/global-procurement/customers",
+            //     //   label: "Customers",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/global-procurement/suppliers",
+            //     //   label: "Suppliers",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/contacts",
+            //     //   label: "Contacts",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/employees",
+            //     //   label: "Employees (New)",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/so-report",
+            //     //   label: "SO Report",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/commission",
+            //     //   label: "Commission",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/commission-adjustments",
+            //     //   label: "Commission Adjustments",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/employee-commission-adjustments",
+            //     //   label: "Employee Commission Adjustments",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/product-brands",
+            //     //   label: "Product Brands",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/product-availability",
+            //     //   label: "Product Availability",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/product-commodities",
+            //     //   label: "Product Commodities",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/incoming-tracking",
+            //     //   label: "Incoming Tracking",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/boms",
+            //     //   label: "BOMS",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/global-procurement/items",
+            //     //   label: "Items",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/boms-items-quotes",
+            //     //   label: "BOMS Items Quotes",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/customer-excess",
+            //     //   label: "Customer Excess",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/supplier-offers",
+            //     //   label: "Supplier Offers",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/documents",
+            //     //   label: "Documents",
+            //     // },
+            //     // {
+            //     //   href: "/dashboard/admin/global-procurement/requisitions-kpi",
+            //     //   label: "Requisitions KPI Table",
+            //     // },
+            //   ],
+            // },
             // {
             //   href: "/dashboard/admin/warehouse-services",
             //   label: "Warehouse Services",

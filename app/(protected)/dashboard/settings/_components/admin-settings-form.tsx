@@ -9,6 +9,7 @@ import { Icons } from "@/components/icons"
 import { getSapSettings, getSettingByRoleCode } from "@/actions/settings"
 import Alert from "@/components/alert"
 import { getRoleByCode } from "@/actions/role"
+import UnderDevelopment from "@/components/under-development"
 
 type AdminSettingsFormProps = {
   role: NonNullable<Awaited<ReturnType<typeof getRoleByCode>>>
@@ -35,15 +36,7 @@ export default function AdminSettingsForm({ role, settings, sapSettings }: Admin
 
         <TabsContent value='2'>
           <Card className='grid grid-cols-12 gap-5 rounded-lg p-6 shadow-md'>
-            <div className='col-span-12 flex h-[56vh] items-center justify-center'>
-              <div className='flex flex-col items-center justify-center'>
-                <Icons.construction className='size-14 text-destructive' />
-                <div className='mt-2.5 flex flex-col items-center justify-center gap-1'>
-                  <h1 className='text-center text-xl font-bold'>Under Development</h1>
-                  <p className='text-center text-sm text-slate-500 dark:text-slate-400'>This feature is under development.</p>
-                </div>
-              </div>
-            </div>
+            <UnderDevelopment className='col-span-12 h-[56vh]' />
           </Card>
         </TabsContent>
 
@@ -53,15 +46,7 @@ export default function AdminSettingsForm({ role, settings, sapSettings }: Admin
 
         <TabsContent value='4'>
           <Card className='grid grid-cols-12 gap-5 rounded-lg p-6 shadow-md'>
-            <div className='col-span-12 flex h-[56vh] items-center justify-center'>
-              <div className='flex flex-col items-center justify-center'>
-                <Icons.construction className='size-14 text-destructive' />
-                <div className='mt-2.5 flex flex-col items-center justify-center gap-1'>
-                  <h1 className='text-center text-xl font-bold'>Under Development</h1>
-                  <p className='text-center text-sm text-slate-500 dark:text-slate-400'>This feature is under development.</p>
-                </div>
-              </div>
-            </div>
+            <UnderDevelopment className='col-span-12 h-[56vh]' />
           </Card>
         </TabsContent>
       </Tabs>

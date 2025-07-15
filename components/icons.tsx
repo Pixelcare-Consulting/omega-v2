@@ -97,6 +97,7 @@ import {
   UserRoundCog,
   Construction,
   XCircle,
+  Hash,
 } from "lucide-react"
 
 export type Icon = LucideIcon
@@ -202,4 +203,5 @@ export const Icons = {
   globe: Globe,
   database: Database,
   construction: Construction,
+  hash: Hash,
 }

@@ -295,7 +295,7 @@ model LeadActivity {
   type      String
   link      String?   @default("")
   body      String?   @default("")
-  date      DateTime? @db.Date
+  date      DateTime?
   startTime String?   @default("")
   endTime   String?   @default("")
   status    String
@@ -317,11 +317,12 @@ model LeadActivity {
 
 model Requisition {
   id                               String   @id @default(uuid())
+  code                             Int      @unique @default(autoincrement())
   customerId                       String
   contactId                        String?
   customerPn                       String?  @default("")
   requestedItems                   String[]
-  date                             DateTime @db.Date
+  date                             DateTime
   urgency                          String?  @default("")
   salesCategory                    String
   isPurchasingInitiated            Boolean  @default(false)
@@ -330,9 +331,9 @@ model Requisition {
   result                           String?  @default("")
   reason                           String?  @default("")
   reqReviewResult                  String[] @default([])
-  quantity                         Decimal? @default(0)
-  customerStandardPrice            Decimal? @default(0)
-  customerStandardOpportunityValue Decimal? @default(0)
+  quantity                         Decimal?
+  customerStandardPrice            Decimal?
+  customerStandardOpportunityValue Decimal?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -349,6 +350,10 @@ model Requisition {
   createdByUser User? @relation("user-created-requisitions", fields: [createdBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
   updatedByUser User? @relation("user-updated-requisitions", fields: [updatedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
   deletedByUser User? @relation("user-deleted-requisitions", fields: [deletedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  quotations Quotation[]
+
+  @@unique([customerId, code])
 }
 
 model RequisitionSalesPerson {
@@ -378,7 +383,7 @@ model RequisitionActivity {
   type          String
   link          String?   @default("")
   body          String?   @default("")
-  date          DateTime? @db.Date
+  date          DateTime?
   startTime     String?   @default("")
   endTime       String?   @default("")
   status        String
@@ -396,6 +401,40 @@ model RequisitionActivity {
   createdByUser User? @relation("user-created-requisition-activities", fields: [createdBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
   updatedByUser User? @relation("user-updated-requisition-activities", fields: [updatedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
   deletedByUser User? @relation("user-deleted-requisition-activities", fields: [deletedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model Quotation {
+  id              String   @id @default(uuid())
+  code            Int      @unique @default(autoincrement())
+  customerId      String
+  contactId       String?
+  customerRefNo   String?  @default("")
+  requisitionCode Int
+  status          String
+  postingDate     DateTime
+  validUntil      DateTime
+  documentDate    DateTime
+  items           String[]
+  owner           String
+  accExec         String?  @default("")
+  accManager      String?  @default("")
+  accAssoc        String?  @default("")
+  brokerBuy       String?  @default("")
+  tegPurc         String?  @default("")
+  bpProject       String?  @default("")
+  remark          String?  @default("")
+  freight         String?  @default("")
+  tax             Decimal?
+  total           Decimal?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+
+  requisition Requisition @relation(fields: [requisitionCode], references: [code], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model Customer {
@@ -431,6 +470,76 @@ model Customer {
   deletedBy String?
 
   requisitions Requisition[]
+}
+
+model BusinessPartner {
+  id String @id @default(uuid())
+
+  Address          String? @default("")
+  CardCode         String
+  CardName         String
+  CardType         String
+  CntctPrsn        String? @default("")
+  CreateDate       String
+  Currency         String
+  GroupCode        Int
+  GroupName        String? @default("")
+  GroupNum         Int?
+  MailAddres       String? @default("")
+  MailZipCod       String? @default("")
+  Phone1           String? @default("")
+  PymntGroup       String? @default("")
+  U_OMEG_QBRelated String? @default("")
+  U_VendorCode     String? @default("")
+  UpdateDate       String
+  ZipCode          String? @default("")
+
+  source String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+}
+
+// model Item {
+//   id String @id @default(uuid())
+
+//   BuyUnitMsr String? @default("")
+//   CreateDate String
+//   FirmCode   String? @default("")
+//   FirmName   String? @default("")
+//   ItemCode   String
+//   ItemName   String
+//   ItmsGrpCod String
+//   ItmsGrpNam String? @default("")
+//   ManBtchNum String
+//   UpdateDate String
+
+//   source String
+
+//   createdAt DateTime  @default(now())
+//   updatedAt DateTime  @updatedAt
+//   deletedAt DateTime?
+//   createdBy String?
+//   updatedBy String?
+//   deletedBy String?
+// }
+
+//* synchronization metadata table
+model SyncMeta {
+  id         String   @id @default(uuid())
+  code       String   @unique
+  lastSyncAt DateTime @default(now())
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
 }
 
 model Item {
