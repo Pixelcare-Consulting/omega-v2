@@ -1,6 +1,9 @@
 "use server"
 
+import { prisma } from "@/lib/db"
 import { callSapServiceLayerApi } from "@/lib/sap-service-layer"
+import { isAfter, parse } from "date-fns"
+import { revalidateTag, unstable_cache } from "next/cache"
 
 const sapCredentials = {
   BaseURL: process.env.SAP_BASE_URL || "",
@@ -10,73 +13,76 @@ const sapCredentials = {
 }
 
 export async function getBpMasters({ cardType }: { cardType: string }) {
+  let success = false
+  let result: any[] | undefined
+  const cacheKey = `bp-master-${cardType.toLowerCase()}`
+
   try {
-    //TODO: initial implement sync logic
+    //* fetch SAP bp master data, portal bp master data, sync meta
+    const data = await Promise.allSettled([
+      callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query1')/List`, `CardType='${cardType}'`),
+      prisma.businessPartner.findMany({ where: { CardType: cardType } }),
+      prisma.syncMeta.findUnique({ where: { code: cardType } }),
+    ])
 
-    //*  Initial Sync Loginc
-    //*  1. fetch SAP data
-    //*  2. from SAP data select/filter the records **where `UpdateDate >= last_sync_time`**.
-    //*  3. do write batch update into postresql based on the filtered records
-    //*  4. fetch from postgresql using unstable_cache and include path for  revalidation on demand
-    //*  5. return data
+    const sapBpMasters = data[0].status === "fulfilled" ? data[0]?.value?.value || [] : []
+    const portalBpMasters = data[1].status === "fulfilled" ? data[1]?.value || [] : []
+    const lastSyncDate = data[2].status === "fulfilled" ? data[2]?.value?.lastSyncAt || new Date("01/01/2020") : new Date("01/01/2020")
 
-    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query1')/List`, `CardType='${cardType}'`)
+    //* check if portalBpMasters has data or not, if dont have data insert sapBpMasters into portal, otherwise update portalBpMasters based on sapBpMasters
+    if (portalBpMasters.length === 0) {
+      result = await unstable_cache(
+        async () => {
+          return prisma.businessPartner.createManyAndReturn({
+            data: sapBpMasters.map((row: any) => ({ ...row, source: "sap" })),
+          })
+        },
+        [cacheKey],
+        { tags: [cacheKey] }
+      )()
+
+      success = true
+    } else {
+      //* filter based on card type and filter the records where CreateDate > lastSyncDate or  UpdateDate > lastSyncDate
+      const filteredSapBpMasters = sapBpMasters?.value
+        ?.filter((row: any) => row.CardType === cardType)
+        .filter((row: any) => {
+          const createDate = parse(row.CreateDate, "yyyyMMdd", new Date())
+          const updateDate = parse(row.UpdateDate, "yyyyMMdd", new Date())
+          return isAfter(createDate, lastSyncDate) || isAfter(updateDate, lastSyncDate)
+        })
+
+      const upsertPromises = filteredSapBpMasters.map((row: any) => {
+        return prisma.businessPartner.upsert({
+          where: { CardCode: row.CardCode },
+          create: { ...row, source: "sap" },
+          update: { ...row, source: "sap" },
+        })
+      })
+
+      await prisma.$transaction([upsertPromises])
+
+      //*  update the sync meta and query the portal bp master data
+      result = await unstable_cache(
+        async () => {
+          const [_, result] = await prisma.$transaction([
+            prisma.syncMeta.update({ where: { code: cardType }, data: { lastSyncAt: new Date() } }),
+            prisma.businessPartner.findMany({ where: { CardType: cardType } }),
+          ])
+
+          return result
+        },
+        [cacheKey],
+        { tags: [cacheKey] }
+      )()
+
+      success = true
+    }
   } catch (error) {
     console.error(error)
-    return []
+    result = []
   }
+
+  //* revalidate the cache
+  if (success && result) revalidateTag(cacheKey)
 }
-
-// export async function getSAPBPCustomer() {
-//   try {
-//     return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query1')/List`, "CardType='C'")
-//   } catch (error) {
-//     console.error(error)
-//     return []
-//   }
-// }
-
-// export async function getSAPBPSupplier() {
-//   try {
-//     return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query1')/List`, "CardType='S'")
-//   } catch (error) {
-//     console.error(error)
-//     return []
-//   }
-// }
-
-// export async function getSAPBPGroup() {
-//   try {
-//     return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/BusinessPartnerGroups`)
-//   } catch (error) {
-//     console.error(error)
-//     return []
-//   }
-// }
-
-// export async function getSAPItem() {
-//   try {
-//     return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query2')/List`)
-//   } catch (error) {
-//     console.error(error)
-//     return []
-//   }
-// }
-
-// export async function getSAPItemGroup() {
-//   try {
-//     return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/ItemGroups`)
-//   } catch (error) {
-//     console.error(error)
-//     return []
-//   }
-// }
-
-// export async function getSAPManufacturer() {
-//   try {
-//     return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/Manufacturers`)
-//   } catch (error) {
-//     console.error(error)
-//     return []
-//   }
-// }

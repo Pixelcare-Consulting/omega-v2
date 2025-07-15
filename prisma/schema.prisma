@@ -476,7 +476,7 @@ model BusinessPartner {
   id String @id @default(uuid())
 
   Address          String? @default("")
-  CardCode         String
+  CardCode         String  @unique
   CardName         String
   CardType         String
   CntctPrsn        String? @default("")
@@ -530,9 +530,10 @@ model BusinessPartner {
 
 //* synchronization metadata table
 model SyncMeta {
-  id         String   @id @default(uuid())
-  code       String   @unique
-  lastSyncAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  code        String   @unique
+  description String?
+  lastSyncAt  DateTime @default(now())
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
