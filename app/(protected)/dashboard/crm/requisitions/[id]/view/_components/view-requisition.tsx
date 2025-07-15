@@ -11,9 +11,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/badge"
 import { getInitials } from "@/lib/utils"
 import RequisitionSummaryTab from "./tabs/requisition-summary-tab"
-import { getItems } from "@/actions/item"
 import RequisitionRequestedItemsTab from "./tabs/requisition-requested-items-tab"
 import RequisitionActivitiesTab from "./tabs/requisition-activities-tab"
+import { getItems } from "@/actions/sap-item-master"
 
 type ViewRequisitionProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionById>>>

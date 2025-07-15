@@ -6,7 +6,6 @@ import { getColumns } from "./requisition-requested-items-column"
 import { RequestedItemForm } from "@/schema/requisition"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
-import { getItems } from "@/actions/item"
 
 type RequisitionRequestedItemsListProps = {
   reqId: string

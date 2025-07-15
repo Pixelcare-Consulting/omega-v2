@@ -64,7 +64,7 @@ export const upsertRequisition = action
   .action(async ({ ctx, parsedInput }) => {
     const { id, salesPersons, omegaBuyers, ...data } = parsedInput
     const { userId } = ctx
-    const requestedItems = data.requestedItems.map((item) => item.id)
+    const requestedItems = data.requestedItems.map((item) => item.code)
 
     try {
       if (id && id !== "add") {
@@ -163,7 +163,7 @@ export const updateRequisitionReqItems = action
   .action(async ({ ctx, parsedInput: data }) => {
     try {
       const requisition = await prisma.requisition.findUnique({ where: { id: data.reqId } })
-      const requestedItems = data.requestedItems.map((item) => item.id)
+      const requestedItems = data.requestedItems.map((item) => item.code)
 
       if (!requisition) return { error: true, status: 404, message: "Requisition not found!", action: "UPDATE_REQUISITION_REQ_ITEMS" }
 

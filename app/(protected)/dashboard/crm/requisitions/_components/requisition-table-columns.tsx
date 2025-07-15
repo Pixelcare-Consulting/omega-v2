@@ -12,10 +12,10 @@ import { deleteRequisition, getRequisitions } from "@/actions/requisition"
 import { format } from "date-fns"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import { PURCHASING_STATUS_OPTIONS, RESULT_OPTIONS, SALES_CATEGORY_OPTIONS, URGENCY_OPTIONS } from "@/schema/requisition"
-import { getItems } from "@/actions/item"
 import { useRouter } from "nextjs-toploader/app"
 import AlertModal from "@/components/alert-modal"
 import { useAction } from "next-safe-action/hooks"
+import { getItems } from "@/actions/sap-item-master"
 
 type RequisitionListProps = Awaited<ReturnType<typeof getRequisitions>>[number]
 
@@ -150,7 +150,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
         const primaryRequestedItem = requestedItems[0]
         const item = items.find((item) => item.id === primaryRequestedItem)
 
-        return item?.ManufacturerPn || ""
+        return item?.ItemCode || ""
       },
       id: "mpn",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
@@ -163,7 +163,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
 
         return (
           <div className='min-w-[150px]'>
-            <Badge variant='soft-slate'>{item?.ManufacturerPn || ""}</Badge>
+            <Badge variant='soft-slate'>{item?.ItemCode || ""}</Badge>
           </div>
         )
       },
@@ -176,7 +176,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
         const primaryRequestedItem = requestedItems[0]
         const item = items.find((item) => item.id === primaryRequestedItem)
 
-        return item?.Manufacturer || ""
+        return item?.FirmName || ""
       },
       id: "mfr",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MFR' />,
@@ -187,7 +187,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
         const primaryRequestedItem = requestedItems[0]
         const item = items.find((item) => item.id === primaryRequestedItem)
 
-        return <Badge variant='soft-slate'>{item?.Manufacturer || ""}</Badge>
+        return <Badge variant='soft-slate'>{item?.FirmName || ""}</Badge>
       },
     },
     {

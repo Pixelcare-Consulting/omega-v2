@@ -39,7 +39,8 @@ export function getColumns(reqId: string, requestedItems: RequestedItemForm[]): 
       enableSorting: false,
       cell: ({ row }) => {
         const mpn = row.original?.mpn
-        if (!mpn) return null
+        const source = row.original?.source
+        if (!mpn || source === "portal") return null
         return <Badge variant='soft-slate'>{mpn}</Badge>
       },
     },
@@ -54,6 +55,15 @@ export function getColumns(reqId: string, requestedItems: RequestedItemForm[]): 
       },
     },
     {
+      accessorFn: (row) => row.source,
+      accessorKey: "source",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Source' />,
+      cell: ({ row }) => {
+        const isSAP = row.original.source === "sap"
+        return isSAP ? <Badge variant='soft-green'>SAP</Badge> : <Badge variant='soft-amber'>Portal</Badge>
+      },
+    },
+    {
       accessorKey: "action",
       header: "Action",
       cell: function ActionCell({ row }) {
@@ -63,12 +73,12 @@ export function getColumns(reqId: string, requestedItems: RequestedItemForm[]): 
 
         if (!requestedItems || requestedItems.length < 2) return null
 
-        const { id, name, mpn } = row.original
+        const { code, name, mpn } = row.original
 
-        const handleRemoveItem = (reqId: string, itemId: string, requestedItems: RequestedItemForm[]) => {
+        const handleRemoveItem = (reqId: string, itemCode: string, requestedItems: RequestedItemForm[]) => {
           setShowConfirmation(false)
 
-          const filteredReqItems = requestedItems.filter((item) => item.id !== itemId)
+          const filteredReqItems = requestedItems.filter((item) => item.code !== itemCode)
 
           toast.promise(executeAsync({ reqId, requestedItems: filteredReqItems }), {
             loading: "Removing requested item...",
@@ -101,7 +111,7 @@ export function getColumns(reqId: string, requestedItems: RequestedItemForm[]): 
               isOpen={showConfirmation}
               title='Are you sure?'
               description={`Are you sure you want to remove this requested item named "${name}" with MPN of "${mpn}"?`}
-              onConfirm={() => handleRemoveItem(reqId, id, requestedItems)}
+              onConfirm={() => handleRemoveItem(reqId, code, requestedItems)}
               onConfirmText='Remove'
               onCancel={() => setShowConfirmation(false)}
             />

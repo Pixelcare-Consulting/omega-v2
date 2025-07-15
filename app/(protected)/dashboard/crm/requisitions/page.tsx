@@ -5,8 +5,8 @@ import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import RequisitionList from "./_components/requisition-list"
 import { getRequisitions } from "@/actions/requisition"
-import { getItems } from "@/actions/item"
 import { Card } from "@/components/ui/card"
+import { getItems } from "@/actions/sap-item-master"
 
 export default async function RequisitionsPage() {
   const [requisitions, items] = await Promise.all([await getRequisitions(), await getItems()])
@@ -32,7 +32,7 @@ export default async function RequisitionsPage() {
             icon: Icons.plus,
           }}
         >
-          <Card className='rounded-lg p-6 shadow-md'>
+          <Card className='p-6'>
             <RequisitionList requisitions={requisitions} items={items} />
           </Card>
         </PageWrapper>

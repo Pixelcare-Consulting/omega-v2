@@ -72,17 +72,18 @@ export const REQ_REVIEW_RESULT_OPTIONS = [
 
 //* Zod Schema
 export const requestedItemFormSchema = z.object({
-  id: z.string().min(1, { message: "Item ID is required" }),
+  code: z.string().min(1, { message: "Item code is required" }),
   name: z.string().nullish(),
   mpn: z.string().nullish(),
   mfr: z.string().nullish(),
+  source: z.string().nullish(),
 })
 
 export const requestedItemsFormSchema = z.array(requestedItemFormSchema).min(1, { message: "Please select at least one item" })
 
 export const requisitionFormSchema = z.object({
   id: z.string().min(1, { message: "ID is required" }),
-  customerId: z.string().min(1, { message: "Company name is required" }),
+  customerCode: z.string().min(1, { message: "Company name is required" }),
   contactId: z.string().nullish(),
   customerPn: z.string().nullish(),
   requestedItems: requestedItemsFormSchema,

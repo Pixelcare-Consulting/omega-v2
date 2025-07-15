@@ -31,7 +31,6 @@ import { Separator } from "@/components/ui/separator"
 import { getCustomers } from "@/actions/customer"
 import { Input } from "@/components/ui/input"
 import InputField from "@/components/form/input-field"
-import { getItems } from "@/actions/item"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
 import { ColumnDef } from "@tanstack/react-table"
@@ -43,12 +42,14 @@ import LoadingButton from "@/components/loading-button"
 import { Badge } from "@/components/badge"
 import { useSession } from "next-auth/react"
 import { getRequisitionById, upsertRequisition } from "@/actions/requisition"
+import { getItems } from "@/actions/sap-item-master"
+import { getBpMasters } from "@/actions/sap-bp-master"
 import { FormDebug } from "@/components/form/form-debug"
 
 type RequisitionFormProps = {
   requisition: Awaited<ReturnType<typeof getRequisitionById>>
   users: Awaited<ReturnType<typeof getUsers>>
-  customers: Awaited<ReturnType<typeof getCustomers>>
+  customers: Awaited<ReturnType<typeof getBpMasters>>
   items: Awaited<ReturnType<typeof getItems>>
 }
 
@@ -77,7 +78,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
     if (id === "add" || !requisition) {
       return {
         id: "add",
-        customerId: "",
+        customerCode: "",
         contactId: null,
         customerPn: "",
         requestedItems: [],
@@ -112,10 +113,11 @@ export default function RequisitionForm({ requisition, users, customers, items }
   const requestedItemsForm = useForm({
     mode: "onChange",
     values: {
-      id: "",
+      code: "",
       name: "",
       mpn: "",
       mfr: "",
+      source: "",
     },
     resolver: zodResolver(requestedItemFormSchema),
   })
@@ -131,7 +133,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
 
   const customersOptions = useMemo(() => {
     if (!customers) return []
-    return customers.map((customer) => ({ label: customer?.CardName || customer.CardCode, value: customer.id }))
+    return customers.map((customer) => ({ label: customer?.CardName || customer.CardCode, value: customer.CardCode, customer }))
   }, [JSON.stringify(customers)])
 
   const itemsOptions = useMemo(() => {
@@ -141,8 +143,8 @@ export default function RequisitionForm({ requisition, users, customers, items }
 
     //* only show items that are not already in the requested items
     return items
-      .filter((item) => !requestedItems.find((reqItem) => reqItem.id === item.id))
-      .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.id }))
+      .filter((item) => !requestedItems.find((reqItem) => reqItem.code === item.ItemCode))
+      .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.ItemCode, item }))
   }, [JSON.stringify(items), JSON.stringify(form.watch("requestedItems"))])
 
   const requestedItems = useWatch({ control: form.control, name: "requestedItems" })
@@ -175,7 +177,8 @@ export default function RequisitionForm({ requisition, users, customers, items }
         enableSorting: false,
         cell: ({ row }) => {
           const mpn = row.original?.mpn
-          if (!mpn) return null
+          const source = row.original?.source
+          if (!mpn || source === "portal") return null
           return <Badge variant='soft-slate'>{mpn}</Badge>
         },
       },
@@ -189,16 +192,24 @@ export default function RequisitionForm({ requisition, users, customers, items }
           return <Badge variant='soft-slate'>{mfr}</Badge>
         },
       },
-
+      {
+        accessorFn: (row) => row.source,
+        accessorKey: "source",
+        header: ({ column }) => <DataTableColumnHeader column={column} title='Source' />,
+        cell: ({ row }) => {
+          const isSAP = row.original.source === "sap"
+          return isSAP ? <Badge variant='soft-green'>SAP</Badge> : <Badge variant='soft-amber'>Portal</Badge>
+        },
+      },
       {
         accessorKey: "action",
         header: "Action",
         cell: ({ row }) => {
-          const id = row.original.id
+          const code = row.original.code
 
           const handleRemoveItem = (id: string) => {
             const currentValues = form.getValues("requestedItems") || []
-            form.setValue("requestedItems", [...currentValues.filter((item) => item.id !== id)])
+            form.setValue("requestedItems", [...currentValues.filter((item) => item.code !== code)])
           }
 
           return <Icons.trash className='size-4 cursor-pointer text-red-600' onClick={() => handleRemoveItem(id)} />
@@ -250,18 +261,19 @@ export default function RequisitionForm({ requisition, users, customers, items }
 
   //* auto populate mpn and mfr if item is selected
   useEffect(() => {
-    const itemId = requestedItemsForm.getValues("id")
+    const itemCode = requestedItemsForm.getValues("code")
 
-    if (itemId && items.length > 0) {
-      const selectedItem = items.find((item) => item.id === itemId)
+    if (itemCode && items.length > 0) {
+      const selectedItem = items.find((item) => item.ItemCode === itemCode)
 
       if (selectedItem) {
         requestedItemsForm.setValue("name", selectedItem.ItemName)
-        requestedItemsForm.setValue("mpn", selectedItem.ManufacturerPn)
-        requestedItemsForm.setValue("mfr", selectedItem.Manufacturer)
+        requestedItemsForm.setValue("mpn", selectedItem.ItemCode)
+        requestedItemsForm.setValue("mfr", selectedItem.FirmName)
+        requestedItemsForm.setValue("source", selectedItem.source)
       }
     }
-  }, [requestedItemsForm.watch("id"), JSON.stringify(items)])
+  }, [requestedItemsForm.watch("code"), JSON.stringify(items)])
 
   //* set requested items if data requisition exists
   useEffect(() => {
@@ -269,10 +281,16 @@ export default function RequisitionForm({ requisition, users, customers, items }
       const selectedRequestedItems = requisition?.requestedItems as string[] | null
 
       const requestedItems =
-        selectedRequestedItems?.map((itemId) => {
-          const selectedItem = items.find((item) => itemId === item.id)
+        selectedRequestedItems?.map((itemCode) => {
+          const selectedItem = items.find((item) => itemCode === item.ItemCode)
           if (selectedItem) {
-            return { id: itemId, name: selectedItem.ItemName, mpn: selectedItem.ManufacturerPn, mfr: selectedItem.Manufacturer }
+            return {
+              code: itemCode,
+              name: selectedItem.ItemName,
+              mpn: selectedItem.ItemCode,
+              mfr: selectedItem.FirmName,
+              source: selectedItem.source,
+            }
           }
           return null
         }) || []
@@ -404,7 +422,27 @@ export default function RequisitionForm({ requisition, users, customers, items }
             </div>
 
             <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-              <ComboboxField data={customersOptions} control={form.control} name='customerId' label='Company Name' isRequired />
+              <ComboboxField
+                data={customersOptions}
+                control={form.control}
+                name='customerCode'
+                label='Company Name'
+                isRequired
+                renderItem={(item, selected) => (
+                  <div className='flex w-full items-center justify-between'>
+                    <div className='flex w-[80%] flex-col justify-center'>
+                      <span className='truncate'>{item.label}</span>
+                      <span className='truncate text-xs text-muted-foreground'>{item.customer.CardCode}</span>
+                    </div>
+
+                    {item.customer.source === "portal" ? (
+                      <Badge variant='soft-amber'>Portal</Badge>
+                    ) : (
+                      <Badge variant='soft-green'>SAP</Badge>
+                    )}
+                  </div>
+                )}
+              />
             </div>
 
             <div className='col-span-12 md:col-span-6 lg:col-span-4'>
@@ -471,33 +509,29 @@ export default function RequisitionForm({ requisition, users, customers, items }
 
             <Form {...requestedItemsForm}>
               <div className='col-span-12 grid grid-cols-12 gap-4 rounded-lg border p-4'>
-                <div className='col-span-12 md:col-span-4'>
+                <div className='col-span-12'>
                   <ComboboxField
                     data={itemsOptions}
                     control={requestedItemsForm.control}
-                    name='id'
+                    name='code'
                     label='Item'
                     isRequired
                     callback={() => requestedItemsForm.handleSubmit(handleAddRequestedItem)()}
+                    renderItem={(item, selected) => (
+                      <div className='flex w-full items-center justify-between'>
+                        <div className='flex w-[80%] flex-col justify-center'>
+                          <span className='truncate'>{item.label}</span>
+                          <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
+                        </div>
+
+                        {item.item.source === "portal" ? (
+                          <Badge variant='soft-amber'>Portal</Badge>
+                        ) : (
+                          <Badge variant='soft-green'>SAP</Badge>
+                        )}
+                      </div>
+                    )}
                   />
-                </div>
-
-                <div className='col-span-12 md:col-span-4'>
-                  <FormItem className='space-y-2'>
-                    <FormLabel className='space-x-1'>MPN</FormLabel>
-                    <FormControl>
-                      <Input disabled value={requestedItemsForm.watch("mpn") || ""} />
-                    </FormControl>
-                  </FormItem>
-                </div>
-
-                <div className='col-span-12 md:col-span-4'>
-                  <FormItem className='space-y-2'>
-                    <FormLabel className='space-x-1'>MFR</FormLabel>
-                    <FormControl>
-                      <Input disabled value={requestedItemsForm.watch("mfr") || ""} />
-                    </FormControl>
-                  </FormItem>
                 </div>
 
                 <div className='col-span-12'>

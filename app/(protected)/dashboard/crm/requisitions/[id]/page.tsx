@@ -10,9 +10,9 @@ import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import RequisitionForm from "../_components/requisition-form"
 import { getUsers } from "@/actions/user"
-import { getCustomers } from "@/actions/customer"
-import { getItems } from "@/actions/item"
 import { getRequisitionById } from "@/actions/requisition"
+import { getBpMasters } from "@/actions/sap-bp-master"
+import { getItems } from "@/actions/sap-item-master"
 
 export default async function RequisitionPage({ params }: { params: { id: string } }) {
   const { id } = params
@@ -20,7 +20,7 @@ export default async function RequisitionPage({ params }: { params: { id: string
   const [requisition, users, customers, items] = await Promise.all([
     id === "add" ? null : getRequisitionById(id),
     getUsers(),
-    getCustomers(),
+    getBpMasters({ cardType: "C" }),
     getItems(),
   ])
 

@@ -318,7 +318,7 @@ model LeadActivity {
 model Requisition {
   id                               String   @id @default(uuid())
   code                             Int      @unique @default(autoincrement())
-  customerId                       String
+  customerCode                     String
   contactId                        String?
   customerPn                       String?  @default("")
   requestedItems                   String[]
@@ -345,7 +345,7 @@ model Requisition {
   salesPersons RequisitionSalesPerson[]
   omegaBuyers  RequisitionOmegaBuyer[]
   activities   RequisitionActivity[]
-  customer     Customer?                @relation(fields: [customerId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  customer     BusinessPartner?         @relation(fields: [customerCode], references: [CardCode], onUpdate: Cascade, onDelete: Cascade)
 
   createdByUser User? @relation("user-created-requisitions", fields: [createdBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
   updatedByUser User? @relation("user-updated-requisitions", fields: [updatedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -353,7 +353,7 @@ model Requisition {
 
   quotations Quotation[]
 
-  @@unique([customerId, code])
+  @@unique([customerCode, code])
 }
 
 model RequisitionSalesPerson {
@@ -468,8 +468,6 @@ model Customer {
   createdBy String?
   updatedBy String?
   deletedBy String?
-
-  requisitions Requisition[]
 }
 
 model BusinessPartner {
@@ -503,6 +501,8 @@ model BusinessPartner {
   createdBy String?
   updatedBy String?
   deletedBy String?
+
+  requisitions Requisition[]
 }
 
 model Item {

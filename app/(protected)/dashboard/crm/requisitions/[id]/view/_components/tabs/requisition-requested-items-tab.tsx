@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-import { getItems } from "@/actions/item"
 import { useDialogStore } from "@/hooks/use-dialog"
 import { getRequisitionById, updateRequisitionReqItems } from "@/actions/requisition"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
@@ -21,6 +20,8 @@ import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
 import { useRouter } from "nextjs-toploader/app"
 import ReadOnlyField from "@/components/read-only-field"
+import { Badge } from "@/components/badge"
+import { getItems } from "@/actions/sap-item-master"
 
 type RequisitionRequestedItemsTabProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionById>>>
@@ -36,10 +37,16 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
   //* get full details of the items
   const requestedItemsFullDetails = useMemo(() => {
     const fullDetailsItems =
-      requestedItemIds?.map((itemId) => {
-        const selectedItem = items.find((item) => itemId === item.id)
+      requestedItemIds?.map((itemCode) => {
+        const selectedItem = items.find((item) => itemCode === item.ItemCode)
         if (selectedItem) {
-          return { id: itemId, name: selectedItem.ItemName, mpn: selectedItem.ManufacturerPn, mfr: selectedItem.Manufacturer }
+          return {
+            code: itemCode,
+            name: selectedItem.ItemName,
+            mpn: selectedItem.ItemCode,
+            mfr: selectedItem.FirmName,
+            source: selectedItem.source,
+          }
         }
         return null
       }) || []
@@ -50,7 +57,7 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
   const form = useForm({
     mode: "onChange",
     values: {
-      id: "",
+      code: "",
       name: "",
       mpn: "",
       mfr: "",
@@ -66,7 +73,7 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
     //* only show items that are not already in the requested items
     return items
       .filter((item) => !reqItems.find((itemId) => itemId === item.id))
-      .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.id }))
+      .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.ItemCode, item }))
   }, [items, JSON.stringify(requestedItemIds)])
 
   const Actions = () => {
@@ -114,18 +121,19 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
 
   //* auto populate mpn and mfr if item is selected
   useEffect(() => {
-    const itemId = form.getValues("id")
+    const itemId = form.getValues("code")
 
     if (itemId && items.length > 0) {
       const selectedItem = items.find((item) => item.id === itemId)
 
       if (selectedItem) {
         form.setValue("name", selectedItem.ItemName)
-        form.setValue("mpn", selectedItem.ManufacturerPn)
-        form.setValue("mfr", selectedItem.Manufacturer)
+        form.setValue("mpn", selectedItem.ItemCode)
+        form.setValue("mfr", selectedItem.FirmName)
+        form.setValue("mfr", selectedItem.source)
       }
     }
-  }, [form.watch("id"), JSON.stringify(items)])
+  }, [form.watch("code"), JSON.stringify(items)])
 
   return (
     <Card className='rounded-lg p-6 shadow-md'>
@@ -178,26 +186,28 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
 
             <Form {...form}>
               <form className='grid grid-cols-12 gap-4' onSubmit={form.handleSubmit(onSubmit)}>
-                <div className='col-span-12 md:col-span-4'>
-                  <ComboboxField data={itemsOptions} control={form.control} name='id' label='Item' isRequired />
-                </div>
+                <div className='col-span-12'>
+                  <ComboboxField
+                    data={itemsOptions}
+                    control={form.control}
+                    name='code'
+                    label='Item'
+                    isRequired
+                    renderItem={(item, selected) => (
+                      <div className='flex w-full items-center justify-between'>
+                        <div className='flex w-[80%] flex-col justify-center'>
+                          <span className='truncate'>{item.label}</span>
+                          <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
+                        </div>
 
-                <div className='col-span-12 md:col-span-4'>
-                  <FormItem className='space-y-2'>
-                    <FormLabel className='space-x-1'>MPN</FormLabel>
-                    <FormControl>
-                      <Input disabled value={form.watch("mpn") || ""} />
-                    </FormControl>
-                  </FormItem>
-                </div>
-
-                <div className='col-span-12 md:col-span-4'>
-                  <FormItem className='space-y-2'>
-                    <FormLabel className='space-x-1'>MFR</FormLabel>
-                    <FormControl>
-                      <Input disabled value={form.watch("mfr") || ""} />
-                    </FormControl>
-                  </FormItem>
+                        {item.item.source === "portal" ? (
+                          <Badge variant='soft-amber'>Portal</Badge>
+                        ) : (
+                          <Badge variant='soft-green'>SAP</Badge>
+                        )}
+                      </div>
+                    )}
+                  />
                 </div>
 
                 <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>
