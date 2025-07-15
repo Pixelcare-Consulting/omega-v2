@@ -86,3 +86,13 @@ export async function getBpMasters({ cardType }: { cardType: string }) {
   //* revalidate the cache
   if (success && result) revalidateTag(cacheKey)
 }
+
+export async function refreshBpMaster({ cardType }: { cardType: string }) {
+  try {
+    const cacheKey = `bp-master-${cardType.toLowerCase()}`
+    await prisma.syncMeta.update({ where: { code: cardType }, data: { lastSyncAt: new Date() } })
+    revalidateTag(cacheKey)
+  } catch (error) {
+    console.error("Failed to refresh bp master", error)
+  }
+}
