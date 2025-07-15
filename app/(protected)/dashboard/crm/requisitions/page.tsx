@@ -32,7 +32,7 @@ export default async function RequisitionsPage() {
             icon: Icons.plus,
           }}
         >
-          <Card className='p-6'>
+          <Card className='rounded-lg p-6 shadow-md'>
             <RequisitionList requisitions={requisitions} items={items} />
           </Card>
         </PageWrapper>

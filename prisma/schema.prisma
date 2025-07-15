@@ -505,29 +505,29 @@ model BusinessPartner {
   deletedBy String?
 }
 
-// model Item {
-//   id String @id @default(uuid())
+model Item {
+  id         String  @id @default(uuid())
+  BuyUnitMsr String? @default("")
+  CreateDate String
+  FirmCode   String? @default("")
+  FirmName   String? @default("")
+  ItemCode   String  @unique //TODO: if source "portal" the card cade will be uuid otherwise it will be sap card code
+  ItemName   String
+  ItmsGrpCod String
+  ItmsGrpNam String? @default("")
+  ManBtchNum String
+  UpdateDate String
 
-//   BuyUnitMsr String? @default("")
-//   CreateDate String
-//   FirmCode   String? @default("")
-//   FirmName   String? @default("")
-//   ItemCode   String
-//   ItemName   String
-//   ItmsGrpCod String
-//   ItmsGrpNam String? @default("")
-//   ManBtchNum String
-//   UpdateDate String
+  source String
+  status String?
 
-//   source String
-
-//   createdAt DateTime  @default(now())
-//   updatedAt DateTime  @updatedAt
-//   deletedAt DateTime?
-//   createdBy String?
-//   updatedBy String?
-//   deletedBy String?
-// }
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+}
 
 //* synchronization metadata table
 model SyncMeta {
@@ -535,58 +535,6 @@ model SyncMeta {
   code        String   @unique
   description String?
   lastSyncAt  DateTime @default(now())
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  createdBy String?
-  updatedBy String?
-  deletedBy String?
-}
-
-model Item {
-  id                 String  @id @default(uuid())
-  ItemCode           String
-  ItemName           String? @default("")
-  ItemsGroupCode     String? @default("")
-  CustomsGroupCode   String? @default("")
-  Manufacturer       String? @default("")
-  ManufacturerPn     String? @default("")
-  ManageBatchNumbers String? @default("N")
-  PurchaseUnit       String? @default("")
-  PurchaseItem       String? @default("N")
-  SalesItem          String? @default("N")
-  InventoryItem      String? @default("N")
-  VatLiable          String? @default("N")
-  IncomeAccount      String? @default("")
-  DefaultWarehouse   String? @default("")
-  ItemCountryOrg     String? @default("")
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  createdBy String?
-  updatedBy String?
-  deletedBy String?
-}
-
-model Supplier {
-  id                String  @id @default(uuid())
-  CardCode          String
-  CardName          String? @default("")
-  AccountNumber     String? @default("")
-  AssignedBuyer     String? @default("")
-  Website           String? @default("")
-  street            String? @default("")
-  block             String? @default("")
-  city              String? @default("")
-  zipCode           String? @default("")
-  county            String? @default("")
-  state             String? @default("")
-  country           String? @default("")
-  streetNo          String? @default("")
-  buildingFloorRoom String? @default("")
-  gln               String? @default("")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

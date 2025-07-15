@@ -4,10 +4,12 @@ import Breadcrumbs from "@/components/breadcrumbs"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Card } from "@/components/ui/card"
 import ItemList from "./_components/item-list"
-import { getItems } from "@/actions/sap-item"
+import { getSyncMetaByCode } from "@/actions/sync-meta"
+import ItemListHeader from "./_components/item-list-header"
+import { getItems } from "@/actions/sap-item-master"
 
 export default async function ItemsPage() {
-  const items = await getItems()
+  const [syncMeta, items] = await Promise.all([getSyncMetaByCode("item"), getItems()])
 
   return (
     <ContentLayout title='Items'>
@@ -22,8 +24,14 @@ export default async function ItemsPage() {
 
       <ContentContainer>
         <PageWrapper title='Items' description='Manage and track your items effectively'>
-          <Card className='p-6'>
-            <ItemList items={items?.value || []} />
+          {syncMeta && (
+            <Card className='rounded-lg p-6 shadow-md'>
+              <ItemListHeader syncMeta={syncMeta} />
+            </Card>
+          )}
+
+          <Card className='rounded-lg p-6 shadow-md'>
+            <ItemList items={items} />
           </Card>
         </PageWrapper>
       </ContentContainer>

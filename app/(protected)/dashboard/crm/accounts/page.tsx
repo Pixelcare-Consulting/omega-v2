@@ -31,7 +31,7 @@ export default async function AccountsPage() {
             icon: Icons.plus,
           }}
         >
-          <Card className='p-6'>
+          <Card className='rounded-lg p-6 shadow-md'>
             <AccountList accounts={accounts} />
           </Card>
         </PageWrapper>

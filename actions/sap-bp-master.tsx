@@ -66,10 +66,10 @@ export const syncBpMaster = action
         const filteredSapBpMasters = sapBpMasters?.filter((row: any) => row.CardType === cardType) || []
 
         await prisma.$transaction([
-          prisma.syncMeta.update({ where: { code: cardType }, data: { lastSyncAt: new Date(), updatedBy: userId } }),
           prisma.businessPartner.createMany({
             data: filteredSapBpMasters?.map((row: any) => ({ ...row, source: "sap" })),
           }),
+          prisma.syncMeta.update({ where: { code: cardType }, data: { lastSyncAt: new Date(), updatedBy: userId } }),
         ])
 
         success = true
@@ -92,12 +92,10 @@ export const syncBpMaster = action
           })
         })
 
-        await prisma.$transaction(upsertPromises)
-
-        //*  update the sync meta and query the portal bp master data
+        //* perform upsert and  update the sync meta
         await prisma.$transaction([
+          ...upsertPromises,
           prisma.syncMeta.update({ where: { code: cardType }, data: { lastSyncAt: new Date(), updatedBy: userId } }),
-          prisma.businessPartner.findMany({ where: { CardType: cardType } }),
         ])
 
         success = true
@@ -109,6 +107,6 @@ export const syncBpMaster = action
     //* revalidate the cache
     if (success) {
       revalidateTag(cacheKey)
-      return { status: 200, message: "Sync completed successfully!", action: "BP_MASTER_CUSTOMER_SYNC" }
-    } else return { error: true, status: 500, message: "Failed to sync, please try again later!", action: "BP_MASTER_CUSTOMER_SYNC" }
+      return { status: 200, message: "Sync completed successfully!", action: "BP_MASTER_SYNC" }
+    } else return { error: true, status: 500, message: "Failed to sync, please try again later!", action: "BP_MASTER_SYNC" }
   })

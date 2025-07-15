@@ -30,7 +30,7 @@ export default async function SuppliersPage() {
             </Card>
           )}
 
-          <Card className='p-6'>
+          <Card className='rounded-lg p-6 shadow-md'>
             <SupplierLists suppliers={suppliers} />
           </Card>
         </PageWrapper>

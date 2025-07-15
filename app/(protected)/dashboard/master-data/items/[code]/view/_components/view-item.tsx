@@ -6,13 +6,14 @@ import { Card } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import UnderDevelopment from "@/components/under-development"
-import { cn, getInitials } from "@/lib/utils"
+import { getInitials } from "@/lib/utils"
 
 import Link from "next/link"
 import ItemSummaryTab from "./tabs/item-summary-tab"
+import { getItemsByItemCode } from "@/actions/sap-item-master"
 
 type ViewItemProps = {
-  item: any
+  item: NonNullable<Awaited<ReturnType<typeof getItemsByItemCode>>>
 }
 
 export default function ViewItem({ item }: ViewItemProps) {
@@ -56,16 +57,6 @@ export default function ViewItem({ item }: ViewItemProps) {
               <div className='flex flex-wrap items-center gap-2'>
                 <p className='text-sm text-muted-foreground'>{item.ItemCode}</p>
                 {item?.ItmsGrpNam && <Badge variant='soft-blue'>{item?.ItmsGrpNam}</Badge>}
-
-                {item.Phone1 && (
-                  <div className='flex items-center gap-1'>
-                    <Icons.phone className='size-4 text-muted-foreground' />
-                    <Link href={`tel:${item.Phone1}`} className='text-sm text-muted-foreground decoration-1 hover:underline'>
-                      {item.Phone1}
-                    </Link>
-                  </div>
-                )}
-
                 {item?.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
               </div>
             </div>

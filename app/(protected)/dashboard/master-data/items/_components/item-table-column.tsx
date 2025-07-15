@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { useRouter } from "nextjs-toploader/app"
 import { ColumnDef } from "@tanstack/react-table"
 
@@ -7,51 +6,55 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { getItems } from "@/actions/sap-item-master"
 
-export default function getColumns(): ColumnDef<any>[] {
+type ItemData = Awaited<ReturnType<typeof getItems>>[number]
+
+export default function getColumns(): ColumnDef<ItemData>[] {
   return [
     {
-      accessorFn: (row) => `${row.ItemName} ${row.ItemCode}`,
+      accessorFn: (row) => row.ItemName,
       id: "item",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Item' />,
       size: 150,
-      cell: ({ row }) => (
-        <div className='flex flex-col'>
-          <span className='font-semibold'>{row.original.ItemName}</span>
-          <span className='decoration-1underline text-muted-foreground'>{row.original.ItemCode}</span>
-        </div>
-      ),
+      cell: ({ row }) => <span className='font-semibold'>{row.original.ItemName}</span>,
     },
     {
       accessorKey: "ItmsGrpNam",
       id: "group",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Group' />,
-      cell: ({ row }) => <Badge variant='soft-blue'>{row.original.ItmsGrpNam || "-"}</Badge>,
+      cell: ({ row }) => <Badge variant='soft-blue'>{row.original.ItmsGrpNam || ""}</Badge>,
     },
     {
-      accessorKey: "FirmCode",
+      accessorKey: "ItemCode",
       id: "mpn",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
-      cell: ({ row }) => <div>{row.original.FirmCode || "-"}</div>,
+      cell: ({ row }) => <div>{row.original.ItemCode || ""}</div>,
     },
     {
       accessorKey: "FirmName",
       id: "manufacturer",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Manufacturer' />,
-      cell: ({ row }) => <div>{row.original.FirmName || "-"}</div>,
+      cell: ({ row }) => <div>{row.original?.FirmName || ""}</div>,
     },
     {
       accessorKey: "BuyUnitMsr",
       id: "uom",
       header: ({ column }) => <DataTableColumnHeader column={column} title='UOM' />,
-      cell: ({ row }) => <div>{row.original.BuyUnitMsr || "-"}</div>,
+      cell: ({ row }) => <div>{row.original?.BuyUnitMsr || ""}</div>,
     },
     {
-      accessorFn: (row) => "sap",
+      accessorKey: "status",
+      id: "status",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Status' />,
+      cell: () => "",
+    },
+    {
+      accessorFn: (row) => row.source,
       accessorKey: "source",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Source' />,
       cell: ({ row }) => {
-        const isSAP = true
+        const isSAP = row.original.source === "sap"
         return isSAP ? <Badge variant='soft-green'>SAP</Badge> : <Badge variant='soft-amber'>Portal</Badge>
       },
     },

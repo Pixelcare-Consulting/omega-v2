@@ -24,6 +24,7 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
       { label: "Contact Person", columnId: "contact person", type: "text" },
       { label: "Phone", columnId: "phone", type: "text" },
       { label: "Currency", columnId: "currency", type: "text" },
+      { label: "Status", columnId: "status", type: "text" },
       {
         label: "Source",
         columnId: "source",

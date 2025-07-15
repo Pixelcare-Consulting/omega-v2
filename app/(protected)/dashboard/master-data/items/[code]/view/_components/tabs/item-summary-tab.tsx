@@ -1,11 +1,13 @@
+import { format, parse } from "date-fns"
+
+import { getItemsByItemCode } from "@/actions/sap-item-master"
 import { Badge } from "@/components/badge"
 import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Card } from "@/components/ui/card"
-import { format, parse } from "date-fns"
 
 type ItemSummaryTabProps = {
-  item: any
+  item: NonNullable<Awaited<ReturnType<typeof getItemsByItemCode>>>
 }
 
 export default function ItemSummaryTab({ item }: ItemSummaryTabProps) {
@@ -16,15 +18,13 @@ export default function ItemSummaryTab({ item }: ItemSummaryTabProps) {
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Name' value={item.ItemName} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Code' value={item.ItemCode} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='MPN' value={item.ItemCode} />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'
           title='Group'
           value={item?.ItmsGrpNam ? <Badge variant='soft-blue'>{item.ItmsGrpNam}</Badge> : null}
         />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='MPN' value={item?.FirmCode || ""} />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Manufacturer' value={item?.FirmName || ""} />
 

@@ -31,7 +31,7 @@ export default async function LeadsPage() {
             icon: Icons.plus,
           }}
         >
-          <Card className='p-6'>
+          <Card className='rounded-lg p-6 shadow-md'>
             <LeadList leads={leads} />
           </Card>
         </PageWrapper>

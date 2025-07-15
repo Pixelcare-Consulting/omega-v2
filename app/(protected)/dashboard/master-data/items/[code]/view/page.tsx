@@ -4,14 +4,11 @@ import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import ViewItem from "./_components/view-item"
-import { getItems } from "@/actions/sap-item"
+import { getItemsByItemCode } from "@/actions/sap-item-master"
 
 export default async function ViewItemPage({ params }: { params: { code: string } }) {
   const { code } = params
-
-  const items = await getItems()
-
-  const item = items?.value?.find((item: any) => item.ItemCode === decodeURIComponent(code))
+  const item = !code ? null : await getItemsByItemCode({ itemCode: decodeURIComponent(code) })
 
   if (!item) notFound()
 

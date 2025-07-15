@@ -58,11 +58,17 @@ export default function getColumns(): ColumnDef<SupplierData>[] {
       cell: ({ row }) => <div>{row.original.Currency || "-"}</div>,
     },
     {
-      accessorFn: (row) => "sap",
+      accessorKey: "status",
+      id: "status",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Status' />,
+      cell: () => "",
+    },
+    {
+      accessorFn: (row) => row.source,
       accessorKey: "source",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Source' />,
       cell: ({ row }) => {
-        const isSAP = true
+        const isSAP = row.original.source === "sap"
         return isSAP ? <Badge variant='soft-green'>SAP</Badge> : <Badge variant='soft-amber'>Portal</Badge>
       },
     },

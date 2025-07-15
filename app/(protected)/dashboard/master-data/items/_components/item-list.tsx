@@ -10,9 +10,10 @@ import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
 import LoadingButton from "@/components/loading-button"
 import { Icons } from "@/components/icons"
+import { getItems } from "@/actions/sap-item-master"
 
 type ItemListProps = {
-  items: any
+  items: Awaited<ReturnType<typeof getItems>>
 }
 
 export default function ItemList({ items }: ItemListProps) {
@@ -25,6 +26,7 @@ export default function ItemList({ items }: ItemListProps) {
       { label: "MPN", columnId: "mpn", type: "text" },
       { label: "Manufacturer", columnId: "manufacturer", type: "text" },
       { label: "UOM", columnId: "uom", type: "text" },
+      { label: "Status", columnId: "status", type: "text" },
       {
         label: "Source",
         columnId: "source",
