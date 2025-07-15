@@ -4,14 +4,11 @@ import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import ViewSupplier from "./_components/view-supplier"
-import { getBpMasters } from "@/actions/sap-bp-master"
+import { getBpMasterByCardCode } from "@/actions/sap-bp-master"
 
 export default async function ViewSupplierPage({ params }: { params: { code: string } }) {
   const { code } = params
-
-  const suppliers = await getBpMasters({ cardType: "S" })
-
-  const supplier = suppliers?.value?.find((supplier: any) => supplier.CardCode === code)
+  const supplier = !code ? null : await getBpMasterByCardCode({ cardCode: code })
 
   if (!supplier) notFound()
 

@@ -1,7 +1,9 @@
 "use server"
 
 import { prisma } from "@/lib/db"
+import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { callSapServiceLayerApi } from "@/lib/sap-service-layer"
+import { syncBpMasterSchema } from "@/schema/sap-bp-master"
 import { isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
 
@@ -13,86 +15,100 @@ const sapCredentials = {
 }
 
 export async function getBpMasters({ cardType }: { cardType: string }) {
-  let success = false
-  let result: any[] | undefined
-  const cacheKey = `bp-master-${cardType.toLowerCase()}`
-
-  try {
-    //* fetch SAP bp master data, portal bp master data, sync meta
-    const data = await Promise.allSettled([
-      callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query1')/List`, `CardType='${cardType}'`),
-      prisma.businessPartner.findMany({ where: { CardType: cardType } }),
-      prisma.syncMeta.findUnique({ where: { code: cardType } }),
-    ])
-
-    const sapBpMasters = data[0].status === "fulfilled" ? data[0]?.value?.value || [] : []
-    const portalBpMasters = data[1].status === "fulfilled" ? data[1]?.value || [] : []
-    const lastSyncDate = data[2].status === "fulfilled" ? data[2]?.value?.lastSyncAt || new Date("01/01/2020") : new Date("01/01/2020")
-
-    //* check if portalBpMasters has data or not, if dont have data insert sapBpMasters into portal, otherwise update portalBpMasters based on sapBpMasters
-    if (portalBpMasters.length === 0) {
-      result = await unstable_cache(
-        async () => {
-          return prisma.businessPartner.createManyAndReturn({
-            data: sapBpMasters.map((row: any) => ({ ...row, source: "sap" })),
-          })
-        },
-        [cacheKey],
-        { tags: [cacheKey] }
-      )()
-
-      success = true
-    } else {
-      //* filter based on card type and filter the records where CreateDate > lastSyncDate or  UpdateDate > lastSyncDate
-      const filteredSapBpMasters = sapBpMasters?.value
-        ?.filter((row: any) => row.CardType === cardType)
-        .filter((row: any) => {
-          const createDate = parse(row.CreateDate, "yyyyMMdd", new Date())
-          const updateDate = parse(row.UpdateDate, "yyyyMMdd", new Date())
-          return isAfter(createDate, lastSyncDate) || isAfter(updateDate, lastSyncDate)
-        })
-
-      const upsertPromises = filteredSapBpMasters.map((row: any) => {
-        return prisma.businessPartner.upsert({
-          where: { CardCode: row.CardCode },
-          create: { ...row, source: "sap" },
-          update: { ...row, source: "sap" },
-        })
-      })
-
-      await prisma.$transaction([upsertPromises])
-
-      //*  update the sync meta and query the portal bp master data
-      result = await unstable_cache(
-        async () => {
-          const [_, result] = await prisma.$transaction([
-            prisma.syncMeta.update({ where: { code: cardType }, data: { lastSyncAt: new Date() } }),
-            prisma.businessPartner.findMany({ where: { CardType: cardType } }),
-          ])
-
-          return result
-        },
-        [cacheKey],
-        { tags: [cacheKey] }
-      )()
-
-      success = true
-    }
-  } catch (error) {
-    console.error(error)
-    result = []
-  }
-
-  //* revalidate the cache
-  if (success && result) revalidateTag(cacheKey)
-}
-
-export async function refreshBpMaster({ cardType }: { cardType: string }) {
   try {
     const cacheKey = `bp-master-${cardType.toLowerCase()}`
-    await prisma.syncMeta.update({ where: { code: cardType }, data: { lastSyncAt: new Date() } })
-    revalidateTag(cacheKey)
+
+    return await unstable_cache(
+      async () => {
+        return prisma.businessPartner.findMany({ where: { CardType: cardType } })
+      },
+      [cacheKey],
+      { tags: [cacheKey] }
+    )()
   } catch (error) {
-    console.error("Failed to refresh bp master", error)
+    return []
   }
 }
+
+export async function getBpMasterByCardCode({ cardCode }: { cardCode: string }) {
+  try {
+    return await prisma.businessPartner.findUnique({ where: { CardCode: cardCode } })
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}
+
+export const syncBpMaster = action
+  .use(authenticationMiddleware)
+  .schema(syncBpMasterSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    let success = false
+
+    const { userId } = ctx
+    const cardType = parsedInput.cardType
+    const cacheKey = `bp-master-${cardType.toLowerCase()}`
+
+    try {
+      //* fetch SAP bp master data, portal bp master data, sync meta
+      const data = await Promise.allSettled([
+        callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query1')/List`, `CardType='${cardType}'`),
+        prisma.businessPartner.findMany({ where: { CardType: cardType } }),
+        prisma.syncMeta.findUnique({ where: { code: cardType } }),
+      ])
+
+      const sapBpMasters = data[0].status === "fulfilled" ? data[0]?.value?.value || [] : []
+      const portalBpMasters = data[1].status === "fulfilled" ? data[1]?.value || [] : []
+      const lastSyncDate = data[2].status === "fulfilled" ? data[2]?.value?.lastSyncAt || new Date("01/01/2020") : new Date("01/01/2020")
+
+      //* check if portalBpMasters has data or not, if dont have data insert sapBpMasters into portal, otherwise update portalBpMasters based on sapBpMasters
+      if (portalBpMasters.length === 0) {
+        const filteredSapBpMasters = sapBpMasters?.filter((row: any) => row.CardType === cardType) || []
+
+        await prisma.$transaction([
+          prisma.syncMeta.update({ where: { code: cardType }, data: { lastSyncAt: new Date(), updatedBy: userId } }),
+          prisma.businessPartner.createMany({
+            data: filteredSapBpMasters?.map((row: any) => ({ ...row, source: "sap" })),
+          }),
+        ])
+
+        success = true
+      } else {
+        //* filter based on card type and filter the records where CreateDate > lastSyncDate or  UpdateDate > lastSyncDate
+        const filteredSapBpMasters =
+          sapBpMasters
+            ?.filter((row: any) => row.CardType === cardType)
+            ?.filter((row: any) => {
+              const createDate = parse(row.CreateDate, "yyyyMMdd", new Date())
+              const updateDate = parse(row.UpdateDate, "yyyyMMdd", new Date())
+              return isAfter(createDate, lastSyncDate) || isAfter(updateDate, lastSyncDate)
+            }) || []
+
+        const upsertPromises = filteredSapBpMasters.map((row: any) => {
+          return prisma.businessPartner.upsert({
+            where: { CardCode: row.CardCode },
+            create: { ...row, source: "sap" },
+            update: { ...row, source: "sap" },
+          })
+        })
+
+        await prisma.$transaction(upsertPromises)
+
+        //*  update the sync meta and query the portal bp master data
+        await prisma.$transaction([
+          prisma.syncMeta.update({ where: { code: cardType }, data: { lastSyncAt: new Date(), updatedBy: userId } }),
+          prisma.businessPartner.findMany({ where: { CardType: cardType } }),
+        ])
+
+        success = true
+      }
+    } catch (error) {
+      console.error(error)
+    }
+
+    //* revalidate the cache
+    if (success) {
+      revalidateTag(cacheKey)
+      return { status: 200, message: "Sync completed successfully!", action: "BP_MASTER_CUSTOMER_SYNC" }
+    } else return { error: true, status: 500, message: "Failed to sync, please try again later!", action: "BP_MASTER_CUSTOMER_SYNC" }
+  })

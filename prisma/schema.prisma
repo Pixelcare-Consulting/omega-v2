@@ -476,7 +476,7 @@ model BusinessPartner {
   id String @id @default(uuid())
 
   Address          String? @default("")
-  CardCode         String  @unique
+  CardCode         String  @unique //TODO: if source "portal" the card cade will be uuid otherwise it will be sap card code
   CardName         String
   CardType         String
   CntctPrsn        String? @default("")
@@ -495,6 +495,7 @@ model BusinessPartner {
   ZipCode          String? @default("")
 
   source String
+  status String? //* approved, requested, existing, rejected
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

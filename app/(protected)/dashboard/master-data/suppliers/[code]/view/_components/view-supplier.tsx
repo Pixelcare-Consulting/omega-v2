@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Badge } from "@/components/badge"
 import { Icons } from "@/components/icons"
@@ -7,12 +9,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import UnderDevelopment from "@/components/under-development"
 import { getInitials } from "@/lib/utils"
-
-import Link from "next/link"
 import SupplierSummaryTab from "./tabs/supplier-summary-tab"
+import { getBpMasterByCardCode } from "@/actions/sap-bp-master"
 
 type ViewSupplierProps = {
-  supplier: any
+  supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
 }
 
 export default function ViewSupplier({ supplier }: ViewSupplierProps) {

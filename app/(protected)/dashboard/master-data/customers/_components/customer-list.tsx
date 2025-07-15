@@ -8,11 +8,10 @@ import { useDataTable } from "@/hooks/use-data-table"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
-import LoadingButton from "@/components/loading-button"
-import { Icons } from "@/components/icons"
+import { getBpMasters } from "@/actions/sap-bp-master"
 
 type CustomersListsProps = {
-  customers: any
+  customers: Awaited<ReturnType<typeof getBpMasters>>
 }
 
 export default function CustomerLists({ customers }: CustomersListsProps) {
@@ -49,9 +48,6 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
         <DataTableSearch table={table} className='' />
 
         <div className='flex items-center gap-2'>
-          <LoadingButton variant='outline'>
-            <Icons.refreshCw className='size-4' /> Sync
-          </LoadingButton>
           <DataTableFilter className='w-full md:w-fit' table={table} filterFields={filterFields} columnFilters={columnFilters} />
           <DataTableViewOptions className='w-full md:w-fit' table={table} columnVisibility={columnVisibility} />
         </div>

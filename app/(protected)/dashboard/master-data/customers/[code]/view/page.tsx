@@ -4,14 +4,11 @@ import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import ViewCustomer from "./_components/view-customer"
-import { getBpMasters } from "@/actions/sap-bp-master"
+import { getBpMasterByCardCode } from "@/actions/sap-bp-master"
 
 export default async function ViewCustomersPage({ params }: { params: { code: string } }) {
   const { code } = params
-
-  const customers = await getBpMasters({ cardType: "C" })
-
-  const customer = customers?.value?.find((customer: any) => customer.CardCode === code)
+  const customer = !code ? null : await getBpMasterByCardCode({ cardCode: code })
 
   if (!customer) notFound()
 

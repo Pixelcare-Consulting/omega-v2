@@ -1,3 +1,4 @@
+import { getBpMasterByCardCode } from "@/actions/sap-bp-master"
 import { Badge } from "@/components/badge"
 import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
@@ -5,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import { format, parse } from "date-fns"
 
 type SupplierSummaryTabProps = {
-  supplier: any
+  supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
 }
 
 export default function SupplierSummaryTab({ supplier }: SupplierSummaryTabProps) {

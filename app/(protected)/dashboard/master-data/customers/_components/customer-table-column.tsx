@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { useRouter } from "nextjs-toploader/app"
-import { BusinessPartner } from "@prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
 
 import { Badge } from "@/components/badge"
@@ -8,8 +7,9 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { getBpMasters } from "@/actions/sap-bp-master"
 
-type CustomerData = BusinessPartner
+type CustomerData = Awaited<ReturnType<typeof getBpMasters>>[number]
 
 export default function getColumns(): ColumnDef<CustomerData>[] {
   return [

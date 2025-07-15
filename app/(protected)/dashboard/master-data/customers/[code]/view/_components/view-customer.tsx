@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Badge } from "@/components/badge"
 import { Icons } from "@/components/icons"
@@ -6,13 +8,12 @@ import { Card } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import UnderDevelopment from "@/components/under-development"
-import { cn, getInitials } from "@/lib/utils"
-
-import Link from "next/link"
+import { getInitials } from "@/lib/utils"
 import CustomerSummaryTab from "./tabs/customer-summary-tab"
+import { getBpMasterByCardCode } from "@/actions/sap-bp-master"
 
 type ViewCustomerProps = {
-  customer: any
+  customer: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
 }
 
 export default function ViewCustomer({ customer }: ViewCustomerProps) {
