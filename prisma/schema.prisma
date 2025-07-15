@@ -509,11 +509,11 @@ model Item {
   id         String  @id @default(uuid())
   BuyUnitMsr String? @default("")
   CreateDate String
-  FirmCode   String? @default("")
+  FirmCode   Int?
   FirmName   String? @default("")
   ItemCode   String  @unique //TODO: if source "portal" the card cade will be uuid otherwise it will be sap card code
   ItemName   String
-  ItmsGrpCod String
+  ItmsGrpCod Int
   ItmsGrpNam String? @default("")
   ManBtchNum String
   UpdateDate String
