@@ -70,7 +70,7 @@ export const syncItemMaster = action.use(authenticationMiddleware).action(async 
     if (portalItemMasters.length === 0) {
       await prisma.$transaction([
         prisma.item.createMany({
-          data: sapItemMasters?.map((row: any) => ({ ...row, source: "sap" })),
+          data: sapItemMasters?.map((row: any) => ({ ...row, source: "sap", syncStatus: "synced" })),
         }),
         prisma.syncMeta.update({ where: { code: SYNC_META_CODE }, data: { lastSyncAt: new Date(), updatedBy: userId } }),
       ])
@@ -88,8 +88,8 @@ export const syncItemMaster = action.use(authenticationMiddleware).action(async 
       const upsertPromises = filteredSapItemMasters.map((row: any) => {
         return prisma.item.upsert({
           where: { ItemCode: row.ItemCode },
-          create: { ...row, source: "sap" },
-          update: { ...row, source: "sap" },
+          create: { ...row, source: "sap", syncStatus: "synced" },
+          update: { ...row, source: "sap", syncStatus: "synced" },
         })
       })
 
