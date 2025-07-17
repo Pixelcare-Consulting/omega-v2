@@ -64,11 +64,11 @@ export const upsertBpMaster = action
     const portalEntries = entries.filter(([key]) => /^[a-z]/.test(key))
 
     const sapData = Object.fromEntries(sapEntries) as BpSapFields
-    const portalData = Object.fromEntries(portalEntries) as BpPortalFields
+    const { id, ...portalData } = Object.fromEntries(portalEntries) as BpPortalFields
     const data = { ...sapData, ...portalData }
 
     try {
-      if (data.id && data.id !== "add") {
+      if (id && id !== "add") {
         //* check if source is sap or portal, if portal only update the portal otherwise update both
         if (portalData.source === "portal") {
           const updatedBpMaster = await prisma.businessPartner.update({

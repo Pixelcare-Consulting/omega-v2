@@ -2,7 +2,7 @@ import { string, z } from "zod"
 import { v4 as uuidv4 } from "uuid"
 import { addressFormSchema } from "./address"
 
-export const CURRENY_OPTIONS = [
+export const CURRENCY_OPTIONS = [
   { label: "USD", value: "USD" },
   { label: "PHP", value: "PHP" },
 ]
@@ -80,7 +80,7 @@ export const bpPortalFieldsSchema = z
     accountNo: z.string().nullish(),
     assignedBuyer: z.string().nullable(),
     website: z.string().nullish(),
-    commondityStrengths: z.array(z.coerce.number()).default([]),
+    commodityStrengths: z.array(z.coerce.number()).default([]),
     mfrStrengths: z.array(z.coerce.number()).default([]),
     avlStatus: z.string().nullish(),
     status: z.string().min(1, { message: "Status is required" }),

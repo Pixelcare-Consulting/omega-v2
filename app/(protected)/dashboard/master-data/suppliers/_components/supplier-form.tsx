@@ -14,7 +14,7 @@ import {
   AVL_STATUS_OPTIONS,
   BpMasterForm,
   bpMasterFormSchema,
-  CURRENY_OPTIONS,
+  CURRENCY_OPTIONS,
   SCOPE_OPTIONS,
   STATUS_OPTIONS,
   WARRANY_PERIOD_OPTIONS,
@@ -97,7 +97,7 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
         accountNo: "",
         assignedBuyer: null,
         website: "",
-        commondityStrengths: [],
+        commodityStrengths: [],
         mfrStrengths: [],
         avlStatus: "",
         status: "",
@@ -254,15 +254,15 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={CURRENY_OPTIONS} control={form.control} name='Currency' label='Currency' />
+            <ComboboxField data={CURRENCY_OPTIONS} control={form.control} name='Currency' label='Currency' />
           </div>
 
           <div className='col-span-12 md:col-span-6'>
             <MultiSelectField
               data={itemGroupsOptions}
               control={form.control}
-              name='commondityStrengths'
-              label='Commondity Strengths'
+              name='commodityStrengths'
+              label='Commodity Strengths'
               renderItem={(item, selected) => {
                 return (
                   <div className='flex flex-col justify-center'>
@@ -361,7 +361,7 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
             <ReadOnlyFieldHeader title='Address Details' description='Supplier address details' />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12'>
             <TextAreaField
               control={form.control}
               name='street'
@@ -370,7 +370,7 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
             />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <InputField
               control={form.control}
               name='streetNo'
@@ -379,7 +379,7 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
             />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <InputField
               control={form.control}
               name='buildingFloorRoom'
@@ -388,15 +388,15 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
             />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <InputField control={form.control} name='block' label='Block' extendedProps={{ inputProps: { placeholder: "Enter block" } }} />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <InputField control={form.control} name='city' label='City' extendedProps={{ inputProps: { placeholder: "Enter city" } }} />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <InputField
               control={form.control}
               name='zipCode'
@@ -405,7 +405,7 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
             />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <InputField
               control={form.control}
               name='county'
@@ -414,11 +414,11 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
             />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <InputField control={form.control} name='state' label='State' extendedProps={{ inputProps: { placeholder: "Enter state" } }} />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <InputField
               control={form.control}
               name='country'
@@ -427,7 +427,7 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
             />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <InputField control={form.control} name='gln' label='GLN' extendedProps={{ inputProps: { placeholder: "Enter gln" } }} />
           </div>
 

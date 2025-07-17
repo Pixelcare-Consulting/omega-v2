@@ -494,22 +494,22 @@ model BusinessPartner {
   CreateDate       String
   UpdateDate       String
 
-  accountNo           String? @default("")
-  assignedBuyer       String?
-  website             String? @default("")
-  commondityStrengths Int[]   @default([])
-  mfrStrengths        Int[]   @default([])
-  avlStatus           String? @default("")
-  status              String  @default("")
-  scope               String  @default("")
-  isCompliantToAs     Boolean @default(false)
-  isCompliantToItar   Boolean @default(false)
-  terms               String? @default("")
-  warranyPeriod       String? @default("")
-  omegaReviews        String? @default("")
-  qualificationNotes  String? @default("")
-  source              String  @default("portal")
-  syncStatus          String  @default("pending")
+  accountNo          String? @default("")
+  assignedBuyer      String?
+  website            String? @default("")
+  commodityStrengths Int[]   @default([])
+  mfrStrengths       Int[]   @default([])
+  avlStatus          String? @default("")
+  status             String  @default("")
+  scope              String  @default("")
+  isCompliantToAs    Boolean @default(false)
+  isCompliantToItar  Boolean @default(false)
+  terms              String? @default("")
+  warranyPeriod      String? @default("")
+  omegaReviews       String? @default("")
+  qualificationNotes String? @default("")
+  source             String  @default("portal")
+  syncStatus         String  @default("pending")
 
   //* address
   street            String? @default("")

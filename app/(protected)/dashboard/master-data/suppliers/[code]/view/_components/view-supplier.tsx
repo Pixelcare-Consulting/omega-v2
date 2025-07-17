@@ -11,12 +11,17 @@ import UnderDevelopment from "@/components/under-development"
 import { getInitials } from "@/lib/utils"
 import SupplierSummaryTab from "./tabs/supplier-summary-tab"
 import { getBpMasterByCardCode } from "@/actions/bp-master"
+import { getUsers } from "@/actions/user"
 
 type ViewSupplierProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
+  itemGroups?: any
+  manufacturers?: any
+  terms?: any
+  users: Awaited<ReturnType<typeof getUsers>>
 }
 
-export default function ViewSupplier({ supplier }: ViewSupplierProps) {
+export default function ViewSupplier({ supplier, itemGroups, manufacturers, terms, users }: ViewSupplierProps) {
   return (
     <PageWrapper
       title='Supplier Details'
@@ -81,7 +86,7 @@ export default function ViewSupplier({ supplier }: ViewSupplierProps) {
           </TabsList>
 
           <TabsContent value='1'>
-            <SupplierSummaryTab supplier={supplier} />
+            <SupplierSummaryTab supplier={supplier} itemGroups={itemGroups} manufacturers={manufacturers} terms={terms} users={users} />
           </TabsContent>
 
           <TabsContent value='2'>

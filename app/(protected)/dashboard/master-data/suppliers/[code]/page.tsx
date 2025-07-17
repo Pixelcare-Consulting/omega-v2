@@ -71,7 +71,7 @@ export default async function SupplierPage({ params }: { params: { code: string 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
                       <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/crm/accounts/${supplier.CardCode}/view`}>
+                        <Link href={`/dashboard/master-data/suppliers/${supplier.CardCode}/view`}>
                           <Icons.eye className='mr-2 size-4' /> View
                         </Link>
                       </DropdownMenuItem>
