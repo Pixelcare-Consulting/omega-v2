@@ -14,7 +14,6 @@ export default async function ViewSupplierPage({ params }: { params: { code: str
 
   const [supplier, itemGroups, manufacturers, users] = await Promise.all([
     !code ? null : await getBpMasterByCardCode({ cardCode: code }),
-    getBpMasterGroups(),
     getItemMasterGroups(),
     getManufacturers(),
     getUsers(),
