@@ -4,7 +4,7 @@ import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import ViewItem from "./_components/view-item"
-import { getItemsByItemCode } from "@/actions/sap-item-master"
+import { getItemsByItemCode } from "@/actions/item-master"
 
 export default async function ViewItemPage({ params }: { params: { code: string } }) {
   const { code } = params

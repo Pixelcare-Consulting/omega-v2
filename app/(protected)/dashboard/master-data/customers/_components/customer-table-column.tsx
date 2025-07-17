@@ -2,12 +2,13 @@ import Link from "next/link"
 import { useRouter } from "nextjs-toploader/app"
 import { ColumnDef } from "@tanstack/react-table"
 
-import { Badge } from "@/components/badge"
+import { Badge, BadgeProps } from "@/components/badge"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { getBpMasters } from "@/actions/sap-bp-master"
+import { getBpMasters } from "@/actions/bp-master"
+import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
 
 type CustomerData = Awaited<ReturnType<typeof getBpMasters>>[number]
 
@@ -58,10 +59,20 @@ export default function getColumns(): ColumnDef<CustomerData>[] {
       cell: ({ row }) => <div>{row.original.Currency || ""}</div>,
     },
     {
-      accessorKey: "status",
-      id: "status",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Status' />,
-      cell: () => "",
+      accessorKey: "syncStatus",
+      id: "sync status",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Sync Status' />,
+      cell: ({ row }) => {
+        const syncStatus = row.original?.syncStatus
+        const label = SYNC_STATUSES_OPTIONS.find((item) => item.value === syncStatus)?.label
+        const color = SYNC_STATUSES_COLORS.find((item) => item.value === syncStatus)?.color
+
+        if (!syncStatus || !label || !color) return null
+
+        const variant = `soft-${color}` as BadgeProps["variant"]
+
+        return <Badge variant={variant}>{label}</Badge>
+      },
     },
     {
       accessorFn: (row) => row.source,

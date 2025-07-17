@@ -13,7 +13,7 @@ import { getInitials } from "@/lib/utils"
 import RequisitionSummaryTab from "./tabs/requisition-summary-tab"
 import RequisitionRequestedItemsTab from "./tabs/requisition-requested-items-tab"
 import RequisitionActivitiesTab from "./tabs/requisition-activities-tab"
-import { getItems } from "@/actions/sap-item-master"
+import { getItems } from "@/actions/item-master"
 
 type ViewRequisitionProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionById>>>

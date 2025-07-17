@@ -1,6 +1,6 @@
 import { format, parse } from "date-fns"
 
-import { getItemsByItemCode } from "@/actions/sap-item-master"
+import { getItemsByItemCode } from "@/actions/item-master"
 import { Badge } from "@/components/badge"
 import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"

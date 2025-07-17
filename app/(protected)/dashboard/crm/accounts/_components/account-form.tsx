@@ -56,7 +56,7 @@ export default function AccountForm({ account }: AccountFormProps) {
     }
 
     return undefined
-  }, [JSON.stringify(account)])
+  }, [id, JSON.stringify(account)])
 
   const form = useForm<AccountForm>({
     mode: "onChange",

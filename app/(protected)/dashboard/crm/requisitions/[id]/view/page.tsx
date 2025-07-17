@@ -5,7 +5,7 @@ import ContentContainer from "@/app/(protected)/_components/content-container"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ViewRequisition from "./_components/view-requisition"
-import { getItems } from "@/actions/sap-item-master"
+import { getItems } from "@/actions/item-master"
 
 export default async function ViewRequisitionPage({ params }: { params: { id: string } }) {
   const { id } = params

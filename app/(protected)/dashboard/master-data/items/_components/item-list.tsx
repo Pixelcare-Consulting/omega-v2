@@ -10,7 +10,8 @@ import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
 import LoadingButton from "@/components/loading-button"
 import { Icons } from "@/components/icons"
-import { getItems } from "@/actions/sap-item-master"
+import { getItems } from "@/actions/item-master"
+import { SYNC_STATUSES_OPTIONS } from "@/constant/common"
 
 type ItemListProps = {
   items: Awaited<ReturnType<typeof getItems>>
@@ -27,6 +28,7 @@ export default function ItemList({ items }: ItemListProps) {
       { label: "Manufacturer", columnId: "manufacturer", type: "text" },
       { label: "UOM", columnId: "uom", type: "text" },
       { label: "Status", columnId: "status", type: "text" },
+      { label: "Sync Status", columnId: "sync status", type: "select", options: SYNC_STATUSES_OPTIONS },
       {
         label: "Source",
         columnId: "source",
@@ -51,9 +53,6 @@ export default function ItemList({ items }: ItemListProps) {
         <DataTableSearch table={table} className='' />
 
         <div className='flex items-center gap-2'>
-          <LoadingButton variant='outline'>
-            <Icons.refreshCw className='size-4' /> Sync
-          </LoadingButton>
           <DataTableFilter className='w-full md:w-fit' table={table} filterFields={filterFields} columnFilters={columnFilters} />
           <DataTableViewOptions className='w-full md:w-fit' table={table} columnVisibility={columnVisibility} />
         </div>

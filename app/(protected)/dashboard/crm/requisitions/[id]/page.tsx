@@ -11,8 +11,8 @@ import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import RequisitionForm from "../_components/requisition-form"
 import { getUsers } from "@/actions/user"
 import { getRequisitionById } from "@/actions/requisition"
-import { getBpMasters } from "@/actions/sap-bp-master"
-import { getItems } from "@/actions/sap-item-master"
+import { getBpMasters } from "@/actions/bp-master"
+import { getItems } from "@/actions/item-master"
 
 export default async function RequisitionPage({ params }: { params: { id: string } }) {
   const { id } = params

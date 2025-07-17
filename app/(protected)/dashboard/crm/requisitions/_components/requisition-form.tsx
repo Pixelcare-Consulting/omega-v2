@@ -42,8 +42,8 @@ import LoadingButton from "@/components/loading-button"
 import { Badge } from "@/components/badge"
 import { useSession } from "next-auth/react"
 import { getRequisitionById, upsertRequisition } from "@/actions/requisition"
-import { getItems } from "@/actions/sap-item-master"
-import { getBpMasters } from "@/actions/sap-bp-master"
+import { getItems } from "@/actions/item-master"
+import { getBpMasters } from "@/actions/bp-master"
 import { FormDebug } from "@/components/form/form-debug"
 
 type RequisitionFormProps = {
@@ -121,10 +121,6 @@ export default function RequisitionForm({ requisition, users, customers, items }
     },
     resolver: zodResolver(requestedItemFormSchema),
   })
-
-  // quantity: 0,
-  // customerStandardPrice: 0,
-  // customerStandardOpportunityValue: 0,
 
   const usersOptions = useMemo(() => {
     if (!users) return []

@@ -15,7 +15,7 @@ import { PURCHASING_STATUS_OPTIONS, RESULT_OPTIONS, SALES_CATEGORY_OPTIONS, URGE
 import { useRouter } from "nextjs-toploader/app"
 import AlertModal from "@/components/alert-modal"
 import { useAction } from "next-safe-action/hooks"
-import { getItems } from "@/actions/sap-item-master"
+import { getItems } from "@/actions/item-master"
 
 type RequisitionListProps = Awaited<ReturnType<typeof getRequisitions>>[number]
 

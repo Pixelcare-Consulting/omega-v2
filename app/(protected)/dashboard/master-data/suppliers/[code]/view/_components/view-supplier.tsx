@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import UnderDevelopment from "@/components/under-development"
 import { getInitials } from "@/lib/utils"
 import SupplierSummaryTab from "./tabs/supplier-summary-tab"
-import { getBpMasterByCardCode } from "@/actions/sap-bp-master"
+import { getBpMasterByCardCode } from "@/actions/bp-master"
 
 type ViewSupplierProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>

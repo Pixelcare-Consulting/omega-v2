@@ -38,6 +38,15 @@ export async function getItemsByItemCode({ itemCode }: { itemCode: string }) {
   }
 }
 
+export async function getItemMasterGroups() {
+  try {
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/ItemGroups`)
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
 export const syncItemMaster = action.use(authenticationMiddleware).action(async ({ ctx }) => {
   let success = false
 

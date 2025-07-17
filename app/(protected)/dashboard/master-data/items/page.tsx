@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import ItemList from "./_components/item-list"
 import { getSyncMetaByCode } from "@/actions/sync-meta"
 import ItemListHeader from "./_components/item-list-header"
-import { getItems } from "@/actions/sap-item-master"
+import { getItems } from "@/actions/item-master"
 
 export default async function ItemsPage() {
   const [syncMeta, items] = await Promise.all([getSyncMetaByCode("item"), getItems()])

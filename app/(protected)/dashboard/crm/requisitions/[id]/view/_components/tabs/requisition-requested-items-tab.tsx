@@ -21,7 +21,7 @@ import { toast } from "sonner"
 import { useRouter } from "nextjs-toploader/app"
 import ReadOnlyField from "@/components/read-only-field"
 import { Badge } from "@/components/badge"
-import { getItems } from "@/actions/sap-item-master"
+import { getItems } from "@/actions/item-master"
 
 type RequisitionRequestedItemsTabProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionById>>>

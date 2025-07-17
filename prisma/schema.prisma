@@ -51,6 +51,8 @@ model User {
 
   requisitionSalesPersons RequisitionSalesPerson[]
   requisitionOmegaBuyers  RequisitionOmegaBuyer[]
+
+  assignedBuyers BusinessPartner[] @relation("user-assigned-buyers")
 }
 
 model Profile {
@@ -321,7 +323,7 @@ model Requisition {
   customerCode                     String
   contactId                        String?
   customerPn                       String?  @default("")
-  requestedItems                   String[]
+  requestedItems                   String[] @default([])
   date                             DateTime
   urgency                          String?  @default("")
   salesCategory                    String
@@ -473,27 +475,53 @@ model Customer {
 model BusinessPartner {
   id String @id @default(uuid())
 
-  Address          String? @default("")
   CardCode         String  @unique //TODO: if source "portal" the card cade will be uuid otherwise it will be sap card code
   CardName         String
   CardType         String
   CntctPrsn        String? @default("")
-  CreateDate       String
-  Currency         String
+  Currency         String? @default("")
   GroupCode        Int
   GroupName        String? @default("")
   GroupNum         Int?
+  Address          String? @default("")
+  ZipCode          String? @default("")
   MailAddres       String? @default("")
   MailZipCod       String? @default("")
   Phone1           String? @default("")
   PymntGroup       String? @default("")
   U_OMEG_QBRelated String? @default("")
   U_VendorCode     String? @default("")
+  CreateDate       String
   UpdateDate       String
-  ZipCode          String? @default("")
 
-  source String
-  status String? //* approved, requested, existing, rejected
+  accountNo           String?  @default("")
+  assignedBuyer       String?
+  website             String?  @default("")
+  commondityStrengths String[] @default([])
+  mfrStrengths        String[] @default([])
+  avlStatus           String?  @default("")
+  status              String   @default("")
+  scope               String   @default("")
+  isCompliantToAs     Boolean  @default(false)
+  isCompliantToItar   Boolean  @default(false)
+  terms               String?  @default("")
+  warranyPeriod       String?  @default("")
+  omegaReviews        String?  @default("")
+  qualificationNotes  String?  @default("")
+  source              String   @default("portal")
+  syncStatus          String   @default("pending")
+
+  //* address
+  street            String? @default("")
+  block             String? @default("")
+  city              String? @default("")
+  zipCode           String? @default("")
+  county            String? @default("")
+  state             String? @default("")
+  country           String? @default("")
+  streetNo          String? @default("")
+  buildingFloorRoom String? @default("")
+  gln               String? @default("")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -503,6 +531,8 @@ model BusinessPartner {
   deletedBy String?
 
   requisitions Requisition[]
+
+  buyer User? @relation(name: "user-assigned-buyers", fields: [assignedBuyer], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Item {
@@ -518,8 +548,8 @@ model Item {
   ManBtchNum String
   UpdateDate String
 
-  source String
-  status String?
+  source     String @default("portal")
+  syncStatus String @default("pending")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

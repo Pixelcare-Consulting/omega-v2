@@ -8,7 +8,8 @@ import { useDataTable } from "@/hooks/use-data-table"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
-import { getBpMasters } from "@/actions/sap-bp-master"
+import { getBpMasters } from "@/actions/bp-master"
+import { SYNC_STATUSES_OPTIONS } from "@/constant/common"
 
 type SuppliersListsProps = {
   suppliers: Awaited<ReturnType<typeof getBpMasters>>
@@ -24,6 +25,8 @@ export default function SupplierLists({ suppliers }: SuppliersListsProps) {
       { label: "Contact Person", columnId: "contact person", type: "text" },
       { label: "Phone", columnId: "phone", type: "text" },
       { label: "Currency", columnId: "currency", type: "text" },
+      { label: "Status", columnId: "status", type: "text" },
+      { label: "Sync Status", columnId: "sync status", type: "select", options: SYNC_STATUSES_OPTIONS },
       {
         label: "Source",
         columnId: "source",

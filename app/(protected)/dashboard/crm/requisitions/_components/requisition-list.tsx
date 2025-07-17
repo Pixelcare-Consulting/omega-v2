@@ -9,7 +9,7 @@ import { DataTableViewOptions } from "@/components/data-table/data-table-view-op
 import { DataTableFilter } from "@/components/data-table/data-table-filter"
 import { useDataTable } from "@/hooks/use-data-table"
 import { getRequisitions } from "@/actions/requisition"
-import { getItems } from "@/actions/sap-item-master"
+import { getItems } from "@/actions/item-master"
 
 type RequisitionListProps = {
   requisitions: Awaited<ReturnType<typeof getRequisitions>>
