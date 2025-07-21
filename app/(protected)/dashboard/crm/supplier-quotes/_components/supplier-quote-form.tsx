@@ -43,6 +43,7 @@ import { FormDebug } from "@/components/form/form-debug"
 import { BP_MASTER_STATUS_OPTIONS } from "@/schema/bp-master"
 import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
+import { REQUISITION_RESULT_OPTIONS } from "@/schema/requisition"
 
 type SupplierQuoteFormProps = {
   supplierQuote: Awaited<ReturnType<typeof getSupplierQuoteByCode>>
@@ -124,11 +125,6 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
   const quotedQuantity = useWatch({ control: form.control, name: "quantityQuoted" })
   const quotedPrice = useWatch({ control: form.control, name: "quantityPriced" })
 
-  const item = useMemo(() => {
-    if (items.length === 0) return null
-    return items?.find((item) => item.ItemCode == itemCode)
-  }, [itemCode, JSON.stringify(items)])
-
   const totalCost = useMemo(() => {
     const x = parseFloat(String(quotedQuantity))
     const y = parseFloat(String(quotedPrice))
@@ -142,7 +138,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
 
   const requisition = useMemo(() => {
     return requisitions?.find((requisition) => requisition.code == requisitionCode)
-  }, [requisitionCode])
+  }, [requisitionCode, JSON.stringify(requisitions)])
 
   const reqCustomerStandardOpportunityValue = useMemo(() => {
     if (!requisition) return ""
@@ -171,7 +167,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
 
   const supplier = useMemo(() => {
     return suppliers?.find((supplier) => supplier.CardCode == supplierCode)
-  }, [JSON.stringify(suppliers)])
+  }, [supplierCode, JSON.stringify(suppliers)])
 
   const suppliersOptions = useMemo(() => {
     if (!suppliers) return []
@@ -183,10 +179,16 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
     return users.map((user) => ({ label: user.name || user.email, value: user.id, user }))
   }, [JSON.stringify(users)])
 
+  const item = useMemo(() => {
+    return items?.find((item) => item.ItemCode == itemCode)
+  }, [itemCode, JSON.stringify(items)])
+
   const itemsOptions = useMemo(() => {
-    if (!items) return []
-    return items.map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.ItemCode, item }))
-  }, [JSON.stringify(items)])
+    if (!items || !requisition) return []
+    return items
+      .filter((item) => requisition.requestedItems.includes(item.ItemCode))
+      .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.ItemCode, item }))
+  }, [JSON.stringify(items), JSON.stringify(requisition)])
 
   //* set buyers based on user session
   useEffect(() => {
@@ -262,7 +264,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
             <FormItem className='space-y-2'>
               <FormLabel className='space-x-1'>Requisition Result</FormLabel>
               <FormControl>
-                <Input disabled value={requisition?.result || ""} />
+                <Input disabled value={REQUISITION_RESULT_OPTIONS.find((item) => item.value == requisition?.result)?.label || ""} />
               </FormControl>
             </FormItem>
           </div>
