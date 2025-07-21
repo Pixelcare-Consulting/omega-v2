@@ -98,7 +98,7 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'
           title='For Follow-Up'
-          value={<div>{requisition.isActiveFollowUp ? <Badge variant='soft-green'>Yes</Badge> : <Badge variant='soft-red'>No</Badge>}</div>}
+          value={requisition.isActiveFollowUp ? <Badge variant='soft-green'>Yes</Badge> : <Badge variant='soft-red'>No</Badge>}
         />
 
         {result && (

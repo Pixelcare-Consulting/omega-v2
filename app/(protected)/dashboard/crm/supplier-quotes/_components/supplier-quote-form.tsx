@@ -38,7 +38,7 @@ import { Button } from "@/components/ui/button"
 import LoadingButton from "@/components/loading-button"
 import { getItems } from "@/actions/item-master"
 import { multiply } from "mathjs"
-import { formatCurrency } from "@/lib/formatter"
+import { formatCurrency, formatNumber } from "@/lib/formatter"
 import { FormDebug } from "@/components/form/form-debug"
 import { BP_MASTER_STATUS_OPTIONS } from "@/schema/bp-master"
 import { useAction } from "next-safe-action/hooks"
@@ -141,7 +141,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
     return requisitions?.find((requisition) => requisition.code == requisitionCode)
   }, [requisitionCode, JSON.stringify(requisitions)])
 
-  const reqCustomerStandardOpportunityValue = useMemo(() => {
+  const reqCustomerStandardPrice = useMemo(() => {
     if (!requisition) return ""
 
     const x = parseFloat(String(requisition.customerStandardPrice))
@@ -158,12 +158,12 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
 
     if (isNaN(x)) return ""
 
-    return formatCurrency({ amount: x, maxDecimal: 2 })
+    return formatNumber({ amount: x, maxDecimal: 2 })
   }, [JSON.stringify(requisition)])
 
   const requisitionsOptions = useMemo(() => {
     if (!requisitions) return []
-    return requisitions.map((req) => ({ label: req?.customer?.CardName || String(req.code), value: String(req.code), requisition: req }))
+    return requisitions.map((req) => ({ label: String(req.code), value: String(req.code), requisition: req }))
   }, [JSON.stringify(requisitions)])
 
   const supplier = useMemo(() => {
@@ -264,13 +264,13 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
               renderItem={(item, selected) => (
                 <div className='flex w-full items-center justify-between'>
                   <div className='flex w-[80%] flex-col justify-center'>
-                    <span className='truncate'>{item.label}</span>
+                    <span className='truncate'>#{item.label}</span>
                     {item.requisition.requestedItems.length > 0 && (
                       <span className='text-xs text-muted-foreground'>{item.requisition.requestedItems[0]}</span>
                     )}
                   </div>
 
-                  <span className='text-xs text-muted-foreground'>#{item.value}</span>
+                  <span className='text-xs text-muted-foreground'>{item?.requisition?.customer?.CardName}</span>
                 </div>
               )}
             />
@@ -278,7 +278,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
 
           <div className='col-span-12 md:col-span-4'>
             <FormItem className='space-y-2'>
-              <FormLabel className='space-x-1'>Requisition Result</FormLabel>
+              <FormLabel className='space-x-1'>Requisition - Result</FormLabel>
               <FormControl>
                 <Input disabled value={REQUISITION_RESULT_OPTIONS.find((item) => item.value == requisition?.result)?.label || ""} />
               </FormControl>
@@ -459,7 +459,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
           </div>
 
           <div className='col-span-12 flex items-center md:col-span-6 lg:col-span-3'>
-            <SwitchField control={form.control} layout='default' name='isShowsWithMfr' label='Stronmg w/ MFR' />
+            <SwitchField control={form.control} layout='default' name='isShowsWithMfr' label='Strong w/ MFR' />
           </div>
 
           <div className='col-span-12 flex items-center md:col-span-6 lg:col-span-3'>
@@ -607,7 +607,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
             <FormItem className='space-y-2'>
               <FormLabel className='space-x-1'>Requisition - Customer Target Price</FormLabel>
               <FormControl>
-                <Input disabled value={reqCustomerStandardOpportunityValue} />
+                <Input disabled value={reqCustomerStandardPrice} />
               </FormControl>
             </FormItem>
           </div>

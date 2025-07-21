@@ -33,7 +33,7 @@ export async function getSupplierQuoteByCode(code: number) {
       where: { code: code },
       include: {
         requisition: true,
-        supplier: true,
+        supplier: { include: { buyer: { select: { name: true, email: true } } } },
         buyers: { include: { user: { select: { name: true, email: true } } } },
       },
     })
@@ -55,7 +55,7 @@ export const upsertSupplierQuote = action
   .use(authenticationMiddleware)
   .schema(supplierQuoteFormSchema)
   .action(async ({ ctx, parsedInput }) => {
-    const { id, buyers, ...data } = parsedInput
+    const { id, buyers, requisitionCode, ...data } = parsedInput
     const { userId } = ctx
 
     try {
@@ -64,7 +64,7 @@ export const upsertSupplierQuote = action
           //* update supplier quote
           prisma.supplierQuote.update({
             where: { id },
-            data: { ...data, updatedBy: userId },
+            data: { ...data, requisitionCode: parseInt(String(requisitionCode)), updatedBy: userId },
           }),
 
           //* delete the existing supplier quote's buyers
@@ -87,6 +87,7 @@ export const upsertSupplierQuote = action
       const newSupplierQuote = await prisma.supplierQuote.create({
         data: {
           ...data,
+          requisitionCode: parseInt(String(requisitionCode)),
           createdBy: userId,
           updatedBy: userId,
           buyers: {
