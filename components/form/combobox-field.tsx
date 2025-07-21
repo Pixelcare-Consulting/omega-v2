@@ -95,7 +95,7 @@ export function ComboboxField<T extends FieldValues>({
                   <CommandList {...extendedProps?.commandListProps}>
                     {!isLoading && data && data.length > 0
                       ? data.map((item, i) => {
-                          const selected = field.value === item.value
+                          const selected = field.value == item.value
 
                           return (
                             <CommandItem

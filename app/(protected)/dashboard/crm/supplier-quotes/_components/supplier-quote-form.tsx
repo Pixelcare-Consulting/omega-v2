@@ -6,7 +6,7 @@ import { useParams } from "next/navigation"
 import { useRouter } from "nextjs-toploader/app"
 import { useForm, useWatch } from "react-hook-form"
 
-import { getBpMasterByCardCode, getBpMasters } from "@/actions/bp-master"
+import { getBpMasters } from "@/actions/bp-master"
 import { getRequisitions } from "@/actions/requisition"
 import { getSupplierQuoteByCode, upsertSupplierQuote } from "@/actions/supplier-quote"
 import { getUsers } from "@/actions/user"
@@ -195,7 +195,15 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
     if (session?.user && isCreate) {
       form.setValue("buyers", [session.user.id])
     }
-  }, [])
+  }, [JSON.stringify(session)])
+
+  //* set buyers if data supplier quote exists
+  useEffect(() => {
+    if (supplierQuote && usersOptions.length > 0) {
+      const selectedBuyers = supplierQuote.buyers?.map((buyer) => buyer?.userId) || []
+      form.setValue("buyers", selectedBuyers)
+    }
+  }, [JSON.stringify(supplierQuote), JSON.stringify(usersOptions)])
 
   const onSubmit = async (formData: SupplierQuoteForm) => {
     try {
@@ -222,8 +230,14 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
     }
   }
 
+  const requisitionCodeCallback = () => {
+    form.setValue("itemCode", "")
+  }
+
   return (
     <>
+      {/* <FormDebug form={form} /> */}
+
       <Form {...form}>
         <form className='grid grid-cols-12 gap-4' onSubmit={form.handleSubmit(onSubmit)}>
           <div className='col-span-12 md:col-span-6 lg:col-span-4'>
@@ -245,6 +259,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
               name='requisitionCode'
               label='Requisition'
               isRequired
+              callback={requisitionCodeCallback}
               renderItem={(item, selected) => (
                 <div className='flex w-full items-center justify-between'>
                   <div className='flex w-[80%] flex-col justify-center'>

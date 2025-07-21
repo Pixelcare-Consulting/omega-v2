@@ -91,7 +91,7 @@ export default function getColumns(): ColumnDef<CustomerData>[] {
       cell: function ActionCell({ row }) {
         const router = useRouter()
 
-        const { CardCode } = row.original
+        const { CardCode, source } = row.original
 
         return (
           <>
@@ -103,12 +103,14 @@ export default function getColumns(): ColumnDef<CustomerData>[] {
                 />
               </ActionTooltipProvider>
 
-              <ActionTooltipProvider label='Edit Customer'>
-                <Icons.pencil
-                  className='size-4 cursor-pointer transition-all hover:scale-125'
-                  onClick={() => router.push(`/dashboard/master-data/customers/${CardCode}`)}
-                />
-              </ActionTooltipProvider>
+              {source === "portal" && (
+                <ActionTooltipProvider label='Edit Customer'>
+                  <Icons.pencil
+                    className='size-4 cursor-pointer transition-all hover:scale-125'
+                    onClick={() => router.push(`/dashboard/master-data/customers/${CardCode}`)}
+                  />
+                </ActionTooltipProvider>
+              )}
 
               <ActionTooltipProvider label='Delete Customer'>
                 <Icons.trash className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125' onClick={() => {}} />

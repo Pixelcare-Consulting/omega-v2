@@ -123,7 +123,7 @@ export const deleteSupplierQuote = action
       if (!supplierQuote) return { error: true, status: 404, message: "Supplier quote not found!", action: "DELETE_SUPPLIER_QUOTE" }
 
       await prisma.supplierQuote.update({ where: { id: supplierQuote.id }, data: { deletedAt: new Date(), deletedBy: ctx.userId } })
-      return { status: 200, message: "SupplierQuote deleted successfully!", action: "DELETE_SUPPLIERQUOTE" }
+      return { status: 200, message: "Supplier quote deleted successfully!", action: "DELETE_SUPPLIER_QUOTE" }
     } catch (error) {
       console.error(error)
 

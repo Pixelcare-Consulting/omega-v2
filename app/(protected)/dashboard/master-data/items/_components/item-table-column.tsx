@@ -83,7 +83,7 @@ export default function getColumns(): ColumnDef<ItemData>[] {
       cell: function ActionCell({ row }) {
         const router = useRouter()
 
-        const { ItemCode } = row.original
+        const { ItemCode, source } = row.original
 
         return (
           <>
@@ -95,12 +95,14 @@ export default function getColumns(): ColumnDef<ItemData>[] {
                 />
               </ActionTooltipProvider>
 
-              <ActionTooltipProvider label='Edit Item'>
-                <Icons.pencil
-                  className='size-4 cursor-pointer transition-all hover:scale-125'
-                  onClick={() => router.push(`/dashboard/master-data/items/${ItemCode}`)}
-                />
-              </ActionTooltipProvider>
+              {source === "portal" && (
+                <ActionTooltipProvider label='Edit Item'>
+                  <Icons.pencil
+                    className='size-4 cursor-pointer transition-all hover:scale-125'
+                    onClick={() => router.push(`/dashboard/master-data/items/${ItemCode}`)}
+                  />
+                </ActionTooltipProvider>
+              )}
 
               <ActionTooltipProvider label='Delete Item'>
                 <Icons.trash className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125' onClick={() => {}} />
