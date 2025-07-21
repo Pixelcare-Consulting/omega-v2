@@ -143,10 +143,10 @@ export const SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS = [
 ]
 
 export const SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS = [
-  { label: "day(s)", value: "day-s" },
-  { label: "week(s)", value: "week-s" },
-  { label: "month(s)", value: "month-s" },
-  { label: "year(s)", value: "year-s" },
+  { label: "Day(s)", value: "day-s" },
+  { label: "Week(s)", value: "week-s" },
+  { label: "Month(s)", value: "month-s" },
+  { label: "Year(s)", value: "year-s" },
 ]
 
 export const SUPPLIER_QUOTE_ROHS_OPTIONS = [

@@ -271,9 +271,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
                     )}
                   </div>
 
-                  <span className={cn("text-xs text-muted-foreground", selected && "text-accent-foreground")}>
-                    {item?.requisition?.customer?.CardName}
-                  </span>
+                  <span className={cn("text-xs text-muted-foreground", selected && "text-accent-foreground")}>#{item?.value}</span>
                 </div>
               )}
             />

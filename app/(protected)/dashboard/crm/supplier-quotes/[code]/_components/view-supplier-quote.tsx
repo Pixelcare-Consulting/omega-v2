@@ -78,31 +78,31 @@ export default function ViewSupplierQuote({ supplierQuote, items }: ViewSupplier
               )}
               {sourcingRound && <Badge variant='soft-purple'>{sourcingRound}</Badge>}
             </div>
-          </div>
 
-          <div className='flex flex-wrap items-center gap-2'>
-            {followUpDate && (
-              <Badge variant='soft-green'>
-                <Icons.calendar className='mr-1 size-3.5' /> {followUpDate}
-              </Badge>
-            )}
-
-            <div className='flex items-center gap-1 text-sm text-muted-foreground'>
-              {supplierQuote.isPreferredSource ? (
-                <Icons.check className='size-4 text-green-500' strokeWidth={4} />
-              ) : (
-                <Icons.x className='size-4 text-red-500' strokeWidth={4} />
+            <div className='flex flex-wrap items-center gap-2'>
+              {followUpDate && (
+                <Badge variant='soft-green'>
+                  <Icons.calendar className='mr-1 size-3.5' /> {followUpDate}
+                </Badge>
               )}
-              Preferred Source
-            </div>
 
-            <div className='flex items-center gap-1 text-sm text-muted-foreground'>
-              {supplierQuote.isQuotedSource ? (
-                <Icons.check className='size-4 text-green-500' strokeWidth={4} />
-              ) : (
-                <Icons.x className='size-4 text-red-500' strokeWidth={4} />
-              )}
-              Quoted Source
+              <div className='flex items-center gap-1 text-sm text-muted-foreground'>
+                {supplierQuote.isPreferredSource ? (
+                  <Icons.check className='size-4 text-green-500' strokeWidth={4} />
+                ) : (
+                  <Icons.x className='size-4 text-red-500' strokeWidth={4} />
+                )}
+                Preferred Source
+              </div>
+
+              <div className='flex items-center gap-1 text-sm text-muted-foreground'>
+                {supplierQuote.isQuotedSource ? (
+                  <Icons.check className='size-4 text-green-500' strokeWidth={4} />
+                ) : (
+                  <Icons.x className='size-4 text-red-500' strokeWidth={4} />
+                )}
+                Quoted Source
+              </div>
             </div>
           </div>
         </Card>

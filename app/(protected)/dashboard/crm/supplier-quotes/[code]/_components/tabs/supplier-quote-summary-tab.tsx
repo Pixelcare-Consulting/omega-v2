@@ -141,13 +141,13 @@ export default function SupplierQuoteSummaryTab({ supplierQuote, items }: Suppli
 
         <ReadOnlyFieldHeader className='col-span-12' title='Supplier' description="Supplier quote's supplier details" />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Company Name' value={supplier.CardName} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Company Name' value={supplier.CardName} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Supplier - Terms' value='' />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Supplier - Terms' value='' />
 
         <ReadOnlyField
-          className='col-span-12 md:col-span-6 lg:col-span-3'
-          title='SSupplier - Assigned Buyer'
+          className='col-span-12 md:col-span-6 lg:col-span-4'
+          title='Supplier - Assigned Buyer'
           value={supplier?.buyer?.name || supplier?.buyer?.email || ""}
         />
 
@@ -257,7 +257,7 @@ export default function SupplierQuoteSummaryTab({ supplierQuote, items }: Suppli
           value={reqCustomerStandardPrice}
         />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Comments' value={supplierQuote.comments || ""} />
+        <ReadOnlyField className='col-span-12' title='Comments' value={supplierQuote.comments || ""} />
       </div>
     </Card>
   )
