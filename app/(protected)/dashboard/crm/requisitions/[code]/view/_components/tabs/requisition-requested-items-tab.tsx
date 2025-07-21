@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { useDialogStore } from "@/hooks/use-dialog"
-import { getRequisitionById, updateRequisitionReqItems } from "@/actions/requisition"
+import { getRequisitionByCode, updateRequisitionReqItems } from "@/actions/requisition"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -24,7 +24,7 @@ import { Badge } from "@/components/badge"
 import { getItems } from "@/actions/item-master"
 
 type RequisitionRequestedItemsTabProps = {
-  requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionById>>>
+  requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
   items: Awaited<ReturnType<typeof getItems>>
 }
 

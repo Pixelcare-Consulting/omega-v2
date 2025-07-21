@@ -12,6 +12,7 @@ import { useAction } from "next-safe-action/hooks"
 import { deleleteRole, getRoles } from "@/actions/role"
 import { toast } from "sonner"
 import AlertModal from "@/components/alert-modal"
+import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 
 type RolesData = Awaited<ReturnType<typeof getRoles>>[number]
 
@@ -107,21 +108,25 @@ export function getColumns(): ColumnDef<RolesData>[] {
 
         return (
           <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='size-8 p-0'>
-                  <Icons.moreHorizontal className='size-4' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/settings/roles/${id}`)}>
-                  <Icons.pencil className='mr-2 size-4' /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem className='text-red-600' onClick={() => setShowConfirmation(true)}>
-                  <Icons.trash className='mr-2 size-4' /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className='flex gap-2'>
+              <ActionTooltipProvider label='Edit Role'>
+                <Icons.pencil
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/settings/roles/${id}`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Delete Role'>
+                <Icons.trash
+                  className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125'
+                  onClick={() => setShowConfirmation(true)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='More Options'>
+                <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
+              </ActionTooltipProvider>
+            </div>
 
             <AlertModal
               isOpen={showConfirmation}

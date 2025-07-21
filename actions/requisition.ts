@@ -19,8 +19,8 @@ export async function getRequisitions() {
     return result.map((req) => ({
       ...req,
       quantity: req.quantity?.toString(),
-      customerStandardPrice: req.customerStandardPrice?.toString(),
-      customerStandardOpportunityValue: req.customerStandardPrice?.toString(),
+      customerStandardPrice: req?.customerStandardPrice?.toString(),
+      customerStandardOpportunityValue: req?.customerStandardPrice?.toString(),
     }))
   } catch (error) {
     console.error(error)
@@ -28,10 +28,10 @@ export async function getRequisitions() {
   }
 }
 
-export async function getRequisitionById(id: string) {
+export async function getRequisitionByCode(code: number) {
   try {
     const result = await prisma.requisition.findUnique({
-      where: { id },
+      where: { code: code },
       include: {
         salesPersons: { include: { user: { select: { name: true, email: true } } } },
         omegaBuyers: { include: { user: { select: { name: true, email: true } } } },

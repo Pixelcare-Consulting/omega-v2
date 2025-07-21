@@ -36,7 +36,7 @@ export default async function RolesPage() {
             icon: Icons.plus,
           }}
         >
-          <Card className='p-6'>
+          <Card className='rounded-lg p-6 shadow-md'>
             <RoleList roles={roles} />
           </Card>
         </PageWrapper>

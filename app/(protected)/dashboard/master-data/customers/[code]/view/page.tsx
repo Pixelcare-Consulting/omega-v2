@@ -8,7 +8,7 @@ import { getBpMasterByCardCode } from "@/actions/bp-master"
 
 export default async function ViewCustomersPage({ params }: { params: { code: string } }) {
   const { code } = params
-  const customer = !code ? null : await getBpMasterByCardCode({ cardCode: code })
+  const customer = !code ? null : await getBpMasterByCardCode(code)
 
   if (!customer) notFound()
 

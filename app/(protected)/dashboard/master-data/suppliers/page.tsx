@@ -10,7 +10,7 @@ import SupplierListHeader from "./_components/supplier-list-header"
 import { Icons } from "@/components/icons"
 
 export default async function SuppliersPage() {
-  const [syncMeta, suppliers] = await Promise.all([getSyncMetaByCode("S"), getBpMasters({ cardType: "S" })])
+  const [syncMeta, suppliers] = await Promise.all([getSyncMetaByCode("S"), getBpMasters("S")])
 
   return (
     <ContentLayout title='Suppliers'>

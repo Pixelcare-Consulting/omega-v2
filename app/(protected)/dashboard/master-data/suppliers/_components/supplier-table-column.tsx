@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { getBpMasters } from "@/actions/bp-master"
 import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
-import { STATUS_OPTIONS } from "@/schema/bp-master"
+import { BP_MASTER_STATUS_OPTIONS } from "@/schema/bp-master"
+import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 
 type SupplierData = Awaited<ReturnType<typeof getBpMasters>>[number]
 
@@ -64,7 +65,7 @@ export default function getColumns(): ColumnDef<SupplierData>[] {
       header: ({ column }) => <DataTableColumnHeader column={column} title='Status' />,
       cell: ({ row }) => {
         const status = row.original?.status
-        const label = STATUS_OPTIONS.find((item) => item.value === status)?.label
+        const label = BP_MASTER_STATUS_OPTIONS.find((item) => item.value === status)?.label
         if (!status || !label) return null
         return <Badge variant='soft-slate'>{label}</Badge>
       },
@@ -105,24 +106,29 @@ export default function getColumns(): ColumnDef<SupplierData>[] {
 
         return (
           <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='size-8 p-0'>
-                  <Icons.moreHorizontal className='size-4' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/master-data/suppliers/${CardCode}/view`)}>
-                  <Icons.eye className='mr-2 size-4' /> View
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/master-data/suppliers/${CardCode}`)}>
-                  <Icons.pencil className='mr-2 size-4' /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem className='text-red-600' onClick={() => {}}>
-                  <Icons.trash className='mr-2 size-4' /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className='flex gap-2'>
+              <ActionTooltipProvider label='View Supplier'>
+                <Icons.eye
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/master-data/suppliers/${CardCode}/view`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Edit Supplier'>
+                <Icons.pencil
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/master-data/suppliers/${CardCode}`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Delete Supplier'>
+                <Icons.trash className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125' onClick={() => {}} />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='More Options'>
+                <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
+              </ActionTooltipProvider>
+            </div>
           </>
         )
       },

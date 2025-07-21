@@ -10,29 +10,30 @@ import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import RequisitionForm from "../_components/requisition-form"
 import { getUsers } from "@/actions/user"
-import { getRequisitionById } from "@/actions/requisition"
+import { getRequisitionByCode } from "@/actions/requisition"
 import { getBpMasters } from "@/actions/bp-master"
 import { getItems } from "@/actions/item-master"
+import { Card } from "@/components/ui/card"
 
-export default async function RequisitionPage({ params }: { params: { id: string } }) {
-  const { id } = params
+export default async function RequisitionPage({ params }: { params: { code: string } }) {
+  const { code } = params
 
   const [requisition, users, customers, items] = await Promise.all([
-    id === "add" ? null : getRequisitionById(id),
+    code === "add" ? null : getRequisitionByCode(parseInt(code)),
     getUsers(),
-    getBpMasters({ cardType: "C" }),
+    getBpMasters("C"),
     getItems(),
   ])
 
   const getPageMetadata = () => {
-    if (!requisition || !requisition?.id || id === "add")
+    if (!requisition || !requisition?.id || code === "add")
       return { title: "Add Requisition", description: "Fill in the form to create a new requisition." }
     return { title: "Edit Requisition", description: "Edit the form to update this requisition's information." }
   }
 
   const pageMetadata = getPageMetadata()
 
-  if (id !== "add" && !requisition) notFound()
+  if (code !== "add" && !requisition) notFound()
 
   return (
     <ContentLayout title='Requisitions'>
@@ -42,7 +43,7 @@ export default async function RequisitionPage({ params }: { params: { id: string
           { label: "Dashboard", href: "/dashboard" },
           { label: "CRM" },
           { label: "Requisitions", href: "/dashboard/crm/requisitions" },
-          { label: id !== "add" && requisition ? String(requisition.code) : "Add", isPage: true },
+          { label: code !== "add" && requisition ? String(requisition.code) : "Add", isPage: true },
         ]}
       />
 
@@ -75,7 +76,9 @@ export default async function RequisitionPage({ params }: { params: { id: string
             </div>
           }
         >
-          <RequisitionForm requisition={requisition} users={users} customers={customers} items={items} />
+          <Card className='rounded-lg p-6 shadow-md'>
+            <RequisitionForm requisition={requisition} users={users} customers={customers} items={items} />
+          </Card>
         </PageWrapper>
       </ContentContainer>
     </ContentLayout>

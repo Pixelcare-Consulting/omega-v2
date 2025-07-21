@@ -37,7 +37,7 @@ export default function AccountList({ accounts }: AccountListProps) {
   const { table, columnFilters, columnVisibility } = useDataTable({
     data: accounts,
     columns: columns,
-    initialState: { columnVisibility: { email: false } },
+    initialState: { columnVisibility: { email: false }, columnPinning: { right: ["actions"] } },
   })
 
   return (

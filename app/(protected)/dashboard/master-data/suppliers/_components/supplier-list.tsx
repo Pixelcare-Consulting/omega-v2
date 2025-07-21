@@ -42,7 +42,7 @@ export default function SupplierLists({ suppliers }: SuppliersListsProps) {
   const { table, columnFilters, columnVisibility } = useDataTable({
     data: suppliers,
     columns: columns,
-    initialState: { columnVisibility: { email: false } },
+    initialState: { columnPinning: { right: ["actions"] } },
   })
 
   return (

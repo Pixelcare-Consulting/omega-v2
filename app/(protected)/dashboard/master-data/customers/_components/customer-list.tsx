@@ -41,7 +41,7 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
   const { table, columnFilters, columnVisibility } = useDataTable({
     data: customers,
     columns: columns,
-    initialState: { columnVisibility: { email: false } },
+    initialState: { columnPinning: { right: ["actions"] } },
   })
 
   return (

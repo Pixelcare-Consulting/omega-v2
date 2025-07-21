@@ -2,19 +2,19 @@ import { string, z } from "zod"
 import { v4 as uuidv4 } from "uuid"
 import { addressFormSchema } from "./address"
 
-export const CURRENCY_OPTIONS = [
+export const BP_MASTER_CURRENCY_OPTIONS = [
   { label: "USD", value: "USD" },
   { label: "PHP", value: "PHP" },
 ]
 
-export const AVL_STATUS_OPTIONS = [
+export const BP_MASTER_AVL_STATUS_OPTIONS = [
   { label: "Approved", value: "approved" },
   { label: "Qualification in progress", value: "qualification-in-progress" },
   { label: "Denied", value: "denied" },
   { label: "Inactive", value: "inactive" },
 ]
 
-export const STATUS_OPTIONS = [
+export const BP_MASTER_STATUS_OPTIONS = [
   { label: "Approved", value: "approved" },
   { label: "Denied", value: "denied" },
   { label: "Provisional", value: "provisional" },
@@ -26,7 +26,7 @@ export const STATUS_OPTIONS = [
   { label: "Inactive", value: "inactive" },
 ]
 
-export const SCOPE_OPTIONS = [
+export const BP_MASTER_SCOPE_OPTIONS = [
   { label: "1 - MFR", value: "1-mfr" },
   { label: "1 - DIST", value: "1-dist" },
   { label: "2 - OEM", value: "2-oem" },
@@ -37,7 +37,7 @@ export const SCOPE_OPTIONS = [
   { label: "Logistics/Freight", value: "logistics-freight" },
 ]
 
-export const WARRANY_PERIOD_OPTIONS = [
+export const BP_MASTER_WARRANY_PERIOD_OPTIONS = [
   { label: "60 Days", value: "60-days" },
   { label: "90 Days", value: "90-days" },
   { label: "6 Months", value: "6-months" },
@@ -95,6 +95,10 @@ export const bpPortalFieldsSchema = z
     syncStatus: z.string().min(1, { message: "Sync status is required" }),
   })
   .merge(addressFormSchema)
+
+export const syncBpMasterSchema = z.object({
+  type: z.string().min(1, { message: "Card type is required" }),
+})
 
 export const deleteBpMasterSchema = z.object({
   code: z.string().min(1, { message: "Code is required" }),

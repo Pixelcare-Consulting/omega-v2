@@ -11,13 +11,13 @@ import { toast } from "sonner"
 
 import { getBpMasterByCardCode, upsertBpMaster } from "@/actions/bp-master"
 import {
-  AVL_STATUS_OPTIONS,
+  BP_MASTER_AVL_STATUS_OPTIONS,
   BpMasterForm,
   bpMasterFormSchema,
-  CURRENCY_OPTIONS,
-  SCOPE_OPTIONS,
-  STATUS_OPTIONS,
-  WARRANY_PERIOD_OPTIONS,
+  BP_MASTER_CURRENCY_OPTIONS,
+  BP_MASTER_SCOPE_OPTIONS,
+  BP_MASTER_STATUS_OPTIONS,
+  BP_MASTER_WARRANY_PERIOD_OPTIONS,
 } from "@/schema/bp-master"
 import { Form } from "@/components/ui/form"
 import { FormDebug } from "@/components/form/form-debug"
@@ -254,7 +254,7 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={CURRENCY_OPTIONS} control={form.control} name='Currency' label='Currency' />
+            <ComboboxField data={BP_MASTER_CURRENCY_OPTIONS} control={form.control} name='Currency' label='Currency' />
           </div>
 
           <div className='col-span-12 md:col-span-6'>
@@ -298,15 +298,15 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-            <ComboboxField data={AVL_STATUS_OPTIONS} control={form.control} name='avlStatus' label='AVL Status' />
+            <ComboboxField data={BP_MASTER_AVL_STATUS_OPTIONS} control={form.control} name='avlStatus' label='AVL Status' />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-            <ComboboxField data={STATUS_OPTIONS} control={form.control} name='status' label='Status' isRequired />
+            <ComboboxField data={BP_MASTER_STATUS_OPTIONS} control={form.control} name='status' label='Status' isRequired />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-            <ComboboxField data={SCOPE_OPTIONS} control={form.control} name='scope' label='Scope' isRequired />
+            <ComboboxField data={BP_MASTER_SCOPE_OPTIONS} control={form.control} name='scope' label='Scope' isRequired />
           </div>
 
           <div className='col-span-12 md:col-span-6 md:mt-5 lg:col-span-3'>
@@ -334,7 +334,7 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={WARRANY_PERIOD_OPTIONS} control={form.control} name='warranyPeriod' label='Warranty Period' />
+            <ComboboxField data={BP_MASTER_WARRANY_PERIOD_OPTIONS} control={form.control} name='warranyPeriod' label='Warranty Period' />
           </div>
 
           <div className='col-span-12 md:col-span-6'>

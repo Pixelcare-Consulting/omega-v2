@@ -12,6 +12,7 @@ import { useAction } from "next-safe-action/hooks"
 import { deleteContact, getContacts } from "@/actions/contacts"
 import AlertModal from "@/components/alert-modal"
 import { cn } from "@/lib/utils"
+import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 
 type ContactData = Awaited<ReturnType<typeof getContacts>>[number]
 
@@ -119,24 +120,32 @@ export function getColumns(): ColumnDef<ContactData>[] {
 
         return (
           <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='size-8 p-0'>
-                  <Icons.moreHorizontal className='size-4' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/crm/contacts/${id}/view`)}>
-                  <Icons.eye className='mr-2 size-4' /> View
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/crm/contacts/${id}`)}>
-                  <Icons.pencil className='mr-2 size-4' /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem className='text-red-600' onClick={() => setShowConfirmation(true)}>
-                  <Icons.trash className='mr-2 size-4' /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className='flex gap-2'>
+              <ActionTooltipProvider label='View Contact'>
+                <Icons.eye
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/crm/contacts/${id}/view`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Edit Contact'>
+                <Icons.pencil
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/crm/contacts/${id}`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Delete Contact'>
+                <Icons.trash
+                  className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125'
+                  onClick={() => setShowConfirmation(true)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='More Options'>
+                <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
+              </ActionTooltipProvider>
+            </div>
 
             <AlertModal
               isOpen={showConfirmation}

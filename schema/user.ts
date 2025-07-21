@@ -70,7 +70,7 @@ export const userFormSchema = z
         if (formObj.oldPassword && formObj.oldPassword !== null && formObj.oldPassword !== undefined) {
           if (formObj.newConfirmPassword !== null && formObj.newConfirmPassword !== undefined) {
             return formObj.newConfirmPassword.length >= 8
-          } else true
+          } else return true
         }
 
         return true

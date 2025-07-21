@@ -1,16 +1,16 @@
 import { notFound } from "next/navigation"
 
-import { getRequisitionById } from "@/actions/requisition"
+import { getRequisitionByCode } from "@/actions/requisition"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ViewRequisition from "./_components/view-requisition"
 import { getItems } from "@/actions/item-master"
 
-export default async function ViewRequisitionPage({ params }: { params: { id: string } }) {
-  const { id } = params
+export default async function ViewRequisitionPage({ params }: { params: { code: string } }) {
+  const { code } = params
 
-  const [requisition, items] = await Promise.all([id === "add" ? null : await getRequisitionById(id), getItems()])
+  const [requisition, items] = await Promise.all([code === "add" ? null : await getRequisitionByCode(parseInt(code)), getItems()])
 
   if (!requisition) notFound()
 

@@ -103,8 +103,8 @@ export default function MonthPicker({ className, currentMonth, onMonthChange, ca
               aria-label='Go to next year'
               className={cn(
                 buttonVariants({ variant: "outline" }),
-                "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                "absolute right-1 disabled:pointer-events-none disabled:opacity-50"
+                "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 disabled:bg-muted",
+                "absolute right-1 disabled:pointer-events-none"
               )}
               type='button'
               disabled={isFuture(add(firstDayCurrentYear, { years: 1 }))}
@@ -124,7 +124,7 @@ export default function MonthPicker({ className, currentMonth, onMonthChange, ca
               <button
                 name='day'
                 className={cn(
-                  "inline-flex h-9 w-16 items-center justify-center rounded-md p-0 text-sm font-normal ring-offset-white transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 aria-selected:opacity-100 dark:ring-offset-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50 dark:focus-visible:ring-slate-800",
+                  "inline-flex h-9 w-16 items-center justify-center rounded-md p-0 text-sm font-normal ring-offset-white transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:bg-muted aria-selected:opacity-100 dark:ring-offset-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50 dark:focus-visible:ring-slate-800",
                   currentMonth &&
                     isEqual(month, currentMonth) &&
                     "bg-primary text-slate-50 hover:bg-primary hover:text-slate-50 focus:bg-primary focus:text-slate-50 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50 dark:hover:text-slate-900 dark:focus:bg-slate-50 dark:focus:text-slate-900",

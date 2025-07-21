@@ -98,6 +98,10 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
                   href: "/dashboard/crm/requisitions",
                   label: "Requisitions",
                 },
+                {
+                  href: "/dashboard/crm/supplier-quotes",
+                  label: "Supplier Quotes",
+                },
 
                 // {
                 //   href: "/dashboard/admin/crm/lead-lists",

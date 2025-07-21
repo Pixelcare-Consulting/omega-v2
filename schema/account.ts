@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { addressFormSchema } from "./address"
 
-export const INDUSTRY_OPTIONS = [
+export const ACCOUNT_INDUSTRY_OPTIONS = [
   { label: "Technology", value: "technology" },
   { label: "Software", value: "software" },
   { label: "Information Technology (IT)", value: "it" },

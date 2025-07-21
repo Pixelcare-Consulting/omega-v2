@@ -1,12 +1,17 @@
 import Link from "next/link"
 
-import { getRequisitionById } from "@/actions/requisition"
+import { getRequisitionByCode } from "@/actions/requisition"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Icons } from "@/components/icons"
 import { Card } from "@/components/ui/card"
-import { PURCHASING_STATUS_OPTIONS, RESULT_OPTIONS, SALES_CATEGORY_OPTIONS, URGENCY_OPTIONS } from "@/schema/requisition"
+import {
+  REQUISITION_PURCHASING_STATUS_OPTIONS,
+  REQUISITION_RESULT_OPTIONS,
+  REQUISITION_SALES_CATEGORY_OPTIONS,
+  REQUISITION_URGENCY_OPTIONS,
+} from "@/schema/requisition"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/badge"
 import { getInitials } from "@/lib/utils"
@@ -16,16 +21,16 @@ import RequisitionActivitiesTab from "./tabs/requisition-activities-tab"
 import { getItems } from "@/actions/item-master"
 
 type ViewRequisitionProps = {
-  requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionById>>>
+  requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
   items: Awaited<ReturnType<typeof getItems>>
 }
 
 export default function ViewRequisition({ requisition, items }: ViewRequisitionProps) {
   const customer = requisition.customer?.CardName || requisition.customer?.CardCode
-  const urgency = URGENCY_OPTIONS.find((item) => item.value === requisition.urgency)?.label
-  const purchasingStatus = PURCHASING_STATUS_OPTIONS.find((item) => item.value === requisition.purchasingStatus)?.label
-  const result = RESULT_OPTIONS.find((item) => item.value === requisition.result)?.label
-  const salesCategory = SALES_CATEGORY_OPTIONS.find((item) => item.value === requisition.salesCategory)?.label
+  const urgency = REQUISITION_URGENCY_OPTIONS.find((item) => item.value === requisition.urgency)?.label
+  const purchasingStatus = REQUISITION_PURCHASING_STATUS_OPTIONS.find((item) => item.value === requisition.purchasingStatus)?.label
+  const result = REQUISITION_RESULT_OPTIONS.find((item) => item.value === requisition.result)?.label
+  const salesCategory = REQUISITION_SALES_CATEGORY_OPTIONS.find((item) => item.value === requisition.salesCategory)?.label
 
   return (
     <PageWrapper

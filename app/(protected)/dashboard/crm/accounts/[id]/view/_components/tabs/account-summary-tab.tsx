@@ -3,7 +3,7 @@ import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import { INDUSTRY_OPTIONS } from "@/schema/account"
+import { ACCOUNT_INDUSTRY_OPTIONS } from "@/schema/account"
 
 type AccountSummaryTabProps = {
   account: NonNullable<Awaited<ReturnType<typeof getAccountById>>>
@@ -53,7 +53,7 @@ export default function AccountSummaryTab({ account }: AccountSummaryTabProps) {
                   key={i}
                   className='inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-center text-xs font-medium text-red-600 ring-1 ring-red-500/10'
                 >
-                  {INDUSTRY_OPTIONS.find((item) => item.value === ind)?.label || ""}
+                  {ACCOUNT_INDUSTRY_OPTIONS.find((item) => item.value === ind)?.label || ""}
                 </span>
               ))}
             </div>

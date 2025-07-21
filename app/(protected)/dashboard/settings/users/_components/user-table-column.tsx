@@ -13,6 +13,7 @@ import AlertModal from "@/components/alert-modal"
 import { getInitials } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/badge"
+import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 
 type UserData = Awaited<ReturnType<typeof getUsers>>[number]
 
@@ -116,24 +117,25 @@ export function getColumns(): ColumnDef<UserData>[] {
 
         return (
           <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='size-8 p-0'>
-                  <Icons.moreHorizontal className='size-4' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                {/* <DropdownMenuItem onClick={() => router.push(`/dashboard/settings/users/${id}/view`)}>
-                  <Icons.eye className='mr-2 size-4' /> View
-                </DropdownMenuItem> */}
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/settings/users/${id}`)}>
-                  <Icons.pencil className='mr-2 size-4' /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem className='text-red-600' onClick={() => setShowConfirmation(true)}>
-                  <Icons.trash className='mr-2 size-4' /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className='flex gap-2'>
+              <ActionTooltipProvider label='Edit User'>
+                <Icons.pencil
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/settings/users/${id}`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Delete User'>
+                <Icons.trash
+                  className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125'
+                  onClick={() => setShowConfirmation(true)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='More Options'>
+                <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
+              </ActionTooltipProvider>
+            </div>
 
             <AlertModal
               isOpen={showConfirmation}

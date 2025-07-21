@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-export const URGENCY_OPTIONS = [
+export const REQUISITION_URGENCY_OPTIONS = [
   { label: "Hot! - Shortage", value: "hot-shortage" },
   { label: "Hot! - Other", value: "hot-other" },
   { label: "Normal - VMI", value: "normal-vmi" },
@@ -9,7 +9,7 @@ export const URGENCY_OPTIONS = [
   { label: "Low - Other", value: "low-other" },
 ]
 
-export const SALES_CATEGORY_OPTIONS = [
+export const REQUISITION_SALES_CATEGORY_OPTIONS = [
   { label: "Broker Buy", value: "broker-buy" },
   { label: "VMI", value: "vmi" },
   { label: "Pass-Through", value: "pass-through" },
@@ -17,7 +17,7 @@ export const SALES_CATEGORY_OPTIONS = [
   { label: "Not Applicable", value: "not-applicable" },
 ]
 
-export const PURCHASING_STATUS_OPTIONS = [
+export const REQUISITION_PURCHASING_STATUS_OPTIONS = [
   { label: "New", value: "new" },
   { label: "US Sourcing", value: "us-sourcing" },
   { label: "Sourcing", value: "sourcing" },
@@ -29,7 +29,7 @@ export const PURCHASING_STATUS_OPTIONS = [
   { label: "Master List", value: "master-list" },
 ]
 
-export const REASON_OPTIONS = [
+export const REQUISITION_REASON_OPTIONS = [
   { label: "Not Quoted", value: "not-quoted" },
   { label: "Quoted - Waiting", value: "quoted-waiting" },
   { label: "Need to Re-Quote", value: "need-to-re-quote" },
@@ -53,12 +53,12 @@ export const REASON_OPTIONS = [
   { label: "Purchasing Initiated-Quoted Waiting", value: "purchasing-initiated-quoted-waiting" },
 ]
 
-export const RESULT_OPTIONS = [
+export const REQUISITION_RESULT_OPTIONS = [
   { label: "Won", value: "won" },
   { label: "Lost", value: "lost" },
 ]
 
-export const REQ_REVIEW_RESULT_OPTIONS = [
+export const REQUISITION_REQ_REVIEW_RESULT_OPTIONS = [
   { label: "Need Better Price", value: "need-better-price" },
   { label: "Need Better DC", value: "need-better-dc" },
   { label: "Need Better LT", value: "need-better-lt" },

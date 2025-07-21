@@ -20,7 +20,7 @@ export default async function SupplierPage({ params }: { params: { code: string 
   const { code } = params
 
   const [supplier, bpGroups, itemGroups, manufacturers, users] = await Promise.all([
-    !code ? null : await getBpMasterByCardCode({ cardCode: code }),
+    !code ? null : await getBpMasterByCardCode(code),
     getBpMasterGroups(),
     getItemMasterGroups(),
     getManufacturers(),

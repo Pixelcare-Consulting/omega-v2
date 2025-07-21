@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useAction } from "next-safe-action/hooks"
 
 import { getAccountById, upsertAccount } from "@/actions/account"
-import { type AccountForm, accountFormSchema, INDUSTRY_OPTIONS } from "@/schema/account"
+import { type AccountForm, accountFormSchema, ACCOUNT_INDUSTRY_OPTIONS } from "@/schema/account"
 import { toast } from "sonner"
 import { FormDebug } from "@/components/form/form-debug"
 import { Form } from "@/components/ui/form"
@@ -136,7 +136,7 @@ export default function AccountForm({ account }: AccountFormProps) {
           </div>
 
           <div className='col-span-12 lg:col-span-6'>
-            <MultiSelectField data={INDUSTRY_OPTIONS} control={form.control} name='industry' label='Industry' isRequired />
+            <MultiSelectField data={ACCOUNT_INDUSTRY_OPTIONS} control={form.control} name='industry' label='Industry' isRequired />
           </div>
 
           <div className='col-span-12 mt-2 space-y-4 lg:col-span-12'>

@@ -37,7 +37,7 @@ export default async function UsersPage() {
             icon: Icons.plus,
           }}
         >
-          <Card className='p-6'>
+          <Card className='rounded-lg p-6 shadow-md'>
             <UserList users={users} roles={roles} />
           </Card>
         </PageWrapper>

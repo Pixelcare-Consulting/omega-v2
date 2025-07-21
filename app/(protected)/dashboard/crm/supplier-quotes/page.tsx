@@ -3,37 +3,37 @@ import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
-import RequisitionList from "./_components/requisition-list"
-import { getRequisitions } from "@/actions/requisition"
 import { Card } from "@/components/ui/card"
+import { getSupplierQuotes } from "@/actions/supplier-quote"
+import SupplierQuoteList from "./_components/supplier-quote-list"
 import { getItems } from "@/actions/item-master"
 
-export default async function RequisitionsPage() {
-  const [requisitions, items] = await Promise.all([await getRequisitions(), await getItems()])
+export default async function SupplierQuotesPage() {
+  const [supplierQuotes, items] = await Promise.all([getSupplierQuotes(), getItems()])
 
   return (
-    <ContentLayout title='Requisitions'>
+    <ContentLayout title='Supplier Quotes'>
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
           { label: "Dashboard", href: "/dashboard" },
           { label: "CRM" },
-          { label: "Requisitions", isPage: true },
+          { label: "Supplier Quotes", isPage: true },
         ]}
       />
 
       <ContentContainer>
         <PageWrapper
-          title='Requisitions'
-          description='Manage and track your requisitions effectively'
+          title='Supplier Quotes'
+          description='Manage and track your supplie quotes effectively'
           defaultAction={{
-            label: "Add Requisition",
-            href: "/dashboard/crm/requisitions/add",
+            label: "Add Supplier Quote",
+            href: "/dashboard/crm/supplier-quotes/add",
             icon: Icons.plus,
           }}
         >
           <Card className='rounded-lg p-6 shadow-md'>
-            <RequisitionList requisitions={requisitions} items={items} />
+            <SupplierQuoteList supplierQuotes={supplierQuotes} items={items} />
           </Card>
         </PageWrapper>
       </ContentContainer>

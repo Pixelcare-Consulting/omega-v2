@@ -11,15 +11,20 @@ import { Badge } from "@/components/badge"
 import { deleteRequisition, getRequisitions } from "@/actions/requisition"
 import { format } from "date-fns"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
-import { PURCHASING_STATUS_OPTIONS, RESULT_OPTIONS, SALES_CATEGORY_OPTIONS, URGENCY_OPTIONS } from "@/schema/requisition"
+import {
+  REQUISITION_PURCHASING_STATUS_OPTIONS,
+  REQUISITION_RESULT_OPTIONS,
+  REQUISITION_SALES_CATEGORY_OPTIONS,
+  REQUISITION_URGENCY_OPTIONS,
+} from "@/schema/requisition"
 import { useRouter } from "nextjs-toploader/app"
 import AlertModal from "@/components/alert-modal"
 import { useAction } from "next-safe-action/hooks"
 import { getItems } from "@/actions/item-master"
 
-type RequisitionListProps = Awaited<ReturnType<typeof getRequisitions>>[number]
+type RequisitionData = Awaited<ReturnType<typeof getRequisitions>>[number]
 
-export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnDef<RequisitionListProps>[] {
+export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnDef<RequisitionData>[] {
   if (items.length < 1) return []
 
   return [
@@ -97,7 +102,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       ),
       cell: ({ row }) => {
         const salesCategory = row.original?.salesCategory
-        const option = SALES_CATEGORY_OPTIONS.find((item) => item.value === salesCategory)
+        const option = REQUISITION_SALES_CATEGORY_OPTIONS.find((item) => item.value === salesCategory)
         if (!salesCategory || !option) return null
         return <Badge variant='soft-slate'>{option.label}</Badge>
       },
@@ -107,7 +112,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       header: ({ column }) => <DataTableColumnHeader column={column} title='Urgency' />,
       cell: ({ row }) => {
         const urgency = row.original?.urgency
-        const option = URGENCY_OPTIONS.find((item) => item.value === urgency)
+        const option = REQUISITION_URGENCY_OPTIONS.find((item) => item.value === urgency)
         if (!urgency || !option) return null
 
         return (
@@ -127,7 +132,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       ),
       cell: ({ row }) => {
         const purchasingStatus = row.original?.purchasingStatus
-        const option = PURCHASING_STATUS_OPTIONS.find((item) => item.value === purchasingStatus)
+        const option = REQUISITION_PURCHASING_STATUS_OPTIONS.find((item) => item.value === purchasingStatus)
         if (!purchasingStatus || !option) return null
         return <Badge variant='soft-blue'>{option.label}</Badge>
       },
@@ -137,7 +142,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       header: ({ column }) => <DataTableColumnHeader column={column} title='Result' />,
       cell: ({ row }) => {
         const result = row.original.result
-        const option = RESULT_OPTIONS.find((item) => item.value === result)
+        const option = REQUISITION_RESULT_OPTIONS.find((item) => item.value === result)
         if (!result || !option) return null
         return <Badge variant={result === "won" ? "soft-green" : "soft-red"}>{option.label}</Badge>
       },
@@ -246,15 +251,14 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       },
     },
     {
-      accessorKey: "action",
-      id: "action",
+      accessorKey: "actions",
       header: "Action",
       cell: function ActionCell({ row }) {
         const router = useRouter()
         const { executeAsync } = useAction(deleteRequisition)
         const [showConfirmation, setShowConfirmation] = useState(false)
 
-        const { id } = row.original
+        const { id, code } = row.original
 
         async function handleDelete() {
           setShowConfirmation(false)
@@ -284,24 +288,32 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
 
         return (
           <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='size-8 p-0'>
-                  <Icons.moreHorizontal className='size-4' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/crm/requisitions/${row.original.id}/view`)}>
-                  <Icons.eye className='mr-2 size-4' /> View
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/crm/requisitions/${row.original.id}`)}>
-                  <Icons.pencil className='mr-2 size-4' /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem className='text-red-600' onClick={() => setShowConfirmation(true)}>
-                  <Icons.trash className='mr-2 size-4' /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className='flex gap-2'>
+              <ActionTooltipProvider label='View Requisition'>
+                <Icons.eye
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/crm/requisitions/${code}/view`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Edit Requisition'>
+                <Icons.pencil
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/crm/requisitions/${code}`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Delete Requisition'>
+                <Icons.trash
+                  className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125'
+                  onClick={() => setShowConfirmation(true)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='More Options'>
+                <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
+              </ActionTooltipProvider>
+            </div>
 
             <AlertModal
               isOpen={showConfirmation}

@@ -32,7 +32,7 @@ export default function LeadList({ leads }: LeadListProps) {
   const { table, columnFilters, columnVisibility } = useDataTable({
     data: leads,
     columns: columns,
-    initialState: { columnVisibility: { email: false } },
+    initialState: { columnVisibility: { email: false }, columnPinning: { right: ["actions"] } },
   })
 
   return (

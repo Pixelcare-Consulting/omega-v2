@@ -9,7 +9,7 @@ import { getSyncMetaByCode } from "@/actions/sync-meta"
 import CustomerListHeader from "./_components/customer-list-header"
 
 export default async function CustomersPage() {
-  const [syncMeta, customers] = await Promise.all([getSyncMetaByCode("C"), getBpMasters({ cardType: "C" })])
+  const [syncMeta, customers] = await Promise.all([getSyncMetaByCode("C"), getBpMasters("C")])
 
   return (
     <ContentLayout title='Customers'>

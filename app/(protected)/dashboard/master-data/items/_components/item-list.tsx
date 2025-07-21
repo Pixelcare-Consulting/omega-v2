@@ -44,7 +44,7 @@ export default function ItemList({ items }: ItemListProps) {
   const { table, columnFilters, columnVisibility } = useDataTable({
     data: items,
     columns: columns,
-    initialState: { columnVisibility: { email: false } },
+    initialState: { columnPinning: { right: ["actions"] } },
   })
 
   return (

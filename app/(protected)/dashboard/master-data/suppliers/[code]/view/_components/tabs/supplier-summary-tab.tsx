@@ -5,7 +5,13 @@ import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Card } from "@/components/ui/card"
 import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
-import { AVL_STATUS_OPTIONS, CURRENCY_OPTIONS, SCOPE_OPTIONS, STATUS_OPTIONS, WARRANY_PERIOD_OPTIONS } from "@/schema/bp-master"
+import {
+  BP_MASTER_AVL_STATUS_OPTIONS,
+  BP_MASTER_CURRENCY_OPTIONS,
+  BP_MASTER_SCOPE_OPTIONS,
+  BP_MASTER_STATUS_OPTIONS,
+  BP_MASTER_WARRANY_PERIOD_OPTIONS,
+} from "@/schema/bp-master"
 import { format, parse } from "date-fns"
 
 type SupplierSummaryTabProps = {
@@ -31,10 +37,10 @@ export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers
 
   const assignedBuyer = users.find((user: any) => user.id === supplier?.assignedBuyer)?.name
 
-  const avlStatus = AVL_STATUS_OPTIONS.find((item) => item.value === supplier?.avlStatus)?.label
-  const status = STATUS_OPTIONS.find((item) => item.value === supplier?.status)?.label
-  const scope = SCOPE_OPTIONS.find((item) => item.value === supplier?.scope)?.label
-  const warrantyPeriod = WARRANY_PERIOD_OPTIONS.find((item) => item.value === supplier?.warranyPeriod)?.label
+  const avlStatus = BP_MASTER_AVL_STATUS_OPTIONS.find((item) => item.value === supplier?.avlStatus)?.label
+  const status = BP_MASTER_STATUS_OPTIONS.find((item) => item.value === supplier?.status)?.label
+  const scope = BP_MASTER_SCOPE_OPTIONS.find((item) => item.value === supplier?.scope)?.label
+  const warrantyPeriod = BP_MASTER_WARRANY_PERIOD_OPTIONS.find((item) => item.value === supplier?.warranyPeriod)?.label
 
   const SyncStatus = ({ status }: { status: string }) => {
     const label = SYNC_STATUSES_OPTIONS.find((item) => item.value === status)?.label
@@ -79,16 +85,20 @@ export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers
         <ReadOnlyField
           className='col-span-12 md:col-span-6'
           title='Commodity Strengths'
-          value={commodityStrengths.map((strength: string) => (
-            <Badge variant='soft-red'>{strength}</Badge>
+          value={commodityStrengths.map((strength: string, index: number) => (
+            <Badge key={index} variant='soft-red'>
+              {strength}
+            </Badge>
           ))}
         />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6'
           title='MFR Strengths'
-          value={mfrStrengths.map((strength: string) => (
-            <Badge variant='soft-red'>{strength}</Badge>
+          value={mfrStrengths.map((strength: string, index: number) => (
+            <Badge key={index} variant='soft-red'>
+              {strength}
+            </Badge>
           ))}
         />
 

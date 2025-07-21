@@ -38,7 +38,7 @@ export default function ContactList({ contacts }: ContactListProps) {
   const { table, columnFilters, columnVisibility } = useDataTable({
     data: contacts,
     columns: columns,
-    initialState: { columnVisibility: { email: false } },
+    initialState: { columnVisibility: { email: false }, columnPinning: { right: ["actions"] } },
   })
 
   return (

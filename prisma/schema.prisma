@@ -52,7 +52,8 @@ model User {
   requisitionSalesPersons RequisitionSalesPerson[]
   requisitionOmegaBuyers  RequisitionOmegaBuyer[]
 
-  assignedBuyers BusinessPartner[] @relation("user-assigned-buyers")
+  bpAssignedBuyers    BusinessPartner[]    @relation("user-assigned-buyers")
+  supplierQuoteBuyers SupplierQuoteBuyer[]
 }
 
 model Profile {
@@ -344,16 +345,15 @@ model Requisition {
   updatedBy String?
   deletedBy String?
 
-  salesPersons RequisitionSalesPerson[]
-  omegaBuyers  RequisitionOmegaBuyer[]
-  activities   RequisitionActivity[]
-  customer     BusinessPartner?         @relation(fields: [customerCode], references: [CardCode], onUpdate: Cascade, onDelete: Cascade)
+  salesPersons   RequisitionSalesPerson[]
+  omegaBuyers    RequisitionOmegaBuyer[]
+  activities     RequisitionActivity[]
+  supplierQuotes SupplierQuote[]
+  customer       BusinessPartner?         @relation(fields: [customerCode], references: [CardCode], onUpdate: Cascade, onDelete: Cascade)
 
   createdByUser User? @relation("user-created-requisitions", fields: [createdBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
   updatedByUser User? @relation("user-updated-requisitions", fields: [updatedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
   deletedByUser User? @relation("user-deleted-requisitions", fields: [deletedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
-
-  quotations Quotation[]
 
   @@unique([customerCode, code])
 }
@@ -405,29 +405,38 @@ model RequisitionActivity {
   deletedByUser User? @relation("user-deleted-requisition-activities", fields: [deletedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
-model Quotation {
-  id              String   @id @default(uuid())
-  code            Int      @unique @default(autoincrement())
-  customerId      String
-  contactId       String?
-  customerRefNo   String?  @default("")
-  requisitionCode Int
-  status          String
-  postingDate     DateTime
-  validUntil      DateTime
-  documentDate    DateTime
-  items           String[]
-  owner           String
-  accExec         String?  @default("")
-  accManager      String?  @default("")
-  accAssoc        String?  @default("")
-  brokerBuy       String?  @default("")
-  tegPurc         String?  @default("")
-  bpProject       String?  @default("")
-  remark          String?  @default("")
-  freight         String?  @default("")
-  tax             Decimal?
-  total           Decimal?
+model SupplierQuote {
+  id                          String    @id @default(uuid())
+  code                        Int       @unique @default(autoincrement())
+  date                        DateTime
+  requisitionCode             Int       @unique
+  supplierCode                String    @unique
+  contactId                   String?
+  contactedVia                String?   @default("")
+  status                      String    @default("")
+  result                      String?   @default("")
+  sourcingRound               String?   @default("")
+  followUpDate                DateTime?
+  isPreferredSource           Boolean   @default(false)
+  isQuotedSource              Boolean   @default(false)
+  isShowsStock                Boolean   @default(false)
+  isShowsAvailable            Boolean   @default(false)
+  isShowsWithMfr              Boolean   @default(false)
+  isShowsWithCommodity        Boolean   @default(false)
+  isTrustedSource             Boolean   @default(false)
+  isManufacturer              Boolean   @default(false)
+  isFd                        Boolean   @default(false)
+  isPreviousSourceOldStkOffer Boolean   @default(false)
+  itemCode                    String
+  ltToSjcNumber               String?   @default("")
+  ltToSjcUom                  String?   @default("")
+  dateCode                    String?   @default("")
+  condition                   String?   @default("")
+  coo                         String?   @default("")
+  roHs                        String?   @default("")
+  quantityQuoted              Decimal?
+  quantityPriced              Decimal?
+  comments                    String?   @default("")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -436,7 +445,21 @@ model Quotation {
   updatedBy String?
   deletedBy String?
 
-  requisition Requisition @relation(fields: [requisitionCode], references: [code], onUpdate: Cascade, onDelete: Cascade)
+  requisition Requisition          @relation(fields: [requisitionCode], references: [code], onUpdate: Cascade, onDelete: Cascade)
+  supplier    BusinessPartner      @relation(fields: [supplierCode], references: [CardCode], onUpdate: Cascade, onDelete: Cascade)
+  buyers      SupplierQuoteBuyer[]
+
+  @@unique([code, requisitionCode, supplierCode])
+}
+
+model SupplierQuoteBuyer {
+  supplierQuoteId String @map("suppllierQuoteId")
+  userId          String
+
+  supplierQuote SupplierQuote @relation(fields: [supplierQuoteId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@unique([supplierQuoteId, userId])
 }
 
 model Customer {
@@ -475,7 +498,7 @@ model Customer {
 model BusinessPartner {
   id String @id @default(uuid())
 
-  CardCode         String  @unique //TODO: if source "portal" the card cade will be uuid otherwise it will be sap card code
+  CardCode         String  @unique
   CardName         String
   CardType         String
   CntctPrsn        String? @default("")
@@ -530,7 +553,8 @@ model BusinessPartner {
   updatedBy String?
   deletedBy String?
 
-  requisitions Requisition[]
+  requisitions   Requisition[]
+  supplierQuotes SupplierQuote[]
 
   buyer User? @relation(name: "user-assigned-buyers", fields: [assignedBuyer], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
@@ -541,7 +565,7 @@ model Item {
   CreateDate String
   FirmCode   Int?
   FirmName   String? @default("")
-  ItemCode   String  @unique //TODO: if source "portal" the card cade will be uuid otherwise it will be sap card code
+  ItemCode   String  @unique
   ItemName   String
   ItmsGrpCod Int
   ItmsGrpNam String? @default("")

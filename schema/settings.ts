@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-export const DEFAULT_LOCALE_OPTIONS = [
+export const SETTINGS_DEFAULT_LOCALE_OPTIONS = [
   { label: "English (US)", value: "en-US" },
   { label: "English (UK)", value: "en-GB" },
   { label: "French", value: "fr-FR" },
@@ -8,7 +8,7 @@ export const DEFAULT_LOCALE_OPTIONS = [
   { label: "Spanish", value: "es-ES" },
 ]
 
-export const DEFAULT_THEME_OPTIONS = [
+export const SETTINGS_DEFAULT_THEME_OPTIONS = [
   { label: "Light", value: "light" },
   { label: "Dark", value: "dark" },
   { label: "System", value: "system" },

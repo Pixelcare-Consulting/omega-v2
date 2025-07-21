@@ -5,8 +5,8 @@ import { useEffect, useMemo, useState } from "react"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Card } from "@/components/ui/card"
 import {
-  DEFAULT_LOCALE_OPTIONS,
-  DEFAULT_THEME_OPTIONS,
+  SETTINGS_DEFAULT_LOCALE_OPTIONS,
+  SETTINGS_DEFAULT_THEME_OPTIONS,
   sapB1SettingsSchema,
   SystemSettings,
   systemSettingsSchema,
@@ -355,7 +355,7 @@ export default function AdminSystemSettingsTab({ settings, sapSettings }: AdminS
 
             <div className='col-span-12 md:col-span-6'>
               <ComboboxField
-                data={DEFAULT_LOCALE_OPTIONS}
+                data={SETTINGS_DEFAULT_LOCALE_OPTIONS}
                 control={systemSettingsForm.control}
                 name='defaultLocale'
                 label='Default Locale'
@@ -373,7 +373,12 @@ export default function AdminSystemSettingsTab({ settings, sapSettings }: AdminS
             </div>
 
             <div className='col-span-12 md:col-span-6'>
-              <ComboboxField data={DEFAULT_THEME_OPTIONS} control={systemSettingsForm.control} name='defaultTheme' label='Default Theme' />
+              <ComboboxField
+                data={SETTINGS_DEFAULT_THEME_OPTIONS}
+                control={systemSettingsForm.control}
+                name='defaultTheme'
+                label='Default Theme'
+              />
             </div>
 
             <Separator className='col-span-12' />

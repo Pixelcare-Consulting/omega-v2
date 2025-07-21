@@ -21,7 +21,7 @@ export default function RequisitionList({ requisitions, items }: RequisitionList
 
   const filterFields = useMemo((): any[] => {
     return [
-      { label: "Date", columnId: "date", type: "text" },
+      { label: "Date", columnId: "date", type: "date" },
       { label: "Customer", columnId: "customer", type: "text" },
       { label: "Customer PO Hit Rate", columnId: "customer po hit rate", type: "text" },
       { label: "Salesperson", columnId: "salesperson", type: "text" },
@@ -39,7 +39,7 @@ export default function RequisitionList({ requisitions, items }: RequisitionList
   const { table, columnFilters, columnVisibility } = useDataTable({
     data: requisitions,
     columns: columns,
-    initialState: { columnPinning: { right: ["action"] } },
+    initialState: { columnPinning: { right: ["actions"] } },
   })
 
   return (

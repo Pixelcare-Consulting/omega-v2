@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { getBpMasters } from "@/actions/bp-master"
 import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
+import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 
 type CustomerData = Awaited<ReturnType<typeof getBpMasters>>[number]
 
@@ -94,24 +95,29 @@ export default function getColumns(): ColumnDef<CustomerData>[] {
 
         return (
           <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='size-8 p-0'>
-                  <Icons.moreHorizontal className='size-4' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/master-data/customers/${CardCode}/view`)}>
-                  <Icons.eye className='mr-2 size-4' /> View
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/master-data/customers/${CardCode}`)}>
-                  <Icons.pencil className='mr-2 size-4' /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem className='text-red-600' onClick={() => {}}>
-                  <Icons.trash className='mr-2 size-4' /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className='flex gap-2'>
+              <ActionTooltipProvider label='View Customer'>
+                <Icons.eye
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/master-data/customers/${CardCode}/view`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Edit Customer'>
+                <Icons.pencil
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/master-data/customers/${CardCode}`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Delete Customer'>
+                <Icons.trash className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125' onClick={() => {}} />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='More Options'>
+                <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
+              </ActionTooltipProvider>
+            </div>
           </>
         )
       },

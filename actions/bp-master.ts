@@ -3,8 +3,7 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { callSapServiceLayerApi } from "@/lib/sap-service-layer"
-import { bpMasterFormSchema, BpPortalFields, BpSapFields, deleteBpMasterSchema } from "@/schema/bp-master"
-import { syncBpMasterSchema } from "@/schema/sap-bp-master"
+import { bpMasterFormSchema, BpPortalFields, BpSapFields, deleteBpMasterSchema, syncBpMasterSchema } from "@/schema/bp-master"
 import { isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
 
@@ -17,13 +16,16 @@ const sapCredentials = {
 
 const cardTypeMap: Record<string, string> = { S: "Supplier", C: "Customer" }
 
-export async function getBpMasters({ cardType }: { cardType: string }) {
+export async function getBpMasters(cardType: string) {
   try {
     const cacheKey = `bp-master-${cardType.toLowerCase()}`
 
     return await unstable_cache(
       async () => {
-        return prisma.businessPartner.findMany({ where: { CardType: cardType, deletedAt: null, deletedBy: null } })
+        return prisma.businessPartner.findMany({
+          where: { CardType: cardType, deletedAt: null, deletedBy: null },
+          include: { buyer: true },
+        })
       },
       [cacheKey],
       { tags: [cacheKey] }
@@ -33,7 +35,7 @@ export async function getBpMasters({ cardType }: { cardType: string }) {
   }
 }
 
-export async function getBpMasterByCardCode({ cardCode }: { cardCode: string }) {
+export async function getBpMasterByCardCode(cardCode: string) {
   try {
     return await prisma.businessPartner.findUnique({ where: { CardCode: cardCode } })
   } catch (error) {
@@ -149,7 +151,7 @@ export const syncBpMaster = action
     let success = false
 
     const { userId } = ctx
-    const cardType = parsedInput.cardType
+    const cardType = parsedInput.type
     const cacheKey = `bp-master-${cardType.toLowerCase()}`
 
     try {

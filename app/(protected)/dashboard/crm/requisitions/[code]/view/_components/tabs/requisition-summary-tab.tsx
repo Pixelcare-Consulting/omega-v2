@@ -1,32 +1,33 @@
-import { getRequisitionById } from "@/actions/requisition"
+import { getRequisitionByCode } from "@/actions/requisition"
 import { Badge } from "@/components/badge"
 import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Card } from "@/components/ui/card"
 import {
-  PURCHASING_STATUS_OPTIONS,
-  REASON_OPTIONS,
-  REQ_REVIEW_RESULT_OPTIONS,
-  RESULT_OPTIONS,
-  SALES_CATEGORY_OPTIONS,
-  URGENCY_OPTIONS,
+  REQUISITION_PURCHASING_STATUS_OPTIONS,
+  REQUISITION_REASON_OPTIONS,
+  REQUISITION_REQ_REVIEW_RESULT_OPTIONS,
+  REQUISITION_RESULT_OPTIONS,
+  REQUISITION_SALES_CATEGORY_OPTIONS,
+  REQUISITION_URGENCY_OPTIONS,
 } from "@/schema/requisition"
 import { format } from "date-fns"
 
 type RequisitionSummaryTabProps = {
-  requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionById>>>
+  requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
 }
 
 export default function RequisitionSummaryTab({ requisition }: RequisitionSummaryTabProps) {
   const customer = requisition.customer?.CardName || requisition.customer?.CardCode
-  const urgency = URGENCY_OPTIONS.find((item) => item.value === requisition.urgency)?.label
-  const purchasingStatus = PURCHASING_STATUS_OPTIONS.find((item) => item.value === requisition.purchasingStatus)?.label
-  const result = RESULT_OPTIONS.find((item) => item.value === requisition.result)?.label
-  const salesCategory = SALES_CATEGORY_OPTIONS.find((item) => item.value === requisition.salesCategory)?.label
-  const reason = REASON_OPTIONS.find((item) => item.value === requisition.reason)?.label
+  const urgency = REQUISITION_URGENCY_OPTIONS.find((item) => item.value === requisition.urgency)?.label
+  const purchasingStatus = REQUISITION_PURCHASING_STATUS_OPTIONS.find((item) => item.value === requisition.purchasingStatus)?.label
+  const result = REQUISITION_RESULT_OPTIONS.find((item) => item.value === requisition.result)?.label
+  const salesCategory = REQUISITION_SALES_CATEGORY_OPTIONS.find((item) => item.value === requisition.salesCategory)?.label
+  const reason = REQUISITION_REASON_OPTIONS.find((item) => item.value === requisition.reason)?.label
   const reqReviewResult =
-    requisition.reqReviewResult?.map((item) => REQ_REVIEW_RESULT_OPTIONS.find((option) => option.value === item)?.label).filter(Boolean) ||
-    []
+    requisition.reqReviewResult
+      ?.map((item) => REQUISITION_REQ_REVIEW_RESULT_OPTIONS.find((option) => option.value === item)?.label)
+      .filter(Boolean) || []
 
   const salesPersons = requisition.salesPersons?.map((person) => person?.user?.name || person?.user?.email).filter(Boolean) || []
   const omegaBuyers = requisition.omegaBuyers?.map((person) => person?.user?.name || person?.user?.email).filter(Boolean) || []

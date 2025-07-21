@@ -4,7 +4,7 @@ import { memo, useMemo } from "react"
 import { format } from "date-fns"
 import { ColumnFiltersState, Table as TanstackTable } from "@tanstack/react-table"
 
-import { getRequisitionById } from "@/actions/requisition"
+import { getRequisitionByCode } from "@/actions/requisition"
 import { Icons } from "@/components/icons"
 import RequisitionActivityCard from "./requisition-activity-card"
 import { getInitials } from "@/lib/utils"
@@ -14,7 +14,7 @@ import { RequisitionActivity } from "./tabs/requisition-activities-tab"
 type RequisitionActivityCardListProps<TData> = {
   table: TanstackTable<TData>
   columnFilters: ColumnFiltersState
-  requisition?: Awaited<ReturnType<typeof getRequisitionById>>
+  requisition?: Awaited<ReturnType<typeof getRequisitionByCode>>
   setActivity: (value: RequisitionActivity | null) => void
   setIsOpen: (value: boolean) => void
 }

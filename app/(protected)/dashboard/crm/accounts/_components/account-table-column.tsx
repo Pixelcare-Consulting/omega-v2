@@ -12,6 +12,7 @@ import { useAction } from "next-safe-action/hooks"
 import { deleteAccount, getAccounts } from "@/actions/account"
 import AlertModal from "@/components/alert-modal"
 import { cn } from "@/lib/utils"
+import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 
 type AccountData = Awaited<ReturnType<typeof getAccounts>>[number]
 
@@ -120,24 +121,32 @@ export function getColumns(): ColumnDef<AccountData>[] {
 
         return (
           <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='size-8 p-0'>
-                  <Icons.moreHorizontal className='size-4' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/crm/accounts/${id}/view`)}>
-                  <Icons.eye className='mr-2 size-4' /> View
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push(`/dashboard/crm/accounts/${id}`)}>
-                  <Icons.pencil className='mr-2 size-4' /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem className='text-red-600' onClick={() => setShowConfirmation(true)}>
-                  <Icons.trash className='mr-2 size-4' /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className='flex gap-2'>
+              <ActionTooltipProvider label='View Account'>
+                <Icons.eye
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/crm/accounts/${id}/view`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Edit Account'>
+                <Icons.pencil
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/crm/accounts/${id}`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Delete Account'>
+                <Icons.trash
+                  className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125'
+                  onClick={() => setShowConfirmation(true)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='More Options'>
+                <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
+              </ActionTooltipProvider>
+            </div>
 
             <AlertModal
               isOpen={showConfirmation}

@@ -4,7 +4,7 @@ import { useRouter } from "nextjs-toploader/app"
 import React, { useMemo, useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 
-import { getRequisitionById } from "@/actions/requisition"
+import { getRequisitionByCode } from "@/actions/requisition"
 import { Icons } from "@/components/icons"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Button } from "@/components/ui/button"
@@ -17,11 +17,11 @@ import { dateFilter, dateSort } from "@/lib/data-table/data-table"
 import { DataTableFilter, FilterFields } from "@/components/data-table/data-table-filter"
 import { REQUISITION_ACTIVITY_STATUSES_OPTIONS, REQUISITION_ACTIVITY_TYPES_OPTIONS } from "@/schema/requisition-activity"
 
-export type Requisition = NonNullable<Awaited<ReturnType<typeof getRequisitionById>>>
+export type Requisition = NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
 export type RequisitionActivity = Requisition["activities"][number]
 
 type RequisitionActivitiesTabProps = {
-  requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionById>>>
+  requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
 }
 
 export default function RequisitionActivitiesTab({ requisition }: RequisitionActivitiesTabProps) {

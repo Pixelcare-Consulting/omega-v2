@@ -9,16 +9,16 @@ import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
 
 import {
-  SALES_CATEGORY_OPTIONS,
-  PURCHASING_STATUS_OPTIONS,
-  REASON_OPTIONS,
-  REQ_REVIEW_RESULT_OPTIONS,
+  REQUISITION_SALES_CATEGORY_OPTIONS,
+  REQUISITION_PURCHASING_STATUS_OPTIONS,
+  REQUISITION_REASON_OPTIONS,
+  REQUISITION_REQ_REVIEW_RESULT_OPTIONS,
   RequestedItemForm,
   requestedItemFormSchema,
   type RequisitionForm,
   requisitionFormSchema,
-  RESULT_OPTIONS,
-  URGENCY_OPTIONS,
+  REQUISITION_RESULT_OPTIONS,
+  REQUISITION_URGENCY_OPTIONS,
 } from "@/schema/requisition"
 import { Form, FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Card } from "@/components/ui/card"
@@ -41,13 +41,13 @@ import { DataTableSearch } from "@/components/data-table/data-table-search"
 import LoadingButton from "@/components/loading-button"
 import { Badge } from "@/components/badge"
 import { useSession } from "next-auth/react"
-import { getRequisitionById, upsertRequisition } from "@/actions/requisition"
+import { getRequisitionByCode, upsertRequisition } from "@/actions/requisition"
 import { getItems } from "@/actions/item-master"
 import { getBpMasters } from "@/actions/bp-master"
 import { FormDebug } from "@/components/form/form-debug"
 
 type RequisitionFormProps = {
-  requisition: Awaited<ReturnType<typeof getRequisitionById>>
+  requisition: Awaited<ReturnType<typeof getRequisitionByCode>>
   users: Awaited<ReturnType<typeof getUsers>>
   customers: Awaited<ReturnType<typeof getBpMasters>>
   items: Awaited<ReturnType<typeof getItems>>
@@ -55,10 +55,10 @@ type RequisitionFormProps = {
 
 export default function RequisitionForm({ requisition, users, customers, items }: RequisitionFormProps) {
   const router = useRouter()
-  const { id } = useParams() as { id: string }
+  const { code } = useParams() as { code: string }
   const { data: session } = useSession()
 
-  const isCreate = id === "add" || !requisition
+  const isCreate = code === "add" || !requisition
 
   const values = useMemo(() => {
     if (requisition) {
@@ -75,7 +75,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
       }
     }
 
-    if (id === "add" || !requisition) {
+    if (code === "add" || !requisition) {
       return {
         id: "add",
         customerCode: "",
@@ -208,7 +208,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
             form.setValue("requestedItems", [...currentValues.filter((item) => item.code !== code)])
           }
 
-          return <Icons.trash className='size-4 cursor-pointer text-red-600' onClick={() => handleRemoveItem(id)} />
+          return <Icons.trash className='size-4 cursor-pointer text-red-600' onClick={() => handleRemoveItem(code)} />
         },
       },
     ]
@@ -322,237 +322,243 @@ export default function RequisitionForm({ requisition, users, customers, items }
 
       <Form {...form}>
         <form className='grid grid-cols-12 gap-4' onSubmit={form.handleSubmit(onSubmit)}>
-          <Card className='col-span-12 grid grid-cols-12 gap-4 p-6'>
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <DatePickerField
-                control={form.control}
-                name='date'
-                label='Date'
-                extendedProps={{
-                  calendarProps: { mode: "single", fromYear: 1800, toYear: new Date().getFullYear(), captionLayout: "dropdown-buttons" },
-                }}
-                isRequired
-              />
-            </div>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <DatePickerField
+              control={form.control}
+              name='date'
+              label='Date'
+              extendedProps={{
+                calendarProps: { mode: "single", fromYear: 1800, toYear: new Date().getFullYear(), captionLayout: "dropdown-buttons" },
+              }}
+              isRequired
+            />
+          </div>
 
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <ComboboxField data={URGENCY_OPTIONS} control={form.control} name='urgency' label='Urgency' />
-            </div>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField data={REQUISITION_URGENCY_OPTIONS} control={form.control} name='urgency' label='Urgency' />
+          </div>
 
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <MultiSelectField
-                data={usersOptions}
-                control={form.control}
-                name='salesPersons'
-                label='Salesperson'
-                renderItem={(item, selected) => {
-                  return (
-                    <div className='flex flex-col justify-center'>
-                      <span>{item.label}</span>
-                      {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
-                    </div>
-                  )
-                }}
-              />
-            </div>
-
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <ComboboxField data={SALES_CATEGORY_OPTIONS} control={form.control} name='salesCategory' label='Sales Category' isRequired />
-            </div>
-
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <MultiSelectField
-                data={usersOptions}
-                control={form.control}
-                name='omegaBuyers'
-                label='Omega Buyers'
-                renderItem={(item, selected) => {
-                  return (
-                    <div className='flex flex-col justify-center'>
-                      <span>{item.label}</span>
-                      {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
-                    </div>
-                  )
-                }}
-              />
-            </div>
-
-            <div className='col-span-12 md:col-span-6 md:mt-4 lg:col-span-3'>
-              <SwitchField
-                control={form.control}
-                layout='default'
-                name='isPurchasingInitiated'
-                label='Purchasing Initiated'
-                description='Is this requisition purchasing initiated?'
-              />
-            </div>
-
-            <div className='col-span-12 md:col-span-6 md:mt-4 lg:col-span-3'>
-              <SwitchField
-                control={form.control}
-                layout='default'
-                name='isActiveFollowUp'
-                label='For Follow-Up'
-                description='Is this requisition for active follow-up?'
-              />
-            </div>
-
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <ComboboxField data={PURCHASING_STATUS_OPTIONS} control={form.control} name='purchasingStatus' label='Purchasing Status' />
-            </div>
-
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <ComboboxField data={RESULT_OPTIONS} control={form.control} name='result' label='Result' />
-            </div>
-
-            <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-              <ComboboxField data={REASON_OPTIONS} control={form.control} name='reason' label='Reason' />
-            </div>
-
-            <div className='col-span-12 md:col-span-6'>
-              <MultiSelectField data={REQ_REVIEW_RESULT_OPTIONS} control={form.control} name='reqReviewResult' label='REQ Review Result' />
-            </div>
-
-            <div className='col-span-12'>
-              <Separator className='mt-2' />
-            </div>
-
-            <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-              <ComboboxField
-                data={customersOptions}
-                control={form.control}
-                name='customerCode'
-                label='Company Name'
-                isRequired
-                renderItem={(item, selected) => (
-                  <div className='flex w-full items-center justify-between'>
-                    <div className='flex w-[80%] flex-col justify-center'>
-                      <span className='truncate'>{item.label}</span>
-                      <span className='truncate text-xs text-muted-foreground'>{item.customer.CardCode}</span>
-                    </div>
-
-                    {item.customer.source === "portal" ? (
-                      <Badge variant='soft-amber'>Portal</Badge>
-                    ) : (
-                      <Badge variant='soft-green'>SAP</Badge>
-                    )}
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <MultiSelectField
+              data={usersOptions}
+              control={form.control}
+              name='salesPersons'
+              label='Salesperson'
+              renderItem={(item, selected) => {
+                return (
+                  <div className='flex flex-col justify-center'>
+                    <span>{item.label}</span>
+                    {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
                   </div>
-                )}
-              />
-            </div>
+                )
+              }}
+            />
+          </div>
 
-            <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-              <ComboboxField data={[]} control={form.control} name='contactId' label='Contact - Full Name' />
-            </div>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField
+              data={REQUISITION_SALES_CATEGORY_OPTIONS}
+              control={form.control}
+              name='salesCategory'
+              label='Sales Category'
+              isRequired
+            />
+          </div>
 
-            <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-              <FormItem className='space-y-2'>
-                <FormLabel className='space-x-1'>Customer - PO Hit Rate</FormLabel>
-                <FormControl>
-                  <Input disabled value='0.0%' />
-                </FormControl>
-              </FormItem>
-            </div>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <MultiSelectField
+              data={usersOptions}
+              control={form.control}
+              name='omegaBuyers'
+              label='Omega Buyers'
+              renderItem={(item, selected) => {
+                return (
+                  <div className='flex flex-col justify-center'>
+                    <span>{item.label}</span>
+                    {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
+                  </div>
+                )
+              }}
+            />
+          </div>
 
-            <div className='col-span-12'>
-              <InputField
-                control={form.control}
-                name='customerPn'
-                label='Customer PN'
-                extendedProps={{ inputProps: { placeholder: "Enter Customer PN" } }}
-              />
-            </div>
+          <div className='col-span-12 md:col-span-6 md:mt-4 lg:col-span-3'>
+            <SwitchField
+              control={form.control}
+              layout='default'
+              name='isPurchasingInitiated'
+              label='Purchasing Initiated'
+              description='Is this requisition purchasing initiated?'
+            />
+          </div>
 
-            <div className='col-span-12 mt-2 space-y-4'>
-              <Separator />
+          <div className='col-span-12 md:col-span-6 md:mt-4 lg:col-span-3'>
+            <SwitchField
+              control={form.control}
+              layout='default'
+              name='isActiveFollowUp'
+              label='For Follow-Up'
+              description='Is this requisition for active follow-up?'
+            />
+          </div>
 
-              <div>
-                <h1 className='text-base font-bold'>Requested Items</h1>
-                <p className='text-xs text-muted-foreground'>List of requisition's requested items</p>
-              </div>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField
+              data={REQUISITION_PURCHASING_STATUS_OPTIONS}
+              control={form.control}
+              name='purchasingStatus'
+              label='Purchasing Status'
+            />
+          </div>
 
-              {form?.formState?.errors?.requestedItems?.message && (
-                <FormMessage className='!mt-1'>{form?.formState?.errors?.requestedItems?.message}</FormMessage>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField data={REQUISITION_RESULT_OPTIONS} control={form.control} name='result' label='Result' />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField data={REQUISITION_REASON_OPTIONS} control={form.control} name='reason' label='Reason' />
+          </div>
+
+          <div className='col-span-12 md:col-span-6'>
+            <MultiSelectField
+              data={REQUISITION_REQ_REVIEW_RESULT_OPTIONS}
+              control={form.control}
+              name='reqReviewResult'
+              label='REQ Review Result'
+            />
+          </div>
+
+          <div className='col-span-12'>
+            <Separator className='mt-2' />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <ComboboxField
+              data={customersOptions}
+              control={form.control}
+              name='customerCode'
+              label='Company Name'
+              isRequired
+              renderItem={(item, selected) => (
+                <div className='flex w-full items-center justify-between'>
+                  <div className='flex w-[80%] flex-col justify-center'>
+                    <span className='truncate'>{item.label}</span>
+                    <span className='truncate text-xs text-muted-foreground'>{item.customer.CardCode}</span>
+                  </div>
+
+                  {item.customer.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
+                </div>
               )}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <ComboboxField data={[]} control={form.control} name='contactId' label='Contact - Full Name' />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <FormItem className='space-y-2'>
+              <FormLabel className='space-x-1'>Customer - PO Hit Rate</FormLabel>
+              <FormControl>
+                <Input disabled value='0.0%' />
+              </FormControl>
+            </FormItem>
+          </div>
+
+          <div className='col-span-12'>
+            <InputField
+              control={form.control}
+              name='customerPn'
+              label='Customer PN'
+              extendedProps={{ inputProps: { placeholder: "Enter Customer PN" } }}
+            />
+          </div>
+
+          <div className='col-span-12 mt-2 space-y-4'>
+            <Separator />
+
+            <div>
+              <h1 className='text-base font-bold'>Requested Items</h1>
+              <p className='text-xs text-muted-foreground'>List of requisition's requested items</p>
             </div>
 
-            <div className='col-span-12 md:col-span-4'>
-              <InputField
-                control={form.control}
-                name='quantity'
-                label='Requested Quantity'
-                extendedProps={{ inputProps: { placeholder: "Enter Requested Quantity", type: "number" } }}
-              />
-            </div>
+            {form?.formState?.errors?.requestedItems?.message && (
+              <FormMessage className='!mt-1'>{form?.formState?.errors?.requestedItems?.message}</FormMessage>
+            )}
+          </div>
 
-            <div className='col-span-12 md:col-span-4'>
-              <InputField
-                control={form.control}
-                name='customerStandardPrice'
-                label='Cust. Standard Price'
-                extendedProps={{ inputProps: { placeholder: "0.000", type: "number", startContent: "$" } }}
-              />
-            </div>
+          <div className='col-span-12 md:col-span-4'>
+            <InputField
+              control={form.control}
+              name='quantity'
+              label='Requested Quantity'
+              extendedProps={{ inputProps: { placeholder: "Enter Requested Quantity", type: "number" } }}
+            />
+          </div>
 
-            <div className='col-span-12 md:col-span-4'>
-              <InputField
-                control={form.control}
-                name='customerStandardOpportunityValue'
-                label='Cust. Standard Opportunity Value'
-                extendedProps={{ inputProps: { placeholder: "0.00", type: "number", startContent: "$" } }}
-              />
-            </div>
+          <div className='col-span-12 md:col-span-4'>
+            <InputField
+              control={form.control}
+              name='customerStandardPrice'
+              label='Cust. Standard Price'
+              extendedProps={{ inputProps: { placeholder: "0.000", type: "number", startContent: "$" } }}
+            />
+          </div>
 
-            <Form {...requestedItemsForm}>
-              <div className='col-span-12 grid grid-cols-12 gap-4 rounded-lg border p-4'>
-                <div className='col-span-12'>
-                  <ComboboxField
-                    data={itemsOptions}
-                    control={requestedItemsForm.control}
-                    name='code'
-                    label='Item'
-                    isRequired
-                    callback={() => requestedItemsForm.handleSubmit(handleAddRequestedItem)()}
-                    renderItem={(item, selected) => (
-                      <div className='flex w-full items-center justify-between'>
-                        <div className='flex w-[80%] flex-col justify-center'>
-                          <span className='truncate'>{item.label}</span>
-                          <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
-                        </div>
+          <div className='col-span-12 md:col-span-4'>
+            <InputField
+              control={form.control}
+              name='customerStandardOpportunityValue'
+              label='Cust. Standard Opportunity Value'
+              extendedProps={{ inputProps: { placeholder: "0.00", type: "number", startContent: "$" } }}
+            />
+          </div>
 
-                        {item.item.source === "portal" ? (
-                          <Badge variant='soft-amber'>Portal</Badge>
-                        ) : (
-                          <Badge variant='soft-green'>SAP</Badge>
-                        )}
+          <Form {...requestedItemsForm}>
+            <div className='col-span-12 grid grid-cols-12 gap-4 rounded-lg border p-4'>
+              <div className='col-span-12'>
+                <ComboboxField
+                  data={itemsOptions}
+                  control={requestedItemsForm.control}
+                  name='code'
+                  label='Item'
+                  isRequired
+                  callback={() => requestedItemsForm.handleSubmit(handleAddRequestedItem)()}
+                  renderItem={(item, selected) => (
+                    <div className='flex w-full items-center justify-between'>
+                      <div className='flex w-[80%] flex-col justify-center'>
+                        <span className='truncate'>{item.label}</span>
+                        <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
                       </div>
-                    )}
-                  />
-                </div>
 
-                <div className='col-span-12'>
-                  <Separator />
-                </div>
-
-                <div className='col-span-12'>
-                  <DataTable table={table}>
-                    <div className='flex flex-col items-stretch justify-center gap-2 md:flex-row md:items-center md:justify-between'>
-                      <DataTableSearch table={table} />
+                      {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
                     </div>
-                  </DataTable>
-                </div>
+                  )}
+                />
               </div>
-            </Form>
 
-            <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>
-              <Button type='button' variant='secondary' disabled={isExecuting} onClick={() => router.push(`/dashboard/crm/requisitions`)}>
-                Cancel
-              </Button>
-              <LoadingButton isLoading={isExecuting} type='submit'>
-                Save
-              </LoadingButton>
+              <div className='col-span-12'>
+                <Separator />
+              </div>
+
+              <div className='col-span-12'>
+                <DataTable table={table}>
+                  <div className='flex flex-col items-stretch justify-center gap-2 md:flex-row md:items-center md:justify-between'>
+                    <DataTableSearch table={table} />
+                  </div>
+                </DataTable>
+              </div>
             </div>
-          </Card>
+          </Form>
+
+          <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>
+            <Button type='button' variant='secondary' disabled={isExecuting} onClick={() => router.push(`/dashboard/crm/requisitions`)}>
+              Cancel
+            </Button>
+            <LoadingButton isLoading={isExecuting} type='submit'>
+              Save
+            </LoadingButton>
+          </div>
         </form>
       </Form>
     </>
