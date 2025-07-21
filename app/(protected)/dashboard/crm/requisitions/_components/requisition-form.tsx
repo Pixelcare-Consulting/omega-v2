@@ -232,11 +232,11 @@ export default function RequisitionForm({ requisition, users, customers, items }
 
       toast.success(result?.message)
 
-      if (result?.data && result?.data?.requisition && "id" in result?.data?.requisition) {
+      if (result?.data && result?.data?.requisition && "code" in result?.data?.requisition) {
         router.refresh()
 
         setTimeout(() => {
-          router.push(`/dashboard/crm/requisitions/${result.data.requisition.id}`)
+          router.push(`/dashboard/crm/requisitions/${result.data.requisition.code}`)
         }, 1500)
       }
     } catch (error) {

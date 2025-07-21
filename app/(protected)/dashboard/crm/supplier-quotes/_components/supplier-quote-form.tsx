@@ -125,8 +125,9 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
   const quotedPrice = useWatch({ control: form.control, name: "quantityPriced" })
 
   const item = useMemo(() => {
-    return items?.find((item) => item.ItemCode === itemCode)
-  }, [itemCode])
+    if (items.length === 0) return null
+    return items?.find((item) => item.ItemCode == itemCode)
+  }, [itemCode, JSON.stringify(items)])
 
   const totalCost = useMemo(() => {
     const x = parseFloat(String(quotedQuantity))
@@ -140,7 +141,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
   }, [quotedQuantity, quotedPrice])
 
   const requisition = useMemo(() => {
-    return requisitions?.find((requisition) => requisition.code === requisitionCode)
+    return requisitions?.find((requisition) => requisition.code == requisitionCode)
   }, [requisitionCode])
 
   const reqCustomerStandardOpportunityValue = useMemo(() => {
@@ -169,7 +170,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
   }, [JSON.stringify(requisitions)])
 
   const supplier = useMemo(() => {
-    return suppliers?.find((supplier) => supplier.CardCode === supplierCode)
+    return suppliers?.find((supplier) => supplier.CardCode == supplierCode)
   }, [JSON.stringify(suppliers)])
 
   const suppliersOptions = useMemo(() => {
