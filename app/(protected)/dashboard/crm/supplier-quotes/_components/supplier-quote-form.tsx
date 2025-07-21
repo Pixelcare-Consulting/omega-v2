@@ -66,6 +66,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
 
       return {
         ...data,
+        requisitionCode: String(data.requisitionCode),
         buyers: [],
         quantityQuoted: quantityQuoted as any,
         quantityPriced: quantityPriced as any,

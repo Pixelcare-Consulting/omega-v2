@@ -159,7 +159,10 @@ export const SUPPLIER_QUOTE_ROHS_OPTIONS = [
 export const supplierQuoteFormSchema = z.object({
   id: z.string().min(1, { message: "ID is required" }),
   date: z.date({ message: "Date is required" }),
-  requisitionCode: z.coerce.number().min(1, { message: "Requisition is required" }),
+  requisitionCode: z.union([
+    z.coerce.number().min(1, { message: "Requisition is required" }),
+    z.string().min(1, { message: "Requisition is required" }),
+  ]),
   supplierCode: z.string().min(1, { message: "Supplier is required" }),
   contactId: z.string().nullish(),
   contactedVia: z.string().nullish(),
