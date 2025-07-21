@@ -77,15 +77,15 @@ export default function ViewSupplierQuote({ supplierQuote, items }: ViewSupplier
                 <Badge variant='soft-red'>Rejected</Badge>
               )}
               {sourcingRound && <Badge variant='soft-purple'>{sourcingRound}</Badge>}
-            </div>
 
-            <div className='flex flex-wrap items-center gap-2'>
               {followUpDate && (
-                <Badge variant='soft-green'>
+                <Badge variant='soft-amber'>
                   <Icons.calendar className='mr-1 size-3.5' /> {followUpDate}
                 </Badge>
               )}
+            </div>
 
+            <div className='flex flex-wrap items-center gap-2'>
               <div className='flex items-center gap-1 text-sm text-muted-foreground'>
                 {supplierQuote.isPreferredSource ? (
                   <Icons.check className='size-4 text-green-500' strokeWidth={4} />
