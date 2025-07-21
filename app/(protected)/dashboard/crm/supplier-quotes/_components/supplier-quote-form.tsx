@@ -209,11 +209,11 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
 
       toast.success(result?.message)
 
-      if (result?.data && result?.data?.supplierQuote && "id" in result?.data?.supplierQuote) {
+      if (result?.data && result?.data?.supplierQuote && "code" in result?.data?.supplierQuote) {
         router.refresh()
 
         setTimeout(() => {
-          router.push(`/dashboard/crm/supplier-quotes/${result.data.supplierQuote.id}`)
+          router.push(`/dashboard/crm/supplier-quotes/${result.data.supplierQuote.code}`)
         }, 1500)
       }
     } catch (error) {
@@ -490,7 +490,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
                   {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
                 </div>
               )}
-              description='Items selected from the requisition'
+              description='Item/s selected from the requisition'
             />
           </div>
 
@@ -606,10 +606,10 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
           </div>
 
           <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>
-            <Button type='button' variant='secondary' disabled={false} onClick={() => router.push(`/dashboard/crm/requisitions`)}>
+            <Button type='button' variant='secondary' disabled={isExecuting} onClick={() => router.push(`/dashboard/crm/requisitions`)}>
               Cancel
             </Button>
-            <LoadingButton isLoading={false} type='submit'>
+            <LoadingButton isLoading={isExecuting} type='submit'>
               Save
             </LoadingButton>
           </div>
