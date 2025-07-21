@@ -44,6 +44,7 @@ import { BP_MASTER_STATUS_OPTIONS } from "@/schema/bp-master"
 import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
 import { REQUISITION_RESULT_OPTIONS } from "@/schema/requisition"
+import { cn } from "@/lib/utils"
 
 type SupplierQuoteFormProps = {
   supplierQuote: Awaited<ReturnType<typeof getSupplierQuoteByCode>>
@@ -262,15 +263,17 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
               isRequired
               callback={requisitionCodeCallback}
               renderItem={(item, selected) => (
-                <div className='flex w-full items-center justify-between'>
+                <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
                   <div className='flex w-[80%] flex-col justify-center'>
-                    <span className='truncate'>#{item.label}</span>
+                    <span className={cn("truncate", selected && "text-accent-foreground")}>{item?.requisition?.customer?.CardName}</span>
                     {item.requisition.requestedItems.length > 0 && (
                       <span className='text-xs text-muted-foreground'>{item.requisition.requestedItems[0]}</span>
                     )}
                   </div>
 
-                  <span className='text-xs text-muted-foreground'>{item?.requisition?.customer?.CardName}</span>
+                  <span className={cn("text-xs text-muted-foreground", selected && "text-accent-foreground")}>
+                    {item?.requisition?.customer?.CardName}
+                  </span>
                 </div>
               )}
             />
@@ -352,9 +355,9 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
               label='Company Name'
               isRequired
               renderItem={(item, selected) => (
-                <div className='flex w-full items-center justify-between'>
+                <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
                   <div className='flex w-[80%] flex-col justify-center'>
-                    <span className='truncate'>{item.label}</span>
+                    <span className={cn("truncate", selected && "text-accent-foreground")}>{item.label}</span>
                     <span className='truncate text-xs text-muted-foreground'>{item.supplier.CardCode}</span>
                   </div>
 
@@ -497,9 +500,9 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
               label='Item'
               isRequired
               renderItem={(item, selected) => (
-                <div className='flex w-full items-center justify-between'>
+                <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
                   <div className='flex w-[80%] flex-col justify-center'>
-                    <span className='truncate'>{item.label}</span>
+                    <span className={cn("truncate", selected && "text-accent-foreground")}>{item.label}</span>
                     <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
                   </div>
 
