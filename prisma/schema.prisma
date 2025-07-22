@@ -505,12 +505,12 @@ model BusinessPartner {
   Currency         String? @default("")
   GroupCode        Int
   GroupName        String? @default("")
-  GroupNum         Int?
   Address          String? @default("")
   ZipCode          String? @default("")
   MailAddres       String? @default("")
   MailZipCod       String? @default("")
   Phone1           String? @default("")
+  GroupNum         Int?
   PymntGroup       Int?
   U_OMEG_QBRelated String? @default("")
   U_VendorCode     String? @default("")

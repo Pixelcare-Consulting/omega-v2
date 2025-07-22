@@ -143,7 +143,7 @@ export default function SupplierQuoteSummaryTab({ supplierQuote, items }: Suppli
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Company Name' value={supplier.CardName} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Supplier - Terms' value='' />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Supplier - Terms' value={supplier?.PymntGroup || ""} />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-4'
@@ -223,7 +223,7 @@ export default function SupplierQuoteSummaryTab({ supplierQuote, items }: Suppli
 
             <ReadOnlyField className='col-span-12 md:col-span-6' title='MPN' value={item.ItemCode} />
 
-            <ReadOnlyField className='col-span-12 md:col-span-6' title='MFR' value={item.FirmName} />
+            <ReadOnlyField className='col-span-12 md:col-span-6' title='MFR' value={item?.FirmName || ""} />
           </>
         )}
 

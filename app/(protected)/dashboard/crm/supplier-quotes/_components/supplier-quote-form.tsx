@@ -406,7 +406,7 @@ export default function SupplierQuoteForm({
             <FormItem className='space-y-2'>
               <FormLabel className='space-x-1'>Supplier - Terms</FormLabel>
               <FormControl>
-                <Input disabled value='' />
+                <Input disabled value={supplier?.PymntGroup || ""} />
               </FormControl>
             </FormItem>
           </div>

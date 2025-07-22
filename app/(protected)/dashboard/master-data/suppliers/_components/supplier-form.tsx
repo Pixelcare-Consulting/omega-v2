@@ -121,6 +121,7 @@ export default function SupplierForm({
   })
 
   const groupCode = useWatch({ control: form.control, name: "GroupCode" })
+  const paymentTermCode = useWatch({ control: form.control, name: "GroupNum" })
 
   const { executeAsync, isExecuting } = useAction(upsertBpMaster)
 
@@ -181,16 +182,25 @@ export default function SupplierForm({
     }
   }
 
-  //* set group name and group number if group code is selected
+  //* set group name if group code is selected
   useEffect(() => {
     if (groupCode !== undefined && groupCode !== null && groupCode !== 0) {
-      const selectedGroup = bpGroupsOptions.find((group: any) => group.value === groupCode)
+      const selectedGroup = bpGroupsOptions.find((group: any) => group.value == groupCode)
       if (selectedGroup) {
         form.setValue("GroupName", selectedGroup?.label)
-        form.setValue("GroupNum", selectedGroup?.value)
       }
     }
   }, [groupCode, JSON.stringify(bpGroupsOptions)])
+
+  //* set pyment term name if  if payment term code is selected
+  useEffect(() => {
+    if (paymentTermCode !== undefined && paymentTermCode !== null && paymentTermCode !== 0) {
+      const selectedPaymentTerm = bpPaymentTermsOptions.find((paymentTerm: any) => paymentTerm.value == paymentTermCode)
+      if (selectedPaymentTerm) {
+        form.setValue("PymntGroup", selectedPaymentTerm?.label)
+      }
+    }
+  }, [paymentTermCode, JSON.stringify(bpPaymentTermsOptions)])
 
   return (
     <>
@@ -346,7 +356,7 @@ export default function SupplierForm({
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={bpPaymentTermsOptions} control={form.control} name='PymntGroup' label='Terms' />
+            <ComboboxField data={bpPaymentTermsOptions} control={form.control} name='GroupNum' label='Terms' />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>

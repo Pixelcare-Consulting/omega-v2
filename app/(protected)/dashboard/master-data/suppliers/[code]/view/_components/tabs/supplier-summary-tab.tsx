@@ -7,22 +7,19 @@ import { Card } from "@/components/ui/card"
 import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
 import {
   BP_MASTER_AVL_STATUS_OPTIONS,
-  BP_MASTER_CURRENCY_OPTIONS,
   BP_MASTER_SCOPE_OPTIONS,
   BP_MASTER_STATUS_OPTIONS,
   BP_MASTER_WARRANY_PERIOD_OPTIONS,
 } from "@/schema/bp-master"
-import { format, parse } from "date-fns"
 
 type SupplierSummaryTabProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
   itemGroups?: any
   manufacturers?: any
-  terms?: any
   users: Awaited<ReturnType<typeof getUsers>>
 }
 
-export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers, terms, users }: SupplierSummaryTabProps) {
+export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers, users }: SupplierSummaryTabProps) {
   const commodityStrengths =
     itemGroups
       ?.filter((item: any) => supplier?.commodityStrengths?.includes(item?.Number))
@@ -62,7 +59,7 @@ export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Code' value={supplier.CardCode} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Supplier #' value={supplier.accountNo} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Supplier #' value={supplier?.accountNo || ""} />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'
@@ -80,7 +77,7 @@ export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Website' value={supplier?.website || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Currency' value={supplier.Currency || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Currency' value={supplier?.Currency || ""} />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6'
@@ -122,13 +119,13 @@ export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers
           value={supplier?.isCompliantToItar ? <Badge variant='soft-green'>Yes</Badge> : <Badge variant='soft-red'>No</Badge>}
         />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Terms' value={""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Terms' value={supplier?.PymntGroup || ""} />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Warranty Period' value={warrantyPeriod || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6' title='Omera Reviews' value={supplier.omegaReviews || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6' title='Omera Reviews' value={supplier?.omegaReviews || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6' title='Qualification Notes' value={supplier.qualificationNotes || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6' title='Qualification Notes' value={supplier?.qualificationNotes || ""} />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'
