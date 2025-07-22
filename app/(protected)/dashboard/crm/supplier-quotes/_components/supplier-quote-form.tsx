@@ -71,7 +71,7 @@ export default function SupplierQuoteForm({
   const router = useRouter()
   const { code } = useParams() as { code: string }
   const { data: session } = useSession()
-  const { setIsOpen } = useDialogStore(["setIsOpen"])
+  const { setIsOpen, setData } = useDialogStore(["setIsOpen", "setData"])
 
   const isCreate = code === "add" || !supplierQuote
 
@@ -236,6 +236,7 @@ export default function SupplierQuoteForm({
       if (result?.data && result?.data?.supplierQuote && "code" in result?.data?.supplierQuote) {
         if (isModal) {
           setIsOpen(false)
+          setData(null)
 
           setTimeout(() => {
             router.refresh()

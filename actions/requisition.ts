@@ -37,6 +37,7 @@ export async function getRequisitionByCode(code: number) {
         omegaBuyers: { include: { user: { select: { name: true, email: true } } } },
         customer: { select: { CardName: true, CardCode: true } },
         supplierQuotes: {
+          where: { deletedAt: null, deletedBy: null },
           include: {
             requisition: { include: { salesPersons: { include: { user: { select: { name: true, email: true } } } } } },
             supplier: true,

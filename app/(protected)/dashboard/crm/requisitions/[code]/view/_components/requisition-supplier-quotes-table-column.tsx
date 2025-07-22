@@ -48,7 +48,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
     },
     {
       accessorFn: (row) => row?.buyers?.map((person) => person?.user?.name || person?.user?.email).join(", ") || "",
-      id: "buyer",
+      id: "buyers",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Buyer' />,
       cell: ({ row }) => {
         const buyers = row.original?.buyers || []
