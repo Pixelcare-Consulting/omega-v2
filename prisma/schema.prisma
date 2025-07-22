@@ -511,7 +511,7 @@ model BusinessPartner {
   MailZipCod       String? @default("")
   Phone1           String? @default("")
   GroupNum         Int?
-  PymntGroup       Int?
+  PymntGroup       String?
   U_OMEG_QBRelated String? @default("")
   U_VendorCode     String? @default("")
   CreateDate       String
