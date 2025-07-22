@@ -29,11 +29,16 @@ export default function RequisitionSupplierQuotesTab({
 }: RequisitionSupplierQuotesTabProps) {
   const requisitionSupplierQuotes = requisition?.supplierQuotes || []
 
-  const { isOpen, setIsOpen } = useDialogStore(["isOpen", "setIsOpen"])
+  const { isOpen, setIsOpen, data, setData } = useDialogStore(["isOpen", "setIsOpen", "data", "setData"])
 
   const Actions = () => {
+    const handleActionClick = () => {
+      setIsOpen(true)
+      setData(null)
+    }
+
     return (
-      <Button variant='outline-primary' onClick={() => setIsOpen(true)}>
+      <Button variant='outline-primary' onClick={handleActionClick}>
         Add Supplier Quote
       </Button>
     )
@@ -63,13 +68,14 @@ export default function RequisitionSupplierQuotesTab({
 
           <Card className='p-3'>
             <SupplierQuoteForm
-              supplierQuote={null}
+              isModal
+              disableRequisitionField
+              supplierQuote={data || null}
               reqCode={requisition.code}
               requisitions={requisitions}
               suppliers={suppliers}
               users={users}
               items={items}
-              disableRequisitionField
             />
           </Card>
         </DialogContent>

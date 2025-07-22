@@ -77,7 +77,7 @@ export function ComboboxField<T extends FieldValues>({
                 <FormControl>
                   <Button
                     variant='outline'
-                    className='w-full justify-between disabled:bg-muted disabled:opacity-100'
+                    className='w-full justify-between truncate disabled:bg-muted disabled:opacity-100'
                     {...extendedProps?.buttonProps}
                   >
                     {field.value ? data.find((item) => item.value == field.value)?.label : `Select ${label}`}

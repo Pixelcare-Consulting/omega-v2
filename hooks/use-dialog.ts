@@ -8,6 +8,8 @@ type DialogStore = {
   setTitle: (title: string) => void
   description: string
   setDescription: (description: string) => void
+  data: any
+  setData: (data: null | Record<string, any>) => void
 }
 
 const dialogStore = createWithEqualityFn<DialogStore>((set) => ({
@@ -17,6 +19,8 @@ const dialogStore = createWithEqualityFn<DialogStore>((set) => ({
   setDescription: (description: string) => set({ description }),
   isOpen: false,
   setIsOpen: (isOpen: boolean) => set({ isOpen }),
+  data: null,
+  setData: (data: null | Record<string, any>) => set({ data }),
 }))
 
 export const useDialogStore = createStoreWithSelectors(dialogStore)

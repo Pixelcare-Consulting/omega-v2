@@ -127,7 +127,7 @@ export default function MultiSelectField<T extends FieldValues>({
             <FormControl>
               <Command
                 onKeyDown={(e) => handleKeyDown(e, field.value, field.onChange)}
-                className='overflow-visible bg-transparent'
+                className='overflow-visible bg-transparent disabled:bg-muted disabled:opacity-100'
                 {...extendedProps?.commandProps}
               >
                 <div className='group rounded-md border border-input px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2'>

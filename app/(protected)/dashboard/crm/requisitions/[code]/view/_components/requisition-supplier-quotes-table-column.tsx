@@ -17,6 +17,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import AlertModal from "@/components/alert-modal"
 import { getRequisitionByCode } from "@/actions/requisition"
+import { useDialogStore } from "@/hooks/use-dialog"
 
 type SupplierQuoteData = NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>["supplierQuotes"][number]
 
@@ -188,6 +189,8 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
         const { executeAsync } = useAction(deleteSupplierQuote)
         const [showConfirmation, setShowConfirmation] = useState(false)
 
+        const { setIsOpen, setData } = useDialogStore(["setIsOpen", "setData"])
+
         const { id, code } = row.original
 
         async function handleDelete() {
@@ -216,6 +219,11 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
           })
         }
 
+        const handleEdit = () => {
+          setData(row.original)
+          setTimeout(() => setIsOpen(true), 1000)
+        }
+
         return (
           <>
             <div className='flex gap-2'>
@@ -227,10 +235,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
               </ActionTooltipProvider>
 
               <ActionTooltipProvider label='Edit Supplier Quote'>
-                <Icons.pencil
-                  className='size-4 cursor-pointer transition-all hover:scale-125'
-                  onClick={() => router.push(`/dashboard/crm/supplier-quotes/${code}`)}
-                />
+                <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' onClick={handleEdit} />
               </ActionTooltipProvider>
 
               <ActionTooltipProvider label='Delete Supplier Quote'>
