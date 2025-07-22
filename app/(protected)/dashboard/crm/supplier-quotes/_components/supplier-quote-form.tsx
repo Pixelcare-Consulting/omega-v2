@@ -544,10 +544,12 @@ export default function SupplierQuoteForm({
                       <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
                     </div>
 
-                    <Badge className='w-fit' variant={isPrimary ? "soft-sky" : "soft-amber"}>
-                      {isPrimary ? "Primary" : "Alternative"}
-                    </Badge>
-                    {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
+                    <div className='flex items-center gap-1'>
+                      <Badge className='w-fit' variant={isPrimary ? "soft-sky" : "soft-amber"}>
+                        {isPrimary ? "Primary" : "Alternative"}
+                      </Badge>
+                      {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
+                    </div>
                   </div>
                 )
               }}

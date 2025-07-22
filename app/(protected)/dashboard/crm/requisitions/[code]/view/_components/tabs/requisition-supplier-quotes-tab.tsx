@@ -62,7 +62,14 @@ export default function RequisitionSupplierQuotesTab({
           </DialogHeader>
 
           <Card className='p-3'>
-            <SupplierQuoteForm supplierQuote={null} requisitions={requisitions} suppliers={suppliers} users={users} items={items} />
+            <SupplierQuoteForm
+              supplierQuote={null}
+              reqCode={requisition.code}
+              requisitions={requisitions}
+              suppliers={suppliers}
+              users={users}
+              items={items}
+            />
           </Card>
         </DialogContent>
       </Dialog>
