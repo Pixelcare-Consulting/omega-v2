@@ -43,7 +43,7 @@ type ComboboxFieldProps<TFieldValues extends FieldValues = FieldValues, TName ex
   description?: string
   extendedProps?: ExtendedProps
   isRequired?: boolean
-  renderItem?: (item: ComboboxFieldData[number], selected: boolean) => React.ReactNode
+  renderItem?: (item: ComboboxFieldData[number], selected: boolean, index: number) => React.ReactNode
   callback?: () => void
 }
 
@@ -110,7 +110,7 @@ export function ComboboxField<T extends FieldValues>({
                               {...extendedProps?.commandItemProps}
                             >
                               {renderItem && renderItem.length > 0 ? (
-                                renderItem(item, selected)
+                                renderItem(item, selected, i)
                               ) : (
                                 <>
                                   <Check className={cn("mr-2 h-4 w-4", selected ? "opacity-100" : "opacity-0")} />

@@ -534,16 +534,23 @@ export default function SupplierQuoteForm({
               name='itemCode'
               label='Item'
               isRequired
-              renderItem={(item, selected) => (
-                <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
-                  <div className='flex w-[80%] flex-col justify-center'>
-                    <span className={cn("truncate", selected && "text-accent-foreground")}>{item.label}</span>
-                    <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
-                  </div>
+              renderItem={(item, selected, index) => {
+                const isPrimary = index === 0
 
-                  {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
-                </div>
-              )}
+                return (
+                  <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
+                    <div className='flex w-[75%] flex-col justify-center'>
+                      <span className={cn("truncate", selected && "text-accent-foreground")}>{item.label}</span>
+                      <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
+                    </div>
+
+                    <Badge className='w-fit' variant={isPrimary ? "soft-sky" : "soft-amber"}>
+                      {isPrimary ? "Primary" : "Alternative"}
+                    </Badge>
+                    {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
+                  </div>
+                )
+              }}
               description='Item/s selected from the requisition'
             />
           </div>
