@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { getRequisitionByCode } from "@/actions/requisition"
+import { getRequisitionByCode, getRequisitions } from "@/actions/requisition"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -19,13 +19,19 @@ import RequisitionSummaryTab from "./tabs/requisition-summary-tab"
 import RequisitionRequestedItemsTab from "./tabs/requisition-requested-items-tab"
 import RequisitionActivitiesTab from "./tabs/requisition-activities-tab"
 import { getItems } from "@/actions/item-master"
+import { getBpMasters } from "@/actions/bp-master"
+import { getUsers } from "@/actions/user"
+import RequisitionSupplierQuotesTab from "./tabs/requisition-supplier-quotes-tab"
 
 type ViewRequisitionProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
+  requisitions: Awaited<ReturnType<typeof getRequisitions>>
+  suppliers: Awaited<ReturnType<typeof getBpMasters>>
+  users: Awaited<ReturnType<typeof getUsers>>
   items: Awaited<ReturnType<typeof getItems>>
 }
 
-export default function ViewRequisition({ requisition, items }: ViewRequisitionProps) {
+export default function ViewRequisition({ requisition, requisitions, suppliers, users, items }: ViewRequisitionProps) {
   const customer = requisition.customer?.CardName || requisition.customer?.CardCode
   const urgency = REQUISITION_URGENCY_OPTIONS.find((item) => item.value === requisition.urgency)?.label
   const purchasingStatus = REQUISITION_PURCHASING_STATUS_OPTIONS.find((item) => item.value === requisition.purchasingStatus)?.label
@@ -102,7 +108,8 @@ export default function ViewRequisition({ requisition, items }: ViewRequisitionP
           <TabsList className='mb-2 h-fit flex-wrap'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
             <TabsTrigger value='2'>Requested Items</TabsTrigger>
-            <TabsTrigger value='3'>Activities</TabsTrigger>
+            <TabsTrigger value='3'>Supplier Quotes</TabsTrigger>
+            <TabsTrigger value='4'>Activities</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -114,6 +121,16 @@ export default function ViewRequisition({ requisition, items }: ViewRequisitionP
           </TabsContent>
 
           <TabsContent value='3'>
+            <RequisitionSupplierQuotesTab
+              requisition={requisition}
+              requisitions={requisitions}
+              suppliers={suppliers}
+              users={users}
+              items={items}
+            />
+          </TabsContent>
+
+          <TabsContent value='4'>
             <RequisitionActivitiesTab requisition={requisition} />
           </TabsContent>
         </Tabs>

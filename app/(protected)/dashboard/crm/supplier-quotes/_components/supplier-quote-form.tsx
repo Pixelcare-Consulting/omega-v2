@@ -45,19 +45,31 @@ import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
 import { REQUISITION_RESULT_OPTIONS } from "@/schema/requisition"
 import { cn } from "@/lib/utils"
+import { useDialogStore } from "@/hooks/use-dialog"
 
 type SupplierQuoteFormProps = {
+  isModal?: boolean
   supplierQuote: Awaited<ReturnType<typeof getSupplierQuoteByCode>>
   requisitions: Awaited<ReturnType<typeof getRequisitions>>
   suppliers: Awaited<ReturnType<typeof getBpMasters>>
   users: Awaited<ReturnType<typeof getUsers>>
   items: Awaited<ReturnType<typeof getItems>>
+  reqCode?: number
 }
 
-export default function SupplierQuoteForm({ supplierQuote, requisitions, suppliers, users, items }: SupplierQuoteFormProps) {
+export default function SupplierQuoteForm({
+  isModal,
+  supplierQuote,
+  requisitions,
+  suppliers,
+  users,
+  items,
+  reqCode,
+}: SupplierQuoteFormProps) {
   const router = useRouter()
   const { code } = useParams() as { code: string }
   const { data: session } = useSession()
+  const { setIsOpen } = useDialogStore(["setIsOpen"])
 
   const isCreate = code === "add" || !supplierQuote
 
@@ -220,6 +232,15 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
       toast.success(result?.message)
 
       if (result?.data && result?.data?.supplierQuote && "code" in result?.data?.supplierQuote) {
+        if (isModal) {
+          setIsOpen(false)
+
+          setTimeout(() => {
+            router.refresh()
+          }, 1500)
+          return
+        }
+
         router.refresh()
 
         setTimeout(() => {
@@ -232,9 +253,25 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
     }
   }
 
+  const handleCancel = () => {
+    if (isModal) {
+      setIsOpen(false)
+      return
+    }
+
+    router.push(`/dashboard/crm/requisitions`)
+  }
+
   const requisitionCodeCallback = () => {
     form.setValue("itemCode", "")
   }
+
+  //* set requisition code if reqCode exist
+  useEffect(() => {
+    if (reqCode && requisitionsOptions.length > 0) {
+      form.setValue("requisitionCode", reqCode)
+    }
+  }, [reqCode, JSON.stringify(requisitionsOptions)])
 
   return (
     <>
@@ -623,7 +660,7 @@ export default function SupplierQuoteForm({ supplierQuote, requisitions, supplie
           </div>
 
           <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>
-            <Button type='button' variant='secondary' disabled={isExecuting} onClick={() => router.push(`/dashboard/crm/requisitions`)}>
+            <Button type='button' variant='secondary' disabled={isExecuting} onClick={handleCancel}>
               Cancel
             </Button>
             <LoadingButton isLoading={isExecuting} type='submit'>

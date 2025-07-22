@@ -1,16 +1,24 @@
 import { notFound } from "next/navigation"
 
-import { getRequisitionByCode } from "@/actions/requisition"
+import { getRequisitionByCode, getRequisitions } from "@/actions/requisition"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ViewRequisition from "./_components/view-requisition"
 import { getItems } from "@/actions/item-master"
+import { getBpMasters } from "@/actions/bp-master"
+import { getUsers } from "@/actions/user"
 
 export default async function ViewRequisitionPage({ params }: { params: { code: string } }) {
   const { code } = params
 
-  const [requisition, items] = await Promise.all([code === "add" ? null : await getRequisitionByCode(parseInt(code)), getItems()])
+  const [requisition, requisitions, suppliers, users, items] = await Promise.all([
+    code === "add" ? null : await getRequisitionByCode(parseInt(code)),
+    getRequisitions(),
+    getBpMasters("S"),
+    getUsers(),
+    getItems(),
+  ])
 
   if (!requisition) notFound()
 
@@ -27,7 +35,7 @@ export default async function ViewRequisitionPage({ params }: { params: { code: 
         ]}
       />
       <ContentContainer>
-        <ViewRequisition requisition={requisition} items={items} />
+        <ViewRequisition requisition={requisition} requisitions={requisitions} suppliers={suppliers} users={users} items={items} />
       </ContentContainer>
     </ContentLayout>
   )

@@ -91,7 +91,6 @@ export default function SupplierForm({
         scope: "",
         isCompliantToAs: false,
         isCompliantToItar: false,
-        terms: "",
         warranyPeriod: "",
         omegaReviews: "",
         qualificationNotes: "",
