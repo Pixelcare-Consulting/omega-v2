@@ -21,6 +21,7 @@ export default function RequisitionList({ requisitions, items }: RequisitionList
 
   const filterFields = useMemo((): any[] => {
     return [
+      { label: "ID #", columnId: "id #", type: "text" },
       { label: "Date", columnId: "date", type: "date" },
       { label: "Customer", columnId: "customer", type: "text" },
       { label: "Customer PO Hit Rate", columnId: "customer po hit rate", type: "text" },

@@ -29,6 +29,11 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
 
   return [
     {
+      accessorKey: "code",
+      id: "id #",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='ID #' />,
+    },
+    {
       accessorKey: "date",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Date' />,
       cell: ({ row }) => {
