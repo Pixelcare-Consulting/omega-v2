@@ -49,6 +49,7 @@ import { useDialogStore } from "@/hooks/use-dialog"
 
 type SupplierQuoteFormProps = {
   isModal?: boolean
+  disableRequisitionField?: boolean
   supplierQuote: Awaited<ReturnType<typeof getSupplierQuoteByCode>>
   requisitions: Awaited<ReturnType<typeof getRequisitions>>
   suppliers: Awaited<ReturnType<typeof getBpMasters>>
@@ -59,6 +60,7 @@ type SupplierQuoteFormProps = {
 
 export default function SupplierQuoteForm({
   isModal,
+  disableRequisitionField,
   supplierQuote,
   requisitions,
   suppliers,
@@ -299,6 +301,7 @@ export default function SupplierQuoteForm({
               label='Requisition'
               isRequired
               callback={requisitionCodeCallback}
+              extendedProps={{ buttonProps: { disabled: disableRequisitionField } }}
               renderItem={(item, selected) => (
                 <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
                   <div className='flex w-[80%] flex-col justify-center'>

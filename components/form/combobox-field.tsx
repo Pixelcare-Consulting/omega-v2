@@ -75,7 +75,11 @@ export function ComboboxField<T extends FieldValues>({
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <FormControl>
-                  <Button variant='outline' className='w-full justify-between' {...extendedProps?.buttonProps}>
+                  <Button
+                    variant='outline'
+                    className='w-full justify-between disabled:bg-muted disabled:opacity-100'
+                    {...extendedProps?.buttonProps}
+                  >
                     {field.value ? data.find((item) => item.value == field.value)?.label : `Select ${label}`}
                     <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
                   </Button>

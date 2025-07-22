@@ -69,6 +69,7 @@ export default function RequisitionSupplierQuotesTab({
               suppliers={suppliers}
               users={users}
               items={items}
+              disableRequisitionField
             />
           </Card>
         </DialogContent>

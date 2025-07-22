@@ -409,8 +409,8 @@ model SupplierQuote {
   id                          String    @id @default(uuid())
   code                        Int       @unique @default(autoincrement())
   date                        DateTime
-  requisitionCode             Int       @unique
-  supplierCode                String    @unique
+  requisitionCode             Int
+  supplierCode                String
   contactId                   String?
   contactedVia                String?   @default("")
   status                      String    @default("")
