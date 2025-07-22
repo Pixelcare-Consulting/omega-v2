@@ -1,3 +1,5 @@
+"use client"
+
 import { getRequisitionByCode, getRequisitions } from "@/actions/requisition"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Button } from "@/components/ui/button"

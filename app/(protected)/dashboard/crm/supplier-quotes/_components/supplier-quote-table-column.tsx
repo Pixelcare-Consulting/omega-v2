@@ -217,7 +217,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       accessorFn: (row) => {
         const itemCode = row.itemCode
         const item = items.find((item) => item.ItemCode === itemCode)
-        return item?.ItemCode || ""
+        return item?.FirmName || ""
       },
       id: "mfr",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MFR' />,
@@ -225,7 +225,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
         const itemCode = row.original.itemCode
         const item = items.find((item) => item.ItemCode === itemCode)
         if (!item) return null
-        return <Badge variant='soft-slate'>{item.ItemCode}</Badge>
+        return <Badge variant='soft-slate'>{item.FirmName}</Badge>
       },
     },
     {
