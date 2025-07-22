@@ -110,9 +110,8 @@ export default function ViewSupplierQuote({ supplierQuote, items }: ViewSupplier
         <Tabs defaultValue='1' className='w-full'>
           <TabsList className='mb-2 h-fit flex-wrap'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
-            <TabsTrigger value='2'>Requisition</TabsTrigger>
             <TabsTrigger value='2'>Shipments</TabsTrigger>
-            <TabsTrigger value='2'>Documents</TabsTrigger>
+            <TabsTrigger value='3'>Documents</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>

@@ -4,7 +4,7 @@ import Link from "next/link"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
-import { getBpMasterByCardCode, getBpMasterGroups } from "@/actions/bp-master"
+import { getBpCurrencies, getBpMasterByCardCode, getBpMasterGroups, getBpPaymentTerms } from "@/actions/bp-master"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Icons } from "@/components/icons"
@@ -19,9 +19,11 @@ import { getManufacturers } from "@/actions/manufacturer"
 export default async function SupplierPage({ params }: { params: { code: string } }) {
   const { code } = params
 
-  const [supplier, bpGroups, itemGroups, manufacturers, users] = await Promise.all([
+  const [supplier, bpGroups, bpPaymentTerms, bpCurrencies, itemGroups, manufacturers, users] = await Promise.all([
     !code ? null : await getBpMasterByCardCode(code),
     getBpMasterGroups(),
+    getBpPaymentTerms(),
+    getBpCurrencies(),
     getItemMasterGroups(),
     getManufacturers(),
     getUsers(),
@@ -85,6 +87,8 @@ export default async function SupplierPage({ params }: { params: { code: string 
               <SupplierForm
                 supplier={supplier}
                 bpGroups={bpGroups?.value || []}
+                bpPaymentTerms={bpPaymentTerms?.value || []}
+                bpCurrencies={bpCurrencies?.value || []}
                 itemGroups={itemGroups?.value || []}
                 manufacturers={manufacturers?.value || []}
                 users={users}

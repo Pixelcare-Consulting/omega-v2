@@ -14,13 +14,11 @@ import {
   BP_MASTER_AVL_STATUS_OPTIONS,
   BpMasterForm,
   bpMasterFormSchema,
-  BP_MASTER_CURRENCY_OPTIONS,
   BP_MASTER_SCOPE_OPTIONS,
   BP_MASTER_STATUS_OPTIONS,
   BP_MASTER_WARRANY_PERIOD_OPTIONS,
 } from "@/schema/bp-master"
 import { Form } from "@/components/ui/form"
-import { FormDebug } from "@/components/form/form-debug"
 import InputField from "@/components/form/input-field"
 import { ComboboxField } from "@/components/form/combobox-field"
 import { getUsers } from "@/actions/user"
@@ -35,37 +33,26 @@ import LoadingButton from "@/components/loading-button"
 type SupplierFormProps = {
   supplier?: Awaited<ReturnType<typeof getBpMasterByCardCode>>
   bpGroups?: any
+  bpPaymentTerms?: any
+  bpCurrencies?: any
   itemGroups?: any
   manufacturers?: any
-  terms?: any
   users: Awaited<ReturnType<typeof getUsers>>
 }
 
-export default function SupplierForm({ supplier, bpGroups, itemGroups, manufacturers, terms, users }: SupplierFormProps) {
+export default function SupplierForm({
+  supplier,
+  bpGroups,
+  bpCurrencies,
+  bpPaymentTerms,
+  itemGroups,
+  manufacturers,
+  users,
+}: SupplierFormProps) {
   const router = useRouter()
   const { code } = useParams() as { code: string }
 
   const isCreate = code === "add" || !supplier
-
-  const bpGroupsOptions = useMemo(() => {
-    if (!bpGroups) return []
-    return bpGroups.map((group: any) => ({ label: group.Name, value: group.Code, group }))
-  }, [JSON.stringify(bpGroups)])
-
-  const itemGroupsOptions = useMemo(() => {
-    if (!itemGroups) return []
-    return itemGroups.map((group: any) => ({ label: group.GroupName, value: group.Number, group }))
-  }, [JSON.stringify(itemGroups)])
-
-  const manufacturersOptions = useMemo(() => {
-    if (!manufacturers) return []
-    return manufacturers.map((manufacturer: any) => ({ label: manufacturer.ManufacturerName, value: manufacturer.Code, manufacturer }))
-  }, [JSON.stringify(manufacturers)])
-
-  const usersOptions = useMemo(() => {
-    if (!users) return []
-    return users.map((user) => ({ label: user.name || user.email, value: user.id, user }))
-  }, [JSON.stringify(users)])
 
   const values = useMemo(() => {
     if (supplier) return supplier
@@ -137,6 +124,36 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
   const groupCode = useWatch({ control: form.control, name: "GroupCode" })
 
   const { executeAsync, isExecuting } = useAction(upsertBpMaster)
+
+  const bpGroupsOptions = useMemo(() => {
+    if (!bpGroups) return []
+    return bpGroups.map((group: any) => ({ label: group.Name, value: group.Code, group }))
+  }, [JSON.stringify(bpGroups)])
+
+  const bpPaymentTermsOptions = useMemo(() => {
+    if (!bpPaymentTerms) return []
+    return bpPaymentTerms.map((term: any) => ({ label: term.PymntGroup, value: term.GroupNum }))
+  }, [JSON.stringify(bpPaymentTerms)])
+
+  const bpCurrenciesOptions = useMemo(() => {
+    if (!bpCurrencies) return []
+    return bpCurrencies.map((currency: any) => ({ label: currency.CurrName, value: currency.CurrCode }))
+  }, [JSON.stringify(bpCurrencies)])
+
+  const itemGroupsOptions = useMemo(() => {
+    if (!itemGroups) return []
+    return itemGroups.map((group: any) => ({ label: group.GroupName, value: group.Number, group }))
+  }, [JSON.stringify(itemGroups)])
+
+  const manufacturersOptions = useMemo(() => {
+    if (!manufacturers) return []
+    return manufacturers.map((manufacturer: any) => ({ label: manufacturer.ManufacturerName, value: manufacturer.Code, manufacturer }))
+  }, [JSON.stringify(manufacturers)])
+
+  const usersOptions = useMemo(() => {
+    if (!users) return []
+    return users.map((user) => ({ label: user.name || user.email, value: user.id, user }))
+  }, [JSON.stringify(users)])
 
   const onSubmit = async (formData: BpMasterForm) => {
     try {
@@ -254,7 +271,7 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={BP_MASTER_CURRENCY_OPTIONS} control={form.control} name='Currency' label='Currency' />
+            <ComboboxField data={bpCurrenciesOptions} control={form.control} name='Currency' label='Currency' />
           </div>
 
           <div className='col-span-12 md:col-span-6'>
@@ -330,7 +347,7 @@ export default function SupplierForm({ supplier, bpGroups, itemGroups, manufactu
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={[]} control={form.control} name='terms' label='Terms' />
+            <ComboboxField data={bpPaymentTermsOptions} control={form.control} name='PymntGroup' label='Terms' />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>

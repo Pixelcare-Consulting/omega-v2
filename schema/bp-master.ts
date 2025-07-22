@@ -1,11 +1,6 @@
-import { string, z } from "zod"
+import { z } from "zod"
 import { v4 as uuidv4 } from "uuid"
 import { addressFormSchema } from "./address"
-
-export const BP_MASTER_CURRENCY_OPTIONS = [
-  { label: "USD", value: "USD" },
-  { label: "PHP", value: "PHP" },
-]
 
 export const BP_MASTER_AVL_STATUS_OPTIONS = [
   { label: "Approved", value: "approved" },
@@ -54,24 +49,24 @@ export const BP_MASTER_WARRANY_PERIOD_OPTIONS = [
 
 //* SAP form schema contains
 export const bpSapFieldsSchema = z.object({
-  CardCode: string().default(uuidv4()),
-  CardName: string().min(1, { message: "Company name is required" }),
-  CardType: string().min(1, { message: "Card type is required" }),
-  CntctPrsn: string().nullish(),
-  Currency: string().nullish(),
+  CardCode: z.string().default(uuidv4()),
+  CardName: z.string().min(1, { message: "Company name is required" }),
+  CardType: z.string().min(1, { message: "Card type is required" }),
+  CntctPrsn: z.string().nullish(),
+  Currency: z.string().nullish(),
   GroupCode: z.coerce.number().min(1, { message: "Group is required" }),
-  GroupName: string().nullish(),
+  GroupName: z.string().nullish(),
   GroupNum: z.coerce.number().nullish(),
-  Address: string().nullish(),
-  ZipCode: string().nullish(),
-  MailAddres: string().nullish(),
-  MailZipCod: string().nullish(),
-  Phone1: string().nullish(),
-  PymntGroup: string().nullish(),
-  U_OMEG_QBRelated: string().nullish(),
-  U_VendorCode: string().nullish(),
-  CreateDate: string().min(1, { message: "Create date is required" }),
-  UpdateDate: string().min(1, { message: "Update date is required" }),
+  Address: z.string().nullish(),
+  ZipCode: z.string().nullish(),
+  MailAddres: z.string().nullish(),
+  MailZipCod: z.string().nullish(),
+  Phone1: z.string().nullish(),
+  PymntGroup: z.coerce.number().nullish(),
+  U_OMEG_QBRelated: z.string().nullish(),
+  U_VendorCode: z.string().nullish(),
+  CreateDate: z.string().min(1, { message: "Create date is required" }),
+  UpdateDate: z.string().min(1, { message: "Update date is required" }),
 })
 
 export const bpPortalFieldsSchema = z
@@ -87,7 +82,6 @@ export const bpPortalFieldsSchema = z
     scope: z.string().min(1, { message: "Scope is required" }),
     isCompliantToAs: z.boolean(),
     isCompliantToItar: z.boolean(),
-    terms: z.string().nullish(),
     warranyPeriod: z.string().nullish(),
     omegaReviews: z.string().nullish(),
     qualificationNotes: z.string().nullish(),

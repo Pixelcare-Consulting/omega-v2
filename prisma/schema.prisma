@@ -511,7 +511,7 @@ model BusinessPartner {
   MailAddres       String? @default("")
   MailZipCod       String? @default("")
   Phone1           String? @default("")
-  PymntGroup       String? @default("")
+  PymntGroup       Int?
   U_OMEG_QBRelated String? @default("")
   U_VendorCode     String? @default("")
   CreateDate       String
@@ -527,7 +527,6 @@ model BusinessPartner {
   scope              String  @default("")
   isCompliantToAs    Boolean @default(false)
   isCompliantToItar  Boolean @default(false)
-  terms              String? @default("")
   warranyPeriod      String? @default("")
   omegaReviews       String? @default("")
   qualificationNotes String? @default("")

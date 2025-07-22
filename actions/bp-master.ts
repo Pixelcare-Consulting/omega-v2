@@ -44,9 +44,27 @@ export async function getBpMasterByCardCode(cardCode: string) {
   }
 }
 
-export const getBpMasterGroups = async () => {
+export async function getBpMasterGroups() {
   try {
     return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/BusinessPartnerGroups`)
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export async function getBpPaymentTerms() {
+  try {
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query4')/List`)
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export async function getBpCurrencies() {
+  try {
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query5')/List`)
   } catch (error) {
     console.error(error)
     return []
