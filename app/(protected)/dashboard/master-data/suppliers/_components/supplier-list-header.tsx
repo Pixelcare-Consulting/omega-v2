@@ -21,7 +21,7 @@ export default function SupplierListHeader({ syncMeta }: SupplierListHeaderProps
 
   const handleSyncData = async () => {
     try {
-      const response = await executeAsync({ cardType: "S" })
+      const response = await executeAsync({ type: "S" })
       const result = response?.data
 
       if (result?.error) {

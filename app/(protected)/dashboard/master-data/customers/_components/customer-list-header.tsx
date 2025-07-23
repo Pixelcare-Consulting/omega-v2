@@ -21,7 +21,7 @@ export default function CustomerListHeader({ syncMeta }: CustomerListHeaderProps
 
   const handleSyncData = async () => {
     try {
-      const response = await executeAsync({ cardType: "C" })
+      const response = await executeAsync({ type: "C" })
       const result = response?.data
 
       if (result?.error) {
