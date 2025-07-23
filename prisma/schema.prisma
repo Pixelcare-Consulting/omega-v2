@@ -502,6 +502,7 @@ model BusinessPartner {
   CardName         String
   CardType         String
   CntctPrsn        String? @default("")
+  CurrName         String? @default("")
   Currency         String? @default("")
   GroupCode        Int
   GroupName        String? @default("")

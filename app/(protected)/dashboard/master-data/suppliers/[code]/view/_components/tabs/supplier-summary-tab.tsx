@@ -77,7 +77,7 @@ export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Website' value={supplier?.website || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Currency' value={supplier?.Currency || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Currency' value={supplier?.CurrName || ""} />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6'

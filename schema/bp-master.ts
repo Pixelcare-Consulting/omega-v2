@@ -53,6 +53,7 @@ export const bpSapFieldsSchema = z.object({
   CardName: z.string().min(1, { message: "Company name is required" }),
   CardType: z.string().min(1, { message: "Card type is required" }),
   CntctPrsn: z.string().nullish(),
+  CurrName: z.string().nullish(),
   Currency: z.string().nullish(),
   GroupCode: z.coerce.number().min(1, { message: "Group is required" }),
   GroupName: z.string().nullish(),

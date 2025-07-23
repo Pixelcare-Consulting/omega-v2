@@ -53,7 +53,7 @@ export async function getBpMasterGroups() {
   }
 }
 
-export async function getBpPaymentTerms() {
+export async function getPaymentTerms() {
   try {
     return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query4')/List`)
   } catch (error) {
@@ -62,7 +62,7 @@ export async function getBpPaymentTerms() {
   }
 }
 
-export async function getBpCurrencies() {
+export async function getCurrencies() {
   try {
     return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query5')/List`)
   } catch (error) {

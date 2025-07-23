@@ -33,8 +33,8 @@ import LoadingButton from "@/components/loading-button"
 type SupplierFormProps = {
   supplier?: Awaited<ReturnType<typeof getBpMasterByCardCode>>
   bpGroups?: any
-  bpPaymentTerms?: any
-  bpCurrencies?: any
+  paymentTerms?: any
+  currencies?: any
   itemGroups?: any
   manufacturers?: any
   users: Awaited<ReturnType<typeof getUsers>>
@@ -43,8 +43,8 @@ type SupplierFormProps = {
 export default function SupplierForm({
   supplier,
   bpGroups,
-  bpCurrencies,
-  bpPaymentTerms,
+  currencies,
+  paymentTerms,
   itemGroups,
   manufacturers,
   users,
@@ -64,6 +64,7 @@ export default function SupplierForm({
         CardName: "",
         CardType: "S",
         CntctPrsn: null,
+        CurrName: null,
         Currency: "",
         GroupCode: 0,
         GroupName: null,
@@ -122,6 +123,7 @@ export default function SupplierForm({
 
   const groupCode = useWatch({ control: form.control, name: "GroupCode" })
   const paymentTermCode = useWatch({ control: form.control, name: "GroupNum" })
+  const currencyCode = useWatch({ control: form.control, name: "Currency" })
 
   const { executeAsync, isExecuting } = useAction(upsertBpMaster)
 
@@ -130,15 +132,15 @@ export default function SupplierForm({
     return bpGroups.map((group: any) => ({ label: group.Name, value: group.Code, group }))
   }, [JSON.stringify(bpGroups)])
 
-  const bpPaymentTermsOptions = useMemo(() => {
-    if (!bpPaymentTerms) return []
-    return bpPaymentTerms.map((term: any) => ({ label: term.PymntGroup, value: term.GroupNum }))
-  }, [JSON.stringify(bpPaymentTerms)])
+  const paymentTermsOptions = useMemo(() => {
+    if (!paymentTerms) return []
+    return paymentTerms.map((term: any) => ({ label: term.PymntGroup, value: term.GroupNum }))
+  }, [JSON.stringify(paymentTerms)])
 
-  const bpCurrenciesOptions = useMemo(() => {
-    if (!bpCurrencies) return []
-    return bpCurrencies.map((currency: any) => ({ label: currency.CurrName, value: currency.CurrCode }))
-  }, [JSON.stringify(bpCurrencies)])
+  const currenciesOptions = useMemo(() => {
+    if (!currencies) return []
+    return currencies.map((currency: any) => ({ label: currency.CurrName, value: currency.CurrCode }))
+  }, [JSON.stringify(currencies)])
 
   const itemGroupsOptions = useMemo(() => {
     if (!itemGroups) return []
@@ -195,12 +197,22 @@ export default function SupplierForm({
   //* set pyment term name if  if payment term code is selected
   useEffect(() => {
     if (paymentTermCode !== undefined && paymentTermCode !== null && paymentTermCode !== 0) {
-      const selectedPaymentTerm = bpPaymentTermsOptions.find((paymentTerm: any) => paymentTerm.value == paymentTermCode)
+      const selectedPaymentTerm = paymentTermsOptions.find((paymentTerm: any) => paymentTerm.value == paymentTermCode)
       if (selectedPaymentTerm) {
         form.setValue("PymntGroup", selectedPaymentTerm?.label)
       }
     }
-  }, [paymentTermCode, JSON.stringify(bpPaymentTermsOptions)])
+  }, [paymentTermCode, JSON.stringify(paymentTermsOptions)])
+
+  //* set currency name if currency is selected
+  useEffect(() => {
+    if (currencyCode !== undefined && currencyCode !== null && currencyCode) {
+      const selectedCurrency = currenciesOptions.find((currency: any) => currency.value == currencyCode)
+      if (selectedCurrency) {
+        form.setValue("CurrName", selectedCurrency?.label)
+      }
+    }
+  }, [currencyCode, JSON.stringify(currenciesOptions)])
 
   return (
     <>
@@ -280,7 +292,7 @@ export default function SupplierForm({
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={bpCurrenciesOptions} control={form.control} name='Currency' label='Currency' />
+            <ComboboxField data={currenciesOptions} control={form.control} name='Currency' label='Currency' />
           </div>
 
           <div className='col-span-12 md:col-span-6'>
@@ -356,7 +368,7 @@ export default function SupplierForm({
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={bpPaymentTermsOptions} control={form.control} name='GroupNum' label='Terms' />
+            <ComboboxField data={paymentTermsOptions} control={form.control} name='GroupNum' label='Terms' />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
