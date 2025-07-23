@@ -25,7 +25,7 @@ export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuo
   const filterFields = useMemo((): FilterFields[] => {
     return [
       { label: "Date", columnId: "date", type: "date" },
-      { label: "Requisition - Code", columnId: "requisitionCode", type: "text" },
+      { label: "Requisition - Code", columnId: "requisition", type: "text" },
       { label: "Requisition - Salesperson", columnId: "requisition salesperson", type: "text" },
       { label: "Requisition - Status", columnId: "requisition status", type: "select", options: REQUISITION_PURCHASING_STATUS_OPTIONS },
       { label: "Requisition - Result", columnId: "requisition result", type: "select", options: REQUISITION_RESULT_OPTIONS },
