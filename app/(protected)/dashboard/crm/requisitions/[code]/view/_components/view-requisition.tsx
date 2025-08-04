@@ -56,7 +56,7 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/crm/requisitions/${requisition.id}`}>
+                <Link href={`/dashboard/crm/requisitions/${requisition.code}`}>
                   <Icons.pencil className='mr-2 size-4' /> Edit
                 </Link>
               </DropdownMenuItem>

@@ -75,9 +75,9 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
 
     //* only show items that are not already in the requested items
     return items
-      .filter((item) => !reqItems.find((reqItem) => reqItem.code === item.id))
+      .filter((item) => !reqItems.find((reqItem) => reqItem.code === item.ItemCode))
       .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.ItemCode, item }))
-  }, [items, JSON.stringify(requestedItems)])
+  }, [JSON.stringify(items), JSON.stringify(requestedItems)])
 
   const Actions = () => {
     return (

@@ -111,8 +111,16 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
 
         {reason && <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Reason' value={reason} />}
 
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Date Code' value={requisition.dateCode || ""} />
+
         <ReadOnlyField
-          className='col-span-12'
+          className='col-span-12 md:col-span-6 lg:col-span-3'
+          title='Estimated Delivery Date'
+          value={requisition.estimatedDeliveryDate ? format(requisition.estimatedDeliveryDate, "MM-dd-yyyy") : ""}
+        />
+
+        <ReadOnlyField
+          className='col-span-12 md:col-span-6'
           title='REQ Review Result'
           value={
             <div className='flex flex-wrap items-center gap-1.5'>

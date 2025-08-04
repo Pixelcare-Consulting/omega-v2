@@ -311,8 +311,8 @@ export default function SupplierQuoteForm({
                 <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
                   <div className='flex w-[80%] flex-col justify-center'>
                     <span className={cn("truncate", selected && "text-accent-foreground")}>{item?.requisition?.customer?.CardName}</span>
-                    {item.requisition.requestedItems.length > 0 && (
-                      <span className='text-xs text-muted-foreground'>{item.requisition.requestedItems[0]}</span>
+                    {item?.requisition?.requestedItems?.length > 0 && (
+                      <span className='text-xs text-muted-foreground'>{item.requisition.requestedItems[0].code}</span>
                     )}
                   </div>
 
