@@ -8,7 +8,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
 import { Badge } from "@/components/badge"
-import { deleteRequisition, getRequisitions } from "@/actions/requisition"
+import { deleteRequisition, getRequisitions, RequestedItemsJSONData } from "@/actions/requisition"
 import { format } from "date-fns"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import {
@@ -154,22 +154,22 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
     },
     {
       accessorFn: (row) => {
-        const requestedItems = row?.requestedItems as string[] | null
+        const requestedItems = row?.requestedItems as RequestedItemsJSONData
         if (!requestedItems || requestedItems.length < 1) return null
 
         const primaryRequestedItem = requestedItems[0]
-        const item = items.find((item) => item.ItemCode === primaryRequestedItem)
+        const item = items.find((item) => item.ItemCode === primaryRequestedItem?.code)
 
         return item?.ItemCode || ""
       },
       id: "mpn",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
       cell: ({ row }) => {
-        const requestedItems = row.original?.requestedItems as string[] | null
+        const requestedItems = row.original?.requestedItems as RequestedItemsJSONData
         if (!requestedItems || requestedItems.length < 1) return null
 
         const primaryRequestedItem = requestedItems[0]
-        const item = items.find((item) => item.ItemCode === primaryRequestedItem)
+        const item = items.find((item) => item.ItemCode === primaryRequestedItem?.code)
 
         return (
           <div className='min-w-[150px]'>
@@ -180,22 +180,22 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
     },
     {
       accessorFn: (row) => {
-        const requestedItems = row?.requestedItems as string[] | null
+        const requestedItems = row?.requestedItems as RequestedItemsJSONData
         if (!requestedItems || requestedItems.length < 1) return null
 
         const primaryRequestedItem = requestedItems[0]
-        const item = items.find((item) => item.ItemCode === primaryRequestedItem)
+        const item = items.find((item) => item.ItemCode === primaryRequestedItem?.code)
 
         return item?.FirmName || ""
       },
       id: "mfr",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MFR' />,
       cell: ({ row }) => {
-        const requestedItems = row.original?.requestedItems as string[] | null
+        const requestedItems = row.original?.requestedItems as RequestedItemsJSONData
         if (!requestedItems || requestedItems.length < 1) return null
 
         const primaryRequestedItem = requestedItems[0]
-        const item = items.find((item) => item.ItemCode === primaryRequestedItem)
+        const item = items.find((item) => item.ItemCode === primaryRequestedItem?.code)
 
         return <Badge variant='soft-slate'>{item?.FirmName || ""}</Badge>
       },

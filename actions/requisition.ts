@@ -5,6 +5,8 @@ import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
 import { requisitionFormSchema, updateRequisitionReqItemsSchema } from "@/schema/requisition"
 
+export type RequestedItemsJSONData = { code: string; isSupplierSuggested: boolean }[] | null
+
 export async function getRequisitions() {
   try {
     const result = await prisma.requisition.findMany({
@@ -72,7 +74,7 @@ export const upsertRequisition = action
   .action(async ({ ctx, parsedInput }) => {
     const { id, salesPersons, omegaBuyers, ...data } = parsedInput
     const { userId } = ctx
-    const requestedItems = data.requestedItems.map((item) => item.code)
+    const requestedItems = data.requestedItems.map((item) => ({ code: item.code, isSupplierSuggested: item.isSupplierSuggested }))
 
     try {
       if (id && id !== "add") {
@@ -171,7 +173,7 @@ export const updateRequisitionReqItems = action
   .action(async ({ ctx, parsedInput: data }) => {
     try {
       const requisition = await prisma.requisition.findUnique({ where: { id: data.reqId } })
-      const requestedItems = data.requestedItems.map((item) => item.code)
+      const requestedItems = data.requestedItems.map((item) => ({ code: item.code, isSupplierSuggested: item.isSupplierSuggested }))
 
       if (!requisition) return { error: true, status: 404, message: "Requisition not found!", action: "UPDATE_REQUISITION_REQ_ITEMS" }
 

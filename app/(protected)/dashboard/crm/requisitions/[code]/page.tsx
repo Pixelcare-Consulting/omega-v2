@@ -66,7 +66,7 @@ export default async function RequisitionPage({ params }: { params: { code: stri
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end'>
                     <DropdownMenuItem asChild>
-                      <Link href={`/dashboard/crm/requisitions/${requisition.id}/view`}>
+                      <Link href={`/dashboard/crm/requisitions/${requisition.code}/view`}>
                         <Icons.eye className='mr-2 size-4' /> View
                       </Link>
                     </DropdownMenuItem>

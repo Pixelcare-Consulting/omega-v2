@@ -34,6 +34,15 @@ export function getColumns(reqId: string, requestedItems: RequestedItemForm[]): 
       },
     },
     {
+      accessorKey: "isSupplierSuggested",
+      id: "supplier suggested",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Supplier Suggested' />,
+      cell: ({ row }) => {
+        const isSupplierSuggested = row.original?.isSupplierSuggested
+        return <Badge variant={isSupplierSuggested ? "soft-green" : "soft-red"}>{isSupplierSuggested ? "Yes" : "No"}</Badge>
+      },
+    },
+    {
       accessorKey: "mpn",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
       enableSorting: false,

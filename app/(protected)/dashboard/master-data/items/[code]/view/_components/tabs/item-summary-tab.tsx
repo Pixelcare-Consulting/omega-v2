@@ -18,7 +18,7 @@ export default function ItemSummaryTab({ item }: ItemSummaryTabProps) {
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Name' value={item.ItemName} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='MPN' value={item.ItemCode} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Internal ID' value={item.ItemCode} />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'

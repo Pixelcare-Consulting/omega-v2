@@ -17,6 +17,7 @@ import { useAction } from "next-safe-action/hooks"
 import { useState } from "react"
 import { toast } from "sonner"
 import AlertModal from "@/components/alert-modal"
+import { RequestedItemsJSONData } from "@/actions/requisition"
 
 type SupplierQuoteData = Awaited<ReturnType<typeof getSupplierQuotes>>[number]
 
@@ -104,22 +105,22 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
     },
     {
       accessorFn: (row) => {
-        const requestedItems = row?.requisition?.requestedItems as string[] | null
+        const requestedItems = row?.requisition?.requestedItems as RequestedItemsJSONData
         if (!requestedItems || requestedItems.length < 1) return null
 
         const primaryRequestedItem = requestedItems[0]
-        const item = items.find((item) => item.ItemCode === primaryRequestedItem)
+        const item = items.find((item) => item.ItemCode === primaryRequestedItem?.code)
 
         return item?.ItemCode || ""
       },
       id: "requisition mpn",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Requisition - MPN' />,
       cell: ({ row }) => {
-        const requestedItems = row.original?.requisition?.requestedItems as string[] | null
+        const requestedItems = row.original?.requisition?.requestedItems as RequestedItemsJSONData
         if (!requestedItems || requestedItems.length < 1) return null
 
         const primaryRequestedItem = requestedItems[0]
-        const item = items.find((item) => item.ItemCode === primaryRequestedItem)
+        const item = items.find((item) => item.ItemCode === primaryRequestedItem?.code)
 
         if (!item) return null
 

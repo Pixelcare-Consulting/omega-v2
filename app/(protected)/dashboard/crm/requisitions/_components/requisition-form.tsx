@@ -41,7 +41,7 @@ import { DataTableSearch } from "@/components/data-table/data-table-search"
 import LoadingButton from "@/components/loading-button"
 import { Badge } from "@/components/badge"
 import { useSession } from "next-auth/react"
-import { getRequisitionByCode, upsertRequisition } from "@/actions/requisition"
+import { getRequisitionByCode, RequestedItemsJSONData, upsertRequisition } from "@/actions/requisition"
 import { getItems } from "@/actions/item-master"
 import { getBpMasters } from "@/actions/bp-master"
 import { FormDebug } from "@/components/form/form-debug"
@@ -96,6 +96,8 @@ export default function RequisitionForm({ requisition, users, customers, items }
         quantity: 0,
         customerStandardPrice: 0,
         customerStandardOpportunityValue: 0,
+        dateCode: "",
+        estimatedDeliveryDate: null,
       }
     }
 
@@ -117,6 +119,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
       name: "",
       mpn: "",
       mfr: "",
+      isSupplierSuggested: false,
       source: "",
     },
     resolver: zodResolver(requestedItemFormSchema),
@@ -165,6 +168,15 @@ export default function RequisitionForm({ requisition, users, customers, items }
               {isPrimary ? "Primary" : "Alternative"}
             </Badge>
           )
+        },
+      },
+      {
+        accessorKey: "isSupplierSuggested",
+        id: "supplier suggested",
+        header: ({ column }) => <DataTableColumnHeader column={column} title='Supplier Suggested' />,
+        cell: ({ row }) => {
+          const isSupplierSuggested = row.original?.isSupplierSuggested
+          return <Badge variant={isSupplierSuggested ? "soft-green" : "soft-red"}>{isSupplierSuggested ? "Yes" : "No"}</Badge>
         },
       },
       {
@@ -245,17 +257,21 @@ export default function RequisitionForm({ requisition, users, customers, items }
     }
   }
 
-  const handleAddRequestedItem = () => {
+  const handleAddRequestedItem = async () => {
+    const isValid = await requestedItemsForm.trigger()
+
+    if (!isValid) return
+
     const currentValues = form.getValues("requestedItems") || []
 
-    const requestedItem = requestedItemsForm.getValues()
+    const requestedItems = requestedItemsForm.getValues()
 
-    form.setValue("requestedItems", [...currentValues, requestedItem])
+    form.setValue("requestedItems", [...currentValues, requestedItems])
     requestedItemsForm.reset()
     form.clearErrors("requestedItems")
   }
 
-  //* auto populate mpn and mfr if item is selected
+  //* auto populate name, mpn, mfr, isSupplierSuggested, & source if item is selected
   useEffect(() => {
     const itemCode = requestedItemsForm.getValues("code")
 
@@ -274,18 +290,20 @@ export default function RequisitionForm({ requisition, users, customers, items }
   //* set requested items if data requisition exists
   useEffect(() => {
     if (requisition && items.length > 0) {
-      const selectedRequestedItems = requisition?.requestedItems as string[] | null
+      const selectedRequestedItems = requisition?.requestedItems as RequestedItemsJSONData
 
       const requestedItems =
-        selectedRequestedItems?.map((itemCode) => {
-          const selectedItem = items.find((item) => itemCode === item.ItemCode)
+        selectedRequestedItems?.map((reqItem) => {
+          const selectedItem = items.find((item) => reqItem.code === item.ItemCode)
+
           if (selectedItem) {
             return {
-              code: itemCode,
+              code: selectedItem.ItemCode,
               name: selectedItem.ItemName,
               mpn: selectedItem.ItemCode,
               mfr: selectedItem.FirmName,
               source: selectedItem.source,
+              isSupplierSuggested: reqItem.isSupplierSuggested,
             }
           }
           return null
@@ -419,7 +437,27 @@ export default function RequisitionForm({ requisition, users, customers, items }
             <ComboboxField data={REQUISITION_REASON_OPTIONS} control={form.control} name='reason' label='Reason' />
           </div>
 
-          <div className='col-span-12 md:col-span-6'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <InputField
+              control={form.control}
+              name='dateCode'
+              label='Date Code'
+              extendedProps={{ inputProps: { placeholder: "Enter Date Code" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <DatePickerField
+              control={form.control}
+              name='estimatedDeliveryDate'
+              label='Estimated Delivery Date'
+              extendedProps={{
+                calendarProps: { mode: "single", fromYear: 1800, toYear: new Date().getFullYear(), captionLayout: "dropdown-buttons" },
+              }}
+            />
+          </div>
+
+          <div className='col-span-12'>
             <MultiSelectField
               data={REQUISITION_REQ_REVIEW_RESULT_OPTIONS}
               control={form.control}
@@ -516,14 +554,13 @@ export default function RequisitionForm({ requisition, users, customers, items }
 
           <Form {...requestedItemsForm}>
             <div className='col-span-12 grid grid-cols-12 gap-4 rounded-lg border p-4'>
-              <div className='col-span-12'>
+              <div className='col-span-12 md:col-span-6'>
                 <ComboboxField
                   data={itemsOptions}
                   control={requestedItemsForm.control}
                   name='code'
                   label='Item'
                   isRequired
-                  callback={() => requestedItemsForm.handleSubmit(handleAddRequestedItem)()}
                   renderItem={(item, selected) => (
                     <div className='flex w-full items-center justify-between'>
                       <div className='flex w-[80%] flex-col justify-center'>
@@ -535,6 +572,25 @@ export default function RequisitionForm({ requisition, users, customers, items }
                     </div>
                   )}
                 />
+              </div>
+
+              <div className='col-span-12 md:col-span-6'>
+                <SwitchField
+                  control={requestedItemsForm.control}
+                  layout='wide'
+                  name='isSupplierSuggested'
+                  label='Supplier Suggested'
+                  description='Is this item suggested by the supplier?'
+                />
+              </div>
+
+              <div className='col-span-12 flex items-center justify-end gap-2'>
+                <Button variant='secondary' type='button' onClick={() => requestedItemsForm.reset()}>
+                  <Icons.x className='size-4' /> Clear
+                </Button>
+                <Button variant='outline-primary' type='button' onClick={handleAddRequestedItem}>
+                  <Icons.plus className='size-4' /> Add
+                </Button>
               </div>
 
               <div className='col-span-12'>

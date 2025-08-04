@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { useDialogStore } from "@/hooks/use-dialog"
-import { getRequisitionByCode, updateRequisitionReqItems } from "@/actions/requisition"
+import { getRequisitionByCode, RequestedItemsJSONData, updateRequisitionReqItems } from "@/actions/requisition"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -22,6 +22,7 @@ import { useRouter } from "nextjs-toploader/app"
 import ReadOnlyField from "@/components/read-only-field"
 import { Badge } from "@/components/badge"
 import { getItems } from "@/actions/item-master"
+import SwitchField from "@/components/form/switch-field"
 
 type RequisitionRequestedItemsTabProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
@@ -30,29 +31,30 @@ type RequisitionRequestedItemsTabProps = {
 
 export default function RequisitionRequestedItemsTab({ requisition, items }: RequisitionRequestedItemsTabProps) {
   const router = useRouter()
-  const requestedItemIds = requisition?.requestedItems as string[] | null
+  const requestedItems = requisition?.requestedItems as RequestedItemsJSONData
 
   const { isOpen, setIsOpen } = useDialogStore(["isOpen", "setIsOpen"])
 
   //* get full details of the items
   const requestedItemsFullDetails = useMemo(() => {
     const fullDetailsItems =
-      requestedItemIds?.map((itemCode) => {
-        const selectedItem = items.find((item) => itemCode === item.ItemCode)
+      requestedItems?.map((reqItem) => {
+        const selectedItem = items.find((item) => reqItem.code === item.ItemCode)
         if (selectedItem) {
           return {
-            code: itemCode,
+            code: selectedItem.ItemCode,
             name: selectedItem.ItemName,
             mpn: selectedItem.ItemCode,
             mfr: selectedItem.FirmName,
             source: selectedItem.source,
+            isSupplierSuggested: reqItem.isSupplierSuggested,
           }
         }
         return null
       }) || []
 
     return fullDetailsItems.filter((item) => item !== null)
-  }, [JSON.stringify(items), JSON.stringify(requestedItemIds)])
+  }, [JSON.stringify(items), JSON.stringify(requestedItems)])
 
   const form = useForm({
     mode: "onChange",
@@ -61,6 +63,7 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
       name: "",
       mpn: "",
       mfr: "",
+      isSupplierSuggested: false,
     },
     resolver: zodResolver(requestedItemFormSchema),
   })
@@ -68,13 +71,13 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
   const itemsOptions = useMemo(() => {
     if (!items) return []
 
-    const reqItems = requestedItemIds || []
+    const reqItems = requestedItems || []
 
     //* only show items that are not already in the requested items
     return items
-      .filter((item) => !reqItems.find((itemId) => itemId === item.id))
+      .filter((item) => !reqItems.find((reqItem) => reqItem.code === item.id))
       .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.ItemCode, item }))
-  }, [items, JSON.stringify(requestedItemIds)])
+  }, [items, JSON.stringify(requestedItems)])
 
   const Actions = () => {
     return (
@@ -130,7 +133,7 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
         form.setValue("name", selectedItem.ItemName)
         form.setValue("mpn", selectedItem.ItemCode)
         form.setValue("mfr", selectedItem.FirmName)
-        form.setValue("mfr", selectedItem.source)
+        form.setValue("source", selectedItem.source)
       }
     }
   }, [form.watch("code"), JSON.stringify(items)])
@@ -186,7 +189,7 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
 
             <Form {...form}>
               <form className='grid grid-cols-12 gap-4' onSubmit={form.handleSubmit(onSubmit)}>
-                <div className='col-span-12'>
+                <div className='col-span-12 md:col-span-6'>
                   <ComboboxField
                     data={itemsOptions}
                     control={form.control}
@@ -207,6 +210,16 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
                         )}
                       </div>
                     )}
+                  />
+                </div>
+
+                <div className='col-span-12 md:col-span-6'>
+                  <SwitchField
+                    control={form.control}
+                    layout='wide'
+                    name='isSupplierSuggested'
+                    label='Supplier Suggested'
+                    description='Is this item suggested by the supplier?'
                   />
                 </div>
 

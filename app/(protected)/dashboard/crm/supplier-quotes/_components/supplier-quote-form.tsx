@@ -7,7 +7,7 @@ import { useRouter } from "nextjs-toploader/app"
 import { useForm, useWatch } from "react-hook-form"
 
 import { getBpMasters } from "@/actions/bp-master"
-import { getRequisitions } from "@/actions/requisition"
+import { getRequisitions, RequestedItemsJSONData } from "@/actions/requisition"
 import { getSupplierQuoteByCode, upsertSupplierQuote } from "@/actions/supplier-quote"
 import { getUsers } from "@/actions/user"
 import { Form, FormControl, FormItem, FormLabel } from "@/components/ui/form"
@@ -201,8 +201,12 @@ export default function SupplierQuoteForm({
 
   const itemsOptions = useMemo(() => {
     if (!items || !requisition) return []
+
+    const reqItems = (requisition.requestedItems as RequestedItemsJSONData) || []
+
     return items
-      .filter((item) => requisition.requestedItems.includes(item.ItemCode))
+      .filter((item) => reqItems.find((reqItem) => reqItem.code === item.ItemCode))
+      .map((item) => ({ ...item, reqItem: reqItems.find((reqItem) => reqItem.code === item.ItemCode) }))
       .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.ItemCode, item }))
   }, [JSON.stringify(items), JSON.stringify(requisition)])
 
@@ -549,6 +553,8 @@ export default function SupplierQuoteForm({
                     </div>
 
                     <div className='flex items-center gap-1'>
+                      {item.item?.reqItem?.isSupplierSuggested && <Badge variant='soft-green'>Supplier Suggested</Badge>}
+
                       <Badge className='w-fit' variant={isPrimary ? "soft-sky" : "soft-amber"}>
                         {isPrimary ? "Primary" : "Alternative"}
                       </Badge>

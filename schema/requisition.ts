@@ -72,10 +72,11 @@ export const REQUISITION_REQ_REVIEW_RESULT_OPTIONS = [
 
 //* Zod Schema
 export const requestedItemFormSchema = z.object({
-  code: z.string().min(1, { message: "Item code is required" }),
+  code: z.string().min(1, { message: "Item is required" }),
   name: z.string().nullish(),
   mpn: z.string().nullish(),
   mfr: z.string().nullish(),
+  isSupplierSuggested: z.boolean().nullish(),
   source: z.string().nullish(),
 })
 
@@ -101,6 +102,8 @@ export const requisitionFormSchema = z.object({
   quantity: z.coerce.number().min(1, { message: "Quantity is required" }),
   customerStandardPrice: z.coerce.number(),
   customerStandardOpportunityValue: z.coerce.number(),
+  dateCode: z.string().nullish(),
+  estimatedDeliveryDate: z.coerce.date().nullish(),
 })
 
 export const updateRequisitionReqItemsSchema = z.object({
