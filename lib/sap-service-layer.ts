@@ -105,9 +105,10 @@ export async function authenticateSAPServiceLayer(credentials: SAPCredentials): 
  *
  * @param {string} url - The full URL of the SAP Service Layer endpoint (e.g., `${baseURL}/b1s/v1/BusinessPartners`).
  * @param {string} params - Optional query parameters to be included in the request.
+ * @param {Record<string, any>} headers - Optional headers to be included in the request.
  * @returns {Promise<any>} The response data from the SAP Service Layer API.
  */
-export async function callSapServiceLayerApi(url: string, params?: string): Promise<any> {
+export async function callSapServiceLayerApi(url: string, params?: string, headers?: Record<string, any>): Promise<any> {
   try {
     const agent = new https.Agent({
       rejectUnauthorized: false,
@@ -124,6 +125,7 @@ export async function callSapServiceLayerApi(url: string, params?: string): Prom
       headers: {
         Cookie: `${authCookies.b1session}; ${authCookies.routeid}`,
         "Content-Type": "application/json",
+        ...(headers ? headers : {}),
       },
       httpsAgent: agent,
       data: { ParamList: params },

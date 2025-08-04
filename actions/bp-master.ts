@@ -46,7 +46,9 @@ export async function getBpMasterByCardCode(cardCode: string) {
 
 export async function getBpMasterGroups() {
   try {
-    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/BusinessPartnerGroups`)
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/BusinessPartnerGroups`, undefined, {
+      Prefer: "odata.maxpagesize=999",
+    })
   } catch (error) {
     console.error(error)
     return []

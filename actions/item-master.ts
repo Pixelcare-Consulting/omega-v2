@@ -40,7 +40,9 @@ export async function getItemsByItemCode({ itemCode }: { itemCode: string }) {
 
 export async function getItemMasterGroups() {
   try {
-    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/ItemGroups`)
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/ItemGroups`, undefined, {
+      Prefer: "odata.maxpagesize=999",
+    })
   } catch (error) {
     console.error(error)
     return []
