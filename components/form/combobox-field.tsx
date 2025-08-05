@@ -45,7 +45,7 @@ type ComboboxFieldProps<TFieldValues extends FieldValues = FieldValues, TName ex
   isRequired?: boolean
   isHideLabel?: boolean
   renderItem?: (item: ComboboxFieldData[number], selected: boolean, index: number) => React.ReactNode
-  callback?: () => void
+  callback?: (...args: any[]) => void
 }
 
 //TODO: Add custom command item render
@@ -113,7 +113,7 @@ export function ComboboxField<T extends FieldValues>({
                                 field.onChange(item.value)
                                 setOpen(false)
 
-                                if (callback) callback()
+                                if (callback) callback({ value: item.value })
                               }}
                               {...extendedProps?.commandItemProps}
                             >

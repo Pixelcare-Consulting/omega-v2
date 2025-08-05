@@ -81,7 +81,7 @@ export default function SaleQuoteForm({
         shipTo: "",
         contactId: null,
         salesRepId: "",
-        paymentTerms: "",
+        paymentTerms: 0,
         fobPoint: "",
         shippingMethod: "",
         validUntil: new Date(),
@@ -145,13 +145,13 @@ export default function SaleQuoteForm({
             if (!items) return []
 
             return items
-              .filter((item) => reqRequestedItems.find((reqItem) => reqItem.code === item.ItemCode))
-              .map((item) => ({ ...item, reqItem: reqRequestedItems.find((reqItem) => reqItem.code === item.ItemCode) }))
+              .filter((item) => reqRequestedItems.find((reqItem) => reqItem.code == item.ItemCode))
+              .map((item) => ({ ...item, reqItem: reqRequestedItems.find((reqItem) => reqItem.code == item.ItemCode) }))
               .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.ItemCode, item }))
           }
 
           function itemCodeCallback(options: Record<string, any>[], code: string) {
-            const selectedOption = options.find((option) => option.value === code)
+            const selectedOption = options.find((option) => option.value == code)
 
             if (selectedOption) {
               form.setValue(`lineItems.${index}.code`, selectedOption.item.ItemCode)
@@ -165,7 +165,7 @@ export default function SaleQuoteForm({
           if (!mpn || source === "portal") return null
 
           return (
-            <div className='flex min-w-[200px] flex-col justify-center gap-2'>
+            <div className='flex min-w-[240px] flex-col justify-center gap-2'>
               <ComboboxField
                 data={itemsOptions()}
                 control={form.control}
@@ -173,7 +173,7 @@ export default function SaleQuoteForm({
                 label='Item'
                 isRequired
                 isHideLabel
-                callback={() => itemCodeCallback(itemsOptions(), code)}
+                callback={(args) => itemCodeCallback(itemsOptions(), args.value)}
                 renderItem={(item, selected, index) => {
                   const isPrimary = index === 0
 
@@ -201,9 +201,9 @@ export default function SaleQuoteForm({
                 }}
               />
 
-              <div>
+              <div className='flex gap-1.5'>
                 <span className='font-semibold'>MPR:</span>
-                <span className='text-xs text-muted-foreground'>{mfr}</span>
+                <span className='text-wrap text-xs text-muted-foreground'>{mfr}</span>
               </div>
             </div>
           )
@@ -225,10 +225,10 @@ export default function SaleQuoteForm({
         header: ({ column }) => <DataTableColumnHeader column={column} title='Description' />,
         enableSorting: false,
         cell: ({ row }) => {
-          const { name, cpn, dateCode, estimatedDeliveryDate } = row.original
+          const { name, cpn, dateCode, estimatedDeliveryDate, source } = row.original
 
           return (
-            <div className='flex flex-col justify-center gap-2'>
+            <div className='flex min-w-[240px] flex-col justify-center gap-2'>
               <div>
                 <span className='font-semibold'>CPN:</span>
                 <span className='text-xs text-muted-foreground'>{cpn || ""}</span>
@@ -242,9 +242,16 @@ export default function SaleQuoteForm({
                 <span className='text-xs text-muted-foreground'>{dateCode || ""}</span>
               </div>
               <div>
-                <span className='font-semibold'>Estimated Delivery Date:</span>
+                <span className='font-semibold'>Est. Del. Date:</span>
                 <span className='text-xs text-muted-foreground'>
                   {estimatedDeliveryDate ? format(estimatedDeliveryDate, "MM/dd/yyyy") : ""}
+                </span>
+              </div>
+
+              <div>
+                <span className='font-semibold'>Source</span>
+                <span className='text-xs text-muted-foreground'>
+                  {source === "sap" ? <Badge variant='soft-green'>SAP</Badge> : <Badge variant='soft-amber'>Portal</Badge>}
                 </span>
               </div>
             </div>
@@ -347,7 +354,7 @@ export default function SaleQuoteForm({
 
     //* only show requisitions that have not been added to the line items
     return requisitions
-      .filter((req) => !lineItems.find((lineItem) => lineItem.requisitionCode === req.code))
+      .filter((req) => !lineItems.find((lineItem) => lineItem.requisitionCode == req.code))
       .map((req) => ({ label: String(req.code), value: String(req.code), requisition: req }))
   }, [JSON.stringify(requisitions), JSON.stringify(lineItems)])
 
@@ -401,13 +408,13 @@ export default function SaleQuoteForm({
 
   //* auto popluate lineItemsForm when requisitionCode changes
   useEffect(() => {
-    if (lineItemReqCode && requisitions?.length > 0 && items?.length > 0) {
-      const selectedRequisition = requisitions.find((requisition) => requisition.code === lineItemReqCode)
+    if (lineItemReqCode !== 0 && requisitions?.length > 0 && items?.length > 0) {
+      const selectedRequisition = requisitions.find((requisition) => requisition.code == lineItemReqCode)
       const requestedItems = (selectedRequisition?.requestedItems || []) as RequestedItemsJSONData
       const primaryReqItem = requestedItems?.[0]
 
       if (selectedRequisition && requestedItems && requestedItems?.length > 0 && primaryReqItem) {
-        const selectedItem = items.find((item) => item.ItemCode === primaryReqItem.code)
+        const selectedItem = items.find((item) => item.ItemCode == primaryReqItem.code)
 
         if (selectedItem) {
           const unitPrice = parseFloat(String(selectedRequisition.customerStandardPrice))
@@ -437,9 +444,9 @@ export default function SaleQuoteForm({
 
       const lineItemsData =
         selectedLineItems?.map((li) => {
-          const selectedRequisition = requisitions.find((requisition) => requisition.code === li.requisitionCode)
+          const selectedRequisition = requisitions.find((requisition) => requisition.code == li.requisitionCode)
           const selectedReqRequestedItems = (selectedRequisition?.requestedItems || []) as RequestedItemsJSONData
-          const selectedItem = items.find((item) => item.ItemCode === li.code)
+          const selectedItem = items.find((item) => item.ItemCode == li.code)
 
           if (selectedRequisition && selectedItem && selectedReqRequestedItems && selectedReqRequestedItems?.length > 0) {
             const unitPrice = parseFloat(String(selectedRequisition.customerStandardPrice))

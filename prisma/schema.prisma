@@ -466,7 +466,7 @@ model SaleQuote {
   shipTo         String? //* temporary contain address string - but it should contain aaddress ID
   contactId      String?
   salesRepId     String
-  paymentTerms   String
+  paymentTerms   Int
   fobPoint       String?
   shippingMethod String?
   validUntil     DateTime

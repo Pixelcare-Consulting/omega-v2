@@ -32,7 +32,7 @@ export const saleQuoteFormSchema = z.object({
   shipTo: z.string().nullish(),
   contactId: z.string().nullish(),
   salesRepId: z.string().min(1, { message: "Sales Rep is required" }),
-  paymentTerms: z.string().min(1, { message: "Payment Terms is required" }),
+  paymentTerms: z.coerce.number().min(1, { message: "Payment Terms is required" }),
   fobPoint: z.string().nullish(),
   shippingMethod: z.string().nullish(),
   validUntil: z.date({ message: "Valid until is required" }),
