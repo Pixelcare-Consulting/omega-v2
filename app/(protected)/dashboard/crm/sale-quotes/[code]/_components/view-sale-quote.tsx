@@ -13,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/badge"
 import { getInitials } from "@/lib/utils"
 import SaleQuoteSummaryTab from "./tabs/sale-quote-summary-tab"
+import SaleQuoteLineItemsTab from "./tabs/sale-quote-line-items.tab"
 
 type ViewSaleQuoteProps = {
   saleQuote: NonNullable<Awaited<ReturnType<typeof getSaleQuoteByCode>>>
@@ -81,7 +82,9 @@ export default function ViewSaleQuote({ saleQuote, items, requisitions, paymentT
             <SaleQuoteSummaryTab saleQuote={saleQuote} paymentTerms={paymentTerms} />
           </TabsContent>
 
-          <TabsContent value='2'></TabsContent>
+          <TabsContent value='2'>
+            <SaleQuoteLineItemsTab saleQuote={saleQuote} items={items} requisitions={requisitions} />
+          </TabsContent>
         </Tabs>
       </div>
     </PageWrapper>

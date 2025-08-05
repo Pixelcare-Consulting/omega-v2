@@ -15,7 +15,7 @@ export default function SaleQuoteSummaryTab({ saleQuote, paymentTerms }: SaleQuo
   const salesRep = saleQuote.salesRep
   const approval = saleQuote.approval
 
-  const paymentGroup = paymentTerms?.find((term: any) => term.GroupNum === saleQuote.paymentTerms)
+  const paymentTerm = paymentTerms?.find((term: any) => term.GroupNum === saleQuote.paymentTerms)?.PymntGroup
 
   return (
     <Card className='rounded-lg p-6 shadow-md'>
@@ -38,7 +38,7 @@ export default function SaleQuoteSummaryTab({ saleQuote, paymentTerms }: SaleQuo
 
         <ReadOnlyField className='col-span-12 md:col-span-6' title='Ship To' value={saleQuote.shipTo || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-3' title='Payment Terms' value={paymentGroup || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-3' title='Payment Terms' value={paymentTerm || ""} />
 
         <ReadOnlyField className='col-span-12 md:col-span-3' title='FOB Point' value={saleQuote.fobPoint || ""} />
 
