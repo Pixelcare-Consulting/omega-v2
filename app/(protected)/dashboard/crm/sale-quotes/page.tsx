@@ -4,11 +4,11 @@ import Breadcrumbs from "@/components/breadcrumbs"
 import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Card } from "@/components/ui/card"
-import { getItems } from "@/actions/item-master"
 import SaleQuoteList from "./_components/sale-quote-list"
+import { getSaleQuotes } from "@/actions/sale-quote"
 
 export default async function SaleQuotesPage() {
-  const salesQuotes = [] as any
+  const salesQuotes = await getSaleQuotes()
 
   return (
     <ContentLayout title='Sale Quotes'>

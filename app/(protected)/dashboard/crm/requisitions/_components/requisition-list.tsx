@@ -40,7 +40,10 @@ export default function RequisitionList({ requisitions, items }: RequisitionList
   const { table, columnFilters, columnVisibility } = useDataTable({
     data: requisitions,
     columns: columns,
-    initialState: { columnPinning: { right: ["actions"] } },
+    initialState: {
+      columnPinning: { right: ["actions"] },
+      sorting: [{ id: "date", desc: true }],
+    },
   })
 
   return (

@@ -12,6 +12,7 @@ export async function getSaleQuotes() {
     return await prisma.saleQuote.findMany({
       where: { deletedAt: null, deletedBy: null },
       include: {
+        customer: true,
         salesRep: { select: { name: true, email: true } },
         approval: { select: { name: true, email: true } },
       },

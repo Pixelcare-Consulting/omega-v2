@@ -21,6 +21,7 @@ import { useRouter } from "nextjs-toploader/app"
 import AlertModal from "@/components/alert-modal"
 import { useAction } from "next-safe-action/hooks"
 import { getItems } from "@/actions/item-master"
+import { dateFilter, dateSort } from "@/lib/data-table/data-table"
 
 type RequisitionData = Awaited<ReturnType<typeof getRequisitions>>[number]
 
@@ -39,6 +40,16 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       cell: ({ row }) => {
         const date = row.original.date
         return <div className='min-w-[100px]'>{format(date, "MM-dd-yyyy")}</div>
+      },
+      filterFn: (row, columnId, filterValue, addMeta) => {
+        const date = row.original.date
+        const filterDateValue = new Date(filterValue)
+        return dateFilter(date, filterDateValue)
+      },
+      sortingFn: (rowA, rowB, columnId) => {
+        const rowADate = rowA.original.date
+        const rowBDate = rowB.original.date
+        return dateSort(rowADate, rowBDate)
       },
     },
     {

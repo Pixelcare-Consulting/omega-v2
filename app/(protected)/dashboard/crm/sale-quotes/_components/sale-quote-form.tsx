@@ -44,7 +44,7 @@ type SaleQuoteFormProps = {
   items: Awaited<ReturnType<typeof getItems>>
   users: Awaited<ReturnType<typeof getUsers>>
   paymentTerms?: any
-  customerCode?: string
+  initialCustomerCode?: string
 }
 
 export default function SaleQuoteForm({
@@ -55,7 +55,7 @@ export default function SaleQuoteForm({
   items,
   users,
   paymentTerms,
-  customerCode,
+  initialCustomerCode,
 }: SaleQuoteFormProps) {
   const router = useRouter()
   const { code } = useParams() as { code: string }
@@ -121,6 +121,7 @@ export default function SaleQuoteForm({
 
   const lineItems = useWatch({ control: form.control, name: "lineItems" })
   const lineItemReqCode = useWatch({ control: lineItemsForm.control, name: "requisitionCode" })
+  const customerCode = useWatch({ control: form.control, name: "customerCode" })
 
   const columns = useMemo((): ColumnDef<LineItemForm>[] => {
     return [
@@ -138,7 +139,7 @@ export default function SaleQuoteForm({
         header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
         enableSorting: false,
         cell: ({ row }) => {
-          const { code, mpn, mfr, source, reqRequestedItems } = row.original
+          const { mpn, mfr, source, reqRequestedItems } = row.original
           const index = row.index
 
           const itemsOptions = () => {
@@ -225,11 +226,15 @@ export default function SaleQuoteForm({
         header: ({ column }) => <DataTableColumnHeader column={column} title='Description' />,
         enableSorting: false,
         cell: ({ row }) => {
-          const { name, cpn, dateCode, estimatedDeliveryDate, source } = row.original
+          const { requisitionCode, name, cpn, dateCode, estimatedDeliveryDate, source } = row.original
 
           return (
             <div className='flex min-w-[240px] flex-col justify-center gap-2'>
               <div className='flex gap-1.5'>
+                <div className='flex gap-1.5'>
+                  <span className='font-semibold'>Requisition:</span>
+                  <span className='text-xs text-muted-foreground'>{requisitionCode || ""}</span>
+                </div>
                 <span className='font-semibold'>CPN:</span>
                 <span className='text-xs text-muted-foreground'>{cpn || ""}</span>
               </div>
@@ -354,9 +359,9 @@ export default function SaleQuoteForm({
 
     //* only show requisitions that have not been added to the line items
     return requisitions
-      .filter((req) => !lineItems.find((lineItem) => lineItem.requisitionCode == req.code))
+      .filter((req) => !lineItems.find((lineItem) => lineItem.requisitionCode == req.code && req.customerCode == customerCode))
       .map((req) => ({ label: String(req.code), value: String(req.code), requisition: req }))
-  }, [JSON.stringify(requisitions), JSON.stringify(lineItems)])
+  }, [JSON.stringify(requisitions), JSON.stringify(lineItems), customerCode])
 
   const usersOptions = useMemo(() => {
     if (!users) return []
@@ -610,6 +615,7 @@ export default function SaleQuoteForm({
               isRequired
               isHideLabel
               callback={() => handleAddLineItem()}
+              extendedProps={{ buttonProps: { disabled: !!customerCode } }}
               renderItem={(item, selected) => (
                 <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
                   <div className='flex w-[80%] flex-col justify-center'>

@@ -18,17 +18,33 @@ import { useState } from "react"
 import { toast } from "sonner"
 import AlertModal from "@/components/alert-modal"
 import { RequestedItemsJSONData } from "@/actions/requisition"
+import { dateFilter, dateSort } from "@/lib/data-table/data-table"
 
 type SupplierQuoteData = Awaited<ReturnType<typeof getSupplierQuotes>>[number]
 
 export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnDef<SupplierQuoteData>[] {
   return [
     {
+      accessorKey: "code",
+      id: "id #",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='ID #' />,
+    },
+    {
       accessorKey: "date",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Date' />,
       cell: ({ row }) => {
         const date = row.original.date
         return <div className='min-w-[100px]'>{format(date, "MM-dd-yyyy")}</div>
+      },
+      filterFn: (row, columnId, filterValue, addMeta) => {
+        const date = row.original.date
+        const filterDateValue = new Date(filterValue)
+        return dateFilter(date, filterDateValue)
+      },
+      sortingFn: (rowA, rowB, columnId) => {
+        const rowADate = rowA.original.date
+        const rowBDate = rowB.original.date
+        return dateSort(rowADate, rowBDate)
       },
     },
     {
@@ -142,12 +158,11 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       id: "supplier",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Supplier' />,
       cell: ({ row }) => {
-        const supplierCode = row.original.supplier.CardCode
-        const supplierName = row.original.supplier.CardName
-
+        const supplier = row.original.supplier
+        if (!supplier) return null
         return (
-          <Link className='text-blue-500 hover:underline' href={`/dashboard/master-data/suppliers/${supplierCode}/view`}>
-            {supplierName}
+          <Link className='text-blue-500 hover:underline' href={`/dashboard/master-data/suppliers/${supplier.CardCode}/view`}>
+            {supplier.CardName}
           </Link>
         )
       },

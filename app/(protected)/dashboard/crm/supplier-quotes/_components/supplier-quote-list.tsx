@@ -24,6 +24,7 @@ export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuo
 
   const filterFields = useMemo((): FilterFields[] => {
     return [
+      { label: "ID #", columnId: "id #", type: "text" },
       { label: "Date", columnId: "date", type: "date" },
       { label: "Requisition - Code", columnId: "requisition", type: "text" },
       { label: "Requisition - Salesperson", columnId: "requisition salesperson", type: "text" },
@@ -45,7 +46,10 @@ export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuo
   const { table, columnFilters, columnVisibility } = useDataTable({
     data: supplierQuotes,
     columns: columns,
-    initialState: { columnPinning: { right: ["actions"] } },
+    initialState: {
+      columnPinning: { right: ["actions"] },
+      sorting: [{ id: "date", desc: true }],
+    },
   })
 
   return (
