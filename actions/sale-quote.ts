@@ -55,7 +55,7 @@ export const upsertSaleQuote = action
         const updatedSaleQuote = await prisma.saleQuote.update({ where: { id }, data: { ...data, lineItems, updatedBy: userId } })
         return {
           status: 200,
-          messagE: "Sale quote updated successfully!",
+          message: "Sale quote updated successfully!",
           data: { saleQuote: updatedSaleQuote },
           action: "UPSERT_SALE_QUOTE",
         }
@@ -65,7 +65,7 @@ export const upsertSaleQuote = action
 
       return {
         status: 200,
-        messagE: "Sale quote created successfully!",
+        message: "Sale quote created successfully!",
         data: { saleQuote: newSaleQuote },
         action: "UPSERT_SALE_QUOTE",
       }

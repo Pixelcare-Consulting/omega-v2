@@ -229,26 +229,26 @@ export default function SaleQuoteForm({
 
           return (
             <div className='flex min-w-[240px] flex-col justify-center gap-2'>
-              <div>
+              <div className='flex gap-1.5'>
                 <span className='font-semibold'>CPN:</span>
                 <span className='text-xs text-muted-foreground'>{cpn || ""}</span>
               </div>
-              <div>
+              <div className='flex gap-1.5'>
                 <span className='font-semibold'>Desc:</span>
                 <span className='text-xs text-muted-foreground'>{name || ""}</span>
               </div>
-              <div>
+              <div className='flex gap-1.5'>
                 <span className='font-semibold'>DC:</span>
                 <span className='text-xs text-muted-foreground'>{dateCode || ""}</span>
               </div>
-              <div>
+              <div className='flex gap-1.5'>
                 <span className='font-semibold'>Est. Del. Date:</span>
                 <span className='text-xs text-muted-foreground'>
                   {estimatedDeliveryDate ? format(estimatedDeliveryDate, "MM/dd/yyyy") : ""}
                 </span>
               </div>
 
-              <div>
+              <div className='flex gap-1.5'>
                 <span className='font-semibold'>Source</span>
                 <span className='text-xs text-muted-foreground'>
                   {source === "sap" ? <Badge variant='soft-green'>SAP</Badge> : <Badge variant='soft-amber'>Portal</Badge>}
@@ -449,8 +449,8 @@ export default function SaleQuoteForm({
           const selectedItem = items.find((item) => item.ItemCode == li.code)
 
           if (selectedRequisition && selectedItem && selectedReqRequestedItems && selectedReqRequestedItems?.length > 0) {
-            const unitPrice = parseFloat(String(selectedRequisition.customerStandardPrice))
-            const quantity = parseFloat(String(selectedRequisition.quantity))
+            const unitPrice = parseFloat(String(li.unitPrice))
+            const quantity = parseFloat(String(li.quantity))
 
             return {
               requisitionCode: selectedRequisition.code,
@@ -485,7 +485,7 @@ export default function SaleQuoteForm({
 
   return (
     <>
-      <FormDebug form={form} />
+      {/* <FormDebug form={form} /> */}
 
       <Form {...form}>
         <form className='grid grid-cols-12 gap-4' onSubmit={form.handleSubmit(onSubmit)}>
