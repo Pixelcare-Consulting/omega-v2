@@ -1,9 +1,8 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { getBpMasterByCardCode, getBpMasters } from "@/actions/bp-master"
+import { getBpMasters, getPaymentTerms } from "@/actions/bp-master"
 import { getRequisitions } from "@/actions/requisition"
-import { getSupplierQuoteByCode } from "@/actions/supplier-quote"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
@@ -13,39 +12,42 @@ import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Card } from "@/components/ui/card"
 import { getUsers } from "@/actions/user"
-import SupplierQuoteForm from "../_components/supplier-quote-form"
+import SaleQuoteForm from "../_components/sale-quote-form"
 import { getItems } from "@/actions/item-master"
 
-export default async function SupplierQuotePage({ params }: { params: { code: string } }) {
+import { getSaleQuoteByCode } from "@/actions/sale-quote"
+
+export default async function SaleQuotePage({ params }: { params: { code: string } }) {
   const { code } = params
 
-  const [supplierQuote, requisitions, suppliers, users, items] = await Promise.all([
-    code === "add" ? null : getSupplierQuoteByCode(parseInt(code)),
+  const [saleQuote, requisitions, customers, items, users, paymentTerms] = await Promise.all([
+    code === "add" ? null : getSaleQuoteByCode(parseInt(code)),
     getRequisitions(),
-    getBpMasters("S"),
-    getUsers(),
+    getBpMasters("C"),
     getItems(),
+    getUsers(),
+    getPaymentTerms(),
   ])
 
   const getPageMetadata = () => {
-    if (!supplierQuote || !supplierQuote?.code || code === "add")
-      return { title: "Add Supplier Quote", description: "Fill in the form to create a new supplier quote." }
-    return { title: "Edit Supplier Quote", description: "Edit the form to update this supplier quote's information." }
+    if (!saleQuote || !saleQuote?.code || code === "add")
+      return { title: "Add Sale Quote", description: "Fill in the form to create a new sale quote." }
+    return { title: "Edit Sale Quote", description: "Edit the form to update this sale quote's information." }
   }
 
   const pageMetadata = getPageMetadata()
 
-  if (code !== "add" && !supplierQuote) notFound()
+  if (code !== "add" && !saleQuote) notFound()
 
   return (
-    <ContentLayout title='Supplier Quotes'>
+    <ContentLayout title='Sale Quotes'>
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
           { label: "Dashboard", href: "/dashboard" },
           { label: "CRM" },
-          { label: "Supplier Quotes", href: "/dashboard/crm/supplier-quotes" },
-          { label: code !== "add" && supplierQuote ? String(supplierQuote.code) : "Add", isPage: true },
+          { label: "Sale Quotes", href: "/dashboard/crm/sale-quotes" },
+          { label: code !== "add" && saleQuote ? String(saleQuote.code) : "Add", isPage: true },
         ]}
       />
 
@@ -59,7 +61,7 @@ export default async function SupplierQuotePage({ params }: { params: { code: st
                 Back
               </Link>
 
-              {supplierQuote && (
+              {saleQuote && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant='default' size='icon'>
@@ -68,7 +70,7 @@ export default async function SupplierQuotePage({ params }: { params: { code: st
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end'>
                     <DropdownMenuItem asChild>
-                      <Link href={`/dashboard/crm/supplier-quotes/${supplierQuote.code}/view`}>
+                      <Link href={`/dashboard/crm/sale-quotes/${saleQuote.code}/view`}>
                         <Icons.eye className='mr-2 size-4' /> View
                       </Link>
                     </DropdownMenuItem>
@@ -79,12 +81,13 @@ export default async function SupplierQuotePage({ params }: { params: { code: st
           }
         >
           <Card className='rounded-lg p-6 shadow-md'>
-            <SupplierQuoteForm
-              supplierQuote={supplierQuote}
+            <SaleQuoteForm
+              salesQuote={saleQuote}
               requisitions={requisitions}
-              suppliers={suppliers}
-              users={users}
+              customers={customers}
               items={items}
+              users={users}
+              paymentTerms={paymentTerms?.value || []}
             />
           </Card>
         </PageWrapper>

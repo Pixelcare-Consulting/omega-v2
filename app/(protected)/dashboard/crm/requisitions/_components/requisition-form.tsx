@@ -259,11 +259,9 @@ export default function RequisitionForm({ requisition, users, customers, items }
 
   const handleAddRequestedItem = async () => {
     const isValid = await requestedItemsForm.trigger()
-
     if (!isValid) return
 
     const currentValues = form.getValues("requestedItems") || []
-
     const requestedItems = requestedItemsForm.getValues()
 
     form.setValue("requestedItems", [...currentValues, requestedItems])

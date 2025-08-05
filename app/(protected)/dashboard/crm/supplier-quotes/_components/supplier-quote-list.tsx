@@ -14,12 +14,12 @@ import { REQUISITION_PURCHASING_STATUS_OPTIONS, REQUISITION_RESULT_OPTIONS } fro
 import { SUPPLIER_QUOTE_STATUS_OPTIONS } from "@/schema/supplier-quote"
 import { useDataTable } from "@/hooks/use-data-table"
 
-type SupplierQuoteList = {
+type SupplierQuoteListProps = {
   supplierQuotes: Awaited<ReturnType<typeof getSupplierQuotes>>
   items: Awaited<ReturnType<typeof getItems>>
 }
 
-export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuoteList) {
+export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuoteListProps) {
   const columns = useMemo(() => getColumns(items), [JSON.stringify(items)])
 
   const filterFields = useMemo((): FilterFields[] => {

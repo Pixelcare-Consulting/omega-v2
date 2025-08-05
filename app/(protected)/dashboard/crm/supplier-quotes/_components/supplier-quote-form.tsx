@@ -91,10 +91,10 @@ export default function SupplierQuoteForm({
     if (code === "add" || !supplierQuote) {
       return {
         id: "add",
-        date: new Date() as Date,
+        date: new Date(),
         requisitionCode: 0,
         supplierCode: "",
-        contactId: "",
+        contactId: null,
         contactedVia: "",
         status: "working",
         result: "",

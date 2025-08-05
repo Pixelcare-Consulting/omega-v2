@@ -15,6 +15,7 @@ type InputFieldProps<TFieldValues extends FieldValues = FieldValues, TName exten
   description?: string
   extendedProps?: ExtendedProps
   isRequired?: boolean
+  isHideLabel?: boolean
 }
 
 //? if className is passed among the properties of extendedProps, the specified or default className will be overridden
@@ -26,6 +27,7 @@ export default function InputField<T extends FieldValues>({
   description,
   extendedProps,
   isRequired,
+  isHideLabel,
 }: InputFieldProps<T>) {
   return (
     <FormField
@@ -34,9 +36,11 @@ export default function InputField<T extends FieldValues>({
       render={({ field }) => {
         return (
           <FormItem className='space-y-2' {...extendedProps?.itemProps}>
-            <FormLabel className='space-x-1' {...extendedProps?.labelProps} isRequired={isRequired}>
-              {label}
-            </FormLabel>
+            {!isHideLabel && (
+              <FormLabel className='space-x-1' {...extendedProps?.labelProps} isRequired={isRequired}>
+                {label}
+              </FormLabel>
+            )}
             <FormControl>
               <Input {...field} {...extendedProps?.inputProps} />
             </FormControl>

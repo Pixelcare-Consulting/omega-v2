@@ -43,6 +43,7 @@ type ComboboxFieldProps<TFieldValues extends FieldValues = FieldValues, TName ex
   description?: string
   extendedProps?: ExtendedProps
   isRequired?: boolean
+  isHideLabel?: boolean
   renderItem?: (item: ComboboxFieldData[number], selected: boolean, index: number) => React.ReactNode
   callback?: () => void
 }
@@ -57,6 +58,7 @@ export function ComboboxField<T extends FieldValues>({
   description,
   extendedProps,
   isRequired,
+  isHideLabel,
   renderItem,
   callback,
 }: ComboboxFieldProps<T>) {
@@ -69,9 +71,11 @@ export function ComboboxField<T extends FieldValues>({
       render={({ field }) => {
         return (
           <FormItem className='space-y-2' {...extendedProps?.itemProps}>
-            <FormLabel className='space-x-1' {...extendedProps?.labelProps} isRequired={isRequired}>
-              {label}
-            </FormLabel>
+            {!isHideLabel && (
+              <FormLabel className='space-x-1' {...extendedProps?.labelProps} isRequired={isRequired}>
+                {label}
+              </FormLabel>
+            )}
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <FormControl>

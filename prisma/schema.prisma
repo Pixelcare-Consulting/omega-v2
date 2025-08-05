@@ -52,6 +52,9 @@ model User {
   requisitionSalesPersons RequisitionSalesPerson[]
   requisitionOmegaBuyers  RequisitionOmegaBuyer[]
 
+  saleQuoteSalesReps SaleQuote[] @relation("user-sales-rep-sale-quote")
+  saleQuoteApprovals SaleQuote[] @relation("user-approval-sale-quote")
+
   bpAssignedBuyers    BusinessPartner[]    @relation("user-assigned-buyers")
   supplierQuoteBuyers SupplierQuoteBuyer[]
 }
@@ -454,8 +457,38 @@ model SupplierQuote {
   @@unique([code, requisitionCode, supplierCode])
 }
 
+model SaleQuote {
+  id             String   @id @default(uuid())
+  code           Int      @unique @default(autoincrement())
+  date           DateTime
+  customerCode   String
+  billTo         String? //* temporary contain address string - but it should contain aaddress ID 
+  shipTo         String? //* temporary contain address string - but it should contain aaddress ID
+  contactId      String?
+  salesRepId     String
+  paymentTerms   String
+  fobPoint       String?
+  shippingMethod String?
+  validUntil     DateTime
+  lineItems      Json?    @default("[]")
+  approvalId     String
+  appravalDate   DateTime
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+
+  salesRep User @relation(name: "user-sales-rep-sale-quote", fields: [salesRepId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  approval User @relation(name: "user-approval-sale-quote", fields: [approvalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([code, customerCode])
+}
+
 model SupplierQuoteBuyer {
-  supplierQuoteId String @map("suppllierQuoteId")
+  supplierQuoteId String
   userId          String
 
   supplierQuote SupplierQuote @relation(fields: [supplierQuoteId], references: [id], onUpdate: Cascade, onDelete: Cascade)

@@ -4,36 +4,35 @@ import Breadcrumbs from "@/components/breadcrumbs"
 import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Card } from "@/components/ui/card"
-import { getSupplierQuotes } from "@/actions/supplier-quote"
-import SupplierQuoteList from "./_components/supplier-quote-list"
 import { getItems } from "@/actions/item-master"
+import SaleQuoteList from "./_components/sale-quote-list"
 
-export default async function SupplierQuotesPage() {
-  const [supplierQuotes, items] = await Promise.all([getSupplierQuotes(), getItems()])
+export default async function SaleQuotesPage() {
+  const salesQuotes = [] as any
 
   return (
-    <ContentLayout title='Supplier Quotes'>
+    <ContentLayout title='Sale Quotes'>
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
           { label: "Dashboard", href: "/dashboard" },
           { label: "CRM" },
-          { label: "Supplier Quotes", isPage: true },
+          { label: "Sale Quotes", isPage: true },
         ]}
       />
 
       <ContentContainer>
         <PageWrapper
-          title='Supplier Quotes'
-          description='Manage and track your supplier quotes effectively'
+          title='Sale Quotes'
+          description='Manage and track your sale quotes effectively'
           defaultAction={{
-            label: "Add Supplier Quote",
-            href: "/dashboard/crm/supplier-quotes/add",
+            label: "Add Sale Quote",
+            href: "/dashboard/crm/sale-quotes/add",
             icon: Icons.plus,
           }}
         >
           <Card className='rounded-lg p-6 shadow-md'>
-            <SupplierQuoteList supplierQuotes={supplierQuotes} items={items} />
+            <SaleQuoteList salesQuotes={salesQuotes} />
           </Card>
         </PageWrapper>
       </ContentContainer>

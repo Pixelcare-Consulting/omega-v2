@@ -16,9 +16,13 @@ export default function ItemSummaryTab({ item }: ItemSummaryTabProps) {
       <div className='grid grid-cols-12 gap-5'>
         <ReadOnlyFieldHeader className='col-span-12' title='Summary' description='Item summary details' />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Name' value={item.ItemName} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Description' value={item.ItemName} />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Internal ID' value={item.ItemCode} />
+
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='MPN' value='' />
+
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='MHL' value='' />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'
