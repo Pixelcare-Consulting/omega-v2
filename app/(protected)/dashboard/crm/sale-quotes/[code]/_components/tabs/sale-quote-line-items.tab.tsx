@@ -1,3 +1,5 @@
+"use client"
+
 import { getItems } from "@/actions/item-master"
 import { getRequisitions, RequestedItemsJSONData } from "@/actions/requisition"
 import { getSaleQuoteByCode, LineItemsJSONData } from "@/actions/sale-quote"

@@ -231,10 +231,10 @@ export default function SaleQuoteForm({
           return (
             <div className='flex min-w-[240px] flex-col justify-center gap-2'>
               <div className='flex gap-1.5'>
-                <div className='flex gap-1.5'>
-                  <span className='font-semibold'>Requisition:</span>
-                  <span className='text-xs text-muted-foreground'>{requisitionCode || ""}</span>
-                </div>
+                <span className='font-semibold'>Requisition:</span>
+                <span className='text-xs text-muted-foreground'>{requisitionCode || ""}</span>
+              </div>
+              <div className='flex gap-1.5'>
                 <span className='font-semibold'>CPN:</span>
                 <span className='text-xs text-muted-foreground'>{cpn || ""}</span>
               </div>

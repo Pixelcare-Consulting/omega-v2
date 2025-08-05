@@ -1,3 +1,5 @@
+"use client"
+
 import { LineItemForm } from "@/schema/sale-quote"
 import { useMemo } from "react"
 import { getColumns } from "./sale-quote-line-items-column"
