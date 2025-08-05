@@ -38,7 +38,7 @@ export const saleQuoteFormSchema = z.object({
   validUntil: z.date({ message: "Valid until is required" }),
   lineItems: lineItemsFormSchema,
   approvalId: z.string().min(1, { message: "Approval is required" }),
-  appravalDate: z.date({ message: "Approval date is required" }),
+  approvalDate: z.date({ message: "Approval date is required" }),
 })
 
 //* Types

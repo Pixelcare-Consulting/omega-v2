@@ -98,6 +98,7 @@ import {
   Construction,
   XCircle,
   Hash,
+  CalendarCheck,
 } from "lucide-react"
 
 export type Icon = LucideIcon
@@ -140,6 +141,7 @@ export const Icons = {
   report: BarChart2,
   calendar: Calendar,
   calendarClock: CalendarClock,
+  calendarCheck: CalendarCheck,
   history: History,
   wallet: Wallet,
   truck: Truck,

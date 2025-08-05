@@ -87,7 +87,7 @@ export default function SaleQuoteForm({
         validUntil: new Date(),
         lineItems: [],
         approvalId: "",
-        appravalDate: new Date(),
+        approvalDate: new Date(),
       }
     }
   }, [JSON.stringify(salesQuote)])
@@ -355,11 +355,11 @@ export default function SaleQuoteForm({
   }, [JSON.stringify(customers)])
 
   const requisitionsOptions = useMemo(() => {
-    if (!requisitions) return []
+    if (!requisitions || !customerCode) return []
 
     //* only show requisitions that have not been added to the line items
     return requisitions
-      .filter((req) => !lineItems.find((lineItem) => lineItem.requisitionCode == req.code && req.customerCode == customerCode))
+      .filter((req) => req.customerCode == customerCode && !lineItems.find((lineItem) => lineItem.requisitionCode == req.code))
       .map((req) => ({ label: String(req.code), value: String(req.code), requisition: req }))
   }, [JSON.stringify(requisitions), JSON.stringify(lineItems), customerCode])
 
@@ -409,6 +409,10 @@ export default function SaleQuoteForm({
     form.setValue("lineItems", [...currentValues, newValues])
     lineItemsForm.reset()
     form.clearErrors("lineItems")
+  }
+
+  const customerCodeCallback = () => {
+    form.setValue("lineItems", [])
   }
 
   //* auto popluate lineItemsForm when requisitionCode changes
@@ -513,6 +517,7 @@ export default function SaleQuoteForm({
               name='customerCode'
               label='Company Name'
               isRequired
+              callback={customerCodeCallback}
               renderItem={(item, selected) => (
                 <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
                   <div className='flex w-[80%] flex-col justify-center'>
@@ -615,7 +620,7 @@ export default function SaleQuoteForm({
               isRequired
               isHideLabel
               callback={() => handleAddLineItem()}
-              extendedProps={{ buttonProps: { disabled: !!customerCode } }}
+              extendedProps={{ buttonProps: { disabled: !customerCode } }}
               renderItem={(item, selected) => (
                 <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
                   <div className='flex w-[80%] flex-col justify-center'>
@@ -666,7 +671,7 @@ export default function SaleQuoteForm({
           <div className='col-span-12 md:col-span-6'>
             <DatePickerField
               control={form.control}
-              name='appravalDate'
+              name='approvalDate'
               label='Date'
               isRequired
               extendedProps={{

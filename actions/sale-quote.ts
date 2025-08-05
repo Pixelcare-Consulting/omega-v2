@@ -28,6 +28,7 @@ export async function getSaleQuoteByCode(code: number) {
     return await prisma.saleQuote.findUnique({
       where: { code, deletedAt: null, deletedBy: null },
       include: {
+        customer: true,
         salesRep: { select: { name: true, email: true } },
         approval: { select: { name: true, email: true } },
       },

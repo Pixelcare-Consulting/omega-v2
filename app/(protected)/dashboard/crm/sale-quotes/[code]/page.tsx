@@ -57,7 +57,7 @@ export default async function SaleQuotePage({ params }: { params: { code: string
           description={pageMetadata.description}
           actions={
             <div className='flex items-center gap-2'>
-              <Link className={buttonVariants({ variant: "outline-primary" })} href={`/dashboard/crm/supplier-quotes`}>
+              <Link className={buttonVariants({ variant: "outline-primary" })} href={`/dashboard/crm/sale-quotes`}>
                 Back
               </Link>
 
