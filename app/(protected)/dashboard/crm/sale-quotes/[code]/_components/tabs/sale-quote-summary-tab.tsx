@@ -4,6 +4,8 @@ import { getSaleQuoteByCode } from "@/actions/sale-quote"
 import { Card } from "@/components/ui/card"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import ReadOnlyField from "@/components/read-only-field"
+import { Button } from "@/components/ui/button"
+import { Icons } from "@/components/icons"
 
 type SaleQuoteSummaryTabProps = {
   saleQuote: NonNullable<Awaited<ReturnType<typeof getSaleQuoteByCode>>>
@@ -20,7 +22,24 @@ export default function SaleQuoteSummaryTab({ saleQuote, paymentTerms }: SaleQuo
   return (
     <Card className='rounded-lg p-6 shadow-md'>
       <div className='grid grid-cols-12 gap-5'>
-        <ReadOnlyFieldHeader className='col-span-12' title='Summary' description='Sale quote summary details' />
+        <ReadOnlyFieldHeader
+          className='col-span-12'
+          title='Summary'
+          description='Sale quote summary details'
+          actions={
+            <div className='flex items-center gap-2'>
+              <Button disabled>
+                <Icons.print className='size-4' />
+                Print
+              </Button>
+
+              <Button variant='outline-primary' disabled>
+                <Icons.download className='size-4' />
+                Download
+              </Button>
+            </div>
+          }
+        />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Date' value={format(saleQuote.date, "MM-dd-yyyy")} />
 

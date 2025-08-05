@@ -99,6 +99,8 @@ import {
   XCircle,
   Hash,
   CalendarCheck,
+  Printer,
+  Download,
 } from "lucide-react"
 
 export type Icon = LucideIcon
@@ -206,4 +208,6 @@ export const Icons = {
   database: Database,
   construction: Construction,
   hash: Hash,
+  print: Printer,
+  download: Download,
 }
