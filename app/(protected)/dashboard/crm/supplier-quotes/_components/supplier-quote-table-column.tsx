@@ -254,21 +254,21 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       header: ({ column }) => <DataTableColumnHeader column={column} title='Condition' />,
     },
     {
-      accessorFn: (row) => row.quantityQuoted ?? "",
+      accessorFn: (row) => row.quotedQuantity ?? "",
       id: "quantity quoted",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Quantity Quoted' />,
       cell: ({ row }) => {
-        const quantity = parseFloat(row.original?.quantityQuoted || "")
+        const quantity = parseFloat(row.original?.quotedQuantity || "")
         if (!quantity || isNaN(quantity)) return null
         return <div>{formatNumber({ amount: quantity as any, maxDecimal: 2 })}</div>
       },
     },
     {
-      accessorFn: (row) => row.quantityPriced ?? "",
+      accessorFn: (row) => row.quotedPrice ?? "",
       id: "quoted price",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Quoted Price' />,
       cell: ({ row }) => {
-        const price = parseFloat(row.original?.quantityPriced || "")
+        const price = parseFloat(row.original?.quotedPrice || "")
         if (!price || isNaN(price)) return null
         return <div>{formatCurrency({ amount: price as any, maxDecimal: 5 })}</div>
       },
@@ -279,8 +279,8 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
     },
     {
       accessorFn: (row) => {
-        const x = parseFloat(String(row.quantityQuoted))
-        const y = parseFloat(String(row.quantityPriced))
+        const x = parseFloat(String(row.quotedQuantity))
+        const y = parseFloat(String(row.quotedPrice))
 
         if (isNaN(x) || isNaN(y)) return ""
 
@@ -291,8 +291,8 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       id: "total cost",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Total Cost' />,
       cell: ({ row }) => {
-        const x = parseFloat(String(row.original?.quantityQuoted))
-        const y = parseFloat(String(row.original?.quantityPriced))
+        const x = parseFloat(String(row.original?.quotedQuantity))
+        const y = parseFloat(String(row.original?.quotedPrice))
 
         if (isNaN(x) || isNaN(y)) return ""
 

@@ -22,7 +22,7 @@ export default function ItemSummaryTab({ item }: ItemSummaryTabProps) {
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='MPN' value='' />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='MHL' value='' />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='MSL' value='' />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'

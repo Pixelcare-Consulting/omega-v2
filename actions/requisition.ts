@@ -15,6 +15,7 @@ export async function getRequisitions() {
         salesPersons: { include: { user: { select: { name: true, email: true } } } },
         omegaBuyers: { include: { user: { select: { name: true, email: true } } } },
         customer: { select: { CardName: true, CardCode: true } },
+        supplierQuotes: true,
       },
     })
 

@@ -15,6 +15,7 @@ type TextAreaFieldProps<TFieldValues extends FieldValues = FieldValues, TName ex
   description?: string
   extendedProps?: ExtendedProps
   isRequired?: boolean
+  isHideLabel?: boolean
 }
 
 export default function TextAreaField<T extends FieldValues>({
@@ -24,6 +25,7 @@ export default function TextAreaField<T extends FieldValues>({
   description,
   extendedProps,
   isRequired,
+  isHideLabel,
 }: TextAreaFieldProps<T>) {
   return (
     <FormField
@@ -32,9 +34,11 @@ export default function TextAreaField<T extends FieldValues>({
       render={({ field }) => {
         return (
           <FormItem className='space-y-2' {...extendedProps?.itemProps}>
-            <FormLabel className='space-x-1' {...extendedProps?.labelProps} isRequired={isRequired}>
-              {label}
-            </FormLabel>
+            {!isHideLabel && (
+              <FormLabel className='space-x-1' {...extendedProps?.labelProps} isRequired={isRequired}>
+                {label}
+              </FormLabel>
+            )}
             <FormControl>
               <Textarea className='resize-none' {...field} {...extendedProps?.textAreaProps} />
             </FormControl>

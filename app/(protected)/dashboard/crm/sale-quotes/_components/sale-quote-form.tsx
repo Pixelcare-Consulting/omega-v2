@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import { useAction } from "next-safe-action/hooks"
 import { useParams, useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 import { useForm, useWatch } from "react-hook-form"
 
 import { getBpMasters } from "@/actions/bp-master"
@@ -35,6 +35,8 @@ import { multiply } from "mathjs"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import LoadingButton from "@/components/loading-button"
+import { getSupplierQuotes } from "@/actions/supplier-quote"
+import { SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS, SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS } from "@/schema/supplier-quote"
 
 type SaleQuoteFormProps = {
   isModal?: boolean
@@ -85,6 +87,7 @@ export default function SaleQuoteForm({
         fobPoint: "",
         shippingMethod: "",
         validUntil: new Date(),
+        remarks: "",
         lineItems: [],
         approvalId: "",
         approvalDate: new Date(),
@@ -104,23 +107,28 @@ export default function SaleQuoteForm({
     mode: "onChange",
     values: {
       requisitionCode: 0,
+      supplierQuoteCode: 0,
       code: "",
       name: "",
       mpn: "",
       mfr: "",
       cpn: "",
+      source: "",
+      ltToSjcNumber: "",
+      ltToSjcUom: "",
+      condition: "",
+      coo: "",
       dateCode: "",
       estimatedDeliveryDate: null,
       unitPrice: 0,
       quantity: 0,
-      source: "",
-      reqRequestedItems: [],
     },
     resolver: zodResolver(lineItemFormSchema),
   })
 
   const lineItems = useWatch({ control: form.control, name: "lineItems" })
   const lineItemReqCode = useWatch({ control: lineItemsForm.control, name: "requisitionCode" })
+  const lineItemCode = useWatch({ control: lineItemsForm.control, name: "code" })
   const customerCode = useWatch({ control: form.control, name: "customerCode" })
 
   const columns = useMemo((): ColumnDef<LineItemForm>[] => {
@@ -139,68 +147,16 @@ export default function SaleQuoteForm({
         header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
         enableSorting: false,
         cell: ({ row }) => {
-          const { mpn, mfr, source, reqRequestedItems } = row.original
-          const index = row.index
-
-          const itemsOptions = () => {
-            if (!items) return []
-
-            return items
-              .filter((item) => reqRequestedItems.find((reqItem) => reqItem.code == item.ItemCode))
-              .map((item) => ({ ...item, reqItem: reqRequestedItems.find((reqItem) => reqItem.code == item.ItemCode) }))
-              .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.ItemCode, item }))
-          }
-
-          function itemCodeCallback(options: Record<string, any>[], code: string) {
-            const selectedOption = options.find((option) => option.value == code)
-
-            if (selectedOption) {
-              form.setValue(`lineItems.${index}.code`, selectedOption.item.ItemCode)
-              form.setValue(`lineItems.${index}.name`, selectedOption.item.ItemName)
-              form.setValue(`lineItems.${index}.mpn`, selectedOption.item.ItemCode)
-              form.setValue(`lineItems.${index}.mfr`, selectedOption.item.FirmName)
-              form.setValue(`lineItems.${index}.source`, selectedOption.item.source)
-            }
-          }
+          const { mpn, mfr, source } = row.original
 
           if (!mpn || source === "portal") return null
 
           return (
-            <div className='flex min-w-[240px] flex-col justify-center gap-2'>
-              <ComboboxField
-                data={itemsOptions()}
-                control={form.control}
-                name={`lineItems.${index}.code`}
-                label='Item'
-                isRequired
-                isHideLabel
-                callback={(args) => itemCodeCallback(itemsOptions(), args.value)}
-                renderItem={(item, selected, index) => {
-                  const isPrimary = index === 0
-
-                  return (
-                    <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
-                      <div className='flex w-[75%] flex-col justify-center'>
-                        <span className={cn("truncate", selected && "text-accent-foreground")}>{item.label}</span>
-                        <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
-                      </div>
-
-                      <div className='flex items-center gap-1'>
-                        {item.item?.reqItem?.isSupplierSuggested && <Badge variant='soft-green'>Supplier Suggested</Badge>}
-
-                        <Badge className='w-fit' variant={isPrimary ? "soft-sky" : "soft-amber"}>
-                          {isPrimary ? "Primary" : "Alternative"}
-                        </Badge>
-                        {item.item.source === "portal" ? (
-                          <Badge variant='soft-amber'>Portal</Badge>
-                        ) : (
-                          <Badge variant='soft-green'>SAP</Badge>
-                        )}
-                      </div>
-                    </div>
-                  )
-                }}
-              />
+            <div className='flex min-w-[200px] flex-col justify-center gap-2'>
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>MPN:</span>
+                <span className='text-wrap text-xs text-muted-foreground'>{mpn}</span>
+              </div>
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>MPR:</span>
@@ -212,40 +168,77 @@ export default function SaleQuoteForm({
       },
       {
         accessorFn: (row) => {
-          const { name, cpn, dateCode, estimatedDeliveryDate } = row
+          const { requisitionCode, supplierQuoteCode, name, cpn, source, condition, coo, dateCode, estimatedDeliveryDate } = row
+
+          const ltToSjcNumber = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === row.ltToSjcNumber)?.label
+          const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === row.ltToSjcUom)?.label
 
           let value = ""
+          if (requisitionCode) value += ` ${requisitionCode}`
+          if (supplierQuoteCode) value += ` ${supplierQuoteCode}`
           if (name) value += ` ${name}`
           if (cpn) value += ` ${cpn}`
+          if (source) value += ` ${source}`
+          if (ltToSjcNumber) value += ` ${ltToSjcNumber}`
+          if (ltToSjcUom) value += ` ${ltToSjcUom}`
+          if (condition) value += ` ${condition}`
+          if (coo) value += ` ${coo}`
           if (dateCode) value += ` ${dateCode}`
           if (estimatedDeliveryDate) value += ` ${format(estimatedDeliveryDate, "MM/dd/yyyy")}`
 
           return value
         },
-        id: "description",
-        header: ({ column }) => <DataTableColumnHeader column={column} title='Description' />,
+        id: "reference",
+        header: ({ column }) => <DataTableColumnHeader column={column} title='Reference' />,
         enableSorting: false,
         cell: ({ row }) => {
-          const { requisitionCode, name, cpn, dateCode, estimatedDeliveryDate, source } = row.original
+          const { requisitionCode, supplierQuoteCode, name, cpn, source, condition, coo, dateCode, estimatedDeliveryDate } = row.original
+
+          const ltToSjcNumber = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === row.original?.ltToSjcNumber)?.label
+          const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === row.original?.ltToSjcUom)?.label
 
           return (
-            <div className='flex min-w-[240px] flex-col justify-center gap-2'>
+            <div className='flex min-w-[300px] flex-col justify-center gap-2'>
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>Requisition:</span>
                 <span className='text-xs text-muted-foreground'>{requisitionCode || ""}</span>
               </div>
+
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>Supplier Quote:</span>
+                <span className='text-xs text-muted-foreground'>{requisitionCode || ""}</span>
+              </div>
+
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>CPN:</span>
                 <span className='text-xs text-muted-foreground'>{cpn || ""}</span>
               </div>
+
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>Desc:</span>
                 <span className='text-xs text-muted-foreground'>{name || ""}</span>
               </div>
+
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>LT to SJC:</span>
+                <span className='text-xs text-muted-foreground'>{`${ltToSjcNumber || ""} ${ltToSjcUom || ""}`}</span>
+              </div>
+
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>Condition:</span>
+                <span className='text-xs text-muted-foreground'>{condition || ""}</span>
+              </div>
+
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>Coo:</span>
+                <span className='text-xs text-muted-foreground'>{coo || ""}</span>
+              </div>
+
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>DC:</span>
                 <span className='text-xs text-muted-foreground'>{dateCode || ""}</span>
               </div>
+
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>Est. Del. Date:</span>
                 <span className='text-xs text-muted-foreground'>
@@ -293,6 +286,23 @@ export default function SaleQuoteForm({
               label='Quantity'
               isHideLabel
               extendedProps={{ inputProps: { placeholder: "Enter quantity", type: "number" } }}
+            />
+          )
+        },
+      },
+      {
+        accessorKey: "leadTime",
+        header: ({ column }) => <DataTableColumnHeader column={column} title='Lead Time' />,
+        cell: ({ row }) => {
+          const index = row.index
+
+          return (
+            <TextAreaField
+              control={form.control}
+              name={`lineItems.${index}.leadTime`}
+              label='Lead Time'
+              isHideLabel
+              extendedProps={{ textAreaProps: { placeholder: "Enter quantity" } }}
             />
           )
         },
@@ -363,6 +373,26 @@ export default function SaleQuoteForm({
       .map((req) => ({ label: String(req.code), value: String(req.code), requisition: req }))
   }, [JSON.stringify(requisitions), JSON.stringify(lineItems), customerCode])
 
+  const supplierQuotes = useMemo(() => {
+    if (!lineItemReqCode || !requisitions) return []
+
+    const requisition = requisitions.find((req) => req.code == lineItemReqCode)
+    return requisition?.supplierQuotes || []
+  }, [lineItemReqCode])
+
+  const itemsOptions = useMemo(() => {
+    if (!supplierQuotes || !items) return []
+
+    return items
+      .filter((item) => supplierQuotes.find((quote) => quote.itemCode == item.ItemCode))
+      .map((item) => ({
+        label: item?.ItemName || item.ItemCode,
+        value: item.ItemCode,
+        item,
+        supplierQuote: supplierQuotes.find((quote) => quote.itemCode == item.ItemCode),
+      }))
+  }, [JSON.stringify(supplierQuotes), JSON.stringify(items)])
+
   const usersOptions = useMemo(() => {
     if (!users) return []
     return users.map((user) => ({ label: user.name || user.email, value: user.id, user }))
@@ -401,7 +431,10 @@ export default function SaleQuoteForm({
   const handleAddLineItem = async () => {
     const isValid = await lineItemsForm.trigger()
 
-    if (isValid) toast.error("Failed to add line item!")
+    if (!isValid) {
+      toast.error("Failed to add line item!")
+      return
+    }
 
     const currentValues = form.getValues("lineItems") || []
     const newValues = lineItemsForm.getValues()
@@ -415,36 +448,44 @@ export default function SaleQuoteForm({
     form.setValue("lineItems", [])
   }
 
-  //* auto popluate lineItemsForm when requisitionCode changes
-  useEffect(() => {
-    if (lineItemReqCode !== 0 && requisitions?.length > 0 && items?.length > 0) {
-      const selectedRequisition = requisitions.find((requisition) => requisition.code == lineItemReqCode)
-      const requestedItems = (selectedRequisition?.requestedItems || []) as RequestedItemsJSONData
-      const primaryReqItem = requestedItems?.[0]
+  const requisitionCodeCallback = useCallback(
+    (code: number) => {
+      const selectedRequisition = requisitions?.find((req) => req.code == code)
 
-      if (selectedRequisition && requestedItems && requestedItems?.length > 0 && primaryReqItem) {
-        const selectedItem = items.find((item) => item.ItemCode == primaryReqItem.code)
-
-        if (selectedItem) {
-          const unitPrice = parseFloat(String(selectedRequisition.customerStandardPrice))
-          const quantity = parseFloat(String(selectedRequisition.quantity))
-
-          lineItemsForm.setValue("requisitionCode", lineItemReqCode)
-          lineItemsForm.setValue("code", selectedItem.ItemCode)
-          lineItemsForm.setValue("name", selectedItem.ItemName)
-          lineItemsForm.setValue("mpn", selectedItem.ItemCode)
-          lineItemsForm.setValue("mfr", selectedItem.FirmName)
-          lineItemsForm.setValue("cpn", selectedRequisition.customerPn)
-          lineItemsForm.setValue("dateCode", selectedRequisition.dateCode)
-          lineItemsForm.setValue("estimatedDeliveryDate", selectedRequisition.estimatedDeliveryDate)
-          lineItemsForm.setValue("unitPrice", isNaN(unitPrice) ? 0 : unitPrice)
-          lineItemsForm.setValue("quantity", isNaN(quantity) ? 0 : quantity)
-          lineItemsForm.setValue("source", selectedItem.source)
-          lineItemsForm.setValue("reqRequestedItems", requestedItems)
-        }
+      if (selectedRequisition) {
+        lineItemsForm.setValue("cpn", selectedRequisition.customerPn)
       }
-    }
-  }, [lineItemReqCode, JSON.stringify(requisitions), JSON.stringify(items)])
+    },
+    [JSON.stringify(requisitions)]
+  )
+
+  const itemCodeCallback = useCallback(
+    (supplierQuote: Awaited<ReturnType<typeof getRequisitions>>[number]["supplierQuotes"][number]) => {
+      if (!lineItemCode || !items || !supplierQuote) return
+
+      const selectedItem = items.find((item) => item.ItemCode == lineItemCode)
+
+      if (selectedItem) {
+        const unitPrice = parseFloat(String(supplierQuote?.quotedPrice))
+        const quantity = parseFloat(String(supplierQuote?.quotedQuantity))
+
+        lineItemsForm.setValue("supplierQuoteCode", supplierQuote.code)
+        lineItemsForm.setValue("name", selectedItem.ItemName)
+        lineItemsForm.setValue("mpn", selectedItem.ItemCode)
+        lineItemsForm.setValue("mfr", selectedItem.FirmName)
+        lineItemsForm.setValue("source", selectedItem.source)
+        lineItemsForm.setValue("ltToSjcNumber", supplierQuote.ltToSjcNumber)
+        lineItemsForm.setValue("ltToSjcUom", supplierQuote.ltToSjcUom)
+        lineItemsForm.setValue("condition", supplierQuote.condition)
+        lineItemsForm.setValue("coo", supplierQuote.coo)
+        lineItemsForm.setValue("dateCode", supplierQuote.dateCode)
+        lineItemsForm.setValue("estimatedDeliveryDate", supplierQuote.estimatedDeliveryDate)
+        lineItemsForm.setValue("unitPrice", isNaN(unitPrice) ? 0 : unitPrice)
+        lineItemsForm.setValue("quantity", isNaN(quantity) ? 0 : quantity)
+      }
+    },
+    [lineItemCode, JSON.stringify(items)]
+  )
 
   //* set line items if sales qoute data exists
   useEffect(() => {
@@ -453,27 +494,35 @@ export default function SaleQuoteForm({
 
       const lineItemsData =
         selectedLineItems?.map((li) => {
-          const selectedRequisition = requisitions.find((requisition) => requisition.code == li.requisitionCode)
-          const selectedReqRequestedItems = (selectedRequisition?.requestedItems || []) as RequestedItemsJSONData
-          const selectedItem = items.find((item) => item.ItemCode == li.code)
+          const selectedRequisition = requisitions.find((req) => req.code == li.requisitionCode)
+          const supplierQuote = selectedRequisition?.supplierQuotes.find((quote) => quote.code == li.supplierQuoteCode)
 
-          if (selectedRequisition && selectedItem && selectedReqRequestedItems && selectedReqRequestedItems?.length > 0) {
-            const unitPrice = parseFloat(String(li.unitPrice))
-            const quantity = parseFloat(String(li.quantity))
+          if (selectedRequisition && supplierQuote) {
+            const selectedItem = items.find((item) => item.ItemCode == li.code)
 
-            return {
-              requisitionCode: selectedRequisition.code,
-              code: selectedItem.ItemCode,
-              name: selectedItem.ItemName,
-              mpn: selectedItem.ItemCode,
-              mfr: selectedItem.FirmName,
-              cpn: selectedRequisition.customerPn,
-              dateCode: selectedRequisition.dateCode,
-              estimatedDeliveryDate: selectedRequisition.estimatedDeliveryDate,
-              unitPrice: isNaN(unitPrice) ? 0 : unitPrice,
-              quantity: isNaN(quantity) ? 0 : quantity,
-              source: selectedItem.source,
-              reqRequestedItems: selectedReqRequestedItems || [],
+            if (selectedItem) {
+              const unitPrice = parseFloat(String(li.unitPrice))
+              const quantity = parseFloat(String(li.quantity))
+
+              return {
+                requisitionCode: selectedRequisition.code,
+                supplierQuoteCode: supplierQuote.code,
+                code: selectedItem.ItemCode,
+                name: selectedItem.ItemName,
+                mpn: selectedItem.ItemCode,
+                mfr: selectedItem.FirmName,
+                cpn: selectedRequisition.customerPn,
+                source: selectedItem.source,
+                ltToSjcNumber: supplierQuote.ltToSjcNumber,
+                ltToSjcUom: supplierQuote.ltToSjcUom,
+                condition: supplierQuote.condition,
+                coo: supplierQuote.coo,
+                dateCode: supplierQuote.dateCode,
+                estimatedDeliveryDate: supplierQuote.estimatedDeliveryDate,
+                unitPrice: isNaN(unitPrice) ? 0 : unitPrice,
+                quantity: isNaN(quantity) ? 0 : quantity,
+                leadTime: li.leadTime,
+              }
             }
           }
 
@@ -605,21 +654,29 @@ export default function SaleQuoteForm({
             />
           </div>
 
+          <div className='col-span-12'>
+            <TextAreaField
+              control={form.control}
+              name='remarks'
+              label='Remarks'
+              extendedProps={{ textAreaProps: { placeholder: "Enter remarks" } }}
+            />
+          </div>
+
           <div className='col-span-12 mt-2 space-y-4 lg:col-span-12'>
             <Separator />
 
             <ReadOnlyFieldHeader title='Line Items' description='List of items sourced from the selected requisition.' />
           </div>
 
-          <div className='col-span-12'>
+          <div className='col-span-12 md:col-span-6'>
             <ComboboxField
               data={requisitionsOptions}
               control={lineItemsForm.control}
               name='requisitionCode'
               label='Requisition'
               isRequired
-              isHideLabel
-              callback={() => handleAddLineItem()}
+              callback={(args) => requisitionCodeCallback(args?.option?.value)}
               extendedProps={{ buttonProps: { disabled: !customerCode } }}
               renderItem={(item, selected) => (
                 <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
@@ -634,6 +691,49 @@ export default function SaleQuoteForm({
                 </div>
               )}
             />
+          </div>
+
+          <div className='col-span-12 md:col-span-6'>
+            <ComboboxField
+              data={itemsOptions}
+              control={lineItemsForm.control}
+              name='code'
+              label='Item'
+              description='Item/s from supplier quote related to the selected requisition.'
+              isRequired
+              extendedProps={{ buttonProps: { disabled: !lineItemReqCode } }}
+              callback={(args) => itemCodeCallback(args?.option?.supplierQuote)}
+              renderItem={(item, selected, index) => {
+                const isPrimary = index === 0
+
+                return (
+                  <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
+                    <div className='flex w-[75%] flex-col justify-center'>
+                      <span className={cn("truncate", selected && "text-accent-foreground")}>{item.label}</span>
+                      <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
+                    </div>
+
+                    <div className='flex items-center gap-1'>
+                      {item.item?.reqItem?.isSupplierSuggested && <Badge variant='soft-green'>Supplier Suggested</Badge>}
+
+                      <Badge className='w-fit' variant={isPrimary ? "soft-sky" : "soft-amber"}>
+                        {isPrimary ? "Primary" : "Alternative"}
+                      </Badge>
+                      {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
+                    </div>
+                  </div>
+                )
+              }}
+            />
+          </div>
+
+          <div className='col-span-12 flex items-center justify-end gap-2'>
+            <Button variant='secondary' type='button' onClick={() => lineItemsForm.reset()}>
+              <Icons.x className='size-4' /> Clear
+            </Button>
+            <Button variant='outline-primary' type='button' onClick={handleAddLineItem}>
+              <Icons.plus className='size-4' /> Add
+            </Button>
           </div>
 
           <div className='col-span-12'>

@@ -18,8 +18,8 @@ export async function getSupplierQuotes() {
 
     return result.map((quote) => ({
       ...quote,
-      quantityQuoted: quote?.quantityQuoted?.toString(),
-      quantityPriced: quote?.quantityPriced?.toString(),
+      quotedQuantity: quote?.quotedQuantity?.toString(),
+      quotedPrice: quote?.quotedPrice?.toString(),
     }))
   } catch (error) {
     console.error(error)
@@ -42,8 +42,8 @@ export async function getSupplierQuoteByCode(code: number) {
 
     return {
       ...result,
-      quantityQuoted: result?.quantityQuoted?.toString(),
-      quantityPriced: result?.quantityPriced?.toString(),
+      quotedQuantity: result?.quotedQuantity?.toString(),
+      quotedPrice: result?.quotedPrice?.toString(),
     }
   } catch (error) {
     console.error(error)

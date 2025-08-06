@@ -9,17 +9,22 @@ const reqRequestedItemFormSchema = z.object({
 
 export const lineItemFormSchema = z.object({
   requisitionCode: z.coerce.number().min(1, { message: "Requisition code is required" }),
+  supplierQuoteCode: z.coerce.number().min(1, { message: "Supplier quote code is required" }),
   code: z.string().min(1, { message: "Item is required" }),
+  name: z.string().nullish(),
   mpn: z.string().nullish(),
   mfr: z.string().nullish(),
   cpn: z.string().nullish(),
-  name: z.string().nullish(),
+  source: z.string().nullish(),
+  ltToSjcNumber: z.string().nullish(),
+  ltToSjcUom: z.string().nullish(),
+  condition: z.string().nullish(),
+  coo: z.string().nullish(),
   dateCode: z.string().nullish(),
   estimatedDeliveryDate: z.date().nullish(),
   unitPrice: z.coerce.number(),
   quantity: z.coerce.number().min(1, { message: "Quantity is required" }),
-  source: z.string().nullish(),
-  reqRequestedItems: z.array(reqRequestedItemFormSchema),
+  leadTime: z.string().nullish(),
 })
 
 export const lineItemsFormSchema = z.array(lineItemFormSchema).min(1, { message: "Please select at least one item" })
@@ -36,6 +41,7 @@ export const saleQuoteFormSchema = z.object({
   fobPoint: z.string().nullish(),
   shippingMethod: z.string().nullish(),
   validUntil: z.date({ message: "Valid until is required" }),
+  remarks: z.string().nullish(),
   lineItems: lineItemsFormSchema,
   approvalId: z.string().min(1, { message: "Approval is required" }),
   approvalDate: z.date({ message: "Approval date is required" }),

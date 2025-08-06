@@ -48,8 +48,8 @@ export default function SupplierQuoteSummaryTab({ supplierQuote, items }: Suppli
   const item = items.find((item) => item.ItemCode === supplierQuote.itemCode)
 
   const totalCost = useMemo(() => {
-    const x = parseFloat(String(supplierQuote.quantityQuoted))
-    const y = parseFloat(String(supplierQuote.quantityPriced))
+    const x = parseFloat(String(supplierQuote.quotedQuantity))
+    const y = parseFloat(String(supplierQuote.quotedPrice))
 
     if (isNaN(x) || isNaN(y)) return ""
 
@@ -58,8 +58,8 @@ export default function SupplierQuoteSummaryTab({ supplierQuote, items }: Suppli
     return formatCurrency({ amount: result, minDecimal: 2 })
   }, [JSON.stringify(supplierQuote)])
 
-  const quantityQuoted = useMemo(() => {
-    const x = parseFloat(String(supplierQuote.quantityQuoted))
+  const quotedQuantity = useMemo(() => {
+    const x = parseFloat(String(supplierQuote.quotedQuantity))
 
     if (isNaN(x)) return ""
 
@@ -67,7 +67,7 @@ export default function SupplierQuoteSummaryTab({ supplierQuote, items }: Suppli
   }, [JSON.stringify(supplierQuote)])
 
   const quotedPrice = useMemo(() => {
-    const x = parseFloat(String(supplierQuote.quantityPriced))
+    const x = parseFloat(String(supplierQuote.quotedPrice))
 
     if (isNaN(x)) return ""
 
@@ -245,7 +245,7 @@ export default function SupplierQuoteSummaryTab({ supplierQuote, items }: Suppli
 
         <ReadOnlyField className='col-span-12' title='Total Cost' value={totalCost} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Quantity Quoted' value={quantityQuoted} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Quantity Quoted' value={quotedQuantity} />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Requisition - Quantity' value={reqQuantity} />
 

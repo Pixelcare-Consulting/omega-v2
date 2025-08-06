@@ -102,7 +102,7 @@ export const requisitionFormSchema = z.object({
   quantity: z.coerce.number().min(1, { message: "Quantity is required" }),
   customerStandardPrice: z.coerce.number(),
   customerStandardOpportunityValue: z.coerce.number(),
-  dateCode: z.string().nullish(),
+  dateCode: z.string().max(6, { message: "Date code is too long; it should be a maximum of 6 characters" }).nullish(),
   estimatedDeliveryDate: z.coerce.date().nullish(),
 })
 

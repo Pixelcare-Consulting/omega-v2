@@ -77,14 +77,14 @@ export default function SupplierQuoteForm({
 
   const values = useMemo(() => {
     if (supplierQuote) {
-      const { buyers, supplier, requisition, quantityQuoted, quantityPriced, ...data } = supplierQuote
+      const { buyers, supplier, requisition, quotedQuantity, quotedPrice, ...data } = supplierQuote
 
       return {
         ...data,
         requisitionCode: String(data.requisitionCode),
         buyers: [],
-        quantityQuoted: quantityQuoted as any,
-        quantityPriced: quantityPriced as any,
+        quotedQuantity: quotedQuantity as any,
+        quotedPrice: quotedPrice as any,
       }
     }
 
@@ -117,10 +117,11 @@ export default function SupplierQuoteForm({
         condition: "",
         coo: "",
         roHs: "",
-        quantityQuoted: 0,
-        quantityPriced: 0,
+        quotedQuantity: 0,
+        quotedPrice: 0,
         buyers: [],
         comments: "",
+        estimatedDeliveryDate: null,
       }
     }
 
@@ -138,8 +139,8 @@ export default function SupplierQuoteForm({
   const requisitionCode = useWatch({ control: form.control, name: "requisitionCode" })
   const supplierCode = useWatch({ control: form.control, name: "supplierCode" })
   const itemCode = useWatch({ control: form.control, name: "itemCode" })
-  const quotedQuantity = useWatch({ control: form.control, name: "quantityQuoted" })
-  const quotedPrice = useWatch({ control: form.control, name: "quantityPriced" })
+  const quotedQuantity = useWatch({ control: form.control, name: "quotedQuantity" })
+  const quotedPrice = useWatch({ control: form.control, name: "quotedPrice" })
 
   const totalCost = useMemo(() => {
     const x = parseFloat(String(quotedQuantity))
@@ -585,7 +586,7 @@ export default function SupplierQuoteForm({
             </FormItem>
           </div>
 
-          <div className='col-span-12 md:col-span-6'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
             <ComboboxField
               data={SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS}
               control={form.control}
@@ -594,8 +595,19 @@ export default function SupplierQuoteForm({
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
             <ComboboxField data={SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS} control={form.control} name='ltToSjcUom' label='LT to SJC (UOM)' />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <DatePickerField
+              control={form.control}
+              name='estimatedDeliveryDate'
+              label='Estimated Delivery Date'
+              extendedProps={{
+                calendarProps: { mode: "single", fromYear: 1800, toYear: new Date().getFullYear(), captionLayout: "dropdown-buttons" },
+              }}
+            />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
@@ -636,7 +648,7 @@ export default function SupplierQuoteForm({
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <InputField
               control={form.control}
-              name='quantityQuoted'
+              name='quotedQuantity'
               label='Quantity Quoted'
               extendedProps={{ inputProps: { placeholder: "Enter quantity quoted", type: "number" } }}
             />
@@ -654,7 +666,7 @@ export default function SupplierQuoteForm({
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <InputField
               control={form.control}
-              name='quantityPriced'
+              name='quotedPrice'
               label='Quoted Price'
               extendedProps={{ inputProps: { placeholder: "Enter quoted price", type: "number", startContent: "$" } }}
             />

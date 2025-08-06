@@ -5,7 +5,14 @@ import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
 import { saleQuoteFormSchema } from "@/schema/sale-quote"
 
-export type LineItemsJSONData = { requisitionCode: number; code: string; unitPrice: number; quantity: number }[]
+export type LineItemsJSONData = {
+  requisitionCode: number
+  supplierQuoteCode: number
+  code: string
+  unitPrice: number
+  quantity: number
+  leadTime: string
+}[]
 
 export async function getSaleQuotes() {
   try {
@@ -47,9 +54,11 @@ export const upsertSaleQuote = action
     const { userId } = ctx
     const lineItems = data.lineItems.map((item) => ({
       requisitionCode: item.requisitionCode,
+      supplierQuoteCode: item.supplierQuoteCode,
       code: item.code,
       unitPrice: item.unitPrice,
       quantity: item.quantity,
+      leadTime: item.leadTime,
     }))
 
     try {

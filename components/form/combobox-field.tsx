@@ -113,7 +113,7 @@ export function ComboboxField<T extends FieldValues>({
                                 field.onChange(item.value)
                                 setOpen(false)
 
-                                if (callback) callback({ value: item.value })
+                                if (callback) callback({ option: item })
                               }}
                               {...extendedProps?.commandItemProps}
                             >

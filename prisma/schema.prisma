@@ -439,9 +439,10 @@ model SupplierQuote {
   condition                   String?   @default("")
   coo                         String?   @default("")
   roHs                        String?   @default("")
-  quantityQuoted              Decimal?
-  quantityPriced              Decimal?
+  quotedQuantity              Decimal?
+  quotedPrice                 Decimal?
   comments                    String?   @default("")
+  estimatedDeliveryDate       DateTime?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -470,6 +471,7 @@ model SaleQuote {
   fobPoint       String?
   shippingMethod String?
   validUntil     DateTime
+  remarks        String?  @default("")
   lineItems      Json?    @default("[]")
   approvalId     String
   approvalDate   DateTime

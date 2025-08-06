@@ -185,11 +185,12 @@ export const supplierQuoteFormSchema = z.object({
   ltToSjcNumber: z.string().nullish(),
   ltToSjcUom: z.string().nullish(),
   dateCode: z.string().max(6, { message: "Date code is too long; it should be a maximum of 6 characters" }).nullish(),
+  estimatedDeliveryDate: z.date().nullish(),
   condition: z.string().nullish(),
   coo: z.string().nullish(),
   roHs: z.string().nullish(),
-  quantityQuoted: z.coerce.number(),
-  quantityPriced: z.coerce.number(),
+  quotedQuantity: z.coerce.number(),
+  quotedPrice: z.coerce.number(),
   comments: z.string().nullish(),
 })
 
