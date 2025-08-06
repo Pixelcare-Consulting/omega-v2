@@ -334,18 +334,18 @@ export default function SaleQuoteForm({
         id: "action",
         header: "Action",
         cell: ({ row, table }) => {
-          const { requisitionCode } = row.original
+          const { code } = row.original
 
-          const handleRemoveItem = (reqCode: number) => {
+          const handleRemoveItem = (itemCode: string) => {
             const currentLineItems = table.getRowModel()?.rows?.map((row) => row.original) || []
-            const newLineItems = currentLineItems.filter((item) => item.requisitionCode !== reqCode)
+            const newLineItems = currentLineItems.filter((item) => item.code !== itemCode)
 
             form.setValue("lineItems", newLineItems)
           }
 
           return (
             <div className='w-[50px]'>
-              <Icons.trash className='size-4 cursor-pointer text-red-600' onClick={() => handleRemoveItem(requisitionCode)} />
+              <Icons.trash className='size-4 cursor-pointer text-red-600' onClick={() => handleRemoveItem(code)} />
             </div>
           )
         },
