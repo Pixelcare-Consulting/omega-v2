@@ -257,7 +257,6 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
               control={form.control}
               name='unitPrice'
               label='Unit Price'
-              isHideLabel
               extendedProps={{ inputProps: { placeholder: "Enter unit price", type: "number", startContent: "$" } }}
             />
           </div>
@@ -267,7 +266,6 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
               control={form.control}
               name='quantity'
               label='Quantity'
-              isHideLabel
               extendedProps={{ inputProps: { placeholder: "Enter quantity", type: "number" } }}
             />
           </div>
