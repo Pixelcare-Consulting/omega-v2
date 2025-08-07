@@ -215,15 +215,15 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
       <form className='grid grid-cols-12 gap-4' onSubmit={form.handleSubmit(onSubmit)}>
         <div className='col-span-12'>
           <Collapsible open={isOpenReference} onOpenChange={setIsOpenReference}>
-            <CollapsibleTrigger>
-              <Button variant='ghost' size='icon' className='size-8'>
-                {isOpenReference ? <Icons.chevUp className='size-4' /> : <Icons.chevDown className='size-4' />}
+            <CollapsibleTrigger asChild>
+              <Button type='button' variant='ghost'>
                 Reference
+                {isOpenReference ? <Icons.chevUp className='size-4' /> : <Icons.chevDown className='size-4' />}
               </Button>
             </CollapsibleTrigger>
 
             <CollapsibleContent>
-              <div className='flex flex-col justify-center gap-2'>
+              <div className='flex flex-col justify-center gap-2 py-4 text-sm'>
                 <div className='flex gap-1.5'>
                   <span className='text-wrap font-semibold'>{formValues.mpn}</span>
                 </div>
