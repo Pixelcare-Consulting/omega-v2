@@ -216,14 +216,14 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
         <div className='col-span-12'>
           <Collapsible open={isOpenReference} onOpenChange={setIsOpenReference}>
             <CollapsibleTrigger asChild>
-              <Button type='button' variant='ghost'>
+              <Button className='w-full justify-between px-0 hover:bg-transparent' type='button' variant='ghost'>
                 Reference
                 {isOpenReference ? <Icons.chevUp className='size-4' /> : <Icons.chevDown className='size-4' />}
               </Button>
             </CollapsibleTrigger>
 
             <CollapsibleContent>
-              <div className='flex flex-col justify-center gap-2 py-4 text-sm'>
+              <div className='flex flex-col justify-center gap-2 p-4 text-sm'>
                 <div className='flex gap-1.5'>
                   <span className='text-wrap font-semibold'>{formValues.mpn}</span>
                 </div>

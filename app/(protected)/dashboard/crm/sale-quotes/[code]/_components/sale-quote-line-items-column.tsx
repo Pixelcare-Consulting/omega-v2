@@ -179,7 +179,7 @@ export function getColumns(saleQuoteId: string, lineItems: LineItemForm[]): Colu
         const [showConfirmation, setShowConfirmation] = useState(false)
 
         const { setIsOpen, setData } = useDialogStore(["setIsOpen", "setData"])
-        const isAllowedToDelete = !lineItems || lineItems.length > 2
+        const isAllowedToDelete = !lineItems || lineItems.length > 1
 
         const { code } = row.original
 

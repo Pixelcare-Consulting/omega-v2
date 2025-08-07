@@ -68,7 +68,7 @@ export default function SaleQuoteLineItemsTab({ saleQuote, items, requisitions }
       }) || []
 
     return fullDetailsItems.filter((item) => item !== null)
-  }, [JSON.stringify(items), JSON.stringify(requisitions)])
+  }, [JSON.stringify(lineItems), JSON.stringify(items), JSON.stringify(requisitions)])
 
   const total = lineItemsFullDetails.reduce((acc, item) => {
     if (!item) return acc
