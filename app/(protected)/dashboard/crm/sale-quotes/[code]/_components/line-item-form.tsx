@@ -10,7 +10,7 @@ import { updateLineItems } from "@/actions/sale-quote"
 import { type LineItemForm, lineItemFormSchema } from "@/schema/sale-quote"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Card } from "@/components/ui/card"
-import { Form } from "@/components/ui/form"
+import { Form, FormControl, FormItem, FormLabel } from "@/components/ui/form"
 import { ComboboxField } from "@/components/form/combobox-field"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/badge"
@@ -21,6 +21,9 @@ import LoadingButton from "@/components/loading-button"
 import { useDialogStore } from "@/hooks/use-dialog"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { Input } from "@/components/ui/input"
+import { multiply } from "mathjs"
+import { formatCurrency } from "@/lib/formatter"
 
 type LineItemFormProps = {
   saleQuoteId: string
@@ -68,6 +71,19 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
 
   const lineItemReqCode = useWatch({ control: form.control, name: "requisitionCode" })
   const itemCode = useWatch({ control: form.control, name: "code" })
+  const unitPrice = useWatch({ control: form.control, name: "unitPrice" })
+  const quantity = useWatch({ control: form.control, name: "quantity" })
+
+  const totalPrice = useMemo(() => {
+    const x = parseFloat(String(unitPrice))
+    const y = parseFloat(String(quantity))
+
+    if (isNaN(x) || isNaN(y)) return ""
+
+    const result = multiply(x, y)
+
+    return formatCurrency({ amount: result, minDecimal: 2 })
+  }, [JSON.stringify(unitPrice), JSON.stringify(quantity)])
 
   const requisitionsOptions = useMemo(() => {
     if (!requisitions || !customerCode) return []
@@ -236,7 +252,7 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
             <InputField
               control={form.control}
               name='unitPrice'
@@ -246,7 +262,7 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
             <InputField
               control={form.control}
               name='quantity'
@@ -254,6 +270,15 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
               isHideLabel
               extendedProps={{ inputProps: { placeholder: "Enter quantity", type: "number" } }}
             />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <FormItem className='space-y-2'>
+              <FormLabel className='space-x-1'>Total Price</FormLabel>
+              <FormControl>
+                <Input disabled value={totalPrice} />
+              </FormControl>
+            </FormItem>
           </div>
 
           <div className='col-span-12'>
