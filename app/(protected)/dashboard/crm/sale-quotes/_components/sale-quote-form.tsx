@@ -343,7 +343,7 @@ export default function SaleQuoteForm({
   const requisitionsOptions = useMemo(() => {
     if (!requisitions || !customerCode) return []
 
-    //* only show requisitions that have not been added to the line items
+    //* only show requisition that is related to the customer
     return requisitions
       .filter((req) => req.customerCode == customerCode)
       .map((req) => ({ label: String(req.code), value: String(req.code), requisition: req }))
@@ -689,10 +689,7 @@ export default function SaleQuoteForm({
                       <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
                     </div>
 
-                    <div className='flex items-center gap-1'>
-                      {item.item?.reqItem?.isSupplierSuggested && <Badge variant='soft-green'>Supplier Suggested</Badge>}
-                      {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
-                    </div>
+                    {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
                   </div>
                 )
               }}

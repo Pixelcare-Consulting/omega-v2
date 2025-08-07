@@ -1,17 +1,20 @@
 "use client"
 
+import { useMemo } from "react"
+import { add, multiply } from "mathjs"
+
 import { getItems } from "@/actions/item-master"
-import { getRequisitions, RequestedItemsJSONData } from "@/actions/requisition"
+import { getRequisitions } from "@/actions/requisition"
 import { getSaleQuoteByCode, LineItemsJSONData } from "@/actions/sale-quote"
 import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatCurrency } from "@/lib/formatter"
-import { useRouter } from "next/navigation"
-import { useEffect, useMemo } from "react"
 import SaleQuoteLineItemList from "../sale-quote-line-items-list"
-import { add, multiply } from "mathjs"
+import { useDialogStore } from "@/hooks/use-dialog"
+import { Dialog, DialogTitle, DialogContent, DialogDescription, DialogHeader } from "@/components/ui/dialog"
+import LineItemForm from "../line-item-form"
 
 type SaleQuoteLineItemsTabProps = {
   saleQuote: NonNullable<Awaited<ReturnType<typeof getSaleQuoteByCode>>>
@@ -21,8 +24,9 @@ type SaleQuoteLineItemsTabProps = {
 
 //TODO: optimize dont fetch all requisitions and items, instead fetch only the record thats needed\
 export default function SaleQuoteLineItemsTab({ saleQuote, items, requisitions }: SaleQuoteLineItemsTabProps) {
-  const router = useRouter()
   const lineItems = (saleQuote?.lineItems || []) as LineItemsJSONData
+
+  const { isOpen, setIsOpen, data, setData } = useDialogStore(["isOpen", "setIsOpen", "data", "setData"])
 
   //* get full details of the line items
   const lineItemsFullDetails = useMemo(() => {
@@ -72,8 +76,13 @@ export default function SaleQuoteLineItemsTab({ saleQuote, items, requisitions }
   }, 0)
 
   const Actions = () => {
+    const handleActionClick = () => {
+      setIsOpen(true)
+      setData(null)
+    }
+
     return (
-      <Button variant='outline-primary' disabled>
+      <Button variant='outline-primary' onClick={handleActionClick}>
         Add Line Item
       </Button>
     )
@@ -102,6 +111,26 @@ export default function SaleQuoteLineItemsTab({ saleQuote, items, requisitions }
           <SaleQuoteLineItemList saleQuoteId={saleQuote.id} lineItems={lineItemsFullDetails} />
         </div>
       </div>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className='max-h-[85vh] overflow-auto sm:max-w-5xl'>
+          <DialogHeader>
+            <DialogTitle>Add line item for sale quote #{saleQuote.code}</DialogTitle>
+            <DialogDescription>Fill in the form to add a new line item for this sale quote.</DialogDescription>
+          </DialogHeader>
+
+          <Card className='p-3'>
+            <LineItemForm
+              saleQuoteId={saleQuote.id}
+              customerCode={saleQuote.customerCode}
+              lineItem={data || null}
+              lineItems={lineItemsFullDetails}
+              items={items}
+              requisitions={requisitions}
+            />
+          </Card>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

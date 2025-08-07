@@ -13,7 +13,7 @@ type SaleQuoteLineItemListProps = {
 }
 
 export default function SaleQuoteLineItemList({ saleQuoteId, lineItems }: SaleQuoteLineItemListProps) {
-  const columns = useMemo(() => getColumns(), [])
+  const columns = useMemo(() => getColumns(saleQuoteId, lineItems), [saleQuoteId, JSON.stringify(lineItems)])
 
   const { table } = useDataTable({
     data: lineItems,

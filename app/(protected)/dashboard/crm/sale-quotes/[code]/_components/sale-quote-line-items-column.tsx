@@ -1,16 +1,24 @@
+import { ColumnDef } from "@tanstack/react-table"
+import { format } from "date-fns"
+import { multiply } from "mathjs"
+import { useAction } from "next-safe-action/hooks"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+
 import { getItems } from "@/actions/item-master"
+import { updateLineItems } from "@/actions/sale-quote"
 import { Badge } from "@/components/badge"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { Icons } from "@/components/icons"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
+import { useDialogStore } from "@/hooks/use-dialog"
 import { formatCurrency, formatNumber } from "@/lib/formatter"
 import { LineItemForm } from "@/schema/sale-quote"
 import { SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS, SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS } from "@/schema/supplier-quote"
-import { ColumnDef } from "@tanstack/react-table"
-import { format } from "date-fns"
-import { multiply } from "mathjs"
+import { toast } from "sonner"
+import AlertModal from "@/components/alert-modal"
 
-export function getColumns(): ColumnDef<LineItemForm>[] {
+export function getColumns(saleQuoteId: string, lineItems: LineItemForm[]): ColumnDef<LineItemForm>[] {
   return [
     {
       accessorFn: (row) => {
@@ -165,16 +173,69 @@ export function getColumns(): ColumnDef<LineItemForm>[] {
       accessorKey: "actions",
       id: "actions",
       header: "Actions",
-      cell: ({ row, table }) => {
+      cell: function ActionCell({ row }) {
+        const router = useRouter()
+        const { executeAsync } = useAction(updateLineItems)
+        const [showConfirmation, setShowConfirmation] = useState(false)
+
+        const { setIsOpen, setData } = useDialogStore(["setIsOpen", "setData"])
+
+        const { code } = row.original
+
+        const handleEdit = () => {
+          setData(row.original)
+          setTimeout(() => setIsOpen(true), 1000)
+        }
+
+        const handleRemoveItem = (saleQuoteId: string, itemCode: string, lineItems: LineItemForm[]) => {
+          setShowConfirmation(false)
+
+          const filteredLineItems = lineItems.filter((item) => item.code !== itemCode)
+
+          toast.promise(executeAsync({ action: "delete", saleQuoteId, lineItems: filteredLineItems }), {
+            loading: "Deleting line item...",
+            success: (response) => {
+              const result = response?.data
+
+              if (!response || !result) throw { message: "Failed to delete line item!", unExpectedError: true }
+
+              if (!result.error) {
+                setTimeout(() => {
+                  router.refresh()
+                }, 1500)
+
+                return result.message
+              }
+
+              throw { message: result.message, expectedError: true }
+            },
+            error: (err: Error & { expectedError: boolean }) => {
+              return err?.expectedError ? err.message : "Something went wrong! Please try again later."
+            },
+          })
+        }
+
         return (
           <div className='flex w-[100px] gap-2'>
             <ActionTooltipProvider label='Edit Line Item'>
-              <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' />
+              <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' onClick={handleEdit} />
             </ActionTooltipProvider>
 
             <ActionTooltipProvider label='Remove Line Item'>
-              <Icons.trash className='size-4 cursor-pointer text-red-600 transition-all hover:scale-125' />
+              <Icons.trash
+                className='size-4 cursor-pointer text-red-600 transition-all hover:scale-125'
+                onClick={() => setShowConfirmation(true)}
+              />
             </ActionTooltipProvider>
+
+            <AlertModal
+              isOpen={showConfirmation}
+              title='Are you sure?'
+              description={`Are you sure you want to delete this supplier quote #${code}?`}
+              onConfirm={() => handleRemoveItem(saleQuoteId, code, lineItems)}
+              onConfirmText='Delete'
+              onCancel={() => setShowConfirmation(false)}
+            />
           </div>
         )
       },

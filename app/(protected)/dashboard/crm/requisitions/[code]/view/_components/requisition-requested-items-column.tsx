@@ -90,11 +90,11 @@ export function getColumns(reqId: string, requestedItems: RequestedItemForm[]): 
           const filteredReqItems = requestedItems.filter((item) => item.code !== itemCode)
 
           toast.promise(executeAsync({ reqId, requestedItems: filteredReqItems }), {
-            loading: "Removing requested item...",
+            loading: "Deleting requested item...",
             success: (response) => {
               const result = response?.data
 
-              if (!response || !result) throw { message: "Failed to requested item!", unExpectedError: true }
+              if (!response || !result) throw { message: "Failed to delete requested item!", unExpectedError: true }
 
               if (!result.error) {
                 setTimeout(() => {
@@ -119,9 +119,9 @@ export function getColumns(reqId: string, requestedItems: RequestedItemForm[]): 
             <AlertModal
               isOpen={showConfirmation}
               title='Are you sure?'
-              description={`Are you sure you want to remove this requested item named "${name}" with MPN of "${mpn}"?`}
+              description={`Are you sure you want to delete this requested item named "${name}" with MPN of "${mpn}"?`}
               onConfirm={() => handleRemoveItem(reqId, code, requestedItems)}
-              onConfirmText='Remove'
+              onConfirmText='Delete'
               onCancel={() => setShowConfirmation(false)}
             />
           </>

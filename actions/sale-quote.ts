@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
-import { saleQuoteFormSchema } from "@/schema/sale-quote"
+import { saleQuoteFormSchema, updateLineItemForm } from "@/schema/sale-quote"
 
 export type LineItemsJSONData = {
   requisitionCode: number
@@ -111,6 +111,39 @@ export const deleteSaleQuote = action
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
         action: "DELETE_SALE_QUOTE",
+      }
+    }
+  })
+
+export const updateLineItems = action
+  .use(authenticationMiddleware)
+  .schema(updateLineItemForm)
+  .action(async ({ ctx, parsedInput: data }) => {
+    try {
+      const { userId } = ctx
+      const saleQuote = await prisma.saleQuote.findUnique({ where: { id: data.saleQuoteId } })
+      const lineItems = data.lineItems.map((item) => ({
+        requisitionCode: item.requisitionCode,
+        supplierQuoteCode: item.supplierQuoteCode,
+        code: item.code,
+        unitPrice: item.unitPrice,
+        quantity: item.quantity,
+        leadTime: item.leadTime,
+      }))
+
+      if (!saleQuote) return { error: true, status: 404, message: "Sale quote not found!", action: "UPDATE_LINE_ITEMS" }
+
+      await prisma.saleQuote.update({ where: { id: saleQuote.id }, data: { lineItems, updatedBy: userId } })
+
+      return { status: 200, message: `Line item ${data.action}ed successfully!`, action: "UPDATE_LINE_ITEMS" }
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Something went wrong!",
+        action: "UPDATE_LINE_ITEMS",
       }
     }
   })

@@ -1,12 +1,6 @@
 import { z } from "zod"
 
 //* Zod schema
-
-const reqRequestedItemFormSchema = z.object({
-  code: z.string(),
-  isSupplierSuggested: z.boolean(),
-})
-
 export const lineItemFormSchema = z.object({
   requisitionCode: z.coerce.number().min(1, { message: "Requisition code is required" }),
   supplierQuoteCode: z.coerce.number().min(1, { message: "Supplier quote code is required" }),
@@ -45,6 +39,12 @@ export const saleQuoteFormSchema = z.object({
   lineItems: lineItemsFormSchema,
   approvalId: z.string().min(1, { message: "Approval is required" }),
   approvalDate: z.date({ message: "Approval date is required" }),
+})
+
+export const updateLineItemForm = z.object({
+  action: z.enum(["create", "update", "delete"]),
+  saleQuoteId: z.string().min(1, { message: "Sale quote ID is required" }),
+  lineItems: lineItemsFormSchema,
 })
 
 //* Types
