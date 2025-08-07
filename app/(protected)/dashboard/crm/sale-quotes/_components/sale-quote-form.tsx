@@ -347,7 +347,7 @@ export default function SaleQuoteForm({
 
     //* only show requisitions that have not been added to the line items
     return requisitions
-      .filter((req) => req.customerCode == customerCode && !lineItems.find((lineItem) => lineItem.requisitionCode == req.code))
+      .filter((req) => req.customerCode == customerCode)
       .map((req) => ({ label: String(req.code), value: String(req.code), requisition: req }))
   }, [JSON.stringify(requisitions), JSON.stringify(lineItems), customerCode])
 
@@ -361,16 +361,17 @@ export default function SaleQuoteForm({
   const itemsOptions = useMemo(() => {
     if (!supplierQuotes || !items) return []
 
-    //* filter items that are in supplier quotes
+    //* filter items that are in supplier quotes and only show item that are not in line items
     return items
       .filter((item) => supplierQuotes.find((quote) => quote.itemCode == item.ItemCode))
+      .filter((item) => !lineItems.find((lineItem) => lineItem.code == item.ItemCode))
       .map((item) => ({
         label: item?.ItemName || item.ItemCode,
         value: item.ItemCode,
         item,
         supplierQuote: supplierQuotes.find((quote) => quote.itemCode == item.ItemCode),
       }))
-  }, [JSON.stringify(supplierQuotes), JSON.stringify(items)])
+  }, [JSON.stringify(supplierQuotes), JSON.stringify(items), JSON.stringify(lineItems)])
 
   const usersOptions = useMemo(() => {
     if (!users) return []
@@ -418,7 +419,7 @@ export default function SaleQuoteForm({
     const currentValues = form.getValues("lineItems") || []
     const newValues = lineItemsForm.getValues()
 
-    form.setValue("lineItems", [newValues, ...currentValues])
+    form.setValue("lineItems", [...currentValues, newValues])
     lineItemsForm.reset()
     form.clearErrors("lineItems")
   }
