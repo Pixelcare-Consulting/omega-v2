@@ -214,19 +214,17 @@ export default function SaleQuoteForm({
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>DC:</span>
-                <span className='text-xs text-muted-foreground'>{dateCode || ""}</span>
+                <span className='text-muted-foreground'>{dateCode || ""}</span>
               </div>
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>Est. Del. Date:</span>
-                <span className='text-xs text-muted-foreground'>
-                  {estimatedDeliveryDate ? format(estimatedDeliveryDate, "MM/dd/yyyy") : ""}
-                </span>
+                <span className='text-muted-foreground'>{estimatedDeliveryDate ? format(estimatedDeliveryDate, "MM/dd/yyyy") : ""}</span>
               </div>
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>Source</span>
-                <span className='text-xs text-muted-foreground'>
+                <span className='text-muted-foreground'>
                   {source === "sap" ? <Badge variant='soft-green'>SAP</Badge> : <Badge variant='soft-amber'>Portal</Badge>}
                 </span>
               </div>
