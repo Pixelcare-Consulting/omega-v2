@@ -169,48 +169,47 @@ export default function SaleQuoteForm({
           return (
             <div className='flex min-w-[300px] flex-col justify-center gap-2'>
               <div className='flex gap-1.5'>
-                <span className='font-semibold'>MPN:</span>
-                <span className='text-wrap text-sm font-bold text-muted-foreground'>{mpn}</span>
+                <span className='text-wrap font-semibold'>{mpn}</span>
               </div>
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>MPR:</span>
-                <span className='text-wrap text-xs text-muted-foreground'>{mfr}</span>
+                <span className='text-wrap text-muted-foreground'>{mfr}</span>
               </div>
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>Requisition:</span>
-                <span className='text-xs text-muted-foreground'>{requisitionCode || ""}</span>
+                <span className='text-muted-foreground'>{requisitionCode || ""}</span>
               </div>
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>Supplier Quote:</span>
-                <span className='text-xs text-muted-foreground'>{supplierQuoteCode || ""}</span>
+                <span className='text-muted-foreground'>{supplierQuoteCode || ""}</span>
               </div>
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>CPN:</span>
-                <span className='text-xs text-muted-foreground'>{cpn || ""}</span>
+                <span className='text-muted-foreground'>{cpn || ""}</span>
               </div>
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>Desc:</span>
-                <span className='text-xs text-muted-foreground'>{name || ""}</span>
+                <span className='text-muted-foreground'>{name || ""}</span>
               </div>
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>LT to SJC:</span>
-                <span className='text-xs text-muted-foreground'>{`${ltToSjcNumber || ""} ${ltToSjcUom || ""}`}</span>
+                <span className='text-muted-foreground'>{`${ltToSjcNumber || ""} ${ltToSjcUom || ""}`}</span>
               </div>
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>Condition:</span>
-                <span className='text-xs text-muted-foreground'>{condition || ""}</span>
+                <span className='text-muted-foreground'>{condition || ""}</span>
               </div>
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>Coo:</span>
-                <span className='text-xs text-muted-foreground'>{coo || ""}</span>
+                <span className='text-muted-foreground'>{coo || ""}</span>
               </div>
 
               <div className='flex gap-1.5'>
