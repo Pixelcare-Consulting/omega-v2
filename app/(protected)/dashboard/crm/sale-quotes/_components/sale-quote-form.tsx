@@ -128,47 +128,13 @@ export default function SaleQuoteForm({
 
   const lineItems = useWatch({ control: form.control, name: "lineItems" })
   const lineItemReqCode = useWatch({ control: lineItemsForm.control, name: "requisitionCode" })
-  const lineItemCode = useWatch({ control: lineItemsForm.control, name: "code" })
   const customerCode = useWatch({ control: form.control, name: "customerCode" })
 
   const columns = useMemo((): ColumnDef<LineItemForm>[] => {
     return [
       {
         accessorFn: (row) => {
-          const { mpn, mfr } = row
-
-          let value = ""
-          if (mpn) value += ` ${mpn}`
-          if (mfr) value += ` ${mfr}`
-
-          return value
-        },
-        id: "mpn",
-        header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
-        enableSorting: false,
-        cell: ({ row }) => {
-          const { mpn, mfr, source } = row.original
-
-          if (!mpn || source === "portal") return null
-
-          return (
-            <div className='flex min-w-[200px] flex-col justify-center gap-2'>
-              <div className='flex gap-1.5'>
-                <span className='font-semibold'>MPN:</span>
-                <span className='text-wrap text-xs text-muted-foreground'>{mpn}</span>
-              </div>
-
-              <div className='flex gap-1.5'>
-                <span className='font-semibold'>MPR:</span>
-                <span className='text-wrap text-xs text-muted-foreground'>{mfr}</span>
-              </div>
-            </div>
-          )
-        },
-      },
-      {
-        accessorFn: (row) => {
-          const { requisitionCode, supplierQuoteCode, name, cpn, source, condition, coo, dateCode, estimatedDeliveryDate } = row
+          const { requisitionCode, supplierQuoteCode, name, mpn, mfr, cpn, source, condition, coo, dateCode, estimatedDeliveryDate } = row
 
           const ltToSjcNumber = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === row.ltToSjcNumber)?.label
           const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === row.ltToSjcUom)?.label
@@ -178,6 +144,8 @@ export default function SaleQuoteForm({
           if (supplierQuoteCode) value += ` ${supplierQuoteCode}`
           if (name) value += ` ${name}`
           if (cpn) value += ` ${cpn}`
+          if (mpn) value += ` ${mpn}`
+          if (mfr) value += ` ${mfr}`
           if (source) value += ` ${source}`
           if (ltToSjcNumber) value += ` ${ltToSjcNumber}`
           if (ltToSjcUom) value += ` ${ltToSjcUom}`
@@ -192,7 +160,8 @@ export default function SaleQuoteForm({
         header: ({ column }) => <DataTableColumnHeader column={column} title='Reference' />,
         enableSorting: false,
         cell: ({ row }) => {
-          const { requisitionCode, supplierQuoteCode, name, cpn, source, condition, coo, dateCode, estimatedDeliveryDate } = row.original
+          const { requisitionCode, supplierQuoteCode, mpn, mfr, name, cpn, source, condition, coo, dateCode, estimatedDeliveryDate } =
+            row.original
 
           const ltToSjcNumber = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === row.original?.ltToSjcNumber)?.label
           const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === row.original?.ltToSjcUom)?.label
@@ -200,13 +169,23 @@ export default function SaleQuoteForm({
           return (
             <div className='flex min-w-[300px] flex-col justify-center gap-2'>
               <div className='flex gap-1.5'>
+                <span className='font-semibold'>MPN:</span>
+                <span className='text-wrap text-sm font-bold text-muted-foreground'>{mpn}</span>
+              </div>
+
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>MPR:</span>
+                <span className='text-wrap text-xs text-muted-foreground'>{mfr}</span>
+              </div>
+
+              <div className='flex gap-1.5'>
                 <span className='font-semibold'>Requisition:</span>
                 <span className='text-xs text-muted-foreground'>{requisitionCode || ""}</span>
               </div>
 
               <div className='flex gap-1.5'>
                 <span className='font-semibold'>Supplier Quote:</span>
-                <span className='text-xs text-muted-foreground'>{requisitionCode || ""}</span>
+                <span className='text-xs text-muted-foreground'>{supplierQuoteCode || ""}</span>
               </div>
 
               <div className='flex gap-1.5'>
@@ -302,7 +281,7 @@ export default function SaleQuoteForm({
               name={`lineItems.${index}.leadTime`}
               label='Lead Time'
               isHideLabel
-              extendedProps={{ textAreaProps: { placeholder: "Enter quantity" } }}
+              extendedProps={{ textAreaProps: { placeholder: "Enter lead time" } }}
             />
           )
         },
@@ -351,7 +330,7 @@ export default function SaleQuoteForm({
         },
       },
     ]
-  }, [JSON.stringify(items)])
+  }, [])
 
   const { table } = useDataTable({
     data: lineItems || [],
@@ -383,6 +362,7 @@ export default function SaleQuoteForm({
   const itemsOptions = useMemo(() => {
     if (!supplierQuotes || !items) return []
 
+    //* filter items that are in supplier quotes
     return items
       .filter((item) => supplierQuotes.find((quote) => quote.itemCode == item.ItemCode))
       .map((item) => ({
@@ -439,7 +419,7 @@ export default function SaleQuoteForm({
     const currentValues = form.getValues("lineItems") || []
     const newValues = lineItemsForm.getValues()
 
-    form.setValue("lineItems", [...currentValues, newValues])
+    form.setValue("lineItems", [newValues, ...currentValues])
     lineItemsForm.reset()
     form.clearErrors("lineItems")
   }
@@ -460,10 +440,10 @@ export default function SaleQuoteForm({
   )
 
   const itemCodeCallback = useCallback(
-    (supplierQuote: Awaited<ReturnType<typeof getRequisitions>>[number]["supplierQuotes"][number]) => {
-      if (!lineItemCode || !items || !supplierQuote) return
+    (code: string, supplierQuote: Awaited<ReturnType<typeof getRequisitions>>[number]["supplierQuotes"][number]) => {
+      if (!code || !items || !supplierQuote) return
 
-      const selectedItem = items.find((item) => item.ItemCode == lineItemCode)
+      const selectedItem = items.find((item) => code == item.ItemCode)
 
       if (selectedItem) {
         const unitPrice = parseFloat(String(supplierQuote?.quotedPrice))
@@ -484,7 +464,7 @@ export default function SaleQuoteForm({
         lineItemsForm.setValue("quantity", isNaN(quantity) ? 0 : quantity)
       }
     },
-    [lineItemCode, JSON.stringify(items)]
+    [JSON.stringify(items)]
   )
 
   //* set line items if sales qoute data exists
@@ -702,10 +682,8 @@ export default function SaleQuoteForm({
               description='Item/s from supplier quote related to the selected requisition.'
               isRequired
               extendedProps={{ buttonProps: { disabled: !lineItemReqCode } }}
-              callback={(args) => itemCodeCallback(args?.option?.supplierQuote)}
+              callback={(args) => itemCodeCallback(args?.option?.value, args?.option?.supplierQuote)}
               renderItem={(item, selected, index) => {
-                const isPrimary = index === 0
-
                 return (
                   <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
                     <div className='flex w-[75%] flex-col justify-center'>
@@ -715,10 +693,6 @@ export default function SaleQuoteForm({
 
                     <div className='flex items-center gap-1'>
                       {item.item?.reqItem?.isSupplierSuggested && <Badge variant='soft-green'>Supplier Suggested</Badge>}
-
-                      <Badge className='w-fit' variant={isPrimary ? "soft-sky" : "soft-amber"}>
-                        {isPrimary ? "Primary" : "Alternative"}
-                      </Badge>
                       {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
                     </div>
                   </div>
