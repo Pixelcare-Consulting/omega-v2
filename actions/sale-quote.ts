@@ -135,7 +135,7 @@ export const updateLineItems = action
 
       await prisma.saleQuote.update({ where: { id: saleQuote.id }, data: { lineItems, updatedBy: userId } })
 
-      return { status: 200, message: `Line item ${data.action}ed successfully!`, action: "UPDATE_LINE_ITEMS" }
+      return { status: 200, message: `Line item ${data.action}d successfully!`, action: "UPDATE_LINE_ITEMS" }
     } catch (error) {
       console.error(error)
 

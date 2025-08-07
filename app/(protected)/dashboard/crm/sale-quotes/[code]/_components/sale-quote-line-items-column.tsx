@@ -179,6 +179,7 @@ export function getColumns(saleQuoteId: string, lineItems: LineItemForm[]): Colu
         const [showConfirmation, setShowConfirmation] = useState(false)
 
         const { setIsOpen, setData } = useDialogStore(["setIsOpen", "setData"])
+        const isAllowedToDelete = !lineItems || lineItems.length < 2
 
         const { code } = row.original
 
@@ -221,17 +222,19 @@ export function getColumns(saleQuoteId: string, lineItems: LineItemForm[]): Colu
               <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' onClick={handleEdit} />
             </ActionTooltipProvider>
 
-            <ActionTooltipProvider label='Remove Line Item'>
-              <Icons.trash
-                className='size-4 cursor-pointer text-red-600 transition-all hover:scale-125'
-                onClick={() => setShowConfirmation(true)}
-              />
-            </ActionTooltipProvider>
+            {isAllowedToDelete && (
+              <ActionTooltipProvider label='Remove Line Item'>
+                <Icons.trash
+                  className='size-4 cursor-pointer text-red-600 transition-all hover:scale-125'
+                  onClick={() => setShowConfirmation(true)}
+                />
+              </ActionTooltipProvider>
+            )}
 
             <AlertModal
               isOpen={showConfirmation}
               title='Are you sure?'
-              description={`Are you sure you want to delete this supplier quote #${code}?`}
+              description={`Are you sure you want to delete this line item #${code}?`}
               onConfirm={() => handleRemoveItem(saleQuoteId, code, lineItems)}
               onConfirmText='Delete'
               onCancel={() => setShowConfirmation(false)}
