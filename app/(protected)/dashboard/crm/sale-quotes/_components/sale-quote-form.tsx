@@ -167,7 +167,7 @@ export default function SaleQuoteForm({
           const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === row.original?.ltToSjcUom)?.label
 
           return (
-            <div className='flex min-w-[300px] flex-col justify-center gap-2'>
+            <div className='flex min-w-[200px] flex-col justify-center gap-2'>
               <div className='flex gap-1.5'>
                 <span className='text-wrap font-semibold'>{mpn}</span>
               </div>

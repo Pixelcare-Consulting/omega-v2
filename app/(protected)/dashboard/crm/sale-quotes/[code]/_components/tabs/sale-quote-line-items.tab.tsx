@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatCurrency } from "@/lib/formatter"
 import { useRouter } from "next/navigation"
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import SaleQuoteLineItemList from "../sale-quote-line-items-list"
 import { add, multiply } from "mathjs"
 
@@ -28,25 +28,35 @@ export default function SaleQuoteLineItemsTab({ saleQuote, items, requisitions }
   const lineItemsFullDetails = useMemo(() => {
     const fullDetailsItems =
       lineItems.map((li) => {
-        const selectedItem = items.find((item) => item.ItemCode == li.code)
-        const selectedReq = requisitions.find((req) => req.code == li.requisitionCode)
+        const selectedRequisition = requisitions.find((req) => req.code == li.requisitionCode)
+        const supplierQuote = selectedRequisition?.supplierQuotes.find((quote) => quote.code == li.supplierQuoteCode)
 
-        if (selectedItem && selectedReq) {
-          const unitPrice = parseFloat(String(li.unitPrice))
-          const quantity = parseFloat(String(li.quantity))
+        if (selectedRequisition && supplierQuote) {
+          const selectedItem = items.find((item) => item.ItemCode == li.code)
 
-          return {
-            ...li,
-            mpn: selectedItem.ItemCode,
-            mfr: selectedItem.FirmName,
-            cpn: selectedReq.customerPn,
-            name: selectedItem.ItemName,
-            dateCode: selectedReq.dateCode,
-            estimatedDeliveryDate: selectedReq.estimatedDeliveryDate,
-            unitPrice: isNaN(unitPrice) ? 0 : unitPrice,
-            quantity: isNaN(quantity) ? 0 : quantity,
-            source: selectedItem.source,
-            reqRequestedItems: (selectedReq.requestedItems as RequestedItemsJSONData) || [],
+          if (selectedItem) {
+            const unitPrice = parseFloat(String(li.unitPrice))
+            const quantity = parseFloat(String(li.quantity))
+
+            return {
+              requisitionCode: selectedRequisition.code,
+              supplierQuoteCode: supplierQuote.code,
+              code: selectedItem.ItemCode,
+              name: selectedItem.ItemName,
+              mpn: selectedItem.ItemCode,
+              mfr: selectedItem.FirmName,
+              cpn: selectedRequisition.customerPn,
+              source: selectedItem.source,
+              ltToSjcNumber: supplierQuote.ltToSjcNumber,
+              ltToSjcUom: supplierQuote.ltToSjcUom,
+              condition: supplierQuote.condition,
+              coo: supplierQuote.coo,
+              dateCode: supplierQuote.dateCode,
+              estimatedDeliveryDate: supplierQuote.estimatedDeliveryDate,
+              unitPrice: isNaN(unitPrice) ? 0 : unitPrice,
+              quantity: isNaN(quantity) ? 0 : quantity,
+              leadTime: li.leadTime,
+            }
           }
         }
 

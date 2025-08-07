@@ -42,6 +42,7 @@ export default function SupplierQuoteSummaryTab({ supplierQuote, items }: Suppli
   const contactedVia = SUPPLIER_QUOTE_CONTACTED_VIA_OPTIONS.find((item) => item.value === supplierQuote.contactedVia)?.label
   const ltToSjcNumber = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === supplierQuote.ltToSjcNumber)?.label
   const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === supplierQuote.ltToSjcUom)?.label
+  const estimatedDeliveryDate = supplierQuote.estimatedDeliveryDate ? format(supplierQuote.estimatedDeliveryDate, "MM-dd-yyyy") : ""
   const roHs = SUPPLIER_QUOTE_ROHS_OPTIONS.find((item) => item.value === supplierQuote.roHs)?.label
 
   const buyers = supplierQuote.buyers?.map((person) => person?.user?.name || person?.user?.email).filter(Boolean) || []
@@ -227,9 +228,11 @@ export default function SupplierQuoteSummaryTab({ supplierQuote, items }: Suppli
           </>
         )}
 
-        <ReadOnlyField className='col-span-12 md:col-span-6' title='LT to SJC (Number)' value={ltToSjcNumber || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-4' title='LT to SJC (Number)' value={ltToSjcNumber || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6' title='LT to SJC (UOM)' value={ltToSjcUom || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-4' title='LT to SJC (UOM)' value={ltToSjcUom || ""} />
+
+        <ReadOnlyField className='col-span-12 md:col-span-4' title='Estimated Delivery Date' value={estimatedDeliveryDate || ""} />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Date Code' value={supplierQuote.dateCode || ""} />
 

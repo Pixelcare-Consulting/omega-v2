@@ -5,6 +5,7 @@ import { Icons } from "@/components/icons"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import { formatCurrency, formatNumber } from "@/lib/formatter"
 import { LineItemForm } from "@/schema/sale-quote"
+import { SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS, SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS } from "@/schema/supplier-quote"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { multiply } from "mathjs"
@@ -13,69 +14,89 @@ export function getColumns(): ColumnDef<LineItemForm>[] {
   return [
     {
       accessorFn: (row) => {
-        const { mpn, mfr } = row
+        const { requisitionCode, supplierQuoteCode, name, mpn, mfr, cpn, source, condition, coo, dateCode, estimatedDeliveryDate } = row
+
+        const ltToSjcNumber = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === row.ltToSjcNumber)?.label
+        const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === row.ltToSjcUom)?.label
 
         let value = ""
-        if (mpn) value += ` ${mpn}`
-        if (mfr) value += ` ${mfr}`
-
-        return value
-      },
-      id: "mpn",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
-      enableSorting: false,
-      cell: ({ row }) => {
-        const { mpn, mfr, source, reqRequestedItems } = row.original
-
-        if (!mpn || source === "portal") return null
-
-        return (
-          <div className='flex min-w-[240px] flex-col justify-center gap-2'>
-            <span className='text-wrap text-xs text-muted-foreground'>{mpn}</span>
-            <div className='flex gap-1.5'>
-              <span className='font-semibold'>MPR:</span>
-              <span className='text-wrap text-xs text-muted-foreground'>{mfr}</span>
-            </div>
-          </div>
-        )
-      },
-    },
-    {
-      accessorFn: (row) => {
-        const { name, cpn, dateCode, estimatedDeliveryDate } = row
-
-        let value = ""
+        if (requisitionCode) value += ` ${requisitionCode}`
+        if (supplierQuoteCode) value += ` ${supplierQuoteCode}`
         if (name) value += ` ${name}`
         if (cpn) value += ` ${cpn}`
+        if (mpn) value += ` ${mpn}`
+        if (mfr) value += ` ${mfr}`
+        if (source) value += ` ${source}`
+        if (ltToSjcNumber) value += ` ${ltToSjcNumber}`
+        if (ltToSjcUom) value += ` ${ltToSjcUom}`
+        if (condition) value += ` ${condition}`
+        if (coo) value += ` ${coo}`
         if (dateCode) value += ` ${dateCode}`
         if (estimatedDeliveryDate) value += ` ${format(estimatedDeliveryDate, "MM/dd/yyyy")}`
 
         return value
       },
-      id: "description",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Description' />,
+      id: "reference",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Reference' />,
       enableSorting: false,
       cell: ({ row }) => {
-        const { requisitionCode, name, cpn, dateCode, estimatedDeliveryDate, source } = row.original
+        const { requisitionCode, supplierQuoteCode, mpn, mfr, name, cpn, source, condition, coo, dateCode, estimatedDeliveryDate } =
+          row.original
+
+        const ltToSjcNumber = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === row.original?.ltToSjcNumber)?.label
+        const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === row.original?.ltToSjcUom)?.label
 
         return (
-          <div className='flex min-w-[240px] flex-col justify-center gap-2'>
+          <div className='flex min-w-[200px] flex-col justify-center gap-2'>
+            <div className='flex gap-1.5'>
+              <span className='text-wrap font-semibold'>{mpn}</span>
+            </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>MPR:</span>
+              <span className='text-wrap text-muted-foreground'>{mfr}</span>
+            </div>
+
             <div className='flex gap-1.5'>
               <span className='font-semibold'>Requisition:</span>
-              <span className='text-xs text-muted-foreground'>{requisitionCode || ""}</span>
+              <span className='text-muted-foreground'>{requisitionCode || ""}</span>
             </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>Supplier Quote:</span>
+              <span className='text-muted-foreground'>{supplierQuoteCode || ""}</span>
+            </div>
+
             <div className='flex gap-1.5'>
               <span className='font-semibold'>CPN:</span>
-              <span className='text-xs text-muted-foreground'>{cpn || ""}</span>
+              <span className='text-muted-foreground'>{cpn || ""}</span>
             </div>
+
             <div className='flex gap-1.5'>
               <span className='font-semibold'>Desc:</span>
-              <span className='text-xs text-muted-foreground'>{name || ""}</span>
+              <span className='text-muted-foreground'>{name || ""}</span>
             </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>LT to SJC:</span>
+              <span className='text-muted-foreground'>{`${ltToSjcNumber || ""} ${ltToSjcUom || ""}`}</span>
+            </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>Condition:</span>
+              <span className='text-muted-foreground'>{condition || ""}</span>
+            </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>Coo:</span>
+              <span className='text-muted-foreground'>{coo || ""}</span>
+            </div>
+
             <div className='flex gap-1.5'>
               <span className='font-semibold'>DC:</span>
               <span className='text-xs text-muted-foreground'>{dateCode || ""}</span>
             </div>
+
             <div className='flex gap-1.5'>
               <span className='font-semibold'>Est. Del. Date:</span>
               <span className='text-xs text-muted-foreground'>
