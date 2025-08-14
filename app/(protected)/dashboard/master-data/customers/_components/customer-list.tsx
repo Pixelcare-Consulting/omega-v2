@@ -9,7 +9,8 @@ import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
 import { getBpMasters } from "@/actions/bp-master"
-import { SYNC_STATUSES_OPTIONS } from "@/constant/common"
+import { SOURCES_OPTIONS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
+import { BP_MASTER_CUSTOMER_STATUS_OPTIONS, BP_MASTER_CUSTOMER_TYPE_OPTIONS } from "@/schema/bp-master"
 
 type CustomersListsProps = {
   customers: Awaited<ReturnType<typeof getBpMasters>>
@@ -22,18 +23,36 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
     return [
       { label: "Customer", columnId: "customer", type: "text" },
       { label: "Group", columnId: "group name", type: "text" },
-      { label: "Contact Person", columnId: "contact person", type: "text" },
-      { label: "Phone", columnId: "phone", type: "text" },
-      { label: "Currency", columnId: "currency", type: "text" },
+      {
+        label: "Credit Hold",
+        columnId: "credit hold",
+        type: "select",
+        options: [
+          { label: "Yes", value: "yes" },
+          { label: "No", value: "no" },
+        ],
+      },
+      { label: "Type", columnId: "type", type: "select", options: BP_MASTER_CUSTOMER_TYPE_OPTIONS },
+      { label: "Status", columnId: "status", type: "select", options: BP_MASTER_CUSTOMER_STATUS_OPTIONS },
+      {
+        label: "Active",
+        columnId: "active",
+        type: "select",
+        options: [
+          { label: "Yes", value: "yes" },
+          { label: "No", value: "no" },
+        ],
+      },
+      { label: "Sales Employee", columnId: "sales employee", type: "text" },
+      { label: "BDR / Inside Sales Rep", columnId: "bdr inside sales rep", type: "text" },
+      { label: "Account Executive", columnId: "account executive", type: "text" },
+      { label: "Account Associate", columnId: "account associate", type: "text" },
       { label: "Sync Status", columnId: "sync status", type: "select", options: SYNC_STATUSES_OPTIONS },
       {
         label: "Source",
         columnId: "source",
         type: "select",
-        options: [
-          { label: "SAP", value: "sap" },
-          { label: "Portal", value: "portal" },
-        ],
+        options: SOURCES_OPTIONS,
       },
     ]
   }, [])

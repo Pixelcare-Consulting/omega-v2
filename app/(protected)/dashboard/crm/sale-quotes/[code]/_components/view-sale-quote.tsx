@@ -13,12 +13,13 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/badge"
 import { getInitials } from "@/lib/utils"
 import SaleQuoteSummaryTab from "./tabs/sale-quote-summary-tab"
-import SaleQuoteLineItemsTab from "./tabs/sale-quote-line-items.tab"
+import SaleQuoteLineItemsTab from "./tabs/sale-quote-line-items-tab"
+import SaleQuoteSupplierQuotesTab from "./tabs/sale-quote-supplier-quotes-tab"
 
 type ViewSaleQuoteProps = {
   saleQuote: NonNullable<Awaited<ReturnType<typeof getSaleQuoteByCode>>>
-  items: NonNullable<Awaited<ReturnType<typeof getItems>>>
-  requisitions: NonNullable<Awaited<ReturnType<typeof getRequisitions>>>
+  items: Awaited<ReturnType<typeof getItems>>
+  requisitions: Awaited<ReturnType<typeof getRequisitions>>
   paymentTerms?: any
 }
 
@@ -76,14 +77,19 @@ export default function ViewSaleQuote({ saleQuote, items, requisitions, paymentT
           <TabsList className='mb-2 h-fit flex-wrap'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
             <TabsTrigger value='2'>Line Items</TabsTrigger>
+            <TabsTrigger value='2'>Supplier Quotes</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
-            <SaleQuoteSummaryTab saleQuote={saleQuote} paymentTerms={paymentTerms} />
+            <SaleQuoteSummaryTab saleQuote={saleQuote} items={items} requisitions={requisitions} paymentTerms={paymentTerms} />
           </TabsContent>
 
           <TabsContent value='2'>
             <SaleQuoteLineItemsTab saleQuote={saleQuote} items={items} requisitions={requisitions} />
+          </TabsContent>
+
+          <TabsContent value='3'>
+            <SaleQuoteSupplierQuotesTab saleQuote={saleQuote} items={items} />
           </TabsContent>
         </Tabs>
       </div>

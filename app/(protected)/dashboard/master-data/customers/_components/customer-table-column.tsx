@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { getBpMasters } from "@/actions/bp-master"
 import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
+import { BP_MASTER_CUSTOMER_STATUS_OPTIONS, BP_MASTER_CUSTOMER_TYPE_OPTIONS } from "@/schema/bp-master"
 
 type CustomerData = Awaited<ReturnType<typeof getBpMasters>>[number]
 
@@ -34,30 +35,146 @@ export default function getColumns(): ColumnDef<CustomerData>[] {
       cell: ({ row }) => <Badge variant='soft-blue'>{row.original.GroupName || ""}</Badge>,
     },
     {
-      accessorKey: "CntctPrsn",
-      id: "contact person",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Contact Person' />,
-      cell: ({ row }) => <div>{row.original.CntctPrsn || ""}</div>,
+      accessorKey: "isCreditHold",
+      id: "credit hold",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Credit Hold' />,
+      cell: ({ row }) => (
+        <Badge variant={row.original.isCreditHold ? "soft-green" : "soft-red"}>{row.original.isCreditHold ? "Yes" : "No"}</Badge>
+      ),
     },
     {
-      accessorKey: "Phone1",
-      id: "phone",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Phone' />,
+      accessorKey: "type",
+      id: "type",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Type' />,
       cell: ({ row }) => {
-        if (!row.original.Phone1) return ""
-
-        return (
-          <Link href={`tel:${row.original.Phone1}`} className='text-slate-800 decoration-1 hover:underline'>
-            {row.original.Phone1}
-          </Link>
-        )
+        const type = row.original.type
+        const option = BP_MASTER_CUSTOMER_TYPE_OPTIONS.find((item) => item.value === type)
+        if (!option) return null
+        return <Badge variant='soft-blue'>{option.label}</Badge>
       },
     },
     {
-      accessorKey: "Currency",
-      id: "currency",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Currency' />,
-      cell: ({ row }) => <div>{row.original.Currency || ""}</div>,
+      accessorKey: "status",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Status' />,
+      cell: ({ row }) => {
+        const status = row.original.status
+        const option = BP_MASTER_CUSTOMER_STATUS_OPTIONS.find((item) => item.value === status)
+        if (!option) return null
+        return <Badge variant='soft-amber'>{option.label}</Badge>
+      },
+    },
+    {
+      accessorKey: "poHitRate",
+      id: "po hit rate",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='PO Hit Rate' />,
+      cell: ({ row }) => null,
+    },
+    {
+      accessorKey: "requisitionsForLast30Days",
+      id: "requisitions for last 30 days",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column}>
+          Requisitions <br /> for Last 30 Days
+        </DataTableColumnHeader>
+      ),
+      cell: ({ row }) => null,
+    },
+    {
+      accessorKey: "requisitionsForLast90Days",
+      id: "requisitions for last 90 days",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column}>
+          Requisitions <br /> for Last 90 Days
+        </DataTableColumnHeader>
+      ),
+      cell: ({ row }) => null,
+    },
+    {
+      accessorKey: "isActive",
+      id: "active",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Active' />,
+      cell: ({ row }) => <Badge variant={row.original.isActive ? "soft-green" : "soft-red"}>{row.original.isActive ? "Yes" : "No"}</Badge>,
+    },
+    {
+      accessorFn: (row) => row.salesEmployee?.name || row.salesEmployee?.email || "",
+      id: "sales employee",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Sales Employee' />,
+      cell: ({ row }) => {
+        const salesEmployee = row.original.salesEmployee
+        if (!salesEmployee) return null
+        return <div>{salesEmployee.name || salesEmployee.email}</div>
+      },
+    },
+    {
+      accessorFn: (row) => row.accountExecutive?.name || row.accountExecutive?.email || "",
+      id: "account executive",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Account Executive' />,
+      cell: ({ row }) => {
+        const accountExecutive = row.original.accountExecutive
+        if (!accountExecutive) return null
+        return <div>{accountExecutive.name || accountExecutive.email}</div>
+      },
+    },
+    {
+      accessorFn: (row) => row.accountAssociate?.name || row.accountAssociate?.email || "",
+      id: "account associate",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Account Associate' />,
+      cell: ({ row }) => {
+        const accountAssociate = row.original.accountAssociate
+        if (!accountAssociate) return null
+        return <div>{accountAssociate.name || accountAssociate.email}</div>
+      },
+    },
+    {
+      accessorFn: (row) => row.bdrInsideSalesRep?.name || row.bdrInsideSalesRep?.email || "",
+      id: "bdr inside sales rep",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column}>
+          BDR / <br /> Inside Sales Rep
+        </DataTableColumnHeader>
+      ),
+      cell: ({ row }) => {
+        const bdrInsideSalesRep = row.original.bdrInsideSalesRep
+        if (!bdrInsideSalesRep) return null
+        return <div>{bdrInsideSalesRep.name || bdrInsideSalesRep.email}</div>
+      },
+    },
+    {
+      accessorFn: (row) => row?.assignedExcessManagers?.map((person) => person?.user?.name || person?.user?.email).join(", ") || "",
+      id: "excess manager",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Excess Manager' />,
+      cell: ({ row }) => {
+        const excessManager = row.original?.assignedExcessManagers || []
+
+        if (!excessManager || excessManager.length < 1) return null
+
+        return (
+          <div className='min-w-[150px]'>
+            <span className='mr-2 w-fit text-xs text-muted-foreground'>
+              {/* //* Show the first 2 excess managers */}
+              {excessManager
+                .slice(0, 2)
+                .map((em) => em?.user.name || em?.user.email)
+                .join(", ")}
+
+              {excessManager.length > 2 && (
+                <ActionTooltipProvider
+                  label={excessManager
+                    .slice(2)
+                    .map((em) => em?.user.name || em?.user.email)
+                    .join(", ")}
+                >
+                  <div className='inline'>
+                    <Badge className='ml-1' variant='slate'>
+                      + {excessManager.slice(2).length}
+                    </Badge>
+                  </div>
+                </ActionTooltipProvider>
+              )}
+            </span>
+          </div>
+        )
+      },
     },
     {
       accessorKey: "syncStatus",
@@ -70,9 +187,7 @@ export default function getColumns(): ColumnDef<CustomerData>[] {
 
         if (!syncStatus || !label || !color) return null
 
-        const variant = `soft-${color}` as BadgeProps["variant"]
-
-        return <Badge variant={variant}>{label}</Badge>
+        return <Badge variant={color as BadgeProps["variant"]}>{label}</Badge>
       },
     },
     {

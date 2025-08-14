@@ -9,12 +9,14 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { getBpMasters } from "@/actions/bp-master"
 import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
-import { BP_MASTER_STATUS_OPTIONS } from "@/schema/bp-master"
+import { BP_MASTER_SUPPLIER_SCOPE_OPTIONS, BP_MASTER_SUPPLIER_STATUS_OPTIONS } from "@/schema/bp-master"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
+import { format } from "date-fns"
+import { dateFilter, dateSort } from "@/lib/data-table/data-table"
 
 type SupplierData = Awaited<ReturnType<typeof getBpMasters>>[number]
 
-export default function getColumns(): ColumnDef<SupplierData>[] {
+export default function getColumns(itemGroups?: any, manufacturers?: any): ColumnDef<SupplierData>[] {
   return [
     {
       accessorFn: (row) => `${row.CardName} ${row.CardCode}`,
@@ -35,39 +37,172 @@ export default function getColumns(): ColumnDef<SupplierData>[] {
       cell: ({ row }) => <Badge variant='soft-blue'>{row.original.GroupName || ""}</Badge>,
     },
     {
-      accessorKey: "CntctPrsn",
-      id: "contact person",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Contact Person' />,
-      cell: ({ row }) => <div>{row.original.CntctPrsn || ""}</div>,
-    },
-    {
-      accessorKey: "Phone1",
-      id: "phone",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Phone' />,
-      cell: ({ row }) => {
-        if (!row.original.Phone1) return ""
-
-        return (
-          <Link href={`tel:${row.original.Phone1}`} className='text-slate-800 decoration-1 hover:underline'>
-            {row.original.Phone1}
-          </Link>
-        )
-      },
-    },
-    {
-      accessorKey: "Currency",
-      id: "currency",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Currency' />,
-      cell: ({ row }) => <div>{row.original.Currency || ""}</div>,
-    },
-    {
       accessorKey: "status",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Status' />,
       cell: ({ row }) => {
         const status = row.original?.status
-        const label = BP_MASTER_STATUS_OPTIONS.find((item) => item.value === status)?.label
+        const label = BP_MASTER_SUPPLIER_STATUS_OPTIONS.find((item) => item.value === status)?.label
         if (!status || !label) return null
         return <Badge variant='soft-slate'>{label}</Badge>
+      },
+    },
+    {
+      accessorKey: "scope",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Scope' />,
+      cell: ({ row }) => {
+        const scope = row.original.scope
+        const option = BP_MASTER_SUPPLIER_SCOPE_OPTIONS.find((item) => item.value === scope)
+        if (!option) return null
+        return <div>{option.label}</div>
+      },
+    },
+    {
+      accessorKey: "availableExcess",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Available Excess' />,
+      cell: ({ row }) => null,
+    },
+    {
+      accessorKey: "percentageOfQuotedRfq",
+      id: "percentage of quoted Rfq",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column}>
+          Percentage of <br /> Quoted RFQ's
+        </DataTableColumnHeader>
+      ),
+      cell: ({ row }) => null,
+    },
+    {
+      accessorKey: "createdAt",
+      id: "date created",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Created At' />,
+      cell: ({ row }) => <div>{format(row.original.createdAt, "MM-dd-yyyy hh:mm a")}</div>,
+      filterFn: (row, columnId, filterValue, addMeta) => {
+        const createdAt = row.original.createdAt
+        const filterDateValue = new Date(filterValue)
+        return dateFilter(createdAt, filterDateValue)
+      },
+      sortingFn: (rowA, rowB, columnId) => {
+        const rowACreatedAt = rowA.original.createdAt
+        const rowBCreatedAt = rowB.original.createdAt
+        return dateSort(rowACreatedAt, rowBCreatedAt)
+      },
+    },
+    {
+      accessorKey: "assignedBuyer",
+      id: "assigned buyer",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Assigned Buyer' />,
+      cell: ({ row }) => {
+        const buyer = row.original.buyer
+        if (!buyer) return null
+        return <div>{buyer.name || buyer.email}</div>
+      },
+    },
+    {
+      accessorKey: "cancellationRate",
+      id: "cancellation rate",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Cancellation Rate' />,
+      cell: ({ row }) => null,
+    },
+    {
+      accessorKey: "poFailureRate",
+      id: "po failure rate",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='PO Failure Rate' />,
+      cell: ({ row }) => null,
+    },
+    {
+      accessorKey: "activities",
+      id: "activities",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Activities #' />,
+      cell: ({ row }) => null,
+    },
+    {
+      accessorFn: (row) => {
+        const values = row?.commodityStrengths || []
+
+        const commodityStrengths = (itemGroups
+          ?.filter((item: any) => values?.includes(item?.Number))
+          ?.map((item: any) => item?.GroupName || "")
+          .filter(Boolean) || []) as string[]
+
+        if (!commodityStrengths || commodityStrengths.length < 1) return ""
+
+        return commodityStrengths.join(", ")
+      },
+      id: "commodity strengths",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Commodity Strengths' />,
+      cell: ({ row }) => {
+        const values = row.original?.commodityStrengths || []
+
+        const commodityStrengths = (itemGroups
+          ?.filter((item: any) => values?.includes(item?.Number))
+          ?.map((item: any) => item?.GroupName || "")
+          .filter(Boolean) || []) as string[]
+
+        if (!commodityStrengths || commodityStrengths.length < 1) return null
+
+        return (
+          <div className='min-w-[150px]'>
+            <span className='mr-2 w-fit text-xs text-muted-foreground'>
+              {/* //* Show the first 2 commondity strengths */}
+              {commodityStrengths.slice(0, 5).join(", ")}
+
+              {commodityStrengths.length > 5 && (
+                <ActionTooltipProvider label={commodityStrengths.slice(2).join(", ")}>
+                  <div className='inline'>
+                    <Badge className='ml-1' variant='slate'>
+                      + {commodityStrengths.slice(5).length}
+                    </Badge>
+                  </div>
+                </ActionTooltipProvider>
+              )}
+            </span>
+          </div>
+        )
+      },
+    },
+    {
+      accessorFn: (row) => {
+        const values = row?.mfrStrengths || []
+
+        const mfrStrengths = (manufacturers
+          ?.filter((manufacturer: any) => values?.includes(manufacturer?.Code))
+          ?.map((manufacturer: any) => manufacturer?.ManufacturerName || "")
+          .filter(Boolean) || []) as string[]
+
+        if (!mfrStrengths || mfrStrengths.length < 1) return ""
+
+        return mfrStrengths.join(", ")
+      },
+      id: "mfr strengths",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='MFR Strengths' />,
+      cell: ({ row }) => {
+        const values = row.original?.mfrStrengths || []
+
+        const mfrStrengths = (manufacturers
+          ?.filter((manufacturer: any) => values?.includes(manufacturer?.Code))
+          ?.map((manufacturer: any) => manufacturer?.ManufacturerName || "")
+          .filter(Boolean) || []) as string[]
+
+        if (!mfrStrengths || mfrStrengths.length < 1) return null
+
+        return (
+          <div className='min-w-[150px]'>
+            <span className='mr-2 w-fit text-xs text-muted-foreground'>
+              {/* //* Show the first 2 mfr strengths */}
+              {mfrStrengths.slice(0, 5).join(", ")}
+
+              {mfrStrengths.length > 5 && (
+                <ActionTooltipProvider label={mfrStrengths.slice(2).join(", ")}>
+                  <div className='inline'>
+                    <Badge className='ml-1' variant='slate'>
+                      + {mfrStrengths.slice(5).length}
+                    </Badge>
+                  </div>
+                </ActionTooltipProvider>
+              )}
+            </span>
+          </div>
+        )
       },
     },
     {
@@ -81,9 +216,7 @@ export default function getColumns(): ColumnDef<SupplierData>[] {
 
         if (!syncStatus || !label || !color) return null
 
-        const variant = `soft-${color}` as BadgeProps["variant"]
-
-        return <Badge variant={variant}>{label}</Badge>
+        return <Badge variant={color as BadgeProps["variant"]}>{label}</Badge>
       },
     },
     {

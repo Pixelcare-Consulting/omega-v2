@@ -105,8 +105,9 @@ export function getColumns(): ColumnDef<LeadData>[] {
         const router = useRouter()
         const { executeAsync } = useAction(deleteLead)
         const [showConfirmation, setShowConfirmation] = useState(false)
+        const [showDropdown, setShowDropdown] = useState(false)
 
-        const { id, name } = row.original
+        const { id, name, status } = row.original
 
         async function handleDelete() {
           setShowConfirmation(false)
@@ -158,9 +159,21 @@ export function getColumns(): ColumnDef<LeadData>[] {
                 />
               </ActionTooltipProvider>
 
-              <ActionTooltipProvider label='More Options'>
-                <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
-              </ActionTooltipProvider>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <ActionTooltipProvider label='More Options'>
+                    <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
+                  </ActionTooltipProvider>
+                </DropdownMenuTrigger>
+
+                {status === "qualified" && (
+                  <DropdownMenuContent align='end'>
+                    <DropdownMenuItem onClick={() => router.push(`/dashboard/master-data/customers/add?leadId=${id}`)}>
+                      <Icons.arrowRight className='mr-2 size-4' /> Convert to Customer
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                )}
+              </DropdownMenu>
             </div>
 
             <AlertModal

@@ -32,7 +32,7 @@ export async function getSupplierQuoteByCode(code: number) {
     const result = await prisma.supplierQuote.findUnique({
       where: { code: code },
       include: {
-        requisition: true,
+        requisition: { include: { salesPersons: { include: { user: { select: { name: true, email: true } } } } } },
         supplier: { include: { buyer: { select: { name: true, email: true } } } },
         buyers: { include: { user: { select: { name: true, email: true } } } },
       },

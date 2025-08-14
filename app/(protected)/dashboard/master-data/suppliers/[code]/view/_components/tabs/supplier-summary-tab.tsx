@@ -1,25 +1,23 @@
 import { getBpMasterByCardCode } from "@/actions/bp-master"
-import { getUsers } from "@/actions/user"
 import { Badge, BadgeProps } from "@/components/badge"
 import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Card } from "@/components/ui/card"
 import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
 import {
-  BP_MASTER_AVL_STATUS_OPTIONS,
-  BP_MASTER_SCOPE_OPTIONS,
-  BP_MASTER_STATUS_OPTIONS,
-  BP_MASTER_WARRANY_PERIOD_OPTIONS,
+  BP_MASTER_SUPPLIER_AVL_STATUS_OPTIONS,
+  BP_MASTER_SUPPLIER_SCOPE_OPTIONS,
+  BP_MASTER_SUPPLIER_STATUS_OPTIONS,
+  BP_MASTER_SUPPLIER_WARRANY_PERIOD_OPTIONS,
 } from "@/schema/bp-master"
 
 type SupplierSummaryTabProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
   itemGroups?: any
   manufacturers?: any
-  users: Awaited<ReturnType<typeof getUsers>>
 }
 
-export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers, users }: SupplierSummaryTabProps) {
+export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers }: SupplierSummaryTabProps) {
   const commodityStrengths =
     itemGroups
       ?.filter((item: any) => supplier?.commodityStrengths?.includes(item?.Number))
@@ -32,12 +30,12 @@ export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers
       ?.map((manufacturer: any) => manufacturer?.ManufacturerName || "")
       .filter(Boolean) || []
 
-  const assignedBuyer = users.find((user: any) => user.id === supplier?.assignedBuyer)?.name
+  const buyer = supplier.buyer?.name || supplier.buyer?.email || ""
 
-  const avlStatus = BP_MASTER_AVL_STATUS_OPTIONS.find((item) => item.value === supplier?.avlStatus)?.label
-  const status = BP_MASTER_STATUS_OPTIONS.find((item) => item.value === supplier?.status)?.label
-  const scope = BP_MASTER_SCOPE_OPTIONS.find((item) => item.value === supplier?.scope)?.label
-  const warrantyPeriod = BP_MASTER_WARRANY_PERIOD_OPTIONS.find((item) => item.value === supplier?.warranyPeriod)?.label
+  const avlStatus = BP_MASTER_SUPPLIER_AVL_STATUS_OPTIONS.find((item) => item.value === supplier?.avlStatus)?.label
+  const status = BP_MASTER_SUPPLIER_STATUS_OPTIONS.find((item) => item.value === supplier?.status)?.label
+  const scope = BP_MASTER_SUPPLIER_SCOPE_OPTIONS.find((item) => item.value === supplier?.scope)?.label
+  const warrantyPeriod = BP_MASTER_SUPPLIER_WARRANY_PERIOD_OPTIONS.find((item) => item.value === supplier?.warranyPeriod)?.label
 
   const SyncStatus = ({ status }: { status: string }) => {
     const label = SYNC_STATUSES_OPTIONS.find((item) => item.value === status)?.label
@@ -59,7 +57,7 @@ export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Code' value={supplier.CardCode} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Supplier #' value={supplier?.accountNo || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Supplier Account #' value={supplier?.accountNo || ""} />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'
@@ -70,7 +68,7 @@ export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'
           title='Assigned Buyer'
-          value={assignedBuyer ? <Badge variant='soft-red'>{assignedBuyer}</Badge> : null}
+          value={buyer ? <Badge variant='soft-red'>{buyer}</Badge> : null}
         />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Phone' value={supplier?.Phone1 || ""} />

@@ -18,7 +18,7 @@ import {
 } from "@/schema/supplier-quote"
 import { REQUISITION_RESULT_OPTIONS } from "@/schema/requisition"
 import { Badge } from "@/components/badge"
-import { BP_MASTER_STATUS_OPTIONS } from "@/schema/bp-master"
+import { BP_MASTER_SUPPLIER_STATUS_OPTIONS } from "@/schema/bp-master"
 import { useMemo } from "react"
 import { multiply } from "mathjs"
 import { formatCurrency, formatNumber } from "@/lib/formatter"
@@ -30,7 +30,7 @@ type SupplierQuoteSummaryTabProps = {
 
 export default function SupplierQuoteSummaryTab({ supplierQuote, items }: SupplierQuoteSummaryTabProps) {
   const supplier = supplierQuote.supplier
-  const supplierStatus = BP_MASTER_STATUS_OPTIONS.find((item) => item.value === supplier.status)?.label
+  const supplierStatus = BP_MASTER_SUPPLIER_STATUS_OPTIONS.find((item) => item.value === supplier.status)?.label
 
   const requisition = supplierQuote.requisition
   const requisitionResult = REQUISITION_RESULT_OPTIONS.find((item) => item.value === requisition?.result)?.label

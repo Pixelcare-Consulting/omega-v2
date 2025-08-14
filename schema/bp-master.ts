@@ -2,14 +2,14 @@ import { z } from "zod"
 import { v4 as uuidv4 } from "uuid"
 import { addressFormSchema } from "./address"
 
-export const BP_MASTER_AVL_STATUS_OPTIONS = [
+export const BP_MASTER_SUPPLIER_AVL_STATUS_OPTIONS = [
   { label: "Approved", value: "approved" },
   { label: "Qualification in progress", value: "qualification-in-progress" },
   { label: "Denied", value: "denied" },
   { label: "Inactive", value: "inactive" },
 ]
 
-export const BP_MASTER_STATUS_OPTIONS = [
+export const BP_MASTER_SUPPLIER_STATUS_OPTIONS = [
   { label: "Approved", value: "approved" },
   { label: "Denied", value: "denied" },
   { label: "Provisional", value: "provisional" },
@@ -21,7 +21,7 @@ export const BP_MASTER_STATUS_OPTIONS = [
   { label: "Inactive", value: "inactive" },
 ]
 
-export const BP_MASTER_SCOPE_OPTIONS = [
+export const BP_MASTER_SUPPLIER_SCOPE_OPTIONS = [
   { label: "1 - MFR", value: "1-mfr" },
   { label: "1 - DIST", value: "1-dist" },
   { label: "2 - OEM", value: "2-oem" },
@@ -32,7 +32,7 @@ export const BP_MASTER_SCOPE_OPTIONS = [
   { label: "Logistics/Freight", value: "logistics-freight" },
 ]
 
-export const BP_MASTER_WARRANY_PERIOD_OPTIONS = [
+export const BP_MASTER_SUPPLIER_WARRANY_PERIOD_OPTIONS = [
   { label: "60 Days", value: "60-days" },
   { label: "90 Days", value: "90-days" },
   { label: "6 Months", value: "6-months" },
@@ -45,6 +45,28 @@ export const BP_MASTER_WARRANY_PERIOD_OPTIONS = [
   { label: "Lifetime", value: "lifetime" },
   { label: "180 days", value: "180-days" },
   { label: "360 days", value: "360-days" },
+]
+
+export const BP_MASTER_CUSTOMER_ACCOUNT_TYPE_OPTIONS = [
+  { label: "House", value: "house" },
+  { label: "Owned", value: "owned" },
+]
+
+export const BP_MASTER_CUSTOMER_TYPE_OPTIONS = [
+  { label: "OEM", value: "oem" },
+  { label: "CM", value: "cm" },
+  { label: "Broker/Disty", value: "broker-disty" },
+]
+
+export const BP_MASTER_CUSTOMER_STATUS_OPTIONS = [
+  { label: "Tier 1", value: "tier-1" },
+  { label: "Tier 2", value: "tier-2" },
+  { label: "Tier 3 (Prospect)", value: "tier-3-prospect" },
+  { label: "Prospect - Unassigned", value: "prospect-unassigned" },
+  { label: "Do Not Pursue", value: "do-not-pursue" },
+  { label: "Past", value: "past" },
+  { label: "Broker", value: "broker" },
+  { label: "Duplicate", value: "duplicate" },
 ]
 
 //* SAP form schema contains
@@ -73,13 +95,30 @@ export const bpSapFieldsSchema = z.object({
 export const bpPortalFieldsSchema = z
   .object({
     id: z.string().min(1, { message: "ID is required" }),
+
+    //* customer fields
+    accountType: z.string().nullish(),
+    type: z.string().min(1, { message: "Type is required" }),
+    industryType: z.string().nullish(),
+    isCreditHold: z.boolean(),
+    isWarehousingCustomer: z.boolean(),
+    assignedSalesEmployee: z.string().nullish(),
+    assignedBdrInsideSalesRep: z.string().nullish(),
+    assignedAccountExecutive: z.string().nullish(),
+    assignedAccountAssociate: z.string().nullish(),
+    assignedExcessManagers: z.array(z.string()).default([]),
+
+    //* comon fields
+    isActive: z.boolean(),
+    status: z.string().min(1, { message: "Status is required" }),
+
+    //* supplier fields
     accountNo: z.string().nullish(),
     assignedBuyer: z.string().nullable(),
     website: z.string().nullish(),
     commodityStrengths: z.array(z.coerce.number()).default([]),
     mfrStrengths: z.array(z.coerce.number()).default([]),
     avlStatus: z.string().nullish(),
-    status: z.string().min(1, { message: "Status is required" }),
     scope: z.string().min(1, { message: "Scope is required" }),
     isCompliantToAs: z.boolean(),
     isCompliantToItar: z.boolean(),

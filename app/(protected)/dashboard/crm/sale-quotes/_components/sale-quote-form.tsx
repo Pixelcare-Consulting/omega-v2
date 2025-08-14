@@ -67,7 +67,7 @@ export default function SaleQuoteForm({
 
   const values = useMemo(() => {
     if (salesQuote) {
-      const { salesRep, approval, ...data } = salesQuote
+      const { salesRep, approval, supplierQuotes, ...data } = salesQuote
       return {
         ...data,
         lineItems: [],
@@ -103,7 +103,7 @@ export default function SaleQuoteForm({
 
   const { executeAsync, isExecuting } = useAction(upsertSaleQuote)
 
-  const lineItemsForm = useForm({
+  const lineItemForm = useForm({
     mode: "onChange",
     values: {
       requisitionCode: 0,
@@ -127,8 +127,9 @@ export default function SaleQuoteForm({
   })
 
   const lineItems = useWatch({ control: form.control, name: "lineItems" })
-  const lineItemReqCode = useWatch({ control: lineItemsForm.control, name: "requisitionCode" })
+  const lineItemReqCode = useWatch({ control: lineItemForm.control, name: "requisitionCode" })
   const customerCode = useWatch({ control: form.control, name: "customerCode" })
+  const lineItemFormValues = useWatch({ control: lineItemForm.control })
 
   const columns = useMemo((): ColumnDef<LineItemForm>[] => {
     return [
@@ -407,7 +408,7 @@ export default function SaleQuoteForm({
   }
 
   const handleAddLineItem = async () => {
-    const isValid = await lineItemsForm.trigger()
+    const isValid = await lineItemForm.trigger()
 
     if (!isValid) {
       toast.error("Failed to add line item!")
@@ -415,10 +416,10 @@ export default function SaleQuoteForm({
     }
 
     const currentValues = form.getValues("lineItems") || []
-    const newValues = lineItemsForm.getValues()
+    const newValues = lineItemForm.getValues()
 
     form.setValue("lineItems", [...currentValues, newValues])
-    lineItemsForm.reset()
+    lineItemForm.reset()
     form.clearErrors("lineItems")
   }
 
@@ -431,7 +432,15 @@ export default function SaleQuoteForm({
       const selectedRequisition = requisitions?.find((req) => req.code == code)
 
       if (selectedRequisition) {
-        lineItemsForm.setValue("cpn", selectedRequisition.customerPn)
+        lineItemForm.setValue("cpn", selectedRequisition.customerPn)
+
+        const excludedFields = ["requisitionCode", "cpn"]
+
+        //* reset fields excluding requisition code & cpn
+        Object.entries(lineItemFormValues).forEach(([key, value]) => {
+          const lineItemKey = key as keyof typeof lineItemFormValues
+          if (!excludedFields.includes(lineItemKey)) lineItemForm.resetField(lineItemKey)
+        })
       }
     },
     [JSON.stringify(requisitions)]
@@ -447,19 +456,19 @@ export default function SaleQuoteForm({
         const unitPrice = parseFloat(String(supplierQuote?.quotedPrice))
         const quantity = parseFloat(String(supplierQuote?.quotedQuantity))
 
-        lineItemsForm.setValue("supplierQuoteCode", supplierQuote.code)
-        lineItemsForm.setValue("name", selectedItem.ItemName)
-        lineItemsForm.setValue("mpn", selectedItem.ItemCode)
-        lineItemsForm.setValue("mfr", selectedItem.FirmName)
-        lineItemsForm.setValue("source", selectedItem.source)
-        lineItemsForm.setValue("ltToSjcNumber", supplierQuote.ltToSjcNumber)
-        lineItemsForm.setValue("ltToSjcUom", supplierQuote.ltToSjcUom)
-        lineItemsForm.setValue("condition", supplierQuote.condition)
-        lineItemsForm.setValue("coo", supplierQuote.coo)
-        lineItemsForm.setValue("dateCode", supplierQuote.dateCode)
-        lineItemsForm.setValue("estimatedDeliveryDate", supplierQuote.estimatedDeliveryDate)
-        lineItemsForm.setValue("unitPrice", isNaN(unitPrice) ? 0 : unitPrice)
-        lineItemsForm.setValue("quantity", isNaN(quantity) ? 0 : quantity)
+        lineItemForm.setValue("supplierQuoteCode", supplierQuote.code)
+        lineItemForm.setValue("name", selectedItem.ItemName)
+        lineItemForm.setValue("mpn", selectedItem.ItemCode)
+        lineItemForm.setValue("mfr", selectedItem.FirmName)
+        lineItemForm.setValue("source", selectedItem.source)
+        lineItemForm.setValue("ltToSjcNumber", supplierQuote.ltToSjcNumber)
+        lineItemForm.setValue("ltToSjcUom", supplierQuote.ltToSjcUom)
+        lineItemForm.setValue("condition", supplierQuote.condition)
+        lineItemForm.setValue("coo", supplierQuote.coo)
+        lineItemForm.setValue("dateCode", supplierQuote.dateCode)
+        lineItemForm.setValue("estimatedDeliveryDate", supplierQuote.estimatedDeliveryDate)
+        lineItemForm.setValue("unitPrice", isNaN(unitPrice) ? 0 : unitPrice)
+        lineItemForm.setValue("quantity", isNaN(quantity) ? 0 : quantity)
       }
     },
     [JSON.stringify(items)]
@@ -650,7 +659,7 @@ export default function SaleQuoteForm({
           <div className='col-span-12 md:col-span-6'>
             <ComboboxField
               data={requisitionsOptions}
-              control={lineItemsForm.control}
+              control={lineItemForm.control}
               name='requisitionCode'
               label='Requisition'
               isRequired
@@ -674,7 +683,7 @@ export default function SaleQuoteForm({
           <div className='col-span-12 md:col-span-6'>
             <ComboboxField
               data={itemsOptions}
-              control={lineItemsForm.control}
+              control={lineItemForm.control}
               name='code'
               label='Item'
               description='Item/s from supplier quote related to the selected requisition.'
@@ -697,7 +706,7 @@ export default function SaleQuoteForm({
           </div>
 
           <div className='col-span-12 flex items-center justify-end gap-2'>
-            <Button variant='secondary' type='button' onClick={() => lineItemsForm.reset()}>
+            <Button variant='secondary' type='button' onClick={() => lineItemForm.reset()}>
               <Icons.x className='size-4' /> Clear
             </Button>
             <Button variant='outline-primary' type='button' onClick={handleAddLineItem}>

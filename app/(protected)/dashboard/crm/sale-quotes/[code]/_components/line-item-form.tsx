@@ -78,7 +78,6 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
   const itemCode = useWatch({ control: form.control, name: "code" })
   const unitPrice = useWatch({ control: form.control, name: "unitPrice" })
   const quantity = useWatch({ control: form.control, name: "quantity" })
-
   const formValues = useWatch({ control: form.control })
 
   const ltToSjcNumber = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === formValues?.ltToSjcNumber)?.label
@@ -132,9 +131,17 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
 
       if (selectedRequisition) {
         form.setValue("cpn", selectedRequisition.customerPn)
+
+        const excludedFields = ["requisitionCode", "cpn"]
+
+        //* reset fields excluding requisition code & cpn
+        Object.entries(formValues).forEach(([key, value]) => {
+          const lineItemKey = key as keyof typeof formValues
+          if (!excludedFields.includes(lineItemKey)) form.resetField(lineItemKey)
+        })
       }
     },
-    [JSON.stringify(requisitions)]
+    [JSON.stringify(requisitions), JSON.stringify(formValues)]
   )
 
   const itemCodeCallback = useCallback(

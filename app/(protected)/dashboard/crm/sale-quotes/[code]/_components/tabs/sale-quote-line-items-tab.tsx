@@ -19,7 +19,7 @@ import LineItemForm from "../line-item-form"
 type SaleQuoteLineItemsTabProps = {
   saleQuote: NonNullable<Awaited<ReturnType<typeof getSaleQuoteByCode>>>
   items: Awaited<ReturnType<typeof getItems>>
-  requisitions: NonNullable<Awaited<ReturnType<typeof getRequisitions>>>
+  requisitions: Awaited<ReturnType<typeof getRequisitions>>
 }
 
 //TODO: optimize dont fetch all requisitions and items, instead fetch only the record thats needed\

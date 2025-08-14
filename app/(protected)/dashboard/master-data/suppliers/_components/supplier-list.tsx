@@ -9,7 +9,8 @@ import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
 import { getBpMasters } from "@/actions/bp-master"
-import { SYNC_STATUSES_OPTIONS } from "@/constant/common"
+import { SOURCES_OPTIONS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
+import { BP_MASTER_SUPPLIER_SCOPE_OPTIONS } from "@/schema/bp-master"
 
 type SuppliersListsProps = {
   suppliers: Awaited<ReturnType<typeof getBpMasters>>
@@ -22,20 +23,14 @@ export default function SupplierLists({ suppliers }: SuppliersListsProps) {
     return [
       { label: "Supplier", columnId: "supplier", type: "text" },
       { label: "Group", columnId: "group name", type: "text" },
-      { label: "Contact Person", columnId: "contact person", type: "text" },
-      { label: "Phone", columnId: "phone", type: "text" },
-      { label: "Currency", columnId: "currency", type: "text" },
       { label: "Status", columnId: "status", type: "text" },
+      { label: "scope", columnId: "scope", type: "select", options: BP_MASTER_SUPPLIER_SCOPE_OPTIONS },
+      { label: "Date Created", columnId: "date created", type: "date" },
+      { label: "Assigned Buyer", columnId: "assigned buyer", type: "text" },
+      { label: "Commodity Strengths", columnId: "commodity strengths", type: "text" },
+      { label: "MFR Strengths", columnId: "mfr strengths", type: "text" },
       { label: "Sync Status", columnId: "sync status", type: "select", options: SYNC_STATUSES_OPTIONS },
-      {
-        label: "Source",
-        columnId: "source",
-        type: "select",
-        options: [
-          { label: "SAP", value: "sap" },
-          { label: "Portal", value: "portal" },
-        ],
-      },
+      { label: "Source", columnId: "source", type: "select", options: SOURCES_OPTIONS },
     ]
   }, [])
 

@@ -55,8 +55,13 @@ model User {
   saleQuoteSalesReps SaleQuote[] @relation("user-sales-rep-sale-quote")
   saleQuoteApprovals SaleQuote[] @relation("user-approval-sale-quote")
 
-  bpAssignedBuyers    BusinessPartner[]    @relation("user-assigned-buyers")
-  supplierQuoteBuyers SupplierQuoteBuyer[]
+  bpAssignedBuyers            BusinessPartner[]              @relation("user-assigned-buyers")
+  bpAssignedSalesEmployees    BusinessPartner[]              @relation("user-sales-employee")
+  bpAssignedBdrInsideSalesRep BusinessPartner[]              @relation("user-bdr-inside-sales-rep")
+  bpAssignedAccountExecutive  BusinessPartner[]              @relation("user-account-executive")
+  bpAssignedAccountAssociate  BusinessPartner[]              @relation("user-account-associate")
+  bpExcessManagers            BusinessPartnerExcessManager[] @relation("user-excess-managers")
+  supplierQuoteBuyers         SupplierQuoteBuyer[]
 }
 
 model Profile {
@@ -556,13 +561,29 @@ model BusinessPartner {
   CreateDate       String
   UpdateDate       String
 
+  //* customer fields (QB)
+  accountType               String?                        @default("")
+  type                      String                         @default("")
+  industryType              String?                        @default("")
+  isCreditHold              Boolean                        @default(false)
+  isWarehousingCustomer     Boolean                        @default(false)
+  assignedSalesEmployee     String?
+  assignedBdrInsideSalesRep String?
+  assignedAccountExecutive  String?
+  assignedAccountAssociate  String?
+  assignedExcessManagers    BusinessPartnerExcessManager[] @relation("bp-excess-managers")
+
+  //* common (QB)
+  status   String  @default("")
+  isActive Boolean @default(true)
+
+  //* supplier fields (QB)
   accountNo          String? @default("")
   assignedBuyer      String?
   website            String? @default("")
   commodityStrengths Int[]   @default([])
   mfrStrengths       Int[]   @default([])
   avlStatus          String? @default("")
-  status             String  @default("")
   scope              String  @default("")
   isCompliantToAs    Boolean @default(false)
   isCompliantToItar  Boolean @default(false)
@@ -595,13 +616,26 @@ model BusinessPartner {
   supplierQuotes SupplierQuote[]
   saleQuotes     SaleQuote[]
 
-  buyer User? @relation(name: "user-assigned-buyers", fields: [assignedBuyer], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  buyer             User? @relation(name: "user-assigned-buyers", fields: [assignedBuyer], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  salesEmployee     User? @relation(name: "user-sales-employee", fields: [assignedSalesEmployee], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  bdrInsideSalesRep User? @relation(name: "user-bdr-inside-sales-rep", fields: [assignedBdrInsideSalesRep], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  accountExecutive  User? @relation(name: "user-account-executive", fields: [assignedAccountExecutive], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  accountAssociate  User? @relation(name: "user-account-associate", fields: [assignedAccountAssociate], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model BusinessPartnerExcessManager {
+  bpCode String
+  userId String
+
+  businessPartner BusinessPartner @relation(name: "bp-excess-managers", fields: [bpCode], references: [CardCode], onUpdate: Cascade, onDelete: Cascade)
+  user            User            @relation(name: "user-excess-managers", fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@unique([bpCode, userId])
 }
 
 model Item {
   id         String  @id @default(uuid())
   BuyUnitMsr String? @default("")
-  CreateDate String
   FirmCode   Int?
   FirmName   String? @default("")
   ItemCode   String  @unique
@@ -609,6 +643,7 @@ model Item {
   ItmsGrpCod Int
   ItmsGrpNam String? @default("")
   ManBtchNum String
+  CreateDate String
   UpdateDate String
 
   source     String @default("portal")

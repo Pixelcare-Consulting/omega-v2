@@ -10,64 +10,56 @@ import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
 
 import { getBpMasterByCardCode, upsertBpMaster } from "@/actions/bp-master"
+import { getUsers } from "@/actions/user"
 import {
-  BP_MASTER_SUPPLIER_AVL_STATUS_OPTIONS,
+  BP_MASTER_CUSTOMER_ACCOUNT_TYPE_OPTIONS,
+  BP_MASTER_CUSTOMER_STATUS_OPTIONS,
+  BP_MASTER_CUSTOMER_TYPE_OPTIONS,
   BpMasterForm,
   bpMasterFormSchema,
-  BP_MASTER_SUPPLIER_SCOPE_OPTIONS,
-  BP_MASTER_SUPPLIER_STATUS_OPTIONS,
-  BP_MASTER_SUPPLIER_WARRANY_PERIOD_OPTIONS,
 } from "@/schema/bp-master"
 import { Form } from "@/components/ui/form"
 import InputField from "@/components/form/input-field"
 import { ComboboxField } from "@/components/form/combobox-field"
-import { getUsers } from "@/actions/user"
-import MultiSelectField from "@/components/form/multi-select-field"
-import ReadOnlyFieldHeader from "@/components/read-only-field-header"
-import { Separator } from "@/components/ui/separator"
 import SwitchField from "@/components/form/switch-field"
-import TextAreaField from "@/components/form/textarea-field"
+import MultiSelectField from "@/components/form/multi-select-field"
 import { Button } from "@/components/ui/button"
 import LoadingButton from "@/components/loading-button"
+import { Separator } from "@/components/ui/separator"
+import ReadOnlyFieldHeader from "@/components/read-only-field-header"
+import TextAreaField from "@/components/form/textarea-field"
+import { FormDebug } from "@/components/form/form-debug"
+import { getLeadById } from "@/actions/lead"
 
-type SupplierFormProps = {
-  supplier?: Awaited<ReturnType<typeof getBpMasterByCardCode>>
+type CustomerFormProps = {
+  customer?: Awaited<ReturnType<typeof getBpMasterByCardCode>>
   bpGroups?: any
   paymentTerms?: any
   currencies?: any
-  itemGroups?: any
-  manufacturers?: any
   users: Awaited<ReturnType<typeof getUsers>>
+  lead?: Awaited<ReturnType<typeof getLeadById>>
 }
 
-export default function SupplierForm({
-  supplier,
-  bpGroups,
-  currencies,
-  paymentTerms,
-  itemGroups,
-  manufacturers,
-  users,
-}: SupplierFormProps) {
+export default function CustomerForm({ customer, bpGroups, currencies, paymentTerms, users, lead }: CustomerFormProps) {
   const router = useRouter()
   const { code } = useParams() as { code: string }
 
-  const isCreate = code === "add" || !supplier
+  const isCreate = code === "add" || !customer
 
   const values = useMemo(() => {
-    if (supplier) {
+    if (customer) {
       return {
-        ...supplier,
+        ...customer,
         assignedExcessManagers: [],
       }
     }
 
-    if (code === "add" || !supplier) {
+    if (code === "add" || !customer) {
       return {
         //* SAP fields
         CardCode: "",
         CardName: "",
-        CardType: "S",
+        CardType: "C",
         CntctPrsn: null,
         CurrName: null,
         Currency: "",
@@ -133,7 +125,7 @@ export default function SupplierForm({
     }
 
     return undefined
-  }, [code, JSON.stringify(supplier)])
+  }, [code, JSON.stringify(customer)])
 
   const form = useForm({
     mode: "onChange",
@@ -141,11 +133,11 @@ export default function SupplierForm({
     resolver: zodResolver(bpMasterFormSchema),
   })
 
+  const { executeAsync, isExecuting } = useAction(upsertBpMaster)
+
   const groupCode = useWatch({ control: form.control, name: "GroupCode" })
   const paymentTermCode = useWatch({ control: form.control, name: "GroupNum" })
   const currencyCode = useWatch({ control: form.control, name: "Currency" })
-
-  const { executeAsync, isExecuting } = useAction(upsertBpMaster)
 
   const bpGroupsOptions = useMemo(() => {
     if (!bpGroups) return []
@@ -161,16 +153,6 @@ export default function SupplierForm({
     if (!currencies) return []
     return currencies.map((currency: any) => ({ label: currency.CurrName, value: currency.CurrCode }))
   }, [JSON.stringify(currencies)])
-
-  const itemGroupsOptions = useMemo(() => {
-    if (!itemGroups) return []
-    return itemGroups.map((group: any) => ({ label: group.GroupName, value: group.Number, group }))
-  }, [JSON.stringify(itemGroups)])
-
-  const manufacturersOptions = useMemo(() => {
-    if (!manufacturers) return []
-    return manufacturers.map((manufacturer: any) => ({ label: manufacturer.ManufacturerName, value: manufacturer.Code, manufacturer }))
-  }, [JSON.stringify(manufacturers)])
 
   const usersOptions = useMemo(() => {
     if (!users) return []
@@ -238,6 +220,24 @@ export default function SupplierForm({
     }
   }, [currencyCode, JSON.stringify(currenciesOptions)])
 
+  //* pre populate data based on lead
+  useEffect(() => {
+    if (lead) {
+      form.setValue("CardName", lead.name)
+      form.setValue("Phone1", lead.phone)
+      form.setValue("street", lead.street)
+      form.setValue("block", lead.block)
+      form.setValue("city", lead.city)
+      form.setValue("zipCode", lead.zipCode)
+      form.setValue("county", lead.county)
+      form.setValue("state", lead.state)
+      form.setValue("country", lead.country)
+      form.setValue("streetNo", lead.streetNo)
+      form.setValue("buildingFloorRoom", lead.buildingFloorRoom)
+      form.setValue("gln", lead.gln)
+    }
+  }, [JSON.stringify(lead)])
+
   return (
     <>
       {/* <FormDebug form={form} /> */}
@@ -259,12 +259,7 @@ export default function SupplierForm({
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='accountNo'
-              label='Account #'
-              extendedProps={{ inputProps: { placeholder: "Enter account #" } }}
-            />
+            <ComboboxField data={BP_MASTER_CUSTOMER_ACCOUNT_TYPE_OPTIONS} control={form.control} name='accountType' label='Account Type' />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
@@ -285,12 +280,41 @@ export default function SupplierForm({
             />
           </div>
 
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <ComboboxField data={BP_MASTER_CUSTOMER_TYPE_OPTIONS} control={form.control} name='type' label='Type' />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <ComboboxField data={BP_MASTER_CUSTOMER_STATUS_OPTIONS} control={form.control} name='status' label='Status' />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <InputField
+              control={form.control}
+              name='industryType'
+              label='Industry Type'
+              extendedProps={{ inputProps: { placeholder: "Enter industry type" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <ComboboxField data={paymentTermsOptions} control={form.control} name='GroupNum' label='Terms' />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <ComboboxField data={currenciesOptions} control={form.control} name='Currency' label='Currency' />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <InputField control={form.control} name='Phone1' label='Phone' extendedProps={{ inputProps: { placeholder: "Enter phone" } }} />
+          </div>
+
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <ComboboxField
               data={usersOptions}
               control={form.control}
-              name='assignedBuyer'
-              label='Assigned Byer'
+              name='assignedSalesEmployee'
+              label='Sales Employee'
               renderItem={(item, selected) => {
                 return (
                   <div className='flex flex-col justify-center'>
@@ -303,129 +327,95 @@ export default function SupplierForm({
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField control={form.control} name='Phone1' label='Phone' extendedProps={{ inputProps: { placeholder: "Enter phone" } }} />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
+            <ComboboxField
+              data={usersOptions}
               control={form.control}
-              name='website'
-              label='Website'
-              extendedProps={{ inputProps: { placeholder: "Enter website" } }}
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={currenciesOptions} control={form.control} name='Currency' label='Currency' />
-          </div>
-
-          <div className='col-span-12 md:col-span-6'>
-            <MultiSelectField
-              data={itemGroupsOptions}
-              control={form.control}
-              name='commodityStrengths'
-              label='Commodity Strengths'
+              name='assignedBdrInsideSalesRep'
+              label='BDR / Inside Sales Rep'
               renderItem={(item, selected) => {
                 return (
                   <div className='flex flex-col justify-center'>
                     <span>{item.label}</span>
-                    <span className='text-xs text-muted-foreground'>{item.group?.Number}</span>
+                    {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
                   </div>
                 )
               }}
             />
-          </div>
-
-          <div className='col-span-12 md:col-span-6'>
-            <MultiSelectField
-              data={manufacturersOptions}
-              control={form.control}
-              name='mfrStrengths'
-              label='MFR Strengths'
-              renderItem={(item, selected) => {
-                return (
-                  <div className='flex flex-col justify-center'>
-                    <span>{item.label}</span>
-                    <span className='text-xs text-muted-foreground'>{item.manufacturer?.Code}</span>
-                  </div>
-                )
-              }}
-            />
-          </div>
-
-          <div className='col-span-12 mt-2 space-y-4 lg:col-span-12'>
-            <Separator />
-
-            <ReadOnlyFieldHeader title='Qualification Data' description='Supplier qualification data' />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-            <ComboboxField data={BP_MASTER_SUPPLIER_AVL_STATUS_OPTIONS} control={form.control} name='avlStatus' label='AVL Status' />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-            <ComboboxField data={BP_MASTER_SUPPLIER_STATUS_OPTIONS} control={form.control} name='status' label='Status' isRequired />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-            <ComboboxField data={BP_MASTER_SUPPLIER_SCOPE_OPTIONS} control={form.control} name='scope' label='Scope' isRequired />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 md:mt-5 lg:col-span-3'>
-            <SwitchField
-              control={form.control}
-              layout='default'
-              name='isCompliantToAs'
-              label='Compliant to As'
-              description='Is this supplier compliant to As?'
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 md:mt-5 lg:col-span-3'>
-            <SwitchField
-              control={form.control}
-              layout='default'
-              name='isCompliantToItar'
-              label='Compliant to ITAR'
-              description='Is this supplier compliant to ITAR?'
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={paymentTermsOptions} control={form.control} name='GroupNum' label='Terms' />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <ComboboxField
-              data={BP_MASTER_SUPPLIER_WARRANY_PERIOD_OPTIONS}
+              data={usersOptions}
               control={form.control}
-              name='warranyPeriod'
-              label='Warranty Period'
+              name='assignedAccountExecutive'
+              label='Account Executive'
+              renderItem={(item, selected) => {
+                return (
+                  <div className='flex flex-col justify-center'>
+                    <span>{item.label}</span>
+                    {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
+                  </div>
+                )
+              }}
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6'>
-            <TextAreaField
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField
+              data={usersOptions}
               control={form.control}
-              name='omegaReviews'
-              label='Omega Reviews'
-              extendedProps={{ textAreaProps: { placeholder: "Enter omega reviews", rows: 5 } }}
+              name='assignedAccountAssociate'
+              label='Account Associate'
+              renderItem={(item, selected) => {
+                return (
+                  <div className='flex flex-col justify-center'>
+                    <span>{item.label}</span>
+                    {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
+                  </div>
+                )
+              }}
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6'>
-            <TextAreaField
+          <div className='col-span-12'>
+            <MultiSelectField
+              data={usersOptions}
               control={form.control}
-              name='qualificationNotes'
-              label='Qualification Notes'
-              extendedProps={{ textAreaProps: { placeholder: "Enter qualification notes", rows: 5 } }}
+              name='assignedExcessManagers'
+              label='Excess Managers'
+              renderItem={(item, selected) => {
+                return (
+                  <div className='flex flex-col justify-center'>
+                    <span>{item.label}</span>
+                    {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
+                  </div>
+                )
+              }}
             />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 md:mt-3 lg:col-span-4'>
+            <SwitchField
+              control={form.control}
+              layout='default'
+              name='isActive'
+              label='Active'
+              extendedProps={{ switchProps: { disabled: isCreate } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 md:mt-3 lg:col-span-4'>
+            <SwitchField control={form.control} layout='default' name='isCreditHold' label='Credit Hold' />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 md:mt-3 lg:col-span-4'>
+            <SwitchField control={form.control} layout='default' name='isWarehousingCustomer' label='Warehousing Customer' />
           </div>
 
           <div className='col-span-12 mt-2 space-y-4 lg:col-span-12'>
             <Separator />
 
-            <ReadOnlyFieldHeader title='Address Details' description='Supplier address details' />
+            <ReadOnlyFieldHeader title='Address Details' description='Customer address details' />
           </div>
 
           <div className='col-span-12'>
@@ -499,7 +489,7 @@ export default function SupplierForm({
           </div>
 
           <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>
-            <Button type='button' variant='secondary' onClick={() => router.push(`/dashboard/mater-data/suppliers`)}>
+            <Button type='button' variant='secondary' onClick={() => router.push(`/dashboard/mater-data/customers`)}>
               Cancel
             </Button>
             <LoadingButton isLoading={isExecuting} type='submit'>

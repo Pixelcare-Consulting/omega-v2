@@ -40,7 +40,7 @@ import { getItems } from "@/actions/item-master"
 import { multiply } from "mathjs"
 import { formatCurrency, formatNumber } from "@/lib/formatter"
 import { FormDebug } from "@/components/form/form-debug"
-import { BP_MASTER_STATUS_OPTIONS } from "@/schema/bp-master"
+import { BP_MASTER_SUPPLIER_STATUS_OPTIONS } from "@/schema/bp-master"
 import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
 import { REQUISITION_RESULT_OPTIONS } from "@/schema/requisition"
@@ -433,7 +433,7 @@ export default function SupplierQuoteForm({
             <FormItem className='space-y-2'>
               <FormLabel className='space-x-1'>Supplier - Status</FormLabel>
               <FormControl>
-                <Input disabled value={BP_MASTER_STATUS_OPTIONS.find((item) => item.value === supplier?.status)?.label || ""} />
+                <Input disabled value={BP_MASTER_SUPPLIER_STATUS_OPTIONS.find((item) => item.value === supplier?.status)?.label || ""} />
               </FormControl>
             </FormItem>
           </div>

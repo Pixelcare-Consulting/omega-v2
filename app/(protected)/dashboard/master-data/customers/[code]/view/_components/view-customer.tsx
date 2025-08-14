@@ -11,12 +11,21 @@ import UnderDevelopment from "@/components/under-development"
 import { getInitials } from "@/lib/utils"
 import CustomerSummaryTab from "./tabs/customer-summary-tab"
 import { getBpMasterByCardCode } from "@/actions/bp-master"
+import {
+  BP_MASTER_CUSTOMER_ACCOUNT_TYPE_OPTIONS,
+  BP_MASTER_CUSTOMER_STATUS_OPTIONS,
+  BP_MASTER_CUSTOMER_TYPE_OPTIONS,
+} from "@/schema/bp-master"
 
 type ViewCustomerProps = {
   customer: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
 }
 
 export default function ViewCustomer({ customer }: ViewCustomerProps) {
+  const accountType = BP_MASTER_CUSTOMER_ACCOUNT_TYPE_OPTIONS.find((item) => item.value === customer.accountType)?.label
+  const type = BP_MASTER_CUSTOMER_TYPE_OPTIONS.find((item) => item.value === customer.type)?.label
+  const status = BP_MASTER_CUSTOMER_STATUS_OPTIONS.find((item) => item.value === customer.status)?.label
+
   return (
     <PageWrapper
       title='Customer Details'
@@ -56,7 +65,7 @@ export default function ViewCustomer({ customer }: ViewCustomerProps) {
 
               <div className='flex flex-wrap items-center gap-2'>
                 <p className='text-sm text-muted-foreground'>{customer.CardCode}</p>
-                {customer?.GroupName && <Badge variant='soft-blue'>{customer?.GroupName}</Badge>}
+                {customer?.GroupName && <Badge variant='soft-slate'>{customer?.GroupName}</Badge>}
 
                 {customer.Phone1 && (
                   <div className='flex items-center gap-1'>
@@ -67,6 +76,12 @@ export default function ViewCustomer({ customer }: ViewCustomerProps) {
                   </div>
                 )}
 
+                {accountType && <Badge variant='soft-slate'>{accountType}</Badge>}
+
+                {type && <Badge variant='soft-blue'>{type}</Badge>}
+
+                {status && <Badge variant='soft-amber'>{status}</Badge>}
+
                 {customer?.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
               </div>
             </div>
@@ -76,8 +91,7 @@ export default function ViewCustomer({ customer }: ViewCustomerProps) {
         <Tabs defaultValue='1' className='w-full'>
           <TabsList className='mb-2 h-fit flex-wrap'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
-            <TabsTrigger value='2'>Requisitions</TabsTrigger>
-            <TabsTrigger value='3'>Quotations</TabsTrigger>
+            <TabsTrigger value='2'>Sales Quotes</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -85,14 +99,6 @@ export default function ViewCustomer({ customer }: ViewCustomerProps) {
           </TabsContent>
 
           <TabsContent value='2'>
-            <Card className='rounded-lg p-6 shadow-md'>
-              <div className='grid grid-cols-12 gap-5'>
-                <UnderDevelopment className='col-span-12 h-[40vh]' />
-              </div>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value='3'>
             <Card className='rounded-lg p-6 shadow-md'>
               <div className='grid grid-cols-12 gap-5'>
                 <UnderDevelopment className='col-span-12 h-[40vh]' />

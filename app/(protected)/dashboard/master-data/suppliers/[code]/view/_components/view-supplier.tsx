@@ -17,10 +17,9 @@ type ViewSupplierProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
   itemGroups?: any
   manufacturers?: any
-  users: Awaited<ReturnType<typeof getUsers>>
 }
 
-export default function ViewSupplier({ supplier, itemGroups, manufacturers, users }: ViewSupplierProps) {
+export default function ViewSupplier({ supplier, itemGroups, manufacturers }: ViewSupplierProps) {
   return (
     <PageWrapper
       title='Supplier Details'
@@ -85,7 +84,7 @@ export default function ViewSupplier({ supplier, itemGroups, manufacturers, user
           </TabsList>
 
           <TabsContent value='1'>
-            <SupplierSummaryTab supplier={supplier} itemGroups={itemGroups} manufacturers={manufacturers} users={users} />
+            <SupplierSummaryTab supplier={supplier} itemGroups={itemGroups} manufacturers={manufacturers} />
           </TabsContent>
 
           <TabsContent value='2'>

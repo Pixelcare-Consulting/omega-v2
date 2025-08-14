@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
 import { saleQuoteFormSchema, updateLineItemForm } from "@/schema/sale-quote"
+import { getSupplierQuoteByCode } from "./supplier-quote"
 
 export type LineItemsJSONData = {
   requisitionCode: number
@@ -32,7 +33,7 @@ export async function getSaleQuotes() {
 
 export async function getSaleQuoteByCode(code: number) {
   try {
-    return await prisma.saleQuote.findUnique({
+    const saleQuote = await prisma.saleQuote.findUnique({
       where: { code, deletedAt: null, deletedBy: null },
       include: {
         customer: true,
@@ -40,6 +41,14 @@ export async function getSaleQuoteByCode(code: number) {
         approval: { select: { name: true, email: true } },
       },
     })
+
+    const lineItems = (saleQuote?.lineItems || []) as LineItemsJSONData
+    const supplierQuotes = await Promise.all(lineItems.map((li) => getSupplierQuoteByCode(li.supplierQuoteCode))).then(data => data.filter(sq => sq !== null)) // prettier-ignore
+
+    return {
+      ...saleQuote,
+      supplierQuotes,
+    } as typeof saleQuote & { supplierQuotes: NonNullable<Awaited<ReturnType<typeof getSupplierQuoteByCode>>>[] }
   } catch (error) {
     console.error(error)
     return null
