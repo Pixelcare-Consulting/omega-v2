@@ -505,39 +505,6 @@ model SupplierQuoteBuyer {
   @@unique([supplierQuoteId, userId])
 }
 
-model Customer {
-  id                String  @id @default(uuid())
-  CardCode          String
-  CardName          String? @default("")
-  CardType          String? @default("")
-  GroupCode         String? @default("")
-  MailAddress       String? @default("")
-  MailZipCode       String? @default("")
-  Phone1            String? @default("")
-  ContactPerson     String? @default("")
-  PayTermsGrpCode   String? @default("")
-  Currency          String? @default("")
-  U_VendorCode      String? @default("")
-  U_OMEG_QBRelated  String? @default("")
-  street            String? @default("")
-  block             String? @default("")
-  city              String? @default("")
-  zipCode           String? @default("")
-  county            String? @default("")
-  state             String? @default("")
-  country           String? @default("")
-  streetNo          String? @default("")
-  buildingFloorRoom String? @default("")
-  gln               String? @default("")
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  createdBy String?
-  updatedBy String?
-  deletedBy String?
-}
-
 model BusinessPartner {
   id String @id @default(uuid())
 

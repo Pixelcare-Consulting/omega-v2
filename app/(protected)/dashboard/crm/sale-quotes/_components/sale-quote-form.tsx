@@ -424,8 +424,9 @@ export default function SaleQuoteForm({
     form.clearErrors("lineItems")
   }
 
-  const customerCodeCallback = () => {
+  const customerCodeCallback = (value?: number) => {
     form.setValue("lineItems", [])
+    form.setValue("paymentTerms", value ?? 0)
   }
 
   const requisitionCodeCallback = useCallback(
@@ -554,7 +555,7 @@ export default function SaleQuoteForm({
               name='customerCode'
               label='Company Name'
               isRequired
-              callback={customerCodeCallback}
+              callback={(args) => customerCodeCallback(args?.option?.customer?.GroupNum)}
               renderItem={(item, selected) => (
                 <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
                   <div className='flex w-[80%] flex-col justify-center'>
