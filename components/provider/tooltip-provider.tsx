@@ -17,7 +17,8 @@ export default function ActionTooltipProvider({
   ...props
 }: ActionTooltipProviderProps) {
   function renderLabel(label: string | React.ReactNode) {
-    if (typeof label === "string") return <p className={cn("text-sm font-medium capitalize", labelClassName)}>{label}</p>
+    if (typeof label === "string")
+      return <p className={cn("max-w-sm text-sm font-medium sm:max-w-md md:max-w-xl lg:max-w-2xl", labelClassName)}>{label}</p>
     return label
   }
 

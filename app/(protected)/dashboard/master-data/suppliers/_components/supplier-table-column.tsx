@@ -147,7 +147,7 @@ export default function getColumns(itemGroups?: any, manufacturers?: any): Colum
               {commodityStrengths.slice(0, 5).join(", ")}
 
               {commodityStrengths.length > 5 && (
-                <ActionTooltipProvider label={commodityStrengths.slice(2).join(", ")}>
+                <ActionTooltipProvider label={commodityStrengths.slice(5).join(", ")}>
                   <div className='inline'>
                     <Badge className='ml-1' variant='slate'>
                       + {commodityStrengths.slice(5).length}
@@ -192,7 +192,7 @@ export default function getColumns(itemGroups?: any, manufacturers?: any): Colum
               {mfrStrengths.slice(0, 5).join(", ")}
 
               {mfrStrengths.length > 5 && (
-                <ActionTooltipProvider label={mfrStrengths.slice(2).join(", ")}>
+                <ActionTooltipProvider label={mfrStrengths.slice(5).join(", ")}>
                   <div className='inline'>
                     <Badge className='ml-1' variant='slate'>
                       + {mfrStrengths.slice(5).length}
