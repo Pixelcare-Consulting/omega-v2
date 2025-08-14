@@ -65,7 +65,7 @@ export const upsertItem = action
         where: { ItemCode: data.ItemCode, ...(id && id !== "add" && { id: { not: id } }) },
       })
 
-      if (existingItem) return { error: true, status: 401, message: "Item code already exists!" }
+      if (existingItem) return { error: true, status: 401, message: "Code already exists!" }
 
       const isManageBatchNumbers = data?.ManBtchNum ? "Y" : "N"
 

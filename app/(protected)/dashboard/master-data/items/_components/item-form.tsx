@@ -111,7 +111,7 @@ export default function ItemForm({ item, itemGroups, manufacturers }: ItemFormPr
   useEffect(() => {
     if (groupCode !== undefined && groupCode !== null && groupCode !== 0) {
       const selectedGroup = itemGroupsOptions.find((group: any) => group.value == groupCode)
-      if (selectedGroup) form.setValue("ItmsGrpCod", selectedGroup?.label)
+      if (selectedGroup) form.setValue("ItmsGrpNam", selectedGroup?.label)
     }
   }, [groupCode, JSON.stringify(itemGroupsOptions)])
 
@@ -119,7 +119,7 @@ export default function ItemForm({ item, itemGroups, manufacturers }: ItemFormPr
   useEffect(() => {
     if (firmCode !== undefined && firmCode !== null && firmCode !== 0) {
       const selectedFirm = manufacturersOptions.find((firm: any) => firm.value == firmCode)
-      if (selectedFirm) form.setValue("FirmCode", selectedFirm?.label)
+      if (selectedFirm) form.setValue("FirmName", selectedFirm?.label)
     }
   }, [firmCode, JSON.stringify(manufacturersOptions)])
 

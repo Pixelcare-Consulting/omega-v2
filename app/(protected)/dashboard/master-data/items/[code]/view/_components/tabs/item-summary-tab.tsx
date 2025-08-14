@@ -44,6 +44,8 @@ export default function ItemSummaryTab({ item }: ItemSummaryTabProps) {
           value={item?.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
         />
 
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Unit of Measure' value={item?.BuyUnitMsr || ""} />
+
         <ReadOnlyFieldHeader
           className='col-span-12'
           title='Record Details'
