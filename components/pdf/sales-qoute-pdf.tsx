@@ -7,8 +7,6 @@ import { Page, Text, View, Document, StyleSheet, Font, Link } from "@react-pdf/r
 import { add, multiply } from "mathjs"
 import { useMemo, useState } from "react"
 
-import "react-pdf/dist/Page/AnnotationLayer.css"
-
 Font.register({
   family: "ArialNovaRegular",
   src: `${BASE_URL}/fonts/arial-nova/arial-nova-regular.ttf`,

@@ -1,6 +1,6 @@
 export const isProd = process.env.NODE_ENV === "production"
 
-export const BASE_URL = isProd ? "http://172.16.5.126:3000" : "http://localhost:3000"
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
 
 type SyncStatusOptions = { label: string; value: (typeof SYNC_STATUSES)[number] }[]
 type SyncStatusColors = { color: string; value: (typeof SYNC_STATUSES)[number] }[]
