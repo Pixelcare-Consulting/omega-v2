@@ -50,7 +50,7 @@ export default function getColumns(): ColumnDef<CustomerData>[] {
         const type = row.original.type
         const option = BP_MASTER_CUSTOMER_TYPE_OPTIONS.find((item) => item.value === type)
         if (!option) return null
-        return <Badge variant='soft-blue'>{option.label}</Badge>
+        return <Badge variant='soft-slate'>{option.label}</Badge>
       },
     },
     {

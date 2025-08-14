@@ -220,6 +220,14 @@ export default function CustomerForm({ customer, bpGroups, currencies, paymentTe
     }
   }, [currencyCode, JSON.stringify(currenciesOptions)])
 
+  //* set excess manager if data customer exist
+  useEffect(() => {
+    if (customer && usersOptions.length > 0) {
+      const selectedExcessManagers = customer.assignedExcessManagers?.map((excessManager) => excessManager?.userId) || []
+      form.setValue("assignedExcessManagers", selectedExcessManagers)
+    }
+  }, [JSON.stringify(customer)])
+
   //* pre populate data based on lead
   useEffect(() => {
     if (lead) {

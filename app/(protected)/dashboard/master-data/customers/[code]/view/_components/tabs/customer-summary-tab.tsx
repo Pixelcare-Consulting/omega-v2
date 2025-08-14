@@ -35,9 +35,7 @@ export default function CustomerSummaryTab({ customer }: CustomerSummaryTabProps
 
     if (!status || !label || !color) return null
 
-    const variant = `soft-${color}` as BadgeProps["variant"]
-
-    return <Badge variant={variant}>{label}</Badge>
+    return <Badge variant={color as BadgeProps["variant"]}>{label}</Badge>
   }
 
   return (
@@ -77,7 +75,7 @@ export default function CustomerSummaryTab({ customer }: CustomerSummaryTabProps
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Terms' value={customer?.PymntGroup || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Currency' value={customer?.Currency || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Currency' value={customer?.CurrName || ""} />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Phone' value={customer?.Phone1 || ""} />
 

@@ -43,9 +43,7 @@ export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers
 
     if (!status || !label || !color) return null
 
-    const variant = `soft-${color}` as BadgeProps["variant"]
-
-    return <Badge variant={variant}>{label}</Badge>
+    return <Badge variant={color as BadgeProps["variant"]}>{label}</Badge>
   }
 
   return (

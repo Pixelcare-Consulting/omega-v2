@@ -119,7 +119,7 @@ export const bpPortalFieldsSchema = z
     commodityStrengths: z.array(z.coerce.number()).default([]),
     mfrStrengths: z.array(z.coerce.number()).default([]),
     avlStatus: z.string().nullish(),
-    scope: z.string().min(1, { message: "Scope is required" }),
+    scope: z.string().nullish(),
     isCompliantToAs: z.boolean(),
     isCompliantToItar: z.boolean(),
     warranyPeriod: z.string().nullish(),
@@ -140,7 +140,20 @@ export const deleteBpMasterSchema = z.object({
 })
 
 //* Zod schema
-export const bpMasterFormSchema = z.object({}).merge(bpSapFieldsSchema).merge(bpPortalFieldsSchema)
+export const bpMasterFormSchema = z
+  .object({})
+  .merge(bpSapFieldsSchema)
+  .merge(bpPortalFieldsSchema)
+  .refine(
+    (formObj) => {
+      if (formObj.CardType === "S") {
+        if (!formObj.scope) return false
+        return true
+      }
+      return true
+    },
+    { message: "Scope is required", path: ["scope"] }
+  )
 
 //* Types
 export type BpMasterForm = z.infer<typeof bpMasterFormSchema>

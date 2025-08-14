@@ -30,7 +30,7 @@ export async function getBpMasters(cardType: string) {
             bdrInsideSalesRep: { select: { name: true, email: true } },
             accountExecutive: { select: { name: true, email: true } },
             accountAssociate: { select: { name: true, email: true } },
-            assignedExcessManagers: { select: { user: { select: { name: true, email: true } } } },
+            assignedExcessManagers: { include: { user: { select: { name: true, email: true } } } },
           },
         })
       },
@@ -54,7 +54,7 @@ export async function getBpMasterByCardCode(cardCode: string) {
         bdrInsideSalesRep: { select: { name: true, email: true } },
         accountExecutive: { select: { name: true, email: true } },
         accountAssociate: { select: { name: true, email: true } },
-        assignedExcessManagers: { select: { user: { select: { name: true, email: true } } } },
+        assignedExcessManagers: { include: { user: { select: { name: true, email: true } } } },
       },
     })
   } catch (error) {
@@ -123,7 +123,7 @@ export const upsertBpMaster = action
             //* update busines partner
             prisma.businessPartner.update({
               where: { CardCode: data.CardCode },
-              data: { ...data, updatedBy: userId },
+              data: { ...data, scope: data.scope || "", updatedBy: userId },
             }),
 
             //* delete existiong business partner (customer) excess managers
@@ -154,6 +154,7 @@ export const upsertBpMaster = action
         const newBpMaster = await prisma.businessPartner.create({
           data: {
             ...data,
+            scope: data.scope || "",
             createdBy: userId,
             updatedBy: userId,
             assignedExcessManagers: {

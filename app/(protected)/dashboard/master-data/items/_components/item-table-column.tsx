@@ -62,9 +62,7 @@ export default function getColumns(): ColumnDef<ItemData>[] {
 
         if (!syncStatus || !label || !color) return null
 
-        const variant = `soft-${color}` as BadgeProps["variant"]
-
-        return <Badge variant={variant}>{label}</Badge>
+        return <Badge variant={color as BadgeProps["variant"]}>{label}</Badge>
       },
     },
     {

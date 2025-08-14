@@ -65,7 +65,7 @@ export default function ViewCustomer({ customer }: ViewCustomerProps) {
 
               <div className='flex flex-wrap items-center gap-2'>
                 <p className='text-sm text-muted-foreground'>{customer.CardCode}</p>
-                {customer?.GroupName && <Badge variant='soft-slate'>{customer?.GroupName}</Badge>}
+                {customer?.GroupName && <Badge variant='soft-blue'>{customer?.GroupName}</Badge>}
 
                 {customer.Phone1 && (
                   <div className='flex items-center gap-1'>
@@ -78,7 +78,7 @@ export default function ViewCustomer({ customer }: ViewCustomerProps) {
 
                 {accountType && <Badge variant='soft-slate'>{accountType}</Badge>}
 
-                {type && <Badge variant='soft-blue'>{type}</Badge>}
+                {type && <Badge variant='soft-slate'>{type}</Badge>}
 
                 {status && <Badge variant='soft-amber'>{status}</Badge>}
 

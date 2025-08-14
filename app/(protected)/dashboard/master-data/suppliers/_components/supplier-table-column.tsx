@@ -74,7 +74,7 @@ export default function getColumns(itemGroups?: any, manufacturers?: any): Colum
     {
       accessorKey: "createdAt",
       id: "date created",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Created At' />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Date Created' />,
       cell: ({ row }) => <div>{format(row.original.createdAt, "MM-dd-yyyy hh:mm a")}</div>,
       filterFn: (row, columnId, filterValue, addMeta) => {
         const createdAt = row.original.createdAt
