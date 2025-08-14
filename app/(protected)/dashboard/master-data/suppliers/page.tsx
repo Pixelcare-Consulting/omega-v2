@@ -8,9 +8,16 @@ import { getBpMasters } from "@/actions/bp-master"
 import { getSyncMetaByCode } from "@/actions/sync-meta"
 import SupplierListHeader from "./_components/supplier-list-header"
 import { Icons } from "@/components/icons"
+import { getManufacturers } from "@/actions/manufacturer"
+import { getItemMasterGroups } from "@/actions/item-master"
 
 export default async function SuppliersPage() {
-  const [syncMeta, suppliers] = await Promise.all([getSyncMetaByCode("S"), getBpMasters("S")])
+  const [syncMeta, suppliers, itemGroups, manufacturers] = await Promise.all([
+    getSyncMetaByCode("S"),
+    getBpMasters("S"),
+    getItemMasterGroups(),
+    getManufacturers(),
+  ])
 
   return (
     <ContentLayout title='Suppliers'>
@@ -40,7 +47,7 @@ export default async function SuppliersPage() {
           )}
 
           <Card className='rounded-lg p-6 shadow-md'>
-            <SupplierLists suppliers={suppliers} />
+            <SupplierLists suppliers={suppliers} itemGroups={itemGroups?.value || []} manufacturers={manufacturers?.value || []} />
           </Card>
         </PageWrapper>
       </ContentContainer>

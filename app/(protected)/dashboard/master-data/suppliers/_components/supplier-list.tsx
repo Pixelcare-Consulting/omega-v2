@@ -14,10 +14,12 @@ import { BP_MASTER_SUPPLIER_SCOPE_OPTIONS } from "@/schema/bp-master"
 
 type SuppliersListsProps = {
   suppliers: Awaited<ReturnType<typeof getBpMasters>>
+  itemGroups?: any
+  manufacturers?: any
 }
 
-export default function SupplierLists({ suppliers }: SuppliersListsProps) {
-  const columns = useMemo(() => getColumns(), [])
+export default function SupplierLists({ suppliers, itemGroups, manufacturers }: SuppliersListsProps) {
+  const columns = useMemo(() => getColumns(itemGroups, manufacturers), [JSON.stringify(itemGroups), JSON.stringify(manufacturers)])
 
   const filterFields = useMemo((): FilterFields[] => {
     return [

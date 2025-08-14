@@ -185,14 +185,13 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
     async (formData: LineItemForm) => {
       try {
         let action: "create" | "update" = "create"
-        const isExist = lineItems.find((item) => item.code == formData.code)
         const newLineItems = [...lineItems]
 
-        if (isExist) {
+        if (lineItem) {
           action = "update"
 
           newLineItems.splice(
-            newLineItems.findIndex((item) => item.code == formData.code),
+            newLineItems.findIndex((item) => item.code == lineItem.code),
             1,
             formData
           )
@@ -217,7 +216,7 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
         toast.error("Something went wrong! Please try again later.")
       }
     },
-    [saleQuoteId, JSON.stringify(lineItems)]
+    [saleQuoteId, JSON.stringify(lineItems), JSON.stringify(lineItem)]
   )
 
   return (
