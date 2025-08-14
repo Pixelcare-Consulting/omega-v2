@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 
 import { getItemById, upsertItem } from "@/actions/item"
-import { type ItemForm, itemFormSchema } from "@/schema/item"
+import { type ItemForm, itemMasterFormSchema } from "@/schema/item-master"
 import { useAction } from "next-safe-action/hooks"
 import { PageLayout } from "@/app/(protected)/_components/page-layout"
 import { Form } from "@/components/ui/form"
@@ -70,7 +70,7 @@ export default function ItemForm({ item }: ItemFormProps) {
   const form = useForm({
     mode: "onChange",
     values,
-    resolver: zodResolver(itemFormSchema),
+    resolver: zodResolver(itemMasterFormSchema),
   })
 
   const { executeAsync, isExecuting } = useAction(upsertItem)

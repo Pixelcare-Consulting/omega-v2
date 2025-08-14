@@ -7,12 +7,16 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { getBpMasters } from "@/actions/bp-master"
+import { deleteBpMaster, getBpMasters } from "@/actions/bp-master"
 import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
 import { BP_MASTER_SUPPLIER_SCOPE_OPTIONS, BP_MASTER_SUPPLIER_STATUS_OPTIONS } from "@/schema/bp-master"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import { format } from "date-fns"
 import { dateFilter, dateSort } from "@/lib/data-table/data-table"
+import { useState } from "react"
+import { useAction } from "next-safe-action/hooks"
+import { toast } from "sonner"
+import AlertModal from "@/components/alert-modal"
 
 type SupplierData = Awaited<ReturnType<typeof getBpMasters>>[number]
 
@@ -234,8 +238,36 @@ export default function getColumns(itemGroups?: any, manufacturers?: any): Colum
       size: 80,
       cell: function ActionCell({ row }) {
         const router = useRouter()
+        const { executeAsync } = useAction(deleteBpMaster)
+        const [showConfirmation, setShowConfirmation] = useState(false)
 
         const { CardCode, source } = row.original
+
+        async function handleDelete() {
+          setShowConfirmation(false)
+
+          toast.promise(executeAsync({ code: CardCode, type: "S" }), {
+            loading: "Deleting supplier...",
+            success: (response) => {
+              const result = response?.data
+
+              if (!response || !result) throw { message: "Failed to delete supplier!", unExpectedError: true }
+
+              if (!result.error) {
+                setTimeout(() => {
+                  router.refresh()
+                }, 1500)
+
+                return result.message
+              }
+
+              throw { message: result.message, expectedError: true }
+            },
+            error: (err: Error & { expectedError: boolean }) => {
+              return err?.expectedError ? err.message : "Something went wrong! Please try again later."
+            },
+          })
+        }
 
         return (
           <>
@@ -257,12 +289,24 @@ export default function getColumns(itemGroups?: any, manufacturers?: any): Colum
               )}
 
               <ActionTooltipProvider label='Delete Supplier'>
-                <Icons.trash className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125' onClick={() => {}} />
+                <Icons.trash
+                  className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125'
+                  onClick={() => setShowConfirmation(true)}
+                />
               </ActionTooltipProvider>
 
               <ActionTooltipProvider label='More Options'>
                 <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
               </ActionTooltipProvider>
+
+              <AlertModal
+                isOpen={showConfirmation}
+                title='Are you sure?'
+                description={`Are you sure you want to delete this supplier (#${CardCode})?`}
+                onConfirm={handleDelete}
+                onConfirmText='Delete'
+                onCancel={() => setShowConfirmation(false)}
+              />
             </div>
           </>
         )

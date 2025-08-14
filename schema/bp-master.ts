@@ -111,6 +111,8 @@ export const bpPortalFieldsSchema = z
     //* comon fields
     isActive: z.boolean(),
     status: z.string().min(1, { message: "Status is required" }),
+    source: z.string().min(1, { message: "Source is required" }),
+    syncStatus: z.string().min(1, { message: "Sync status is required" }),
 
     //* supplier fields
     accountNo: z.string().nullish(),
@@ -125,8 +127,6 @@ export const bpPortalFieldsSchema = z
     warranyPeriod: z.string().nullish(),
     omegaReviews: z.string().nullish(),
     qualificationNotes: z.string().nullish(),
-    source: z.string().min(1, { message: "Source is required" }),
-    syncStatus: z.string().min(1, { message: "Sync status is required" }),
   })
   .merge(addressFormSchema)
 

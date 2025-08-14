@@ -8,7 +8,8 @@ import { getItemsByItemCode } from "@/actions/item-master"
 
 export default async function ViewItemPage({ params }: { params: { code: string } }) {
   const { code } = params
-  const item = !code ? null : await getItemsByItemCode({ itemCode: decodeURIComponent(code) })
+
+  const item = !code ? null : await getItemsByItemCode(decodeURIComponent(code))
 
   if (!item) notFound()
 

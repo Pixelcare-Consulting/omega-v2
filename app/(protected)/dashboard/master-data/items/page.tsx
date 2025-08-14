@@ -7,6 +7,7 @@ import ItemList from "./_components/item-list"
 import { getSyncMetaByCode } from "@/actions/sync-meta"
 import ItemListHeader from "./_components/item-list-header"
 import { getItems } from "@/actions/item-master"
+import { Icons } from "@/components/icons"
 
 export default async function ItemsPage() {
   const [syncMeta, items] = await Promise.all([getSyncMetaByCode("item"), getItems()])
@@ -23,7 +24,15 @@ export default async function ItemsPage() {
       />
 
       <ContentContainer>
-        <PageWrapper title='Items' description='Manage and track your items effectively'>
+        <PageWrapper
+          title='Items'
+          description='Manage and track your items effectively'
+          defaultAction={{
+            label: "Add Item",
+            href: "/dashboard/master-data/items/add",
+            icon: Icons.plus,
+          }}
+        >
           {syncMeta && (
             <Card className='rounded-lg p-6 shadow-md'>
               <ItemListHeader syncMeta={syncMeta} />

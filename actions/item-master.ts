@@ -3,6 +3,8 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { callSapServiceLayerApi } from "@/lib/sap-service-layer"
+import { paramsSchema } from "@/schema/common"
+import { deleteItemMasterSchema, itemMasterFormSchema } from "@/schema/item-master"
 import { isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
 
@@ -19,7 +21,7 @@ export async function getItems() {
 
     return await unstable_cache(
       async () => {
-        return prisma.item.findMany()
+        return prisma.item.findMany({ where: { deletedAt: null, deletedBy: null } })
       },
       [cacheKey],
       { tags: [cacheKey] }
@@ -29,9 +31,9 @@ export async function getItems() {
   }
 }
 
-export async function getItemsByItemCode({ itemCode }: { itemCode: string }) {
+export async function getItemsByItemCode(code: string) {
   try {
-    return await prisma.item.findUnique({ where: { ItemCode: itemCode } })
+    return await prisma.item.findUnique({ where: { ItemCode: code } })
   } catch (error) {
     console.error(error)
     return null
@@ -48,6 +50,91 @@ export async function getItemMasterGroups() {
     return []
   }
 }
+
+export const upsertItem = action
+  .use(authenticationMiddleware)
+  .schema(itemMasterFormSchema)
+  .action(async ({ ctx, parsedInput }) => {
+    const { id, ...data } = parsedInput
+    const { userId } = ctx
+
+    const cacheKey = "item-master"
+
+    try {
+      const existingItem = await prisma.item.findFirst({
+        where: { ItemCode: data.ItemCode, ...(id && id !== "add" && { id: { not: id } }) },
+      })
+
+      if (existingItem) return { error: true, status: 401, message: "Item code already exists!" }
+
+      const isManageBatchNumbers = data?.ManBtchNum ? "Y" : "N"
+
+      if (id && id != "add") {
+        const updatedItem = await prisma.item.update({
+          where: { id },
+          data: {
+            ...data,
+            ManBtchNum: isManageBatchNumbers,
+            updatedBy: userId,
+          },
+        })
+
+        revalidateTag(cacheKey)
+
+        return { status: 200, message: "Item updated successfully!", data: { item: updatedItem }, action: "UPSERT_ITEM" }
+      }
+
+      const newItem = await prisma.item.create({
+        data: {
+          ...data,
+          ManBtchNum: isManageBatchNumbers,
+          createdBy: userId,
+          updatedBy: userId,
+        },
+      })
+
+      revalidateTag(cacheKey)
+
+      return { status: 200, message: "Item created successfully!", data: { item: newItem }, action: "UPSERT_ITEM" }
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Something went wrong!",
+        action: "UPSERT_ITEM",
+      }
+    }
+  })
+
+export const deleteItem = action
+  .use(authenticationMiddleware)
+  .schema(deleteItemMasterSchema)
+  .action(async ({ ctx, parsedInput: data }) => {
+    try {
+      const cacheKey = "item-master"
+
+      const item = await prisma.item.findUnique({ where: { ItemCode: data.code } })
+
+      if (!item) return { status: 404, message: "Item not found!", action: "DELETE_ITEM" }
+
+      await prisma.item.update({ where: { ItemCode: data.code }, data: { deletedAt: new Date(), deletedBy: ctx.userId } })
+
+      revalidateTag(cacheKey)
+
+      return { status: 200, message: "Item deleted successfully!", action: "DELETE_ITEM" }
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Something went wrong!",
+        action: "DELETE_ITEM",
+      }
+    }
+  })
 
 export const syncItemMaster = action.use(authenticationMiddleware).action(async ({ ctx }) => {
   let success = false

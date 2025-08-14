@@ -606,7 +606,7 @@ model Item {
   FirmCode   Int?
   FirmName   String? @default("")
   ItemCode   String  @unique
-  ItemName   String
+  ItemName   String  @default("")
   ItmsGrpCod Int
   ItmsGrpNam String? @default("")
   ManBtchNum String
