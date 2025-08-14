@@ -28,6 +28,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Icons } from "@/components/icons"
 import { format } from "date-fns"
 import { SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS, SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS } from "@/schema/supplier-quote"
+import { FormDebug } from "@/components/form/form-debug"
 
 type LineItemFormProps = {
   saleQuoteId: string
@@ -43,27 +44,29 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
   const { setIsOpen, setData } = useDialogStore(["setIsOpen", "setData"])
   const [isOpenReference, setIsOpenReference] = useState(false)
 
+  const defaultValues = {
+    requisitionCode: 0,
+    supplierQuoteCode: 0,
+    code: "",
+    name: "",
+    mpn: "",
+    mfr: "",
+    cpn: "",
+    source: "",
+    ltToSjcNumber: "",
+    ltToSjcUom: "",
+    condition: "",
+    coo: "",
+    dateCode: "",
+    estimatedDeliveryDate: null,
+    unitPrice: 0,
+    quantity: 0,
+  }
+
   const values = useMemo(() => {
     if (lineItem) return lineItem
 
-    return {
-      requisitionCode: 0,
-      supplierQuoteCode: 0,
-      code: "",
-      name: "",
-      mpn: "",
-      mfr: "",
-      cpn: "",
-      source: "",
-      ltToSjcNumber: "",
-      ltToSjcUom: "",
-      condition: "",
-      coo: "",
-      dateCode: "",
-      estimatedDeliveryDate: null,
-      unitPrice: 0,
-      quantity: 0,
-    }
+    return defaultValues
   }, [JSON.stringify(lineItem)])
 
   const form = useForm({
@@ -135,13 +138,13 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
         const excludedFields = ["requisitionCode", "cpn"]
 
         //* reset fields excluding requisition code & cpn
-        Object.entries(formValues).forEach(([key, value]) => {
-          const lineItemKey = key as keyof typeof formValues
-          if (!excludedFields.includes(lineItemKey)) form.resetField(lineItemKey)
+        Object.entries(defaultValues).forEach(([key, value]) => {
+          const lineItemKey = key as keyof typeof defaultValues
+          if (!excludedFields.includes(lineItemKey)) form.setValue(lineItemKey, value)
         })
       }
     },
-    [JSON.stringify(requisitions), JSON.stringify(formValues)]
+    [JSON.stringify(requisitions)]
   )
 
   const itemCodeCallback = useCallback(
@@ -218,181 +221,185 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
   )
 
   return (
-    <Form {...form}>
-      <form className='grid grid-cols-12 gap-4' onSubmit={form.handleSubmit(onSubmit)}>
-        <div className='col-span-12'>
-          <Collapsible open={isOpenReference} onOpenChange={setIsOpenReference}>
-            <CollapsibleTrigger asChild>
-              <Button className='w-full justify-between px-0 hover:bg-transparent' type='button' variant='ghost'>
-                Reference
-                {isOpenReference ? <Icons.chevUp className='size-4' /> : <Icons.chevDown className='size-4' />}
-              </Button>
-            </CollapsibleTrigger>
+    <>
+      {/* <FormDebug form={form} /> */}
 
-            <CollapsibleContent>
-              <div className='flex flex-col justify-center gap-2 p-4 text-sm'>
-                <div className='flex gap-1.5'>
-                  <span className='text-wrap font-semibold'>{formValues.mpn}</span>
-                </div>
+      <Form {...form}>
+        <form className='grid grid-cols-12 gap-4' onSubmit={form.handleSubmit(onSubmit)}>
+          <div className='col-span-12'>
+            <Collapsible open={isOpenReference} onOpenChange={setIsOpenReference}>
+              <CollapsibleTrigger asChild>
+                <Button className='w-full justify-between px-0 hover:bg-transparent' type='button' variant='ghost'>
+                  Reference
+                  {isOpenReference ? <Icons.chevUp className='size-4' /> : <Icons.chevDown className='size-4' />}
+                </Button>
+              </CollapsibleTrigger>
 
-                <div className='flex gap-1.5'>
-                  <span className='font-semibold'>MPR:</span>
-                  <span className='text-wrap text-muted-foreground'>{formValues.mfr}</span>
-                </div>
-
-                <div className='flex gap-1.5'>
-                  <span className='font-semibold'>Requisition:</span>
-                  <span className='text-muted-foreground'>{formValues.requisitionCode || ""}</span>
-                </div>
-
-                <div className='flex gap-1.5'>
-                  <span className='font-semibold'>Supplier Quote:</span>
-                  <span className='text-muted-foreground'>{formValues.supplierQuoteCode || ""}</span>
-                </div>
-
-                <div className='flex gap-1.5'>
-                  <span className='font-semibold'>CPN:</span>
-                  <span className='text-muted-foreground'>{formValues.cpn || ""}</span>
-                </div>
-
-                <div className='flex gap-1.5'>
-                  <span className='font-semibold'>Desc:</span>
-                  <span className='text-muted-foreground'>{formValues.name || ""}</span>
-                </div>
-
-                <div className='flex gap-1.5'>
-                  <span className='font-semibold'>LT to SJC:</span>
-                  <span className='text-muted-foreground'>{`${ltToSjcNumber || ""} ${ltToSjcUom || ""}`}</span>
-                </div>
-
-                <div className='flex gap-1.5'>
-                  <span className='font-semibold'>Condition:</span>
-                  <span className='text-muted-foreground'>{formValues.condition || ""}</span>
-                </div>
-
-                <div className='flex gap-1.5'>
-                  <span className='font-semibold'>Coo:</span>
-                  <span className='text-muted-foreground'>{formValues.coo || ""}</span>
-                </div>
-
-                <div className='flex gap-1.5'>
-                  <span className='font-semibold'>DC:</span>
-                  <span className='text-muted-foreground'>{formValues.dateCode || ""}</span>
-                </div>
-
-                <div className='flex gap-1.5'>
-                  <span className='font-semibold'>Est. Del. Date:</span>
-                  <span className='text-muted-foreground'>
-                    {formValues.estimatedDeliveryDate ? format(formValues.estimatedDeliveryDate, "MM/dd/yyyy") : ""}
-                  </span>
-                </div>
-
-                <div className='flex gap-1.5'>
-                  <span className='font-semibold'>Source</span>
-                  <span className='text-muted-foreground'>
-                    {formValues.source === "sap" ? <Badge variant='soft-green'>SAP</Badge> : <Badge variant='soft-amber'>Portal</Badge>}
-                  </span>
-                </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
-
-        <div className='col-span-12 md:col-span-6'>
-          <ComboboxField
-            data={requisitionsOptions}
-            control={form.control}
-            name='requisitionCode'
-            label='Requisition'
-            isRequired
-            callback={(args) => requisitionCodeCallback(args?.option?.value)}
-            extendedProps={{ buttonProps: { disabled: !customerCode } }}
-            renderItem={(item, selected) => (
-              <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
-                <div className='flex w-[80%] flex-col justify-center'>
-                  <span className={cn("truncate", selected && "text-accent-foreground")}>{item?.requisition?.customer?.CardName}</span>
-                  {item?.requisition?.requestedItems?.length > 0 && (
-                    <span className='text-xs text-muted-foreground'>{item.requisition.requestedItems[0].code}</span>
-                  )}
-                </div>
-
-                <span className={cn("text-xs text-muted-foreground", selected && "text-accent-foreground")}>#{item?.value}</span>
-              </div>
-            )}
-          />
-        </div>
-
-        <div className='col-span-12 md:col-span-6'>
-          <ComboboxField
-            data={itemsOptions}
-            control={form.control}
-            name='code'
-            label='Item'
-            description='Item/s from supplier quote related to the selected requisition.'
-            isRequired
-            extendedProps={{ buttonProps: { disabled: !lineItemReqCode } }}
-            callback={(args) => itemCodeCallback(args?.option?.value, args?.option?.supplierQuote)}
-            renderItem={(item, selected, index) => {
-              return (
-                <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
-                  <div className='flex w-[75%] flex-col justify-center'>
-                    <span className={cn("truncate", selected && "text-accent-foreground")}>{item.label}</span>
-                    <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
+              <CollapsibleContent>
+                <div className='flex flex-col justify-center gap-2 p-4 text-sm'>
+                  <div className='flex gap-1.5'>
+                    <span className='text-wrap font-semibold'>{formValues.mpn}</span>
                   </div>
 
-                  {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>MPR:</span>
+                    <span className='text-wrap text-muted-foreground'>{formValues.mfr}</span>
+                  </div>
+
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>Requisition:</span>
+                    <span className='text-muted-foreground'>{formValues.requisitionCode || ""}</span>
+                  </div>
+
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>Supplier Quote:</span>
+                    <span className='text-muted-foreground'>{formValues.supplierQuoteCode || ""}</span>
+                  </div>
+
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>CPN:</span>
+                    <span className='text-muted-foreground'>{formValues.cpn || ""}</span>
+                  </div>
+
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>Desc:</span>
+                    <span className='text-muted-foreground'>{formValues.name || ""}</span>
+                  </div>
+
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>LT to SJC:</span>
+                    <span className='text-muted-foreground'>{`${ltToSjcNumber || ""} ${ltToSjcUom || ""}`}</span>
+                  </div>
+
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>Condition:</span>
+                    <span className='text-muted-foreground'>{formValues.condition || ""}</span>
+                  </div>
+
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>Coo:</span>
+                    <span className='text-muted-foreground'>{formValues.coo || ""}</span>
+                  </div>
+
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>DC:</span>
+                    <span className='text-muted-foreground'>{formValues.dateCode || ""}</span>
+                  </div>
+
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>Est. Del. Date:</span>
+                    <span className='text-muted-foreground'>
+                      {formValues.estimatedDeliveryDate ? format(formValues.estimatedDeliveryDate, "MM/dd/yyyy") : ""}
+                    </span>
+                  </div>
+
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>Source</span>
+                    <span className='text-muted-foreground'>
+                      {formValues.source === "sap" ? <Badge variant='soft-green'>SAP</Badge> : <Badge variant='soft-amber'>Portal</Badge>}
+                    </span>
+                  </div>
                 </div>
-              )
-            }}
-          />
-        </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
 
-        <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-          <InputField
-            control={form.control}
-            name='unitPrice'
-            label='Unit Price'
-            extendedProps={{ inputProps: { placeholder: "Enter unit price", type: "number", startContent: "$" } }}
-          />
-        </div>
+          <div className='col-span-12 md:col-span-6'>
+            <ComboboxField
+              data={requisitionsOptions}
+              control={form.control}
+              name='requisitionCode'
+              label='Requisition'
+              isRequired
+              callback={(args) => requisitionCodeCallback(args?.option?.value)}
+              extendedProps={{ buttonProps: { disabled: !customerCode } }}
+              renderItem={(item, selected) => (
+                <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
+                  <div className='flex w-[80%] flex-col justify-center'>
+                    <span className={cn("truncate", selected && "text-accent-foreground")}>{item?.requisition?.customer?.CardName}</span>
+                    {item?.requisition?.requestedItems?.length > 0 && (
+                      <span className='text-xs text-muted-foreground'>{item.requisition.requestedItems[0].code}</span>
+                    )}
+                  </div>
 
-        <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-          <InputField
-            control={form.control}
-            name='quantity'
-            label='Quantity'
-            extendedProps={{ inputProps: { placeholder: "Enter quantity", type: "number" } }}
-          />
-        </div>
+                  <span className={cn("text-xs text-muted-foreground", selected && "text-accent-foreground")}>#{item?.value}</span>
+                </div>
+              )}
+            />
+          </div>
 
-        <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-          <FormItem className='space-y-2'>
-            <FormLabel className='space-x-1'>Total Price</FormLabel>
-            <FormControl>
-              <Input disabled value={totalPrice} />
-            </FormControl>
-          </FormItem>
-        </div>
+          <div className='col-span-12 md:col-span-6'>
+            <ComboboxField
+              data={itemsOptions}
+              control={form.control}
+              name='code'
+              label='Item'
+              description='Item/s from supplier quote related to the selected requisition.'
+              isRequired
+              extendedProps={{ buttonProps: { disabled: !lineItemReqCode } }}
+              callback={(args) => itemCodeCallback(args?.option?.value, args?.option?.supplierQuote)}
+              renderItem={(item, selected, index) => {
+                return (
+                  <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
+                    <div className='flex w-[75%] flex-col justify-center'>
+                      <span className={cn("truncate", selected && "text-accent-foreground")}>{item.label}</span>
+                      <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
+                    </div>
 
-        <div className='col-span-12'>
-          <TextAreaField
-            control={form.control}
-            name='leadTime'
-            label='Lead Time'
-            isHideLabel
-            extendedProps={{ textAreaProps: { placeholder: "Enter lead time" } }}
-          />
-        </div>
+                    {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
+                  </div>
+                )
+              }}
+            />
+          </div>
 
-        <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>
-          <Button type='button' variant='secondary' disabled={isExecuting} onClick={handleClose}>
-            Cancel
-          </Button>
-          <LoadingButton isLoading={isExecuting} type='submit'>
-            Save
-          </LoadingButton>
-        </div>
-      </form>
-    </Form>
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <InputField
+              control={form.control}
+              name='unitPrice'
+              label='Unit Price'
+              extendedProps={{ inputProps: { placeholder: "Enter unit price", type: "number", startContent: "$" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <InputField
+              control={form.control}
+              name='quantity'
+              label='Quantity'
+              extendedProps={{ inputProps: { placeholder: "Enter quantity", type: "number" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <FormItem className='space-y-2'>
+              <FormLabel className='space-x-1'>Total Price</FormLabel>
+              <FormControl>
+                <Input disabled value={totalPrice} />
+              </FormControl>
+            </FormItem>
+          </div>
+
+          <div className='col-span-12'>
+            <TextAreaField
+              control={form.control}
+              name='leadTime'
+              label='Lead Time'
+              isHideLabel
+              extendedProps={{ textAreaProps: { placeholder: "Enter lead time" } }}
+            />
+          </div>
+
+          <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>
+            <Button type='button' variant='secondary' disabled={isExecuting} onClick={handleClose}>
+              Cancel
+            </Button>
+            <LoadingButton isLoading={isExecuting} type='submit'>
+              Save
+            </LoadingButton>
+          </div>
+        </form>
+      </Form>
+    </>
   )
 }

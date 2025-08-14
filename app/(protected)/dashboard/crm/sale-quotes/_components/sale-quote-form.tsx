@@ -103,33 +103,34 @@ export default function SaleQuoteForm({
 
   const { executeAsync, isExecuting } = useAction(upsertSaleQuote)
 
+  const lineItemDefaultValues: LineItemForm = {
+    requisitionCode: 0,
+    supplierQuoteCode: 0,
+    code: "",
+    name: "",
+    mpn: "",
+    mfr: "",
+    cpn: "",
+    source: "",
+    ltToSjcNumber: "",
+    ltToSjcUom: "",
+    condition: "",
+    coo: "",
+    dateCode: "",
+    estimatedDeliveryDate: null,
+    unitPrice: 0,
+    quantity: 0,
+  }
+
   const lineItemForm = useForm({
     mode: "onChange",
-    values: {
-      requisitionCode: 0,
-      supplierQuoteCode: 0,
-      code: "",
-      name: "",
-      mpn: "",
-      mfr: "",
-      cpn: "",
-      source: "",
-      ltToSjcNumber: "",
-      ltToSjcUom: "",
-      condition: "",
-      coo: "",
-      dateCode: "",
-      estimatedDeliveryDate: null,
-      unitPrice: 0,
-      quantity: 0,
-    },
+    values: lineItemDefaultValues,
     resolver: zodResolver(lineItemFormSchema),
   })
 
   const lineItems = useWatch({ control: form.control, name: "lineItems" })
   const lineItemReqCode = useWatch({ control: lineItemForm.control, name: "requisitionCode" })
   const customerCode = useWatch({ control: form.control, name: "customerCode" })
-  const lineItemFormValues = useWatch({ control: lineItemForm.control })
 
   const columns = useMemo((): ColumnDef<LineItemForm>[] => {
     return [
@@ -437,9 +438,9 @@ export default function SaleQuoteForm({
         const excludedFields = ["requisitionCode", "cpn"]
 
         //* reset fields excluding requisition code & cpn
-        Object.entries(lineItemFormValues).forEach(([key, value]) => {
-          const lineItemKey = key as keyof typeof lineItemFormValues
-          if (!excludedFields.includes(lineItemKey)) lineItemForm.resetField(lineItemKey)
+        Object.entries(lineItemDefaultValues).forEach(([key, value]) => {
+          const lineItemKey = key as keyof typeof lineItemDefaultValues
+          if (!excludedFields.includes(lineItemKey)) lineItemForm.setValue(lineItemKey, value)
         })
       }
     },
@@ -656,63 +657,65 @@ export default function SaleQuoteForm({
             <ReadOnlyFieldHeader title='Line Items' description='List of items sourced from the selected requisition.' />
           </div>
 
-          <div className='col-span-12 md:col-span-6'>
-            <ComboboxField
-              data={requisitionsOptions}
-              control={lineItemForm.control}
-              name='requisitionCode'
-              label='Requisition'
-              isRequired
-              callback={(args) => requisitionCodeCallback(args?.option?.value)}
-              extendedProps={{ buttonProps: { disabled: !customerCode } }}
-              renderItem={(item, selected) => (
-                <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
-                  <div className='flex w-[80%] flex-col justify-center'>
-                    <span className={cn("truncate", selected && "text-accent-foreground")}>{item?.requisition?.customer?.CardName}</span>
-                    {item?.requisition?.requestedItems?.length > 0 && (
-                      <span className='text-xs text-muted-foreground'>{item.requisition.requestedItems[0].code}</span>
-                    )}
-                  </div>
-
-                  <span className={cn("text-xs text-muted-foreground", selected && "text-accent-foreground")}>#{item?.value}</span>
-                </div>
-              )}
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6'>
-            <ComboboxField
-              data={itemsOptions}
-              control={lineItemForm.control}
-              name='code'
-              label='Item'
-              description='Item/s from supplier quote related to the selected requisition.'
-              isRequired
-              extendedProps={{ buttonProps: { disabled: !lineItemReqCode } }}
-              callback={(args) => itemCodeCallback(args?.option?.value, args?.option?.supplierQuote)}
-              renderItem={(item, selected, index) => {
-                return (
+          <Form {...lineItemForm}>
+            <div className='col-span-12 md:col-span-6'>
+              <ComboboxField
+                data={requisitionsOptions}
+                control={lineItemForm.control}
+                name='requisitionCode'
+                label='Requisition'
+                isRequired
+                callback={(args) => requisitionCodeCallback(args?.option?.value)}
+                extendedProps={{ buttonProps: { disabled: !customerCode } }}
+                renderItem={(item, selected) => (
                   <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
-                    <div className='flex w-[75%] flex-col justify-center'>
-                      <span className={cn("truncate", selected && "text-accent-foreground")}>{item.label}</span>
-                      <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
+                    <div className='flex w-[80%] flex-col justify-center'>
+                      <span className={cn("truncate", selected && "text-accent-foreground")}>{item?.requisition?.customer?.CardName}</span>
+                      {item?.requisition?.requestedItems?.length > 0 && (
+                        <span className='text-xs text-muted-foreground'>{item.requisition.requestedItems[0].code}</span>
+                      )}
                     </div>
 
-                    {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
+                    <span className={cn("text-xs text-muted-foreground", selected && "text-accent-foreground")}>#{item?.value}</span>
                   </div>
-                )
-              }}
-            />
-          </div>
+                )}
+              />
+            </div>
 
-          <div className='col-span-12 flex items-center justify-end gap-2'>
-            <Button variant='secondary' type='button' onClick={() => lineItemForm.reset()}>
-              <Icons.x className='size-4' /> Clear
-            </Button>
-            <Button variant='outline-primary' type='button' onClick={handleAddLineItem}>
-              <Icons.plus className='size-4' /> Add
-            </Button>
-          </div>
+            <div className='col-span-12 md:col-span-6'>
+              <ComboboxField
+                data={itemsOptions}
+                control={lineItemForm.control}
+                name='code'
+                label='Item'
+                description='Item/s from supplier quote related to the selected requisition.'
+                isRequired
+                extendedProps={{ buttonProps: { disabled: !lineItemReqCode } }}
+                callback={(args) => itemCodeCallback(args?.option?.value, args?.option?.supplierQuote)}
+                renderItem={(item, selected, index) => {
+                  return (
+                    <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
+                      <div className='flex w-[75%] flex-col justify-center'>
+                        <span className={cn("truncate", selected && "text-accent-foreground")}>{item.label}</span>
+                        <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
+                      </div>
+
+                      {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
+                    </div>
+                  )
+                }}
+              />
+            </div>
+
+            <div className='col-span-12 flex items-center justify-end gap-2'>
+              <Button variant='secondary' type='button' onClick={() => lineItemForm.reset()}>
+                <Icons.x className='size-4' /> Clear
+              </Button>
+              <Button variant='outline-primary' type='button' onClick={handleAddLineItem}>
+                <Icons.plus className='size-4' /> Add
+              </Button>
+            </div>
+          </Form>
 
           <div className='col-span-12'>
             <DataTable table={table}>

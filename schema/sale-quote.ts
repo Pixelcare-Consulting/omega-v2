@@ -2,8 +2,8 @@ import { z } from "zod"
 
 //* Zod schema
 export const lineItemFormSchema = z.object({
-  requisitionCode: z.coerce.number().min(1, { message: "Requisition code is required" }),
-  supplierQuoteCode: z.coerce.number().min(1, { message: "Supplier quote code is required" }),
+  requisitionCode: z.coerce.number().min(1, { message: "Requisitionis required" }),
+  supplierQuoteCode: z.coerce.number().min(1, { message: "Supplier quote is required" }),
   code: z.string().min(1, { message: "Item is required" }),
   name: z.string().nullish(),
   mpn: z.string().nullish(),

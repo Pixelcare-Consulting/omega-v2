@@ -77,7 +77,7 @@ export default function ViewSaleQuote({ saleQuote, items, requisitions, paymentT
           <TabsList className='mb-2 h-fit flex-wrap'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
             <TabsTrigger value='2'>Line Items</TabsTrigger>
-            <TabsTrigger value='2'>Supplier Quotes</TabsTrigger>
+            <TabsTrigger value='3'>Supplier Quotes</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
