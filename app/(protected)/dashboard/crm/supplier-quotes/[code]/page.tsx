@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { getBpMasterByCardCode, getBpMasters } from "@/actions/bp-master"
+import { getBpMasterByCardCode, getBpMasters } from "@/actions/master-bp"
 import { getRequisitions } from "@/actions/requisition"
 import { getSupplierQuoteByCode } from "@/actions/supplier-quote"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
@@ -14,7 +14,7 @@ import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Card } from "@/components/ui/card"
 import { getUsers } from "@/actions/user"
 import SupplierQuoteForm from "../_components/supplier-quote-form"
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 
 export default async function SupplierQuotePage({ params }: { params: { code: string } }) {
   const { code } = params

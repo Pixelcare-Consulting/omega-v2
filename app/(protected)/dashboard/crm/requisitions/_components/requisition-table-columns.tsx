@@ -20,7 +20,7 @@ import {
 import { useRouter } from "nextjs-toploader/app"
 import AlertModal from "@/components/alert-modal"
 import { useAction } from "next-safe-action/hooks"
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 import { dateFilter, dateSort } from "@/lib/data-table/data-table"
 
 type RequisitionData = Awaited<ReturnType<typeof getRequisitions>>[number]

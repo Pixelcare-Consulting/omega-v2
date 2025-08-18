@@ -7,7 +7,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import { Badge } from "@/components/badge"
 import { REQUISITION_PURCHASING_STATUS_OPTIONS, REQUISITION_RESULT_OPTIONS } from "@/schema/requisition"
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 import { formatCurrency, formatNumber } from "@/lib/formatter"
 import { SUPPLIER_QUOTE_STATUS_OPTIONS } from "@/schema/supplier-quote"
 import { multiply } from "mathjs"

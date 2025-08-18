@@ -11,8 +11,8 @@ import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import RequisitionForm from "../_components/requisition-form"
 import { getUsers } from "@/actions/user"
 import { getRequisitionByCode } from "@/actions/requisition"
-import { getBpMasters } from "@/actions/bp-master"
-import { getItems } from "@/actions/item-master"
+import { getBpMasters } from "@/actions/master-bp"
+import { getItems } from "@/actions/master-item"
 import { Card } from "@/components/ui/card"
 
 export default async function RequisitionPage({ params }: { params: { code: string } }) {

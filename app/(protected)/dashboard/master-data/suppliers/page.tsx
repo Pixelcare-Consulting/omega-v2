@@ -4,12 +4,12 @@ import Breadcrumbs from "@/components/breadcrumbs"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Card } from "@/components/ui/card"
 import SupplierLists from "./_components/supplier-list"
-import { getBpMasters } from "@/actions/bp-master"
+import { getBpMasters } from "@/actions/master-bp"
 import { getSyncMetaByCode } from "@/actions/sync-meta"
 import SupplierListHeader from "./_components/supplier-list-header"
 import { Icons } from "@/components/icons"
 import { getManufacturers } from "@/actions/manufacturer"
-import { getItemMasterGroups } from "@/actions/item-master"
+import { getItemMasterGroups } from "@/actions/master-item"
 
 export default async function SuppliersPage() {
   const [syncMeta, suppliers, itemGroups, manufacturers] = await Promise.all([

@@ -5,7 +5,7 @@ import { useAction } from "next-safe-action/hooks"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 import { updateLineItems } from "@/actions/sale-quote"
 import { Badge } from "@/components/badge"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"

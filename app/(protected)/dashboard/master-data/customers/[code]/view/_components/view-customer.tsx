@@ -10,12 +10,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import UnderDevelopment from "@/components/under-development"
 import { getInitials } from "@/lib/utils"
 import CustomerSummaryTab from "./tabs/customer-summary-tab"
-import { getBpMasterByCardCode } from "@/actions/bp-master"
+import { getBpMasterByCardCode } from "@/actions/master-bp"
 import {
   BP_MASTER_CUSTOMER_ACCOUNT_TYPE_OPTIONS,
   BP_MASTER_CUSTOMER_STATUS_OPTIONS,
   BP_MASTER_CUSTOMER_TYPE_OPTIONS,
-} from "@/schema/bp-master"
+} from "@/schema/master-bp"
 
 type ViewCustomerProps = {
   customer: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>

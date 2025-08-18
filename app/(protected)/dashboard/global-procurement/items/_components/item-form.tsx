@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 
 import { getItemById, upsertItem } from "@/actions/item"
-import { type ItemForm, itemMasterFormSchema } from "@/schema/item-master"
+import { type ItemForm, itemMasterFormSchema } from "@/schema/master-item"
 import { useAction } from "next-safe-action/hooks"
 import { PageLayout } from "@/app/(protected)/_components/page-layout"
 import { Form } from "@/components/ui/form"

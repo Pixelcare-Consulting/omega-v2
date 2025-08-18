@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 import { add, multiply } from "mathjs"
 
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 import { getRequisitions } from "@/actions/requisition"
 import { getSaleQuoteByCode, LineItemsJSONData } from "@/actions/sale-quote"
 import ReadOnlyField from "@/components/read-only-field"

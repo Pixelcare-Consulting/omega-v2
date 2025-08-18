@@ -3,7 +3,7 @@ import { getSupplierQuoteByCode } from "@/actions/supplier-quote"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Card } from "@/components/ui/card"
 import SaleQuoteSupplierQuotesList from "../sale-quote-supplier-quotes-list"
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 
 type SaleQuoteSupplierQuotesTabProps = {
   saleQuote: NonNullable<Awaited<ReturnType<typeof getSaleQuoteByCode>>>

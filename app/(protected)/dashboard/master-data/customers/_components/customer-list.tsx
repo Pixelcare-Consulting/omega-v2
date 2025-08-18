@@ -8,9 +8,9 @@ import { useDataTable } from "@/hooks/use-data-table"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
-import { getBpMasters } from "@/actions/bp-master"
+import { getBpMasters } from "@/actions/master-bp"
 import { SOURCES_OPTIONS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
-import { BP_MASTER_CUSTOMER_STATUS_OPTIONS, BP_MASTER_CUSTOMER_TYPE_OPTIONS } from "@/schema/bp-master"
+import { BP_MASTER_CUSTOMER_STATUS_OPTIONS, BP_MASTER_CUSTOMER_TYPE_OPTIONS } from "@/schema/master-bp"
 
 type CustomersListsProps = {
   customers: Awaited<ReturnType<typeof getBpMasters>>

@@ -4,8 +4,8 @@ import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import ViewSupplier from "./_components/view-supplier"
-import { getBpMasterByCardCode } from "@/actions/bp-master"
-import { getItemMasterGroups } from "@/actions/item-master"
+import { getBpMasterByCardCode } from "@/actions/master-bp"
+import { getItemMasterGroups } from "@/actions/master-item"
 import { getManufacturers } from "@/actions/manufacturer"
 
 export default async function ViewSupplierPage({ params }: { params: { code: string } }) {

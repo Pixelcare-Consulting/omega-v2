@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { useAction } from "next-safe-action/hooks"
 
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 import { getRequisitions } from "@/actions/requisition"
 import { updateLineItems } from "@/actions/sale-quote"
 import { type LineItemForm, lineItemFormSchema } from "@/schema/sale-quote"

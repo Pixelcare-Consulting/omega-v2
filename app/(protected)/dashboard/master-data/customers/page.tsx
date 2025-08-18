@@ -4,7 +4,7 @@ import Breadcrumbs from "@/components/breadcrumbs"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Card } from "@/components/ui/card"
 import CustomerLists from "./_components/customer-list"
-import { getBpMasters } from "@/actions/bp-master"
+import { getBpMasters } from "@/actions/master-bp"
 import { getSyncMetaByCode } from "@/actions/sync-meta"
 import CustomerListHeader from "./_components/customer-list-header"
 

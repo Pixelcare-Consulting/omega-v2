@@ -2,7 +2,7 @@
 
 import { useMemo } from "react"
 
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 import { getColumns } from "./requisition-supplier-quotes-table-column"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"

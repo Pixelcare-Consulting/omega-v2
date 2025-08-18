@@ -10,7 +10,7 @@ import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
 import LoadingButton from "@/components/loading-button"
 import { Icons } from "@/components/icons"
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 import { SYNC_STATUSES_OPTIONS } from "@/constant/common"
 
 type ItemListProps = {

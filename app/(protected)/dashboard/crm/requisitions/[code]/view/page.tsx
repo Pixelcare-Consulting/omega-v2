@@ -5,8 +5,8 @@ import ContentContainer from "@/app/(protected)/_components/content-container"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ViewRequisition from "./_components/view-requisition"
-import { getItems } from "@/actions/item-master"
-import { getBpMasters } from "@/actions/bp-master"
+import { getItems } from "@/actions/master-item"
+import { getBpMasters } from "@/actions/master-bp"
 import { getUsers } from "@/actions/user"
 
 export default async function ViewRequisitionPage({ params }: { params: { code: string } }) {

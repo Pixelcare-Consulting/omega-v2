@@ -4,7 +4,7 @@ import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import ViewCustomer from "./_components/view-customer"
-import { getBpMasterByCardCode } from "@/actions/bp-master"
+import { getBpMasterByCardCode } from "@/actions/master-bp"
 
 export default async function ViewCustomersPage({ params }: { params: { code: string } }) {
   const { code } = params

@@ -10,7 +10,7 @@ import { getInitials } from "@/lib/utils"
 
 import Link from "next/link"
 import ItemSummaryTab from "./tabs/item-summary-tab"
-import { getItemsByItemCode } from "@/actions/item-master"
+import { getItemsByItemCode } from "@/actions/master-item"
 
 type ViewItemProps = {
   item: NonNullable<Awaited<ReturnType<typeof getItemsByItemCode>>>

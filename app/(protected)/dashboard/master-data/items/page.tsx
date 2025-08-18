@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import ItemList from "./_components/item-list"
 import { getSyncMetaByCode } from "@/actions/sync-meta"
 import ItemListHeader from "./_components/item-list-header"
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 import { Icons } from "@/components/icons"
 
 export default async function ItemsPage() {

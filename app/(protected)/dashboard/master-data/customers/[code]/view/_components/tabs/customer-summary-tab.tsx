@@ -1,6 +1,6 @@
 import { format, parse } from "date-fns"
 
-import { getBpMasterByCardCode } from "@/actions/bp-master"
+import { getBpMasterByCardCode } from "@/actions/master-bp"
 import { Badge, BadgeProps } from "@/components/badge"
 import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
@@ -9,7 +9,7 @@ import {
   BP_MASTER_CUSTOMER_ACCOUNT_TYPE_OPTIONS,
   BP_MASTER_CUSTOMER_STATUS_OPTIONS,
   BP_MASTER_CUSTOMER_TYPE_OPTIONS,
-} from "@/schema/bp-master"
+} from "@/schema/master-bp"
 import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
 import { Separator } from "@/components/ui/separator"
 

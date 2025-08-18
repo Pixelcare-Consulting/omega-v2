@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { getBpMasters, getPaymentTerms } from "@/actions/bp-master"
+import { getBpMasters, getPaymentTerms } from "@/actions/master-bp"
 import { getRequisitions } from "@/actions/requisition"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
@@ -13,7 +13,7 @@ import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Card } from "@/components/ui/card"
 import { getUsers } from "@/actions/user"
 import SaleQuoteForm from "../_components/sale-quote-form"
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 
 import { getSaleQuoteByCode } from "@/actions/sale-quote"
 

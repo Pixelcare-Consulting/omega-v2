@@ -6,7 +6,7 @@ import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Card } from "@/components/ui/card"
 import { getSupplierQuotes } from "@/actions/supplier-quote"
 import SupplierQuoteList from "./_components/supplier-quote-list"
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 
 export default async function SupplierQuotesPage() {
   const [supplierQuotes, items] = await Promise.all([getSupplierQuotes(), getItems()])

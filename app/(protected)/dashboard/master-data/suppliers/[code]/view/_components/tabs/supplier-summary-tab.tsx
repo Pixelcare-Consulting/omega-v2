@@ -1,4 +1,4 @@
-import { getBpMasterByCardCode } from "@/actions/bp-master"
+import { getBpMasterByCardCode } from "@/actions/master-bp"
 import { Badge, BadgeProps } from "@/components/badge"
 import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
@@ -9,7 +9,7 @@ import {
   BP_MASTER_SUPPLIER_SCOPE_OPTIONS,
   BP_MASTER_SUPPLIER_STATUS_OPTIONS,
   BP_MASTER_SUPPLIER_WARRANY_PERIOD_OPTIONS,
-} from "@/schema/bp-master"
+} from "@/schema/master-bp"
 
 type SupplierSummaryTabProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>

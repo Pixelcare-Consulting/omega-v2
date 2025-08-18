@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { callSapServiceLayerApi } from "@/lib/sap-service-layer"
 import { paramsSchema } from "@/schema/common"
-import { deleteItemMasterSchema, itemMasterFormSchema } from "@/schema/item-master"
+import { deleteItemMasterSchema, itemMasterFormSchema } from "@/schema/master-item"
 import { isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
 

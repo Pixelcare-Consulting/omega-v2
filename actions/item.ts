@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
-import { itemMasterFormSchema } from "@/schema/item-master"
+import { itemMasterFormSchema } from "@/schema/master-item"
 
 export async function getItems() {
   try {

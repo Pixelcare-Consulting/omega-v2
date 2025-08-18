@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { callSapServiceLayerApi } from "@/lib/sap-service-layer"
-import { bpMasterFormSchema, BpPortalFields, BpSapFields, deleteBpMasterSchema, syncBpMasterSchema } from "@/schema/bp-master"
+import { bpMasterFormSchema, BpPortalFields, BpSapFields, deleteBpMasterSchema, syncBpMasterSchema } from "@/schema/master-bp"
 import { isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
 

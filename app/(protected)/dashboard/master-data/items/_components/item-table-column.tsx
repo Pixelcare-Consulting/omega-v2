@@ -6,7 +6,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { deleteItem, getItems } from "@/actions/item-master"
+import { deleteItem, getItems } from "@/actions/master-item"
 import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import { useAction } from "next-safe-action/hooks"

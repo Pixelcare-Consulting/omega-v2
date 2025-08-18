@@ -2,7 +2,7 @@
 
 import { format } from "date-fns"
 
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 import { getSupplierQuoteByCode } from "@/actions/supplier-quote"
 import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
@@ -18,7 +18,7 @@ import {
 } from "@/schema/supplier-quote"
 import { REQUISITION_RESULT_OPTIONS } from "@/schema/requisition"
 import { Badge } from "@/components/badge"
-import { BP_MASTER_SUPPLIER_STATUS_OPTIONS } from "@/schema/bp-master"
+import { BP_MASTER_SUPPLIER_STATUS_OPTIONS } from "@/schema/master-bp"
 import { useMemo } from "react"
 import { multiply } from "mathjs"
 import { formatCurrency, formatNumber } from "@/lib/formatter"

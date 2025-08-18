@@ -6,7 +6,7 @@ import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import RequisitionList from "./_components/requisition-list"
 import { getRequisitions } from "@/actions/requisition"
 import { Card } from "@/components/ui/card"
-import { getItems } from "@/actions/item-master"
+import { getItems } from "@/actions/master-item"
 
 export default async function RequisitionsPage() {
   const [requisitions, items] = await Promise.all([await getRequisitions(), await getItems()])

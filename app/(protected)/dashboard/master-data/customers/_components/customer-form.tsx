@@ -9,7 +9,7 @@ import { format } from "date-fns"
 import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
 
-import { getBpMasterByCardCode, upsertBpMaster } from "@/actions/bp-master"
+import { getBpMasterByCardCode, upsertBpMaster } from "@/actions/master-bp"
 import { getUsers } from "@/actions/user"
 import {
   BP_MASTER_CUSTOMER_ACCOUNT_TYPE_OPTIONS,
@@ -17,7 +17,7 @@ import {
   BP_MASTER_CUSTOMER_TYPE_OPTIONS,
   BpMasterForm,
   bpMasterFormSchema,
-} from "@/schema/bp-master"
+} from "@/schema/master-bp"
 import { Form } from "@/components/ui/form"
 import InputField from "@/components/form/input-field"
 import { ComboboxField } from "@/components/form/combobox-field"

@@ -8,7 +8,7 @@ import { getSyncMetaByCode } from "@/actions/sync-meta"
 import { Icons } from "@/components/icons"
 import LoadingButton from "@/components/loading-button"
 import { useAction } from "next-safe-action/hooks"
-import { syncBpMaster } from "@/actions/bp-master"
+import { syncBpMaster } from "@/actions/master-bp"
 
 type CustomerListHeaderProps = {
   syncMeta: NonNullable<Awaited<ReturnType<typeof getSyncMetaByCode>>>
