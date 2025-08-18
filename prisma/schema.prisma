@@ -261,7 +261,9 @@ model Lead {
   accountId         String?
   status            String   @default("")
   isFavorite        Boolean  @default(false)
-  street            String?  @default("")
+  street1           String?  @default("")
+  street2           String?  @default("")
+  street3           String?  @default("")
   block             String?  @default("")
   city              String?  @default("")
   zipCode           String?  @default("")
@@ -525,8 +527,11 @@ model BusinessPartner {
   PymntGroup       String?
   U_OMEG_QBRelated String? @default("")
   U_VendorCode     String? @default("")
-  CreateDate       String
-  UpdateDate       String
+  ShipToDef        String? //TODO: add to API - inform Chris
+  BillToDef        String? //TODO: add to API - inform Chris
+
+  CreateDate String
+  UpdateDate String
 
   //* customer fields (QB)
   accountType               String?                        @default("")
@@ -541,8 +546,10 @@ model BusinessPartner {
   assignedExcessManagers    BusinessPartnerExcessManager[] @relation("bp-excess-managers")
 
   //* common (QB)
-  status   String  @default("")
-  isActive Boolean @default(true)
+  status     String  @default("")
+  isActive   Boolean @default(true)
+  source     String  @default("portal")
+  syncStatus String  @default("pending")
 
   //* supplier fields (QB)
   accountNo          String? @default("")
@@ -557,20 +564,6 @@ model BusinessPartner {
   warranyPeriod      String? @default("")
   omegaReviews       String? @default("")
   qualificationNotes String? @default("")
-  source             String  @default("portal")
-  syncStatus         String  @default("pending")
-
-  //* address
-  street            String? @default("")
-  block             String? @default("")
-  city              String? @default("")
-  zipCode           String? @default("")
-  county            String? @default("")
-  state             String? @default("")
-  country           String? @default("")
-  streetNo          String? @default("")
-  buildingFloorRoom String? @default("")
-  gln               String? @default("")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -631,6 +624,55 @@ model Item {
   updatedBy String?
   deletedBy String?
 }
+
+model Address {
+  id         String  @id //* ID - prefix wit "A"
+  CardCode   String
+  AddrType   String //TODO: add to API - inform Chris
+  Street     String? @default("")
+  Address2   String? @default("")
+  Address3   String? @default("")
+  Block      String? @default("")
+  City       String? @default("")
+  ZipCode    String? @default("")
+  County     String? @default("")
+  State      String?
+  Country    String?
+  StreetNo   String? @default("")
+  Building   String? @default("")
+  GlblLocNum String? @default("")
+
+  CreateDate String
+  source     String @default("portal")
+  syncStatus String @default("pending")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+}
+
+// model Contact {
+//   id         String  @id //* ID - prefix wit "CO"
+//   CardCode   String
+//   FirstName  String
+//   LastName   String
+//   Title      String? @default("")
+//   Position   String? @default("")
+//   Cellolar   String? @default("")
+//   E_MailL    String? @default("")
+//   CreateDate String
+//   UpdateDate String
+
+//   createdAt DateTime  @default(now())
+//   updatedAt DateTime  @updatedAt
+//   deletedAt DateTime?
+//   createdBy String?
+//   updatedBy String?
+//   deletedBy String?
+// }
 
 //* synchronization metadata table
 model SyncMeta {

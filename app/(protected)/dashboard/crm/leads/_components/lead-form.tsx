@@ -62,7 +62,9 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId 
         status: "new-lead",
         accountId: null,
         relatedContacts: [],
-        street: "",
+        street1: "",
+        street2: "",
+        street3: "",
         block: "",
         city: "",
         zipCode: "",
@@ -224,16 +226,34 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId 
             </div>
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12'>
             <TextAreaField
               control={form.control}
-              name='street'
+              name='street1'
               label='Street'
-              extendedProps={{ textAreaProps: { placeholder: "Enter street" } }}
+              extendedProps={{ textAreaProps: { placeholder: "Enter street 1" } }}
             />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12'>
+            <TextAreaField
+              control={form.control}
+              name='street2'
+              label='Street'
+              extendedProps={{ textAreaProps: { placeholder: "Enter street 2" } }}
+            />
+          </div>
+
+          <div className='col-span-12'>
+            <TextAreaField
+              control={form.control}
+              name='street3'
+              label='Street'
+              extendedProps={{ textAreaProps: { placeholder: "Enter street 3" } }}
+            />
+          </div>
+
+          <div className='col-span-12 lg:col-span-3'>
             <InputField
               control={form.control}
               name='streetNo'
@@ -242,7 +262,7 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId 
             />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 lg:col-span-3'>
             <InputField
               control={form.control}
               name='buildingFloorRoom'
@@ -251,15 +271,15 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId 
             />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 lg:col-span-3'>
             <InputField control={form.control} name='block' label='Block' extendedProps={{ inputProps: { placeholder: "Enter block" } }} />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 lg:col-span-3'>
             <InputField control={form.control} name='city' label='City' extendedProps={{ inputProps: { placeholder: "Enter city" } }} />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 lg:col-span-3'>
             <InputField
               control={form.control}
               name='zipCode'
@@ -268,7 +288,7 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId 
             />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 lg:col-span-3'>
             <InputField
               control={form.control}
               name='county'
@@ -277,20 +297,15 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId 
             />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
-            <InputField control={form.control} name='state' label='State' extendedProps={{ inputProps: { placeholder: "Enter state" } }} />
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField data={[]} control={form.control} name='state' label='State' />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
-            <InputField
-              control={form.control}
-              name='country'
-              label='Country'
-              extendedProps={{ inputProps: { placeholder: "Enter country" } }}
-            />
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField data={[]} control={form.control} name='country' label='Country' />
           </div>
 
-          <div className='col-span-12 lg:col-span-4'>
+          <div className='col-span-12 lg:col-span-3'>
             <InputField control={form.control} name='gln' label='GLN' extendedProps={{ inputProps: { placeholder: "Enter gln" } }} />
           </div>
 

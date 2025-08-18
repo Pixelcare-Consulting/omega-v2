@@ -7,7 +7,7 @@ import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 
-import { getItemsByItemCode, upsertItem } from "@/actions/master-item"
+import { getItemsByItemCode, upsertItemMaster } from "@/actions/master-item"
 import { type ItemForm, itemMasterFormSchema } from "@/schema/master-item"
 import { useAction } from "next-safe-action/hooks"
 import { Form } from "@/components/ui/form"
@@ -80,7 +80,7 @@ export default function ItemForm({ item, itemGroups, manufacturers }: ItemFormPr
   const groupCode = useWatch({ control: form.control, name: "ItmsGrpCod" })
   const firmCode = useWatch({ control: form.control, name: "FirmCode" })
 
-  const { executeAsync, isExecuting } = useAction(upsertItem)
+  const { executeAsync, isExecuting } = useAction(upsertItemMaster)
 
   const itemGroupsOptions = useMemo(() => {
     if (!itemGroups) return []

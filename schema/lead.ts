@@ -21,7 +21,9 @@ export const LEAD_STATUSES_COLORS: LeadStatusColor = [
 
 //* Zod schema
 const addressFormSchema = z.object({
-  street: z.string().nullish(),
+  street1: z.string().nullish(),
+  street2: z.string().nullish(),
+  street3: z.string().nullish(),
   block: z.string().nullish(),
   city: z.string().nullish(),
   zipCode: z.string().nullish(),

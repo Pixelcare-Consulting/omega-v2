@@ -30,6 +30,7 @@ import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import TextAreaField from "@/components/form/textarea-field"
 import { FormDebug } from "@/components/form/form-debug"
 import { getLeadById } from "@/actions/lead"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type CustomerFormProps = {
   customer?: Awaited<ReturnType<typeof getBpMasterByCardCode>>
@@ -48,8 +49,15 @@ export default function CustomerForm({ customer, bpGroups, currencies, paymentTe
 
   const values = useMemo(() => {
     if (customer) {
+      const { assignedExcessManagers, addresses, ...data } = customer
+
+      const defaultBillingAddress = addresses.find((address) => address.id === customer.BillToDef) || null
+      const defaultShippingAddress = addresses.find((address) => address.id === customer.ShipToDef) || null
+
       return {
-        ...customer,
+        ...data,
+        billingAddress: defaultBillingAddress,
+        shippingAddress: defaultShippingAddress,
         assignedExcessManagers: [],
       }
     }
@@ -92,6 +100,8 @@ export default function CustomerForm({ customer, bpGroups, currencies, paymentTe
         //* common fields
         isActive: true,
         status: "",
+        source: "portal",
+        syncStatus: "pending",
 
         //* QB Supplier fields
         id: "add",
@@ -107,20 +117,48 @@ export default function CustomerForm({ customer, bpGroups, currencies, paymentTe
         warranyPeriod: "",
         omegaReviews: "",
         qualificationNotes: "",
-        source: "portal",
-        syncStatus: "pending",
 
-        //* address fields
-        street: "",
-        block: "",
-        city: "",
-        zipCode: "",
-        county: "",
-        state: "",
-        country: "",
-        streetNo: "",
-        buildingFloorRoom: "",
-        gln: "",
+        //* default billing and shipping address
+        billingAddress: {
+          id: "add",
+          CardCode: "",
+          AddrType: "B",
+          Street: "",
+          Block: "",
+          City: "",
+          ZipCode: "",
+          County: "",
+          State: null,
+          Country: null,
+          StreetNo: "",
+          Building: "",
+          GlblLocNum: "",
+          Address2: "",
+          Address3: "",
+          CreateDate: format(new Date(), "yyyyMMdd"),
+          source: "portal",
+          syncStatus: "pending",
+        },
+        shippingAddress: {
+          id: "add",
+          CardCode: "",
+          AddrType: "S",
+          Street: "",
+          Block: "",
+          City: "",
+          ZipCode: "",
+          County: "",
+          State: null,
+          Country: null,
+          StreetNo: "",
+          Building: "",
+          GlblLocNum: "",
+          Address2: "",
+          Address3: "",
+          CreateDate: format(new Date(), "yyyyMMdd"),
+          source: "portal",
+          syncStatus: "pending",
+        },
       }
     }
 
@@ -135,6 +173,7 @@ export default function CustomerForm({ customer, bpGroups, currencies, paymentTe
 
   const { executeAsync, isExecuting } = useAction(upsertBpMaster)
 
+  const cardCode = useWatch({ control: form.control, name: "CardCode" })
   const groupCode = useWatch({ control: form.control, name: "GroupCode" })
   const paymentTermCode = useWatch({ control: form.control, name: "GroupNum" })
   const currencyCode = useWatch({ control: form.control, name: "Currency" })
@@ -228,21 +267,49 @@ export default function CustomerForm({ customer, bpGroups, currencies, paymentTe
     }
   }, [JSON.stringify(customer)])
 
+  //* pupluate cardCode of default billing and shipping address
+  useEffect(() => {
+    if (cardCode) {
+      form.setValue("billingAddress.CardCode", cardCode)
+      form.setValue("shippingAddress.CardCode", cardCode)
+    }
+  }, [cardCode])
+
   //* pre populate data based on lead
   useEffect(() => {
     if (lead) {
       form.setValue("CardName", lead.name)
       form.setValue("Phone1", lead.phone)
-      form.setValue("street", lead.street)
-      form.setValue("block", lead.block)
-      form.setValue("city", lead.city)
-      form.setValue("zipCode", lead.zipCode)
-      form.setValue("county", lead.county)
-      form.setValue("state", lead.state)
-      form.setValue("country", lead.country)
-      form.setValue("streetNo", lead.streetNo)
-      form.setValue("buildingFloorRoom", lead.buildingFloorRoom)
-      form.setValue("gln", lead.gln)
+
+      //* pre populate billing address
+      form.setValue("billingAddress.AddrType", "B")
+      form.setValue("billingAddress.Street", lead.street1)
+      form.setValue("billingAddress.Address2", lead.street2)
+      form.setValue("billingAddress.Address3", lead.street3)
+      form.setValue("billingAddress.Block", lead.block)
+      form.setValue("billingAddress.City", lead.city)
+      form.setValue("billingAddress.ZipCode", lead.zipCode)
+      form.setValue("billingAddress.County", lead.county)
+      form.setValue("billingAddress.State", lead.state)
+      form.setValue("billingAddress.Country", lead.country)
+      form.setValue("billingAddress.StreetNo", lead.streetNo)
+      form.setValue("billingAddress.Building", lead.buildingFloorRoom)
+      form.setValue("billingAddress.GlblLocNum", lead.gln)
+
+      //* pre populate shipping address
+      form.setValue("shippingAddress.AddrType", "B")
+      form.setValue("shippingAddress.Street", lead.street1)
+      form.setValue("shippingAddress.Address2", lead.street2)
+      form.setValue("shippingAddress.Address3", lead.street3)
+      form.setValue("shippingAddress.Block", lead.block)
+      form.setValue("shippingAddress.City", lead.city)
+      form.setValue("shippingAddress.ZipCode", lead.zipCode)
+      form.setValue("shippingAddress.County", lead.county)
+      form.setValue("shippingAddress.State", lead.state)
+      form.setValue("shippingAddress.Country", lead.country)
+      form.setValue("shippingAddress.StreetNo", lead.streetNo)
+      form.setValue("shippingAddress.Building", lead.buildingFloorRoom)
+      form.setValue("shippingAddress.GlblLocNum", lead.gln)
     }
   }, [JSON.stringify(lead)])
 
@@ -420,81 +487,218 @@ export default function CustomerForm({ customer, bpGroups, currencies, paymentTe
             <SwitchField control={form.control} layout='default' name='isWarehousingCustomer' label='Warehousing Customer' />
           </div>
 
-          <div className='col-span-12 mt-2 space-y-4 lg:col-span-12'>
-            <Separator />
+          <Separator className='col-span-12' />
+          <ReadOnlyFieldHeader className='col-span-12' title='Address Details' description='Supplier address details' />
 
-            <ReadOnlyFieldHeader title='Address Details' description='Customer address details' />
-          </div>
+          <Tabs defaultValue='1' className='col-span-12'>
+            <TabsList>
+              <TabsTrigger value='1'>Billing</TabsTrigger>
+              <TabsTrigger value='2'>Shipping</TabsTrigger>
+            </TabsList>
+            <TabsContent value='1'>
+              <div className='grid grid-cols-12 gap-4'>
+                <div className='col-span-12'>
+                  <TextAreaField
+                    control={form.control}
+                    name='billingAddress.Street'
+                    label='Street 1'
+                    extendedProps={{ textAreaProps: { placeholder: "Enter street 1" } }}
+                  />
+                </div>
 
-          <div className='col-span-12'>
-            <TextAreaField
-              control={form.control}
-              name='street'
-              label='Street'
-              extendedProps={{ textAreaProps: { placeholder: "Enter street" } }}
-            />
-          </div>
+                <div className='col-span-12'>
+                  <TextAreaField
+                    control={form.control}
+                    name='billingAddress.Address2'
+                    label='Street 2'
+                    extendedProps={{ textAreaProps: { placeholder: "Enter street 2" } }}
+                  />
+                </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='streetNo'
-              label='Street No.'
-              extendedProps={{ inputProps: { placeholder: "Enter street no." } }}
-            />
-          </div>
+                <div className='col-span-12'>
+                  <TextAreaField
+                    control={form.control}
+                    name='billingAddress.Address3'
+                    label='Street 3'
+                    extendedProps={{ textAreaProps: { placeholder: "Enter street 3" } }}
+                  />
+                </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='buildingFloorRoom'
-              label='Building/Floor/ Room'
-              extendedProps={{ inputProps: { placeholder: "Enter building/floor/room" } }}
-            />
-          </div>
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='billingAddress.StreetNo'
+                    label='Street No.'
+                    extendedProps={{ inputProps: { placeholder: "Enter street no." } }}
+                  />
+                </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField control={form.control} name='block' label='Block' extendedProps={{ inputProps: { placeholder: "Enter block" } }} />
-          </div>
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='billingAddress.Building'
+                    label='Building/Floor/ Room'
+                    extendedProps={{ inputProps: { placeholder: "Enter building/floor/room" } }}
+                  />
+                </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField control={form.control} name='city' label='City' extendedProps={{ inputProps: { placeholder: "Enter city" } }} />
-          </div>
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='billingAddress.Block'
+                    label='Block'
+                    extendedProps={{ inputProps: { placeholder: "Enter block" } }}
+                  />
+                </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='zipCode'
-              label='Zip Code'
-              extendedProps={{ inputProps: { placeholder: "Enter zip code" } }}
-            />
-          </div>
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='billingAddress.City'
+                    label='City'
+                    extendedProps={{ inputProps: { placeholder: "Enter city" } }}
+                  />
+                </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='county'
-              label='County'
-              extendedProps={{ inputProps: { placeholder: "Enter county" } }}
-            />
-          </div>
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='billingAddress.ZipCode'
+                    label='Zip Code'
+                    extendedProps={{ inputProps: { placeholder: "Enter zip code" } }}
+                  />
+                </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField control={form.control} name='state' label='State' extendedProps={{ inputProps: { placeholder: "Enter state" } }} />
-          </div>
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='billingAddress.County'
+                    label='County'
+                    extendedProps={{ inputProps: { placeholder: "Enter county" } }}
+                  />
+                </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='country'
-              label='Country'
-              extendedProps={{ inputProps: { placeholder: "Enter country" } }}
-            />
-          </div>
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <ComboboxField data={[]} control={form.control} name='billingAddress.State' label='State' />
+                </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField control={form.control} name='gln' label='GLN' extendedProps={{ inputProps: { placeholder: "Enter gln" } }} />
-          </div>
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <ComboboxField data={[]} control={form.control} name='billingAddress.Country' label='Country' />
+                </div>
+
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='billingAddress.GlblLocNum'
+                    label='GLN'
+                    extendedProps={{ inputProps: { placeholder: "Enter gln" } }}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value='2'>
+              <div className='grid grid-cols-12 gap-4'>
+                <div className='col-span-12'>
+                  <TextAreaField
+                    control={form.control}
+                    name='shippingAddress.Street'
+                    label='Street 1'
+                    extendedProps={{ textAreaProps: { placeholder: "Enter street 1" } }}
+                  />
+                </div>
+
+                <div className='col-span-12'>
+                  <TextAreaField
+                    control={form.control}
+                    name='shippingAddress.Address2'
+                    label='Street 2'
+                    extendedProps={{ textAreaProps: { placeholder: "Enter street 2" } }}
+                  />
+                </div>
+
+                <div className='col-span-12'>
+                  <TextAreaField
+                    control={form.control}
+                    name='shippingAddress.Address3'
+                    label='Street 3'
+                    extendedProps={{ textAreaProps: { placeholder: "Enter street 3" } }}
+                  />
+                </div>
+
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='shippingAddress.StreetNo'
+                    label='Street No.'
+                    extendedProps={{ inputProps: { placeholder: "Enter street no." } }}
+                  />
+                </div>
+
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='shippingAddress.Building'
+                    label='Building/Floor/ Room'
+                    extendedProps={{ inputProps: { placeholder: "Enter building/floor/room" } }}
+                  />
+                </div>
+
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='shippingAddress.Block'
+                    label='Block'
+                    extendedProps={{ inputProps: { placeholder: "Enter block" } }}
+                  />
+                </div>
+
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='shippingAddress.City'
+                    label='City'
+                    extendedProps={{ inputProps: { placeholder: "Enter city" } }}
+                  />
+                </div>
+
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='shippingAddress.ZipCode'
+                    label='Zip Code'
+                    extendedProps={{ inputProps: { placeholder: "Enter zip code" } }}
+                  />
+                </div>
+
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='shippingAddress.County'
+                    label='County'
+                    extendedProps={{ inputProps: { placeholder: "Enter county" } }}
+                  />
+                </div>
+
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <ComboboxField data={[]} control={form.control} name='shippingAddress.State' label='State' />
+                </div>
+
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <ComboboxField data={[]} control={form.control} name='shippingAddress.Country' label='Country' />
+                </div>
+
+                <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+                  <InputField
+                    control={form.control}
+                    name='shippingAddress.GlblLocNum'
+                    label='GLN'
+                    extendedProps={{ inputProps: { placeholder: "Enter gln" } }}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
 
           <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>
             <Button type='button' variant='secondary' onClick={() => router.push(`/dashboard/mater-data/customers`)}>

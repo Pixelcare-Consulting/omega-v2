@@ -27,6 +27,7 @@ export async function getItems() {
       { tags: [cacheKey] }
     )()
   } catch (error) {
+    console.error(error)
     return []
   }
 }
@@ -51,7 +52,7 @@ export async function getItemMasterGroups() {
   }
 }
 
-export const upsertItem = action
+export const upsertItemMaster = action
   .use(authenticationMiddleware)
   .schema(itemMasterFormSchema)
   .action(async ({ ctx, parsedInput }) => {
@@ -120,7 +121,7 @@ export const upsertItem = action
     }
   })
 
-export const deleteItem = action
+export const deleteItemMaster = action
   .use(authenticationMiddleware)
   .schema(deleteItemMasterSchema)
   .action(async ({ ctx, parsedInput: data }) => {

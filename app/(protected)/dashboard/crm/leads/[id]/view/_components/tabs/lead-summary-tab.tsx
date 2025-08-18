@@ -49,7 +49,11 @@ export default function LeadSummaryTab({ lead }: LeadSummaryTabsProps) {
 
         <ReadOnlyFieldHeader className='col-span-12' title='Address' description='Lead full address details' />
 
-        <ReadOnlyField className='col-span-12' title='Street' value={lead?.street || ""} />
+        <ReadOnlyField className='col-span-12' title='Street 1' value={lead?.street1 || ""} />
+
+        <ReadOnlyField className='col-span-12' title='Street 2' value={lead?.street2 || ""} />
+
+        <ReadOnlyField className='col-span-12' title='Street 2' value={lead?.street3 || ""} />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Street No.' value={lead?.streetNo || ""} />
 

@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { v4 as uuidv4 } from "uuid"
 import { addressFormSchema } from "./address"
+import { addressMasterFormSchema } from "./master-address"
 
 export const BP_MASTER_SUPPLIER_AVL_STATUS_OPTIONS = [
   { label: "Approved", value: "approved" },
@@ -92,6 +93,11 @@ export const bpSapFieldsSchema = z.object({
   UpdateDate: z.string().min(1, { message: "Update date is required" }),
 })
 
+export const bpAddressSchema = z.object({
+  billingAddress: addressMasterFormSchema.nullish(),
+  shippingAddress: addressMasterFormSchema.nullish(),
+})
+
 export const bpPortalFieldsSchema = z
   .object({
     id: z.string().min(1, { message: "ID is required" }),
@@ -128,7 +134,7 @@ export const bpPortalFieldsSchema = z
     omegaReviews: z.string().nullish(),
     qualificationNotes: z.string().nullish(),
   })
-  .merge(addressFormSchema)
+  .merge(bpAddressSchema)
 
 export const syncBpMasterSchema = z.object({
   type: z.string().min(1, { message: "Card type is required" }),

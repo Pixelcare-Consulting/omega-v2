@@ -6,7 +6,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { deleteItem, getItems } from "@/actions/master-item"
+import { deleteItemMaster, getItems } from "@/actions/master-item"
 import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import { useAction } from "next-safe-action/hooks"
@@ -84,7 +84,7 @@ export default function getColumns(): ColumnDef<ItemData>[] {
       size: 80,
       cell: function ActionCell({ row }) {
         const router = useRouter()
-        const { executeAsync } = useAction(deleteItem)
+        const { executeAsync } = useAction(deleteItemMaster)
         const [showConfirmation, setShowConfirmation] = useState(false)
 
         const { ItemCode, source } = row.original
