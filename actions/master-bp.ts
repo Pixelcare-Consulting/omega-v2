@@ -62,6 +62,8 @@ export async function getBpMasterByCardCode(cardCode: string) {
       prisma.address.findMany({ where: { CardCode: cardCode } }),
     ])
 
+    if (!bpMaster) return null
+
     return { ...bpMaster, addresses } as typeof bpMaster & { addresses: Address[] }
   } catch (error) {
     console.error(error)

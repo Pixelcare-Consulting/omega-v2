@@ -507,6 +507,7 @@ export default function CustomerForm({ customer, bpGroups, currencies, states, c
               <TabsTrigger value='1'>Billing</TabsTrigger>
               <TabsTrigger value='2'>Shipping</TabsTrigger>
             </TabsList>
+
             <TabsContent value='1'>
               <div className='grid grid-cols-12 gap-4'>
                 <div className='col-span-12'>
@@ -591,11 +592,11 @@ export default function CustomerForm({ customer, bpGroups, currencies, states, c
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={[]} control={form.control} name='billingAddress.State' label='State' />
+                  <ComboboxField data={statesOptions} control={form.control} name='billingAddress.State' label='State' />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={[]} control={form.control} name='billingAddress.Country' label='Country' />
+                  <ComboboxField data={countriesOptions} control={form.control} name='billingAddress.Country' label='Country' />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
