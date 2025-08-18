@@ -18,6 +18,7 @@ import { FormDebug } from "@/components/form/form-debug"
 import { Button } from "@/components/ui/button"
 import LoadingButton from "@/components/loading-button"
 import { format } from "date-fns"
+import { Separator } from "@/components/ui/separator"
 
 type ItemFormProps = {
   item?: Awaited<ReturnType<typeof getItemsByItemCode>>
@@ -29,10 +30,15 @@ export default function ItemForm({ item, itemGroups, manufacturers }: ItemFormPr
   const router = useRouter()
   const { code } = useParams() as { code: string }
 
+  //TODO: Add additinal fields for item new added by Chris
   const values = useMemo(() => {
     if (item)
       return {
         ...item,
+        VATLiable: item.VATLiable === "Y",
+        PrchseItem: item.PrchseItem === "Y",
+        SellItem: item.SellItem === "Y",
+        InvntItem: item.InvntItem === "Y",
         ManBtchNum: item.ManBtchNum === "Y",
       }
 
@@ -47,6 +53,14 @@ export default function ItemForm({ item, itemGroups, manufacturers }: ItemFormPr
         ItmsGrpCod: 0,
         ItmsGrpNam: "",
         ManBtchNum: false,
+        CstGrpCode: null,
+        VATLiable: false,
+        PrchseItem: false,
+        SellItem: false,
+        InvntItem: false,
+        IncomeAcct: null,
+        DfltWH: "",
+        CountryOrg: "",
         CreateDate: format(new Date(), "yyyyMMdd"),
         UpdateDate: format(new Date(), "yyyyMMdd"),
         source: "portal",
@@ -158,6 +172,80 @@ export default function ItemForm({ item, itemGroups, manufacturers }: ItemFormPr
               label='Unit of Measure'
               extendedProps={{ inputProps: { placeholder: "Enter unit of measure" } }}
               isRequired
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <InputField
+              control={form.control}
+              name='IncomeAcct'
+              label='Revenue Account'
+              extendedProps={{ inputProps: { placeholder: "Enter revenue account" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <InputField
+              control={form.control}
+              name='DfltWH'
+              label='Default Warehouse'
+              extendedProps={{ inputProps: { placeholder: "Enter default warehouse" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <InputField
+              control={form.control}
+              name='CountryOrg'
+              label='Country of Origin'
+              description='Coutry code of origin'
+              extendedProps={{ inputProps: { placeholder: "Enter country of origin" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField data={[]} control={form.control} name='CstGrpCode' label='Customs Group' />
+          </div>
+
+          <Separator className='col-span-12' />
+
+          <div className='col-span-12 md:col-span-6 md:mt-3 lg:col-span-3'>
+            <SwitchField
+              control={form.control}
+              layout='default'
+              name='VATLiable'
+              label='VAT Liable'
+              description='Is the item VAT liable?'
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 md:mt-3 lg:col-span-3'>
+            <SwitchField
+              control={form.control}
+              layout='default'
+              name='PrchseItem'
+              label='Purchase Item'
+              description='Is the item a purchase item?'
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 md:mt-3 lg:col-span-3'>
+            <SwitchField
+              control={form.control}
+              layout='default'
+              name='SellItem'
+              label='Sales Item'
+              description='Is the item a sales item?'
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 md:mt-3 lg:col-span-3'>
+            <SwitchField
+              control={form.control}
+              layout='default'
+              name='InvntItem'
+              label='Inventory Item'
+              description='Is the item an inventory item?'
             />
           </div>
 

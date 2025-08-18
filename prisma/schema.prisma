@@ -610,6 +610,14 @@ model Item {
   ItmsGrpCod Int
   ItmsGrpNam String? @default("")
   ManBtchNum String
+  CstGrpCode Int?
+  VATLiable  String? @default("N")
+  PrchseItem String? @default("N")
+  SellItem   String? @default("N")
+  InvntItem  String? @default("N")
+  IncomeAcct String?
+  DfltWH     String? @default("")
+  CountryOrg String? @default("") @db.VarChar(3)
   CreateDate String
   UpdateDate String
 

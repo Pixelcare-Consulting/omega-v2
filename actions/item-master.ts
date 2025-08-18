@@ -68,12 +68,20 @@ export const upsertItem = action
       if (existingItem) return { error: true, status: 401, message: "Code already exists!" }
 
       const isManageBatchNumbers = data?.ManBtchNum ? "Y" : "N"
+      const isVatLiable = data?.VATLiable ? "Y" : "N"
+      const isPurchaseItem = data?.PrchseItem ? "Y" : "N"
+      const isSalesItem = data?.SellItem ? "Y" : "N"
+      const isInventoryItem = data?.InvntItem ? "Y" : "N"
 
       if (id && id != "add") {
         const updatedItem = await prisma.item.update({
           where: { id },
           data: {
             ...data,
+            VATLiable: isVatLiable,
+            PrchseItem: isPurchaseItem,
+            SellItem: isSalesItem,
+            InvntItem: isInventoryItem,
             ManBtchNum: isManageBatchNumbers,
             updatedBy: userId,
           },
@@ -87,6 +95,10 @@ export const upsertItem = action
       const newItem = await prisma.item.create({
         data: {
           ...data,
+          VATLiable: isVatLiable,
+          PrchseItem: isPurchaseItem,
+          SellItem: isSalesItem,
+          InvntItem: isInventoryItem,
           ManBtchNum: isManageBatchNumbers,
           createdBy: userId,
           updatedBy: userId,
