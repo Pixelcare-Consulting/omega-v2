@@ -4,7 +4,7 @@ import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import UnderDevelopment from "@/components/under-development"
-import { getBpMasterByCardCode, getBpMasterGroups, getCurrencies, getPaymentTerms } from "@/actions/master-bp"
+import { getBpMasterByCardCode, getBpMasterGroups, getCountries, getCurrencies, getPaymentTerms, getStates } from "@/actions/master-bp"
 import { getUsers } from "@/actions/user"
 import { notFound } from "next/navigation"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
@@ -19,12 +19,14 @@ export default async function CustomerPage({ params, searchParams }: { params: {
   const { code } = params
   const { leadId } = searchParams
 
-  const [customer, lead, bpGroups, paymentTerms, currencies, users] = await Promise.all([
+  const [customer, lead, bpGroups, paymentTerms, currencies, states, countries, users] = await Promise.all([
     !code ? null : getBpMasterByCardCode(code),
     !leadId ? null : getLeadById(leadId),
     getBpMasterGroups(),
     getPaymentTerms(),
     getCurrencies(),
+    getStates(),
+    getCountries(),
     getUsers(),
   ])
 
@@ -91,6 +93,8 @@ export default async function CustomerPage({ params, searchParams }: { params: {
                 bpGroups={bpGroups?.value || []}
                 paymentTerms={paymentTerms?.value || []}
                 currencies={currencies?.value || []}
+                states={states?.value || []}
+                countries={countries?.value || []}
                 users={users}
               />
             </Card>

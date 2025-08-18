@@ -4,7 +4,7 @@ import Link from "next/link"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
-import { getCurrencies, getBpMasterByCardCode, getBpMasterGroups, getPaymentTerms } from "@/actions/master-bp"
+import { getCurrencies, getBpMasterByCardCode, getBpMasterGroups, getPaymentTerms, getStates, getCountries } from "@/actions/master-bp"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Icons } from "@/components/icons"
@@ -19,11 +19,13 @@ import { getManufacturers } from "@/actions/manufacturer"
 export default async function SupplierPage({ params }: { params: { code: string } }) {
   const { code } = params
 
-  const [supplier, bpGroups, paymentTerms, currencies, itemGroups, manufacturers, users] = await Promise.all([
+  const [supplier, bpGroups, paymentTerms, currencies, states, countries, itemGroups, manufacturers, users] = await Promise.all([
     !code ? null : getBpMasterByCardCode(code),
     getBpMasterGroups(),
     getPaymentTerms(),
     getCurrencies(),
+    getStates(),
+    getCountries(),
     getItemMasterGroups(),
     getManufacturers(),
     getUsers(),
@@ -89,6 +91,8 @@ export default async function SupplierPage({ params }: { params: { code: string 
                 bpGroups={bpGroups?.value || []}
                 paymentTerms={paymentTerms?.value || []}
                 currencies={currencies?.value || []}
+                states={states?.value || []}
+                countries={countries?.value || []}
                 itemGroups={itemGroups?.value || []}
                 manufacturers={manufacturers?.value || []}
                 users={users}

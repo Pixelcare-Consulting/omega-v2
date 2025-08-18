@@ -37,11 +37,13 @@ type CustomerFormProps = {
   bpGroups?: any
   paymentTerms?: any
   currencies?: any
+  states?: any
+  countries?: any
   users: Awaited<ReturnType<typeof getUsers>>
   lead?: Awaited<ReturnType<typeof getLeadById>>
 }
 
-export default function CustomerForm({ customer, bpGroups, currencies, paymentTerms, users, lead }: CustomerFormProps) {
+export default function CustomerForm({ customer, bpGroups, currencies, states, countries, paymentTerms, users, lead }: CustomerFormProps) {
   const router = useRouter()
   const { code } = useParams() as { code: string }
 
@@ -192,6 +194,16 @@ export default function CustomerForm({ customer, bpGroups, currencies, paymentTe
     if (!currencies) return []
     return currencies.map((currency: any) => ({ label: currency.CurrName, value: currency.CurrCode }))
   }, [JSON.stringify(currencies)])
+
+  const statesOptions = useMemo(() => {
+    if (!states) return []
+    return states.map((state: any) => ({ label: state.Name, value: state.Code }))
+  }, [JSON.stringify(states)])
+
+  const countriesOptions = useMemo(() => {
+    if (!countries) return []
+    return countries.map((country: any) => ({ label: country.Name, value: country.Code }))
+  }, [JSON.stringify(countries)])
 
   const usersOptions = useMemo(() => {
     if (!users) return []
@@ -681,11 +693,11 @@ export default function CustomerForm({ customer, bpGroups, currencies, paymentTe
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={[]} control={form.control} name='shippingAddress.State' label='State' />
+                  <ComboboxField data={statesOptions} control={form.control} name='shippingAddress.State' label='State' />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={[]} control={form.control} name='shippingAddress.Country' label='Country' />
+                  <ComboboxField data={countriesOptions} control={form.control} name='shippingAddress.Country' label='Country' />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>

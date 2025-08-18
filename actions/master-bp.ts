@@ -82,7 +82,9 @@ export async function getBpMasterGroups() {
 
 export async function getPaymentTerms() {
   try {
-    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query4')/List`)
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query4')/List`, undefined, {
+      Prefer: "odata.maxpagesize=999",
+    })
   } catch (error) {
     console.error(error)
     return []
@@ -91,7 +93,31 @@ export async function getPaymentTerms() {
 
 export async function getCurrencies() {
   try {
-    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query5')/List`)
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query5')/List`, undefined, {
+      Prefer: "odata.maxpagesize=999",
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export async function getStates() {
+  try {
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query7')/List`, undefined, {
+      Prefer: "odata.maxpagesize=999",
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export async function getCountries() {
+  try {
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query8')/List`, undefined, {
+      Prefer: "odata.maxpagesize=999",
+    })
   } catch (error) {
     console.error(error)
     return []
