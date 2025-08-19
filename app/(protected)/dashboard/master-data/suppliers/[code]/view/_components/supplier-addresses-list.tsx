@@ -29,7 +29,7 @@ export default function SupplierAddressesList({ addresses, billToDef, shipToDef 
       { label: "City", columnId: "city", type: "text" },
       { label: "State", columnId: "state", type: "text" },
       { label: "Country", columnId: "country", type: "text" },
-      { label: "Zip Code", columnId: "zip cod", type: "text" },
+      { label: "Zip Code", columnId: "zip code", type: "text" },
       { label: "Sync Status", columnId: "sync status", type: "select", options: SYNC_STATUSES_OPTIONS },
       { label: "Source", columnId: "source", type: "select", options: SOURCES_OPTIONS },
     ]
