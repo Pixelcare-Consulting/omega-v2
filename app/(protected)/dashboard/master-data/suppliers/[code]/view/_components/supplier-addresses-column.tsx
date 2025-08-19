@@ -27,7 +27,7 @@ export function getColumns(billToDef?: string | null, shipToDef?: string | null)
         const isDefault = id === defaultAddressId
 
         return (
-          <div className='flex items-center gap-2'>
+          <div className='flex flex-col justify-center gap-2'>
             <span>{id}</span>
             {isDefault && <Badge variant='soft-violet'>Default</Badge>}
           </div>
@@ -36,10 +36,11 @@ export function getColumns(billToDef?: string | null, shipToDef?: string | null)
     },
     {
       accessorKey: "date",
+
       header: ({ column }) => <DataTableColumnHeader column={column} title='Date' />,
       cell: ({ row }) => {
         const date = row.original.createdAt
-        return <div className='min-w-[100px]'>{format(date, "MM-dd-yyyy")}</div>
+        return <div>{format(date, "MM-dd-yyyy")}</div>
       },
       filterFn: (row, columnId, filterValue, addMeta) => {
         const date = row.original.createdAt
@@ -90,7 +91,7 @@ export function getColumns(billToDef?: string | null, shipToDef?: string | null)
         const street3 = row.original?.Address3 || ""
 
         return (
-          <div className='flex min-w-[300px] items-center gap-2'>
+          <div className='flex min-w-[200px] items-center gap-2'>
             <ul className='list-none'>
               <li>
                 <span className='mr-1.5'>1.</span>
@@ -179,7 +180,7 @@ export function getColumns(billToDef?: string | null, shipToDef?: string | null)
         const isDefault = id === defaultAddressId
 
         return (
-          <div>
+          <div className='flex gap-2'>
             <ActionTooltipProvider label='View Address'>
               <Icons.eye className='size-4 cursor-pointer transition-all hover:scale-125' />
             </ActionTooltipProvider>
