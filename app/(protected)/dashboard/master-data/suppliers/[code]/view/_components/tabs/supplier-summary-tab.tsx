@@ -134,32 +134,6 @@ export default function SupplierSummaryTab({ supplier, itemGroups, manufacturers
           title='Sync Status'
           value={<SyncStatus status={supplier.syncStatus} />}
         />
-
-        <ReadOnlyFieldHeader className='col-span-12' title='Address' description='Supplier full address details' />
-
-        <ReadOnlyField className='col-span-12' title='Street' value={supplier?.street || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Street No.' value={supplier?.streetNo || ""} />
-
-        <ReadOnlyField
-          className='col-span-12 md:col-span-6 lg:col-span-3'
-          title='Building/Floor/Room'
-          value={supplier?.buildingFloorRoom || ""}
-        />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Block' value={supplier?.block || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='City' value={supplier?.city || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Zip Code' value={supplier?.zipCode || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='County' value={supplier?.county || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='State' value={supplier?.state || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Country' value={supplier?.country || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='GLN' value={supplier?.gln || ""} />
       </div>
     </Card>
   )

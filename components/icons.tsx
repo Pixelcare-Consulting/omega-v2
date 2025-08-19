@@ -101,6 +101,7 @@ import {
   CalendarCheck,
   Printer,
   Download,
+  CircleCheckBig,
 } from "lucide-react"
 
 export type Icon = LucideIcon
@@ -112,6 +113,7 @@ export const Icons = {
   triangleAlert: TriangleAlert,
   circleAlert: CircleAlertIcon,
   checkCircle: CheckCircle2,
+  checkCircleBig: CircleCheckBig,
   xCicle: XCircle,
   spinner: Loader2,
   sun: SunIcon,

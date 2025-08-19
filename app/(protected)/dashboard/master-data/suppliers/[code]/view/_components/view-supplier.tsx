@@ -12,6 +12,7 @@ import { getInitials } from "@/lib/utils"
 import SupplierSummaryTab from "./tabs/supplier-summary-tab"
 import { getBpMasterByCardCode } from "@/actions/master-bp"
 import { getUsers } from "@/actions/user"
+import SupplierAddressesTab from "./tabs/supplier-addresses-tab"
 
 type ViewSupplierProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
@@ -79,8 +80,7 @@ export default function ViewSupplier({ supplier, itemGroups, manufacturers }: Vi
         <Tabs defaultValue='1' className='w-full'>
           <TabsList className='mb-2 h-fit flex-wrap'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
-            <TabsTrigger value='2'>Requisitions</TabsTrigger>
-            <TabsTrigger value='3'>Quotations</TabsTrigger>
+            <TabsTrigger value='2'>Addresses</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -88,19 +88,7 @@ export default function ViewSupplier({ supplier, itemGroups, manufacturers }: Vi
           </TabsContent>
 
           <TabsContent value='2'>
-            <Card className='rounded-lg p-6 shadow-md'>
-              <div className='grid grid-cols-12 gap-5'>
-                <UnderDevelopment className='col-span-12 h-[40vh]' />
-              </div>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value='3'>
-            <Card className='rounded-lg p-6 shadow-md'>
-              <div className='grid grid-cols-12 gap-5'>
-                <UnderDevelopment className='col-span-12 h-[40vh]' />
-              </div>
-            </Card>
+            <SupplierAddressesTab supplier={supplier} />
           </TabsContent>
         </Tabs>
       </div>

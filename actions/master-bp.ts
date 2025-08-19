@@ -46,7 +46,7 @@ export async function getBpMasters(cardType: string) {
 
 export async function getBpMasterByCardCode(cardCode: string) {
   try {
-    const [bpMaster, addresses] = await Promise.all([
+    const [bpMaster, addresses, countries] = await Promise.all([
       prisma.businessPartner.findUnique({
         where: {
           CardCode: cardCode,
@@ -61,11 +61,24 @@ export async function getBpMasterByCardCode(cardCode: string) {
         },
       }),
       prisma.address.findMany({ where: { CardCode: cardCode } }),
+      getCountries(),
     ])
 
     if (!bpMaster) return null
 
-    return { ...bpMaster, addresses } as typeof bpMaster & { addresses: Address[] }
+    const addressFullDetails = await Promise.all(
+      addresses.map(async (ad) => {
+        const states = ad.Country ? await getStates(ad.Country) : []
+        const countryName = countries?.value?.find((country: any) => country?.Code === ad?.Country)?.Name || ""
+        const stateName = states?.value?.find((state: any) => state?.Code === ad?.State)?.Name || ""
+
+        return { ...ad, countryName, stateName }
+      })
+    )
+
+    return { ...bpMaster, addresses: addressFullDetails } as typeof bpMaster & {
+      addresses: (Address & { countryName: string; stateName: string })[]
+    }
   } catch (error) {
     console.error(error)
     return null
@@ -105,9 +118,9 @@ export async function getCurrencies() {
   }
 }
 
-export async function getStates() {
+export async function getStates(countryCode: string) {
   try {
-    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query7')/List`, undefined, {
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query7')/List`, `Country='${countryCode}'`, {
       Prefer: "odata.maxpagesize=999",
     })
   } catch (error) {
