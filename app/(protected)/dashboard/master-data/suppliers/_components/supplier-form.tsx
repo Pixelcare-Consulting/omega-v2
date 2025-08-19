@@ -343,7 +343,7 @@ export default function SupplierForm({
         form.setValue("shippingAddress.Country", defaultShippingAddress.Country)
 
         //* trigger fetching shipping state
-        getBillingStatesExecute({ countryCode: defaultShippingAddress.Country })
+        getShippingStatesExecute({ countryCode: defaultShippingAddress.Country })
 
         setTimeout(() => {
           form.setValue("shippingAddress.State", defaultShippingAddress.State)
