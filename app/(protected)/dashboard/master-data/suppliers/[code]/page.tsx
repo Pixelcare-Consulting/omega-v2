@@ -19,12 +19,11 @@ import { getManufacturers } from "@/actions/manufacturer"
 export default async function SupplierPage({ params }: { params: { code: string } }) {
   const { code } = params
 
-  const [supplier, bpGroups, paymentTerms, currencies, states, countries, itemGroups, manufacturers, users] = await Promise.all([
+  const [supplier, bpGroups, paymentTerms, currencies, countries, itemGroups, manufacturers, users] = await Promise.all([
     !code ? null : getBpMasterByCardCode(code),
     getBpMasterGroups(),
     getPaymentTerms(),
     getCurrencies(),
-    getStates(),
     getCountries(),
     getItemMasterGroups(),
     getManufacturers(),
@@ -91,7 +90,6 @@ export default async function SupplierPage({ params }: { params: { code: string 
                 bpGroups={bpGroups?.value || []}
                 paymentTerms={paymentTerms?.value || []}
                 currencies={currencies?.value || []}
-                states={states?.value || []}
                 countries={countries?.value || []}
                 itemGroups={itemGroups?.value || []}
                 manufacturers={manufacturers?.value || []}

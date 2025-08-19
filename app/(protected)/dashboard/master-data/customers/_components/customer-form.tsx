@@ -9,7 +9,7 @@ import { format } from "date-fns"
 import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
 
-import { getBpMasterByCardCode, upsertBpMaster } from "@/actions/master-bp"
+import { getBpMasterByCardCode, getStatesClient, upsertBpMaster } from "@/actions/master-bp"
 import { getUsers } from "@/actions/user"
 import {
   BP_MASTER_CUSTOMER_ACCOUNT_TYPE_OPTIONS,
@@ -31,19 +31,19 @@ import TextAreaField from "@/components/form/textarea-field"
 import { FormDebug } from "@/components/form/form-debug"
 import { getLeadById } from "@/actions/lead"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/badge"
 
 type CustomerFormProps = {
   customer?: Awaited<ReturnType<typeof getBpMasterByCardCode>>
   bpGroups?: any
   paymentTerms?: any
   currencies?: any
-  states?: any
   countries?: any
   users: Awaited<ReturnType<typeof getUsers>>
   lead?: Awaited<ReturnType<typeof getLeadById>>
 }
 
-export default function CustomerForm({ customer, bpGroups, currencies, states, countries, paymentTerms, users, lead }: CustomerFormProps) {
+export default function CustomerForm({ customer, bpGroups, currencies, countries, paymentTerms, users, lead }: CustomerFormProps) {
   const router = useRouter()
   const { code } = useParams() as { code: string }
 
@@ -173,12 +173,24 @@ export default function CustomerForm({ customer, bpGroups, currencies, states, c
     resolver: zodResolver(bpMasterFormSchema),
   })
 
-  const { executeAsync, isExecuting } = useAction(upsertBpMaster)
-
   const cardCode = useWatch({ control: form.control, name: "CardCode" })
   const groupCode = useWatch({ control: form.control, name: "GroupCode" })
   const paymentTermCode = useWatch({ control: form.control, name: "GroupNum" })
   const currencyCode = useWatch({ control: form.control, name: "Currency" })
+
+  const { executeAsync, isExecuting } = useAction(upsertBpMaster)
+
+  const {
+    execute: getBillingStatesExecute,
+    isExecuting: isBillingStatesLoading,
+    result: { data: billingStates },
+  } = useAction(getStatesClient)
+
+  const {
+    execute: getShippingStatesExecute,
+    isExecuting: isShippingStatesLoading,
+    result: { data: shippingStates },
+  } = useAction(getStatesClient)
 
   const bpGroupsOptions = useMemo(() => {
     if (!bpGroups) return []
@@ -195,15 +207,24 @@ export default function CustomerForm({ customer, bpGroups, currencies, states, c
     return currencies.map((currency: any) => ({ label: currency.CurrName, value: currency.CurrCode }))
   }, [JSON.stringify(currencies)])
 
-  const statesOptions = useMemo(() => {
-    if (!states) return []
-    return states.map((state: any) => ({ label: state.Name, value: state.Code }))
-  }, [JSON.stringify(states)])
-
   const countriesOptions = useMemo(() => {
     if (!countries) return []
     return countries.map((country: any) => ({ label: country.Name, value: country.Code }))
   }, [JSON.stringify(countries)])
+
+  const billingStatesOptions = useMemo(() => {
+    const result = billingStates?.value || []
+
+    if (result.length < 1 || isBillingStatesLoading) return []
+    return result.map((state: any) => ({ label: state.Name, value: state.Code }))
+  }, [JSON.stringify(billingStates), isBillingStatesLoading])
+
+  const shippingStatesOptions = useMemo(() => {
+    const result = shippingStates?.value || []
+
+    if (result.length < 1 || isShippingStatesLoading) return []
+    return result.map((state: any) => ({ label: state.Name, value: state.Code }))
+  }, [JSON.stringify(shippingStates), isShippingStatesLoading])
 
   const usersOptions = useMemo(() => {
     if (!users) return []
@@ -368,11 +389,11 @@ export default function CustomerForm({ customer, bpGroups, currencies, states, c
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-            <ComboboxField data={BP_MASTER_CUSTOMER_TYPE_OPTIONS} control={form.control} name='type' label='Type' />
+            <ComboboxField data={BP_MASTER_CUSTOMER_TYPE_OPTIONS} control={form.control} name='type' label='Type' isRequired />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-            <ComboboxField data={BP_MASTER_CUSTOMER_STATUS_OPTIONS} control={form.control} name='status' label='Status' />
+            <ComboboxField data={BP_MASTER_CUSTOMER_STATUS_OPTIONS} control={form.control} name='status' label='Status' isRequired />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-4'>
@@ -500,7 +521,15 @@ export default function CustomerForm({ customer, bpGroups, currencies, states, c
           </div>
 
           <Separator className='col-span-12' />
-          <ReadOnlyFieldHeader className='col-span-12' title='Address Details' description='Supplier address details' />
+          <ReadOnlyFieldHeader
+            className='col-span-12'
+            title={
+              <div className='flex items-center gap-3'>
+                Address Details <Badge variant='soft-blue'>Default</Badge>
+              </div>
+            }
+            description='Supplier address details'
+          />
 
           <Tabs defaultValue='1' className='col-span-12'>
             <TabsList>
@@ -592,11 +621,23 @@ export default function CustomerForm({ customer, bpGroups, currencies, states, c
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={countriesOptions} control={form.control} name='billingAddress.Country' label='Country' />
+                  <ComboboxField
+                    data={countriesOptions}
+                    control={form.control}
+                    name='billingAddress.Country'
+                    label='Country'
+                    callback={(args) => getBillingStatesExecute({ countryCode: args.option.value })}
+                  />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={statesOptions} control={form.control} name='billingAddress.State' label='State' />
+                  <ComboboxField
+                    data={billingStatesOptions}
+                    control={form.control}
+                    name='billingAddress.State'
+                    label='State'
+                    isLoading={isBillingStatesLoading}
+                  />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
@@ -694,11 +735,23 @@ export default function CustomerForm({ customer, bpGroups, currencies, states, c
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={countriesOptions} control={form.control} name='shippingAddress.Country' label='Country' />
+                  <ComboboxField
+                    data={countriesOptions}
+                    control={form.control}
+                    name='shippingAddress.Country'
+                    label='Country'
+                    callback={(args) => getShippingStatesExecute({ countryCode: args.option.value })}
+                  />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={statesOptions} control={form.control} name='shippingAddress.State' label='State' />
+                  <ComboboxField
+                    data={shippingStatesOptions}
+                    control={form.control}
+                    name='shippingAddress.State'
+                    label='State'
+                    isLoading={isShippingStatesLoading}
+                  />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>

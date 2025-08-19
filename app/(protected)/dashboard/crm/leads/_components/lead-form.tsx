@@ -23,6 +23,7 @@ import { getContacts } from "@/actions/contacts"
 import MultiSelectField from "@/components/form/multi-select-field"
 import { useDialogStore } from "@/hooks/use-dialog"
 import { FormDebug } from "@/components/form/form-debug"
+import { getStatesClient } from "@/actions/master-bp"
 
 type LeadFormProps = {
   isModal?: boolean
@@ -30,9 +31,10 @@ type LeadFormProps = {
   accounts: Awaited<ReturnType<typeof getAccounts>>
   contacts: Awaited<ReturnType<typeof getContacts>>
   accountId?: string
+  countries?: any
 }
 
-export default function LeadForm({ isModal, lead, accounts, contacts, accountId }: LeadFormProps) {
+export default function LeadForm({ isModal, lead, accounts, contacts, accountId, countries }: LeadFormProps) {
   const router = useRouter()
   const { id } = useParams() as { id: string }
   const { setIsOpen } = useDialogStore(["setIsOpen"])
@@ -88,6 +90,12 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId 
 
   const { executeAsync, isExecuting } = useAction(upsertLead)
 
+  const {
+    execute: getStatesExecute,
+    isExecuting: isStatesLoading,
+    result: { data: states },
+  } = useAction(getStatesClient)
+
   const onSubmit = async (formData: LeadForm) => {
     try {
       const response = await executeAsync(formData)
@@ -130,6 +138,18 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId 
 
     router.push(`/dashboard/crm/leads`)
   }
+
+  const countriesOptions = useMemo(() => {
+    if (!countries) return []
+    return countries.map((country: any) => ({ label: country.Name, value: country.Code }))
+  }, [JSON.stringify(countries)])
+
+  const statesOptions = useMemo(() => {
+    const result = states?.value || []
+
+    if (result.length < 1 || isStatesLoading) return []
+    return result.map((state: any) => ({ label: state.Name, value: state.Code }))
+  }, [JSON.stringify(states), isStatesLoading])
 
   //* set relatedContacts if data lead exist
   useEffect(() => {
@@ -298,11 +318,17 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId 
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={[]} control={form.control} name='country' label='Country' />
+            <ComboboxField
+              data={countriesOptions}
+              control={form.control}
+              name='country'
+              label='Country'
+              callback={(args) => getStatesExecute({ countryCode: args.option.value })}
+            />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={[]} control={form.control} name='state' label='State' />
+            <ComboboxField data={statesOptions} control={form.control} name='state' label='State' />
           </div>
 
           <div className='col-span-12 lg:col-span-3'>

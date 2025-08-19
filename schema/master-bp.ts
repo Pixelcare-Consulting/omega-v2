@@ -160,13 +160,16 @@ export const bpMasterFormSchema = z
     },
     { message: "Scope is required", path: ["scope"] }
   )
-  .refine((formObj) => {
-    if (formObj.CardType === "C") {
-      if (!formObj.type) return false
+  .refine(
+    (formObj) => {
+      if (formObj.CardType === "C") {
+        if (!formObj.type) return false
+        return true
+      }
       return true
-    }
-    return true
-  })
+    },
+    { message: "Type is required", path: ["type"] }
+  )
 
 //* Types
 export type BpMasterForm = z.infer<typeof bpMasterFormSchema>

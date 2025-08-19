@@ -13,11 +13,17 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Icons } from "@/components/icons"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { getCountries } from "@/actions/master-bp"
 
 export default async function LeadPage({ params }: { params: { id: string } }) {
   const { id } = params
 
-  const [lead, accounts, contacts] = await Promise.all([id === "add" ? null : getLeadById(id), getAccounts(), getContacts()])
+  const [lead, accounts, contacts, countries] = await Promise.all([
+    id === "add" ? null : getLeadById(id),
+    getAccounts(),
+    getContacts(),
+    getCountries(),
+  ])
 
   const getPageMetadata = () => {
     if (!lead || !lead?.id || id === "add") return { title: "Add Lead", description: "Fill in the form to create a new lead." }
@@ -70,7 +76,7 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
           }
         >
           <Card className='p-6'>
-            <LeadForm lead={lead} accounts={accounts} contacts={contacts} />
+            <LeadForm lead={lead} accounts={accounts} contacts={contacts} countries={countries?.value || []} />
           </Card>
         </PageWrapper>
       </ContentContainer>

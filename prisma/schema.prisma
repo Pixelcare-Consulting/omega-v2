@@ -527,8 +527,8 @@ model BusinessPartner {
   PymntGroup       String?
   U_OMEG_QBRelated String? @default("")
   U_VendorCode     String? @default("")
-  ShipToDef        String? //TODO: add to API - inform Chris
-  BillToDef        String? //TODO: add to API - inform Chris
+  ShipToDef        String?
+  BillToDef        String?
 
   CreateDate String
   UpdateDate String
@@ -628,7 +628,7 @@ model Item {
 model Address {
   id         String  @id //* ID - prefix wit "A"
   CardCode   String
-  AddrType   String //TODO: add to API - inform Chris
+  AddrType   String
   Street     String? @default("")
   Address2   String? @default("")
   Address3   String? @default("")

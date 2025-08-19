@@ -7,6 +7,7 @@ import { bpMasterFormSchema, BpPortalFields, BpSapFields, deleteBpMasterSchema, 
 import { Address } from "@prisma/client"
 import { isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
+import { z } from "zod"
 
 const sapCredentials = {
   BaseURL: process.env.SAP_BASE_URL || "",
@@ -114,6 +115,20 @@ export async function getStates() {
     return []
   }
 }
+
+export const getStatesClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ countryCode: z.string().min(1, { message: "Country code is required" }) }))
+  .action(async ({ parsedInput: data }) => {
+    try {
+      return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query7')/List`, `Country='${data.countryCode}'`, {
+        Prefer: "odata.maxpagesize=999",
+      })
+    } catch (error) {
+      console.error(error)
+      return []
+    }
+  })
 
 export async function getCountries() {
   try {

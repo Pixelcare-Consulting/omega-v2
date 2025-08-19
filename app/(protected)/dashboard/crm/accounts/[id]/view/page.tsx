@@ -7,15 +7,17 @@ import ViewAccount from "./_components/view-account"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import { getLeads } from "@/actions/lead"
 import { getContacts } from "@/actions/contacts"
+import { getCountries } from "@/actions/master-bp"
 
 export default async function ViewAccountPage({ params }: { params: { id: string } }) {
   const { id } = params
 
-  const [account, accounts, contacts, leads] = await Promise.all([
+  const [account, accounts, contacts, leads, countries] = await Promise.all([
     id === "add" ? null : await getAccountById(id),
     getAccounts(),
     getContacts(),
     getLeads(),
+    getCountries(),
   ])
 
   if (!account) notFound()
@@ -33,7 +35,7 @@ export default async function ViewAccountPage({ params }: { params: { id: string
         ]}
       />
       <ContentContainer>
-        <ViewAccount account={account} accounts={accounts} contacts={contacts} leads={leads} />
+        <ViewAccount account={account} accounts={accounts} contacts={contacts} leads={leads} countries={countries?.value || []} />
       </ContentContainer>
     </ContentLayout>
   )

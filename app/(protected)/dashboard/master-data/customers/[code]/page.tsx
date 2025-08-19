@@ -19,13 +19,12 @@ export default async function CustomerPage({ params, searchParams }: { params: {
   const { code } = params
   const { leadId } = searchParams
 
-  const [customer, lead, bpGroups, paymentTerms, currencies, states, countries, users] = await Promise.all([
+  const [customer, lead, bpGroups, paymentTerms, currencies, countries, users] = await Promise.all([
     !code ? null : getBpMasterByCardCode(code),
     !leadId ? null : getLeadById(leadId),
     getBpMasterGroups(),
     getPaymentTerms(),
     getCurrencies(),
-    getStates(),
     getCountries(),
     getUsers(),
   ])
@@ -93,7 +92,6 @@ export default async function CustomerPage({ params, searchParams }: { params: {
                 bpGroups={bpGroups?.value || []}
                 paymentTerms={paymentTerms?.value || []}
                 currencies={currencies?.value || []}
-                states={states?.value || []}
                 countries={countries?.value || []}
                 users={users}
               />

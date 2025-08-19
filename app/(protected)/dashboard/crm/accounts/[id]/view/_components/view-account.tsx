@@ -19,9 +19,10 @@ type ViewAccountProps = {
   accounts: Awaited<ReturnType<typeof getAccounts>>
   leads: Awaited<ReturnType<typeof getLeads>>
   contacts: Awaited<ReturnType<typeof getContacts>>
+  countries?: any
 }
 
-export default function ViewAccount({ account, accounts, contacts, leads }: ViewAccountProps) {
+export default function ViewAccount({ account, accounts, contacts, leads, countries }: ViewAccountProps) {
   const STATUS_CLASSES: Record<string, string> = {
     green: "bg-green-50 text-green-600 ring-green-500/10",
     red: "bg-red-50 text-red-600 ring-red-500/10",
@@ -112,7 +113,7 @@ export default function ViewAccount({ account, accounts, contacts, leads }: View
           </TabsContent>
 
           <TabsContent value='3'>
-            <AccountLeadsTab account={account} accounts={accounts} contacts={contacts} leads={leads} />
+            <AccountLeadsTab account={account} accounts={accounts} contacts={contacts} leads={leads} countries={countries} />
           </TabsContent>
         </Tabs>
       </div>

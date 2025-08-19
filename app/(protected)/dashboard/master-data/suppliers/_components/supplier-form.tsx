@@ -9,7 +9,7 @@ import { format } from "date-fns"
 import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
 
-import { getBpMasterByCardCode, upsertBpMaster } from "@/actions/master-bp"
+import { getBpMasterByCardCode, getStatesClient, upsertBpMaster } from "@/actions/master-bp"
 import {
   BP_MASTER_SUPPLIER_AVL_STATUS_OPTIONS,
   BpMasterForm,
@@ -31,13 +31,13 @@ import { Button } from "@/components/ui/button"
 import LoadingButton from "@/components/loading-button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FormDebug } from "@/components/form/form-debug"
+import { Badge } from "@/components/badge"
 
 type SupplierFormProps = {
   supplier?: Awaited<ReturnType<typeof getBpMasterByCardCode>>
   bpGroups?: any
   paymentTerms?: any
   currencies?: any
-  states?: any
   countries?: any
   itemGroups?: any
   manufacturers?: any
@@ -48,7 +48,6 @@ export default function SupplierForm({
   supplier,
   bpGroups,
   currencies,
-  states,
   countries,
   paymentTerms,
   itemGroups,
@@ -191,6 +190,18 @@ export default function SupplierForm({
 
   const { executeAsync, isExecuting } = useAction(upsertBpMaster)
 
+  const {
+    execute: getBillingStatesExecute,
+    isExecuting: isBillingStatesLoading,
+    result: { data: billingStates },
+  } = useAction(getStatesClient)
+
+  const {
+    execute: getShippingStatesExecute,
+    isExecuting: isShippingStatesLoading,
+    result: { data: shippingStates },
+  } = useAction(getStatesClient)
+
   const bpGroupsOptions = useMemo(() => {
     if (!bpGroups) return []
     return bpGroups.map((group: any) => ({ label: group.Name, value: group.Code, group }))
@@ -206,15 +217,24 @@ export default function SupplierForm({
     return currencies.map((currency: any) => ({ label: currency.CurrName, value: currency.CurrCode }))
   }, [JSON.stringify(currencies)])
 
-  const statesOptions = useMemo(() => {
-    if (!states) return []
-    return states.map((state: any) => ({ label: state.Name, value: state.Code }))
-  }, [JSON.stringify(states)])
-
   const countriesOptions = useMemo(() => {
     if (!countries) return []
     return countries.map((country: any) => ({ label: country.Name, value: country.Code }))
   }, [JSON.stringify(countries)])
+
+  const billingStatesOptions = useMemo(() => {
+    const result = billingStates?.value || []
+
+    if (result.length < 1 || isBillingStatesLoading) return []
+    return result.map((state: any) => ({ label: state.Name, value: state.Code }))
+  }, [JSON.stringify(billingStates), isBillingStatesLoading])
+
+  const shippingStatesOptions = useMemo(() => {
+    const result = shippingStates?.value || []
+
+    if (result.length < 1 || isShippingStatesLoading) return []
+    return result.map((state: any) => ({ label: state.Name, value: state.Code }))
+  }, [JSON.stringify(shippingStates), isShippingStatesLoading])
 
   const itemGroupsOptions = useMemo(() => {
     if (!itemGroups) return []
@@ -485,7 +505,15 @@ export default function SupplierForm({
           </div>
 
           <Separator className='col-span-12' />
-          <ReadOnlyFieldHeader className='col-span-12' title='Address Details' description='Supplier address details' />
+          <ReadOnlyFieldHeader
+            className='col-span-12'
+            title={
+              <div className='flex items-center gap-3'>
+                Address Details <Badge variant='soft-blue'>Default</Badge>
+              </div>
+            }
+            description='Supplier address details'
+          />
 
           <Tabs defaultValue='1' className='col-span-12'>
             <TabsList>
@@ -577,11 +605,24 @@ export default function SupplierForm({
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={countriesOptions} control={form.control} name='billingAddress.Country' label='Country' />
+                  <ComboboxField
+                    data={countriesOptions}
+                    control={form.control}
+                    name='billingAddress.Country'
+                    label='Country'
+                    callback={(args) => getBillingStatesExecute({ countryCode: args.option.value })}
+                    isLoading
+                  />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={statesOptions} control={form.control} name='billingAddress.State' label='State' />
+                  <ComboboxField
+                    data={billingStatesOptions}
+                    control={form.control}
+                    name='billingAddress.State'
+                    label='State'
+                    isLoading={isBillingStatesLoading}
+                  />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
@@ -679,11 +720,23 @@ export default function SupplierForm({
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={countriesOptions} control={form.control} name='shippingAddress.Country' label='Country' />
+                  <ComboboxField
+                    data={countriesOptions}
+                    control={form.control}
+                    name='shippingAddress.Country'
+                    label='Country'
+                    callback={(args) => getShippingStatesExecute({ countryCode: args.option.value })}
+                  />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={statesOptions} control={form.control} name='shippingAddress.State' label='State' />
+                  <ComboboxField
+                    data={shippingStatesOptions}
+                    control={form.control}
+                    name='shippingAddress.State'
+                    label='State'
+                    isLoading={isShippingStatesLoading}
+                  />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>

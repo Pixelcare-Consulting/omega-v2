@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
 import { Control, FieldPath, FieldValues } from "react-hook-form"
 
 import { Button, ButtonProps } from "@/components/ui/button"
@@ -83,9 +83,19 @@ export function ComboboxField<T extends FieldValues>({
                     variant='outline'
                     className='w-full justify-between truncate disabled:bg-muted disabled:opacity-100'
                     {...extendedProps?.buttonProps}
+                    disabled={isLoading}
                   >
-                    {field.value ? data.find((item) => item.value == field.value)?.label : `Select ${label}`}
-                    <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                    {isLoading ? (
+                      <>
+                        {`Loading ${label}...`}
+                        <Loader2 className='ml-2 size-4 shrink-0 animate-spin opacity-50' />
+                      </>
+                    ) : (
+                      <>
+                        {field.value ? data.find((item) => item.value == field.value)?.label : `Select ${label}`}
+                        <ChevronsUpDown className='ml-2 size-4 shrink-0 opacity-50' />
+                      </>
+                    )}
                   </Button>
                 </FormControl>
               </PopoverTrigger>
@@ -102,7 +112,7 @@ export function ComboboxField<T extends FieldValues>({
 
                   <CommandList {...extendedProps?.commandListProps}>
                     {!isLoading && data && data.length > 0
-                      ? data.map((item, i) => {
+                      ? data.map((item: any, i) => {
                           const selected = field.value == item.value
 
                           return (
