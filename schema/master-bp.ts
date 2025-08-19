@@ -104,7 +104,7 @@ export const bpPortalFieldsSchema = z
 
     //* customer fields
     accountType: z.string().nullish(),
-    type: z.string().min(1, { message: "Type is required" }),
+    type: z.string().nullish(),
     industryType: z.string().nullish(),
     isCreditHold: z.boolean(),
     isWarehousingCustomer: z.boolean(),
@@ -160,6 +160,13 @@ export const bpMasterFormSchema = z
     },
     { message: "Scope is required", path: ["scope"] }
   )
+  .refine((formObj) => {
+    if (formObj.CardType === "C") {
+      if (!formObj.type) return false
+      return true
+    }
+    return true
+  })
 
 //* Types
 export type BpMasterForm = z.infer<typeof bpMasterFormSchema>

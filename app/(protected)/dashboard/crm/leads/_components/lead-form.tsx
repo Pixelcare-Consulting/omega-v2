@@ -298,11 +298,11 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId 
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={[]} control={form.control} name='state' label='State' />
+            <ComboboxField data={[]} control={form.control} name='country' label='Country' />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={[]} control={form.control} name='country' label='Country' />
+            <ComboboxField data={[]} control={form.control} name='state' label='State' />
           </div>
 
           <div className='col-span-12 lg:col-span-3'>

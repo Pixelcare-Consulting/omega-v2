@@ -172,7 +172,7 @@ export default function MultiSelectField<T extends FieldValues>({
                 <div className='relative'>
                   <CommandList {...extendedProps?.commandListProps}>
                     {open && selectables.length > 0 ? (
-                      <div className='absolute top-1.5 z-10 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in'>
+                      <div className='absolute top-1.5 z-10 max-h-[300px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in'>
                         {isLoading && <CommandEmpty {...extendedProps?.commandEmptyProps}>Loading...</CommandEmpty>}
 
                         <CommandGroup className='h-full overflow-auto' {...extendedProps?.commandGroupProps}>

@@ -592,11 +592,11 @@ export default function CustomerForm({ customer, bpGroups, currencies, states, c
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={statesOptions} control={form.control} name='billingAddress.State' label='State' />
+                  <ComboboxField data={countriesOptions} control={form.control} name='billingAddress.Country' label='Country' />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={countriesOptions} control={form.control} name='billingAddress.Country' label='Country' />
+                  <ComboboxField data={statesOptions} control={form.control} name='billingAddress.State' label='State' />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
@@ -694,11 +694,11 @@ export default function CustomerForm({ customer, bpGroups, currencies, states, c
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={statesOptions} control={form.control} name='shippingAddress.State' label='State' />
+                  <ComboboxField data={countriesOptions} control={form.control} name='shippingAddress.Country' label='Country' />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-                  <ComboboxField data={countriesOptions} control={form.control} name='shippingAddress.Country' label='Country' />
+                  <ComboboxField data={statesOptions} control={form.control} name='shippingAddress.State' label='State' />
                 </div>
 
                 <div className='col-span-12 md:col-span-6 lg:col-span-3'>

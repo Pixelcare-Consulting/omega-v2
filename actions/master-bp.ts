@@ -161,59 +161,57 @@ export const upsertBpMaster = action
         .sort((a, b) => a - b)
 
       let lastIdNumber = addressesIdNumber.pop()
-      let newIdNumber = lastIdNumber !== 0 && lastIdNumber !== undefined && lastIdNumber !== null ? lastIdNumber++ : 1
+      let newIdNumber = lastIdNumber !== 0 && lastIdNumber !== undefined && lastIdNumber !== null ? ++lastIdNumber : 1
 
       if (id && id !== "add") {
         //* check if source is sap or portal, if portal only update the portal otherwise update both
         if (portalData.source === "portal") {
-          const [updatedBillingAddress, updatedShippingAddress] = await prisma.$transaction([
-            //* upsert addresses
-            ...(billingAddress
-              ? [
-                  prisma.address.upsert({
-                    where: { id: billingAddress.id },
-                    create: { ...billingAddress, CardCode: data.CardCode, id: `A${newIdNumber}` },
-                    update: { ...billingAddress, CardCode: data.CardCode },
-                  }),
-                ]
-              : []),
+          const updatedBpMaster = await prisma.$transaction(async (tx) => {
+            //* upsert billing address
+            const updatedBillingAddress = billingAddress
+              ? await tx.address.upsert({
+                  where: { id: billingAddress.id },
+                  create: { ...billingAddress, CardCode: data.CardCode, id: `A${String(newIdNumber).padStart(6, "0")}` },
+                  update: { ...billingAddress, CardCode: data.CardCode },
+                })
+              : null
 
-            ...(shippingAddress
-              ? [
-                  prisma.address.upsert({
-                    where: { id: shippingAddress.id },
-                    create: {
-                      ...shippingAddress,
-                      CardCode: data.CardCode,
-                      id: billingAddress ? `A${newIdNumber++}` : `A${newIdNumber}`,
-                    },
-                    update: { ...shippingAddress, CardCode: data.CardCode },
-                  }),
-                ]
-              : []),
-          ])
+            //* upsert shipping address
+            const updatedShippingAddress = shippingAddress
+              ? await tx.address.upsert({
+                  where: { id: shippingAddress.id },
+                  create: {
+                    ...shippingAddress,
+                    CardCode: data.CardCode,
+                    id: billingAddress ? `A${String(++newIdNumber).padStart(6, "0")}` : `A${String(newIdNumber).padStart(6, "0")}`,
+                  },
+                  update: { ...shippingAddress, CardCode: data.CardCode },
+                })
+              : null
 
-          const [updatedBpMaster] = await prisma.$transaction([
             //* update busines partner
-            prisma.businessPartner.update({
+            const result = tx.businessPartner.update({
               where: { CardCode: data.CardCode },
               data: {
                 ...data,
+                type: data.type || "",
                 scope: data.scope || "",
                 BillToDef: updatedBillingAddress?.id || null,
                 ShipToDef: updatedShippingAddress?.id || null,
                 updatedBy: userId,
               },
-            }),
+            })
 
             //* delete existiong business partner (customer) excess managers
-            prisma.businessPartnerExcessManager.deleteMany({ where: { bpCode: data.CardCode } }),
+            tx.businessPartnerExcessManager.deleteMany({ where: { bpCode: data.CardCode } })
 
             //* create new business partner (customer) excess managers
-            prisma.businessPartnerExcessManager.createMany({
+            tx.businessPartnerExcessManager.createMany({
               data: assignedExcessManagers?.map((userId) => ({ bpCode: data.CardCode, userId })) || [],
-            }),
-          ])
+            })
+
+            return result
+          })
 
           revalidateTag(cacheKey)
 
@@ -231,26 +229,42 @@ export const upsertBpMaster = action
 
       //* check if source is sap or portal, if portal only update the portal other wise update both
       if (portalData.source === "portal") {
-        const newBpMaster = await prisma.businessPartner.create({
-          data: {
-            ...data,
-            scope: data.scope || "",
-            createdBy: userId,
-            updatedBy: userId,
-            assignedExcessManagers: {
-              create: assignedExcessManagers?.map((userId) => ({ userId })) || [],
-            },
-          },
-        })
+        const newBpMaster = await prisma.$transaction(async (tx) => {
+          //* create default billing address
+          const newBillingAddress = billingAddress
+            ? await tx.address.create({
+                data: { ...billingAddress, CardCode: data.CardCode, id: `A${String(newIdNumber).padStart(6, "0")}` },
+              })
+            : null
 
-        //* create default billing and shipping address
-        await prisma.address.createMany({
-          data: [
-            ...(billingAddress ? [{ ...billingAddress, CardCode: newBpMaster.CardCode, id: `A${newIdNumber}` }] : []),
-            ...(shippingAddress
-              ? [{ ...shippingAddress, CardCode: newBpMaster.CardCode, id: billingAddress ? `A${newIdNumber++}` : `A${newIdNumber}` }]
-              : []),
-          ],
+          //* create default shipping address
+          const newShippingAddress = shippingAddress
+            ? await prisma.address.create({
+                data: {
+                  ...shippingAddress,
+                  CardCode: data.CardCode,
+                  id: billingAddress ? `A${String(++newIdNumber).padStart(6, "0")}` : `A${String(newIdNumber).padStart(6, "0")}`,
+                },
+              })
+            : null
+
+          //* create newBpMaster
+          const result = await prisma.businessPartner.create({
+            data: {
+              ...data,
+              type: data.type || "",
+              scope: data.scope || "",
+              createdBy: userId,
+              updatedBy: userId,
+              BillToDef: newBillingAddress?.id || null,
+              ShipToDef: newShippingAddress?.id || null,
+              assignedExcessManagers: {
+                create: assignedExcessManagers?.map((userId) => ({ userId })) || [],
+              },
+            },
+          })
+
+          return result
         })
 
         revalidateTag(cacheKey)
