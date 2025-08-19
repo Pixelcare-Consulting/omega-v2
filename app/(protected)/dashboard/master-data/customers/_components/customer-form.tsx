@@ -308,6 +308,38 @@ export default function CustomerForm({ customer, bpGroups, currencies, countries
     }
   }, [cardCode])
 
+  //* set billing & shpping state if customer data exist
+  useEffect(() => {
+    if (customer) {
+      const addresses = customer.addresses || []
+
+      const defaultBillingAddress = addresses.find((address) => address.id === customer.BillToDef) || null
+      const defaultShippingAddress = addresses.find((address) => address.id === customer.ShipToDef) || null
+
+      if (defaultBillingAddress && defaultBillingAddress.Country) {
+        form.setValue("billingAddress.Country", defaultBillingAddress.Country)
+
+        //* trigger fetching billing state
+        getBillingStatesExecute({ countryCode: defaultBillingAddress.Country })
+
+        setTimeout(() => {
+          form.setValue("billingAddress.State", defaultBillingAddress.State)
+        }, 1000)
+      }
+
+      if (defaultShippingAddress && defaultShippingAddress.Country) {
+        form.setValue("shippingAddress.Country", defaultShippingAddress.Country)
+
+        //* trigger fetching shipping state
+        getBillingStatesExecute({ countryCode: defaultShippingAddress.Country })
+
+        setTimeout(() => {
+          form.setValue("shippingAddress.State", defaultShippingAddress.State)
+        }, 1000)
+      }
+    }
+  }, [JSON.stringify(customer)])
+
   //* pre populate data based on lead
   useEffect(() => {
     if (lead) {

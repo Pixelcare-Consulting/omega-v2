@@ -169,6 +169,16 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId,
     }
   }, [accountId, JSON.stringify(accountsOptions)])
 
+  //* set state if lead data is exist
+  useEffect(() => {
+    if (lead) {
+      if (lead.country) {
+        //* trigger fetching state
+        getStatesExecute({ countryCode: lead.country })
+      }
+    }
+  }, [JSON.stringify(lead)])
+
   return (
     <>
       {/* <FormDebug form={form} /> */}

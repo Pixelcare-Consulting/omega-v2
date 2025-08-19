@@ -320,6 +320,38 @@ export default function SupplierForm({
     }
   }, [cardCode])
 
+  //* set billing & shpping state if supplier data exist
+  useEffect(() => {
+    if (supplier) {
+      const addresses = supplier.addresses || []
+
+      const defaultBillingAddress = addresses.find((address) => address.id === supplier.BillToDef) || null
+      const defaultShippingAddress = addresses.find((address) => address.id === supplier.ShipToDef) || null
+
+      if (defaultBillingAddress && defaultBillingAddress.Country) {
+        form.setValue("billingAddress.Country", defaultBillingAddress.Country)
+
+        //* trigger fetching billing state
+        getBillingStatesExecute({ countryCode: defaultBillingAddress.Country })
+
+        setTimeout(() => {
+          form.setValue("billingAddress.State", defaultBillingAddress.State)
+        }, 1000)
+      }
+
+      if (defaultShippingAddress && defaultShippingAddress.Country) {
+        form.setValue("shippingAddress.Country", defaultShippingAddress.Country)
+
+        //* trigger fetching shipping state
+        getBillingStatesExecute({ countryCode: defaultShippingAddress.Country })
+
+        setTimeout(() => {
+          form.setValue("shippingAddress.State", defaultShippingAddress.State)
+        }, 1000)
+      }
+    }
+  }, [JSON.stringify(supplier)])
+
   return (
     <>
       {/* <FormDebug form={form} /> */}
@@ -611,7 +643,6 @@ export default function SupplierForm({
                     name='billingAddress.Country'
                     label='Country'
                     callback={(args) => getBillingStatesExecute({ countryCode: args.option.value })}
-                    isLoading
                   />
                 </div>
 
