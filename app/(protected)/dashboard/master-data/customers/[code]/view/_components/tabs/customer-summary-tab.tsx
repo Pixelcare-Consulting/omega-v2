@@ -144,32 +144,6 @@ export default function CustomerSummaryTab({ customer }: CustomerSummaryTabProps
           title='Sync Status'
           value={<SyncStatus status={customer.syncStatus} />}
         />
-
-        <ReadOnlyFieldHeader className='col-span-12' title='Address' description='Customer full address details' />
-
-        <ReadOnlyField className='col-span-12' title='Street' value={customer?.street || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Street No.' value={customer?.streetNo || ""} />
-
-        <ReadOnlyField
-          className='col-span-12 md:col-span-6 lg:col-span-3'
-          title='Building/Floor/Room'
-          value={customer?.buildingFloorRoom || ""}
-        />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Block' value={customer?.block || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='City' value={customer?.city || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Zip Code' value={customer?.zipCode || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='County' value={customer?.county || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='State' value={customer?.state || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Country' value={customer?.country || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='GLN' value={customer?.gln || ""} />
       </div>
     </Card>
   )
