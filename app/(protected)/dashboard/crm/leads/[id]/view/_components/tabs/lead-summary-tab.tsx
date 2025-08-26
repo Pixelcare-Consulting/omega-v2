@@ -71,9 +71,9 @@ export default function LeadSummaryTab({ lead }: LeadSummaryTabsProps) {
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='County' value={lead?.county || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='State' value={lead?.state || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Country' value={lead?.countryName || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Country' value={lead?.country || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='State' value={lead?.stateName || ""} />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='GLN' value={lead?.gln || ""} />
       </div>

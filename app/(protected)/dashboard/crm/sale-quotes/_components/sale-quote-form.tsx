@@ -37,6 +37,7 @@ import { Button } from "@/components/ui/button"
 import LoadingButton from "@/components/loading-button"
 import { getSupplierQuotes } from "@/actions/supplier-quote"
 import { SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS, SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS } from "@/schema/supplier-quote"
+import { getAddressesClient } from "@/actions/master-address"
 
 type SaleQuoteFormProps = {
   isModal?: boolean
@@ -102,6 +103,12 @@ export default function SaleQuoteForm({
   })
 
   const { executeAsync, isExecuting } = useAction(upsertSaleQuote)
+
+  const {
+    execute: getAddressesExecute,
+    isExecuting: isAddressesLoading,
+    result: { data: addresses },
+  } = useAction(getAddressesClient)
 
   const lineItemDefaultValues: LineItemForm = {
     requisitionCode: 0,
@@ -342,6 +349,33 @@ export default function SaleQuoteForm({
     return customers.map((customer) => ({ label: customer?.CardName || customer.CardCode, value: customer.CardCode, customer }))
   }, [JSON.stringify(customers)])
 
+  //* temp comment
+  // const billingAddressesOptions = useMemo(() => {
+  //   if (!addresses || isAddressesLoading) return []
+
+  //   const customer = customersOptions.find((customer) => customer.value === customerCode)?.customer
+  //   const billToDef = customer?.BillToDef
+
+  //   const defaultBillingAddress = addresses.find((address) => address.id === billToDef)
+
+  //   if (defaultBillingAddress) form.setValue("billTo", defaultBillingAddress.id)
+
+  //   return addresses.filter((ad) => ad.AddrType === "B").map((ad) => ({ label: ad.Street || "N/A", value: ad.id, address: ad }))
+  // }, [JSON.stringify(addresses), JSON.stringify(customersOptions), isAddressesLoading, customerCode])
+
+  // const shippingAddressesOptions = useMemo(() => {
+  //   if (!addresses || isAddressesLoading) return []
+
+  //   const customer = customersOptions.find((customer) => customer.value === customerCode)?.customer
+  //   const shipToDef = customer?.ShipToDef
+
+  //   const defaultShippingAddress = addresses.find((address) => address.id === shipToDef)
+
+  //   if (defaultShippingAddress) form.setValue("shipTo", defaultShippingAddress.id)
+
+  //   return addresses.filter((ad) => ad.AddrType === "S").map((ad) => ({ label: ad.Street || "N/A", value: ad.id, address: ad }))
+  // }, [JSON.stringify(addresses), JSON.stringify(customersOptions), isAddressesLoading, customerCode])
+
   const requisitionsOptions = useMemo(() => {
     if (!requisitions || !customerCode) return []
 
@@ -530,6 +564,14 @@ export default function SaleQuoteForm({
     if (session?.user && isCreate) form.setValue("salesRepId", session.user.id)
   }, [JSON.stringify(session)])
 
+  //* trigger fetching for addresses when sales quote data exists
+  //* temp comment
+  // useEffect(() => {
+  //   if (salesQuote && salesQuote.customerCode) {
+  //     getAddressesExecute({ cardCode: salesQuote.customerCode })
+  //   }
+  // }, [salesQuote])
+
   return (
     <>
       {/* <FormDebug form={form} /> */}
@@ -555,7 +597,10 @@ export default function SaleQuoteForm({
               name='customerCode'
               label='Company Name'
               isRequired
-              callback={(args) => customerCodeCallback(args?.option?.customer?.GroupNum)}
+              callback={(args) => {
+                customerCodeCallback(args?.option?.customer?.GroupNum)
+                // getAddressesExecute({ cardCode: args?.option?.customer?.CardCode }) //* temp comment
+              }}
               renderItem={(item, selected) => (
                 <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
                   <div className='flex w-[80%] flex-col justify-center'>
@@ -582,7 +627,7 @@ export default function SaleQuoteForm({
               isRequired
               renderItem={(item, selected) => {
                 return (
-                  <div className='flex flex-col justify-center'>
+                  <div className={cn("flex w-full flex-col justify-center", selected && "bg-accent")}>
                     <span>{item.label}</span>
                     {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
                   </div>
@@ -608,6 +653,90 @@ export default function SaleQuoteForm({
               extendedProps={{ textAreaProps: { placeholder: "Enter ship to" } }}
             />
           </div>
+
+          {/* //?: correct field for billing and shipping address  */}
+          {/* //* temp comment */}
+          {/* <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField
+              data={billingAddressesOptions}
+              control={form.control}
+              name='billTo'
+              label='Bill To'
+              isLoading={isAddressesLoading}
+              renderItem={(item, selected) => {
+                const address = item?.address
+
+                let label = ""
+                let subLabel = ""
+
+                if (address?.Street) label += address.Street
+                else if (!address?.Street && address?.Address2) label += address.Address2
+                else if (!address?.Address2 && address?.Address3) label += address.Address3
+
+                if (address.StreetNo) label += `, ${address.StreetNo}`
+                if (address.Building) label += `, ${address.Building}`
+                if (address.Block) label += `, ${address.Block}`
+
+                if (address.City) subLabel += `${address.City}, `
+                if (address.stateName) subLabel += `${address.stateName}, `
+                if (address.County) subLabel += `${address.County}, `
+                if (address.ZipCode) subLabel += `${address.ZipCode}, `
+                if (address.countryName) subLabel += `${address.countryName}`
+
+                return (
+                  <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
+                    <div className='flex w-[80%] flex-col justify-center'>
+                      <span className={cn("truncate", selected && "text-accent-foreground")}>{label}</span>
+                      <span className='text-xs text-muted-foreground'>{subLabel}</span>
+                    </div>
+
+                    <span className={cn("text-xs text-muted-foreground", selected && "text-accent-foreground")}>#{item?.value}</span>
+                  </div>
+                )
+              }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField
+              data={shippingAddressesOptions}
+              control={form.control}
+              name='shipTo'
+              label='Ship To'
+              isLoading={isAddressesLoading}
+              renderItem={(item, selected) => {
+                const address = item?.address
+
+                let label = ""
+                let subLabel = ""
+
+                if (address?.Street) label += address.Street
+                else if (!address?.Street && address?.Address2) label += address.Address2
+                else if (!address?.Address2 && address?.Address3) label += address.Address3
+
+                if (address.StreetNo) label += `, ${address.StreetNo}`
+                if (address.Building) label += `, ${address.Building}`
+                if (address.Block) label += `, ${address.Block}`
+
+                if (address.City) subLabel += `${address.City}, `
+                if (address.stateName) subLabel += `${address.stateName}, `
+                if (address.County) subLabel += `${address.County}, `
+                if (address.ZipCode) subLabel += `${address.ZipCode}, `
+                if (address.countryName) subLabel += `${address.countryName}`
+
+                return (
+                  <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
+                    <div className='flex w-[80%] flex-col justify-center'>
+                      <span className={cn("truncate", selected && "text-accent-foreground")}>{label}</span>
+                      <span className='text-xs text-muted-foreground'>{subLabel}</span>
+                    </div>
+
+                    <span className={cn("text-xs text-muted-foreground", selected && "text-accent-foreground")}>#{item?.value}</span>
+                  </div>
+                )
+              }}
+            />
+          </div> */}
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <ComboboxField data={paymentTermsOptions} control={form.control} name='paymentTerms' label='Payment Terms' />
@@ -741,7 +870,7 @@ export default function SaleQuoteForm({
               isRequired
               renderItem={(item, selected) => {
                 return (
-                  <div className='flex flex-col justify-center'>
+                  <div className={cn("flex w-full flex-col justify-center", selected && "bg-accent")}>
                     <span>{item.label}</span>
                     {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
                   </div>

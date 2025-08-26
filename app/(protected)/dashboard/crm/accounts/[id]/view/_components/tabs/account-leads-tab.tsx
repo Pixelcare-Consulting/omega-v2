@@ -14,12 +14,10 @@ import { getContacts } from "@/actions/contacts"
 type AccountLeadsTabProps = {
   account: NonNullable<Awaited<ReturnType<typeof getAccountById>>>
   accounts: Awaited<ReturnType<typeof getAccounts>>
-  contacts: Awaited<ReturnType<typeof getContacts>>
-  leads: Awaited<ReturnType<typeof getLeads>>
   countries?: any
 }
 
-export default function AccountLeadsTab({ account, accounts, contacts, leads, countries }: AccountLeadsTabProps) {
+export default function AccountLeadsTab({ account, accounts, countries }: AccountLeadsTabProps) {
   const accountLeads = account?.leads || []
 
   const { isOpen, setIsOpen } = useDialogStore(["isOpen", "setIsOpen"])
@@ -50,7 +48,7 @@ export default function AccountLeadsTab({ account, accounts, contacts, leads, co
           </DialogHeader>
 
           <Card className='p-3'>
-            <LeadForm isModal accountId={account.id} lead={null} accounts={accounts} contacts={contacts} countries={countries} />
+            <LeadForm isModal accountId={account.id} lead={null} accounts={accounts} countries={countries} />
           </Card>
         </DialogContent>
       </Dialog>

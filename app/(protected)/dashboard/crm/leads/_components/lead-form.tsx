@@ -19,8 +19,6 @@ import { ComboboxField } from "@/components/form/combobox-field"
 import { Separator } from "@/components/ui/separator"
 import TextAreaField from "@/components/form/textarea-field"
 import { getAccounts } from "@/actions/account"
-import { getContacts } from "@/actions/contacts"
-import MultiSelectField from "@/components/form/multi-select-field"
 import { useDialogStore } from "@/hooks/use-dialog"
 import { FormDebug } from "@/components/form/form-debug"
 import { getStatesClient } from "@/actions/master-bp"
@@ -29,12 +27,11 @@ type LeadFormProps = {
   isModal?: boolean
   lead?: Awaited<ReturnType<typeof getLeadById>>
   accounts: Awaited<ReturnType<typeof getAccounts>>
-  contacts: Awaited<ReturnType<typeof getContacts>>
   accountId?: string
   countries?: any
 }
 
-export default function LeadForm({ isModal, lead, accounts, contacts, accountId, countries }: LeadFormProps) {
+export default function LeadForm({ isModal, lead, accounts, accountId, countries }: LeadFormProps) {
   const router = useRouter()
   const { id } = useParams() as { id: string }
   const { setIsOpen } = useDialogStore(["setIsOpen"])
@@ -45,11 +42,6 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId,
     if (!accounts) return []
     return accounts.map((account) => ({ label: account.name, value: account.id }))
   }, [JSON.stringify(accounts)])
-
-  const contactsOptions = useMemo(() => {
-    if (!contacts) return []
-    return contacts.map((contact) => ({ label: contact.name, value: contact.id }))
-  }, [JSON.stringify(contacts)])
 
   const values = useMemo(() => {
     if (lead) return lead
@@ -63,7 +55,6 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId,
         title: "",
         status: "new-lead",
         accountId: null,
-        relatedContacts: [],
         street1: "",
         street2: "",
         street3: "",
@@ -151,14 +142,6 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId,
     return result.map((state: any) => ({ label: state.Name, value: state.Code }))
   }, [JSON.stringify(states), isStatesLoading])
 
-  //* set relatedContacts if data lead exist
-  useEffect(() => {
-    if (lead && contactsOptions.length > 0) {
-      const relatedContacts = lead?.contacts?.map((c) => c.contactId) || []
-      form.setValue("relatedContacts", relatedContacts)
-    }
-  }, [JSON.stringify(lead), JSON.stringify(contactsOptions)])
-
   //* set account if accountId exist
   useEffect(() => {
     if (accountId && accountsOptions.length > 0) {
@@ -241,10 +224,6 @@ export default function LeadForm({ isModal, lead, accounts, contacts, accountId,
 
           <div className='col-span-12 lg:col-span-6'>
             <ComboboxField data={accountsOptions} control={form.control} name='accountId' label='Related Account' />
-          </div>
-
-          <div className='col-span-12 lg:col-span-6'>
-            <MultiSelectField data={contactsOptions} control={form.control} name='relatedContacts' label='Related Contacts' />
           </div>
 
           <div className={cn("col-span-12 mt-2 space-y-4", isCreate && "lg:col-span-12")}>

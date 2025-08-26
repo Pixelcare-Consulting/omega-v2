@@ -63,7 +63,7 @@ export default function RequisitionSupplierQuotesTab({
         <DialogContent className='max-h-[85vh] overflow-auto sm:max-w-5xl'>
           <DialogHeader>
             <DialogTitle>Add supplier quote for requisition #{requisition.code}</DialogTitle>
-            <DialogDescription>Fill in the form to create a new supplier quote for this requisition.</DialogDescription>
+            <DialogDescription>Fill in the form to {data ? "edit" : "create a new"} supplier quote for this requisition.</DialogDescription>
           </DialogHeader>
 
           <Card className='p-3'>

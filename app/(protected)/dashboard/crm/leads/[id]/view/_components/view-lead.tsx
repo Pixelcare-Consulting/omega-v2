@@ -24,11 +24,9 @@ import LeadActivitiesTab from "./tabs/lead-activities-tab"
 
 type ViewLeadProps = {
   lead: NonNullable<Awaited<ReturnType<typeof getLeadById>>>
-  accounts: Awaited<ReturnType<typeof getAccounts>>
-  leads: Awaited<ReturnType<typeof getLeads>>
 }
 
-export default function ViewLead({ lead, accounts, leads }: ViewLeadProps) {
+export default function ViewLead({ lead }: ViewLeadProps) {
   const router = useRouter()
 
   const { executeAsync, isExecuting } = useAction(updateLeadStatus)
@@ -177,9 +175,7 @@ export default function ViewLead({ lead, accounts, leads }: ViewLeadProps) {
           <TabsList className='mb-2 h-fit flex-wrap'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
             <TabsTrigger value='2'>Account</TabsTrigger>
-            <TabsTrigger value='3'>Contacts</TabsTrigger>
-            <TabsTrigger value='4'>Activities</TabsTrigger>
-            <TabsTrigger value='5'>Quotes</TabsTrigger>
+            <TabsTrigger value='3'>Activities</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -191,14 +187,8 @@ export default function ViewLead({ lead, accounts, leads }: ViewLeadProps) {
           </TabsContent>
 
           <TabsContent value='3'>
-            <LeadContactsTab lead={lead} leads={leads} accounts={accounts} />
-          </TabsContent>
-
-          <TabsContent value='4'>
             <LeadActivitiesTab lead={lead} />
           </TabsContent>
-
-          <TabsContent value='5'></TabsContent>
         </Tabs>
       </div>
     </PageWrapper>

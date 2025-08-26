@@ -10,19 +10,15 @@ import { Icons } from "@/components/icons"
 import { Card } from "@/components/ui/card"
 import { cn, getInitials } from "@/lib/utils"
 import AccountSummaryTab from "./tabs/account-summary-tab"
-import AccountContactsTab from "./tabs/account-contacts-tab"
 import AccountLeadsTab from "./tabs/account-leads-tab"
-import { getContacts } from "@/actions/contacts"
 
 type ViewAccountProps = {
   account: NonNullable<Awaited<ReturnType<typeof getAccountById>>>
   accounts: Awaited<ReturnType<typeof getAccounts>>
-  leads: Awaited<ReturnType<typeof getLeads>>
-  contacts: Awaited<ReturnType<typeof getContacts>>
   countries?: any
 }
 
-export default function ViewAccount({ account, accounts, contacts, leads, countries }: ViewAccountProps) {
+export default function ViewAccount({ account, accounts, countries }: ViewAccountProps) {
   const STATUS_CLASSES: Record<string, string> = {
     green: "bg-green-50 text-green-600 ring-green-500/10",
     red: "bg-red-50 text-red-600 ring-red-500/10",
@@ -100,8 +96,7 @@ export default function ViewAccount({ account, accounts, contacts, leads, countr
         <Tabs defaultValue='1' className='w-full'>
           <TabsList className='mb-2 h-fit flex-wrap'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
-            <TabsTrigger value='2'>Contacts</TabsTrigger>
-            <TabsTrigger value='3'>Leads</TabsTrigger>
+            <TabsTrigger value='2'>Leads</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -109,11 +104,7 @@ export default function ViewAccount({ account, accounts, contacts, leads, countr
           </TabsContent>
 
           <TabsContent value='2'>
-            <AccountContactsTab account={account} accounts={accounts} leads={leads} />
-          </TabsContent>
-
-          <TabsContent value='3'>
-            <AccountLeadsTab account={account} accounts={accounts} contacts={contacts} leads={leads} countries={countries} />
+            <AccountLeadsTab account={account} accounts={accounts} countries={countries} />
           </TabsContent>
         </Tabs>
       </div>

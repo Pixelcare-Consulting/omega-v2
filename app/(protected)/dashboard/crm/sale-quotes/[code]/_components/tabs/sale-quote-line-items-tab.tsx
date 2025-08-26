@@ -116,7 +116,7 @@ export default function SaleQuoteLineItemsTab({ saleQuote, items, requisitions }
         <DialogContent className='max-h-[85vh] overflow-auto sm:max-w-5xl'>
           <DialogHeader>
             <DialogTitle>Add line item for sale quote #{saleQuote.code}</DialogTitle>
-            <DialogDescription>Fill in the form to add a new line item for this sale quote.</DialogDescription>
+            <DialogDescription>Fill in the form to {data ? "edit" : "add a new"} line item for this sale quote.</DialogDescription>
           </DialogHeader>
 
           <Card className='p-3'>
