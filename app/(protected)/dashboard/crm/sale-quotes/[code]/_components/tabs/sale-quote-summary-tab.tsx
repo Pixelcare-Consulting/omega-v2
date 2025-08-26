@@ -31,31 +31,50 @@ export default function SaleQuoteSummaryTab({ saleQuote, items, requisitions, pa
   const customer = saleQuote.customer
   const salesRep = saleQuote.salesRep
   const approval = saleQuote.approval
+  const contact = saleQuote.contact
 
-  // const billToAddress = customer.addresses.find((address) => customer.BillToDef === address.id)
-  // const shipToAddress = customer.addresses.find((address) => customer.ShipToDef === address.id)
+  const getAddress = (address?: NonNullable<Awaited<ReturnType<typeof getSaleQuoteByCode>>>["customer"]["addresses"][number]) => {
+    let result = ""
 
-  // const getAddress = (address?: NonNullable<Awaited<ReturnType<typeof getSaleQuoteByCode>>>["customer"]["addresses"][number]) => {
-  //   let result = ""
+    if (!address) return ""
 
-  //   if (!address) return ""
+    if (address?.Street) result += address.Street
+    else if (!address?.Street && address?.Address2) result += address.Address2
+    else if (!address?.Address2 && address?.Address3) result += address.Address3
 
-  //   if (address?.Street) result += address.Street
-  //   else if (!address?.Street && address?.Address2) result += address.Address2
-  //   else if (!address?.Address2 && address?.Address3) result += address.Address3
+    if (address.StreetNo) result += `, ${address.StreetNo}`
+    if (address.Building) result += `, ${address.Building}`
+    if (address.Block) result += `, ${address.Block}`
 
-  //   if (address.StreetNo) result += `, ${address.StreetNo}`
-  //   if (address.Building) result += `, ${address.Building}`
-  //   if (address.Block) result += `, ${address.Block}`
+    if (address.City) result += `, ${address.City}`
+    if (address.stateName) result += `, ${address.stateName}`
+    if (address.County) result += `, ${address.County}`
+    if (address.ZipCode) result += `, ${address.ZipCode}`
+    if (address.countryName) result += `, ${address.countryName}`
 
-  //   if (address.City) result += `, ${address.City}`
-  //   if (address.stateName) result += `, ${address.stateName}`
-  //   if (address.County) result += `, ${address.County}`
-  //   if (address.ZipCode) result += `, ${address.ZipCode}`
-  //   if (address.countryName) result += `, ${address.countryName}`
+    return result
+  }
 
-  //   return result
-  // }
+  const billToAddress = useMemo(() => {
+    const address = customer.addresses.find((address) => customer.BillToDef === address.id)
+    return getAddress(address)
+  }, [JSON.stringify(customer)])
+
+  const shipToAddress = useMemo(() => {
+    const address = customer.addresses.find((address) => customer.ShipToDef === address.id)
+    return getAddress(address)
+  }, [JSON.stringify(customer)])
+
+  const contactFullName = useMemo(() => {
+    if (!contact) return ""
+
+    let fullname = ""
+
+    if (contact.FirstName) fullname += `${contact.FirstName} `
+    if (contact.LastName) fullname += contact.LastName
+
+    return fullname
+  }, [JSON.stringify(contact)])
 
   const paymentTerm = paymentTerms?.find((term: any) => term.GroupNum === saleQuote.paymentTerms)?.PymntGroup
 
@@ -133,8 +152,8 @@ export default function SaleQuoteSummaryTab({ saleQuote, items, requisitions, pa
           salesQuote={saleQuote}
           lineItems={lineItemsFullDetails}
           paymentTerms={paymentTerms}
-          // billTo={getAddress(billToAddress)}
-          // shipTo={getAddress(shipToAddress)}
+          billTo={billToAddress}
+          shipTo={shipToAddress}
         />
       )
     }
@@ -170,7 +189,7 @@ export default function SaleQuoteSummaryTab({ saleQuote, items, requisitions, pa
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Company Name' value={customer.CardName} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Contact - Full Name' value='' />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Contact - Full Name' value={contactFullName} />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'
@@ -178,16 +197,9 @@ export default function SaleQuoteSummaryTab({ saleQuote, items, requisitions, pa
           value={salesRep?.name || salesRep?.email || ""}
         />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6' title='Bill To' value={saleQuote.billTo || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6' title='Bill To' value={billToAddress} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6' title='Ship To' value={saleQuote.shipTo || ""} />
-
-        {/* //?: correct field for billing and shipping address  */}
-        {/* //* temp comment */}
-        {/* 
-        <ReadOnlyField className='col-span-12 md:col-span-6' title='Bill To' value={getAddress(billToAddress)} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6' title='Ship To' value={getAddress(shipToAddress)} /> */}
+        <ReadOnlyField className='col-span-12 md:col-span-6' title='Ship To' value={shipToAddress} />
 
         <ReadOnlyField className='col-span-12 md:col-span-3' title='Payment Terms' value={paymentTerm || ""} />
 

@@ -8,6 +8,7 @@ import { contactMasterFormSchema, syncContactMasterByBpSchema } from "@/schema/m
 import { Contact } from "@prisma/client"
 import { isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
+import { z } from "zod"
 
 const sapCredentials = {
   BaseURL: process.env.SAP_BASE_URL || "",
@@ -32,6 +33,18 @@ export async function getContacts(cardCode: string) {
     return []
   }
 }
+
+export const getContactsClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ cardCode: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    try {
+      return await prisma.contact.findMany({ where: { CardCode: data.cardCode } })
+    } catch (error) {
+      console.error(error)
+      return []
+    }
+  })
 
 export async function getContactById(id: string) {
   try {

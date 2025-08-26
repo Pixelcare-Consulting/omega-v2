@@ -6,6 +6,7 @@ import { paramsSchema } from "@/schema/common"
 import { saleQuoteFormSchema, updateLineItemForm } from "@/schema/sale-quote"
 import { getSupplierQuoteByCode } from "./supplier-quote"
 import { getBpMasterByCardCode } from "./master-bp"
+import { Contact } from "@prisma/client"
 
 export type LineItemsJSONData = {
   requisitionCode: number
@@ -46,14 +47,19 @@ export async function getSaleQuoteByCode(code: number) {
 
     const customer = await getBpMasterByCardCode(saleQuote.customerCode)
     const lineItems = (saleQuote?.lineItems || []) as LineItemsJSONData
-    const supplierQuotes = await Promise.all(lineItems.map((li) => getSupplierQuoteByCode(li.supplierQuoteCode))).then(data => data.filter(sq => sq !== null)) // prettier-ignore
+    const [supplierQuotes, contact] = await Promise.all([
+      Promise.all(lineItems.map((li) => getSupplierQuoteByCode(li.supplierQuoteCode))).then((data) => data.filter((sq) => sq !== null)),
+      ...(customer?.CntctPrsn ? [prisma.contact.findUnique({ where: { id: customer?.CntctPrsn } })] : []),
+    ])
 
     return {
       ...saleQuote,
-      supplierQuotes,
       customer,
+      supplierQuotes,
+      contact,
     } as typeof saleQuote & {
       customer: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
+      contact: Contact | null
       supplierQuotes: NonNullable<Awaited<ReturnType<typeof getSupplierQuoteByCode>>>[]
     }
   } catch (error) {

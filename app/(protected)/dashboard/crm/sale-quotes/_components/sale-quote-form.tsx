@@ -38,6 +38,7 @@ import LoadingButton from "@/components/loading-button"
 import { getSupplierQuotes } from "@/actions/supplier-quote"
 import { SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS, SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS } from "@/schema/supplier-quote"
 import { getAddressesClient } from "@/actions/master-address"
+import { getContactsClient } from "@/actions/master-contact"
 
 type SaleQuoteFormProps = {
   isModal?: boolean
@@ -80,8 +81,8 @@ export default function SaleQuoteForm({
         id: "add",
         date: new Date(),
         customerCode: "",
-        billTo: "",
-        shipTo: "",
+        billTo: null,
+        shipTo: null,
         contactId: null,
         salesRepId: "",
         paymentTerms: 0,
@@ -109,6 +110,12 @@ export default function SaleQuoteForm({
     isExecuting: isAddressesLoading,
     result: { data: addresses },
   } = useAction(getAddressesClient)
+
+  const {
+    execute: getContactsExecute,
+    isExecuting: isContactsLoading,
+    result: { data: contacts },
+  } = useAction(getContactsClient)
 
   const lineItemDefaultValues: LineItemForm = {
     requisitionCode: 0,
@@ -349,32 +356,51 @@ export default function SaleQuoteForm({
     return customers.map((customer) => ({ label: customer?.CardName || customer.CardCode, value: customer.CardCode, customer }))
   }, [JSON.stringify(customers)])
 
-  //* temp comment
-  // const billingAddressesOptions = useMemo(() => {
-  //   if (!addresses || isAddressesLoading) return []
+  const billingAddressesOptions = useMemo(() => {
+    if (!addresses || isAddressesLoading) return []
 
-  //   const customer = customersOptions.find((customer) => customer.value === customerCode)?.customer
-  //   const billToDef = customer?.BillToDef
+    const customer = customersOptions.find((customer) => customer.value === customerCode)?.customer
+    const billToDef = customer?.BillToDef
 
-  //   const defaultBillingAddress = addresses.find((address) => address.id === billToDef)
+    const defaultBillingAddress = addresses.find((address) => address.id === billToDef)
 
-  //   if (defaultBillingAddress) form.setValue("billTo", defaultBillingAddress.id)
+    if (defaultBillingAddress) form.setValue("billTo", defaultBillingAddress.id)
 
-  //   return addresses.filter((ad) => ad.AddrType === "B").map((ad) => ({ label: ad.Street || "N/A", value: ad.id, address: ad }))
-  // }, [JSON.stringify(addresses), JSON.stringify(customersOptions), isAddressesLoading, customerCode])
+    return addresses.filter((ad) => ad.AddrType === "B").map((ad) => ({ label: ad.Street || "N/A", value: ad.id, address: ad }))
+  }, [JSON.stringify(addresses), JSON.stringify(customersOptions), isAddressesLoading, customerCode])
 
-  // const shippingAddressesOptions = useMemo(() => {
-  //   if (!addresses || isAddressesLoading) return []
+  const shippingAddressesOptions = useMemo(() => {
+    if (!addresses || isAddressesLoading) return []
 
-  //   const customer = customersOptions.find((customer) => customer.value === customerCode)?.customer
-  //   const shipToDef = customer?.ShipToDef
+    const customer = customersOptions.find((customer) => customer.value === customerCode)?.customer
+    const shipToDef = customer?.ShipToDef
 
-  //   const defaultShippingAddress = addresses.find((address) => address.id === shipToDef)
+    const defaultShippingAddress = addresses.find((address) => address.id === shipToDef)
 
-  //   if (defaultShippingAddress) form.setValue("shipTo", defaultShippingAddress.id)
+    if (defaultShippingAddress) form.setValue("shipTo", defaultShippingAddress.id)
 
-  //   return addresses.filter((ad) => ad.AddrType === "S").map((ad) => ({ label: ad.Street || "N/A", value: ad.id, address: ad }))
-  // }, [JSON.stringify(addresses), JSON.stringify(customersOptions), isAddressesLoading, customerCode])
+    return addresses.filter((ad) => ad.AddrType === "S").map((ad) => ({ label: ad.Street || "N/A", value: ad.id, address: ad }))
+  }, [JSON.stringify(addresses), JSON.stringify(customersOptions), isAddressesLoading, customerCode])
+
+  const contactsOptions = useMemo(() => {
+    if (!contacts || isContactsLoading) return []
+
+    const customer = customersOptions.find((customer) => customer.value === customerCode)?.customer
+    const contactPerson = customer?.CntctPrsn
+
+    const defaultContact = contacts.find((contact) => contact.id === contactPerson)
+
+    if (defaultContact) form.setValue("contactId", defaultContact.id)
+
+    return contacts.map((contact) => {
+      let fullName = ""
+
+      if (contact.FirstName) fullName += `${contact.FirstName} `
+      if (contact.LastName) fullName += contact.LastName
+
+      return { label: fullName, value: contact.id, contact }
+    })
+  }, [JSON.stringify(contacts), JSON.stringify(customersOptions), isContactsLoading, customerCode])
 
   const requisitionsOptions = useMemo(() => {
     if (!requisitions || !customerCode) return []
@@ -461,6 +487,9 @@ export default function SaleQuoteForm({
   const customerCodeCallback = (value?: number) => {
     form.setValue("lineItems", [])
     form.setValue("paymentTerms", value ?? 0)
+    form.setValue("billTo", null)
+    form.setValue("shipTo", null)
+    form.setValue("contactId", null)
   }
 
   const requisitionCodeCallback = useCallback(
@@ -564,13 +593,13 @@ export default function SaleQuoteForm({
     if (session?.user && isCreate) form.setValue("salesRepId", session.user.id)
   }, [JSON.stringify(session)])
 
-  //* trigger fetching for addresses when sales quote data exists
-  //* temp comment
-  // useEffect(() => {
-  //   if (salesQuote && salesQuote.customerCode) {
-  //     getAddressesExecute({ cardCode: salesQuote.customerCode })
-  //   }
-  // }, [salesQuote])
+  //* trigger fetching for addresses & contact when sales quote data exists
+  useEffect(() => {
+    if (salesQuote && salesQuote.customerCode) {
+      getAddressesExecute({ cardCode: salesQuote.customerCode })
+      getContactsExecute({ cardCode: salesQuote.customerCode })
+    }
+  }, [salesQuote])
 
   return (
     <>
@@ -599,7 +628,8 @@ export default function SaleQuoteForm({
               isRequired
               callback={(args) => {
                 customerCodeCallback(args?.option?.customer?.GroupNum)
-                // getAddressesExecute({ cardCode: args?.option?.customer?.CardCode }) //* temp comment
+                getAddressesExecute({ cardCode: args?.option?.customer?.CardCode })
+                getContactsExecute({ cardCode: args?.option?.customer?.CardCode })
               }}
               renderItem={(item, selected) => (
                 <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
@@ -615,7 +645,23 @@ export default function SaleQuoteForm({
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={[]} control={form.control} name='contactId' label='Contact - Full Name' />
+            <ComboboxField
+              data={contactsOptions}
+              control={form.control}
+              name='contactId'
+              label='Contact - Full Name'
+              renderItem={(item, selected) => (
+                <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
+                  <div className='flex w-[80%] flex-col justify-center'>
+                    <span className={cn("truncate", selected && "text-accent-foreground")}>{item.label}</span>
+                    <span className='truncate text-xs text-muted-foreground'>{item.contact.E_MailL}</span>
+                    <span className='truncate text-xs text-muted-foreground'>{item.contact.Cellolar}</span>
+                  </div>
+
+                  {item.contact.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
+                </div>
+              )}
+            />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
@@ -636,27 +682,7 @@ export default function SaleQuoteForm({
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6'>
-            <TextAreaField
-              control={form.control}
-              name='billTo'
-              label='Bill To'
-              extendedProps={{ textAreaProps: { placeholder: "Enter bill to" } }}
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6'>
-            <TextAreaField
-              control={form.control}
-              name='shipTo'
-              label='Ship To'
-              extendedProps={{ textAreaProps: { placeholder: "Enter ship to" } }}
-            />
-          </div>
-
-          {/* //?: correct field for billing and shipping address  */}
-          {/* //* temp comment */}
-          {/* <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <ComboboxField
               data={billingAddressesOptions}
               control={form.control}
@@ -736,7 +762,7 @@ export default function SaleQuoteForm({
                 )
               }}
             />
-          </div> */}
+          </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <ComboboxField data={paymentTermsOptions} control={form.control} name='paymentTerms' label='Payment Terms' />
