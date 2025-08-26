@@ -21,7 +21,6 @@ export async function getAccountById(id: string) {
     return await prisma.companyAccount.findUnique({
       where: { id },
       include: {
-        contacts: { include: { contact: true } },
         leads: true,
       },
     })
@@ -77,29 +76,6 @@ export const deleteAccount = action
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
         action: "DELETE_ACCOUNT",
-      }
-    }
-  })
-
-export const deleteAccountContact = action
-  .use(authenticationMiddleware)
-  .schema(deleteAccountContactSchema)
-  .action(async ({ parsedInput: data }) => {
-    try {
-      const accountContact = await prisma.companyAccountContact.findUnique({ where: { accountId_contactId: { ...data } } })
-
-      if (!accountContact) return { error: true, status: 404, message: "Account contact not found!", action: "DELETE_ACCOUNT_CONTACT" }
-
-      await prisma.companyAccountContact.delete({ where: { accountId_contactId: { ...data } } })
-      return { status: 200, message: "Account contact removed successfully!", action: "DELETE_ACCOUNT_CONTACT" }
-    } catch (error) {
-      console.error(error)
-
-      return {
-        error: true,
-        status: 500,
-        message: error instanceof Error ? error.message : "Something went wrong!",
-        action: "DELETE_ACCOUNT_CONTACT",
       }
     }
   })

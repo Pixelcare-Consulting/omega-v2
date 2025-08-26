@@ -3,8 +3,16 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { callSapServiceLayerApi } from "@/lib/sap-service-layer"
-import { bpMasterFormSchema, BpPortalFields, BpSapFields, deleteBpMasterSchema, syncBpMasterSchema } from "@/schema/master-bp"
-import { Address } from "@prisma/client"
+import {
+  bpMasterAddressSetAsDefaultSchema,
+  bpMasterContactSetAsDefaultSchema,
+  bpMasterFormSchema,
+  BpPortalFields,
+  BpSapFields,
+  deleteBpMasterSchema,
+  syncBpMasterSchema,
+} from "@/schema/master-bp"
+import { Address, Contact } from "@prisma/client"
 import { isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
 import { z } from "zod"
@@ -46,11 +54,9 @@ export async function getBpMasters(cardType: string) {
 
 export async function getBpMasterByCardCode(cardCode: string) {
   try {
-    const [bpMaster, addresses, countries] = await Promise.all([
+    const [bpMaster, contacts, addresses, countries] = await Promise.all([
       prisma.businessPartner.findUnique({
-        where: {
-          CardCode: cardCode,
-        },
+        where: { CardCode: cardCode },
         include: {
           buyer: { select: { name: true, email: true } },
           salesEmployee: { select: { name: true, email: true } },
@@ -60,6 +66,7 @@ export async function getBpMasterByCardCode(cardCode: string) {
           assignedExcessManagers: { include: { user: { select: { name: true, email: true } } } },
         },
       }),
+      prisma.contact.findMany({ where: { CardCode: cardCode } }),
       prisma.address.findMany({ where: { CardCode: cardCode } }),
       getCountries(),
     ])
@@ -76,8 +83,9 @@ export async function getBpMasterByCardCode(cardCode: string) {
       })
     )
 
-    return { ...bpMaster, addresses: addressFullDetails } as typeof bpMaster & {
+    return { ...bpMaster, contacts, addresses: addressFullDetails } as typeof bpMaster & {
       addresses: (Address & { countryName: string; stateName: string })[]
+      contacts: Contact[]
     }
   } catch (error) {
     console.error(error)
@@ -131,7 +139,7 @@ export async function getStates(countryCode: string) {
 
 export const getStatesClient = action
   .use(authenticationMiddleware)
-  .schema(z.object({ countryCode: z.string().min(1, { message: "Country code is required" }) }))
+  .schema(z.object({ countryCode: z.string() }))
   .action(async ({ parsedInput: data }) => {
     try {
       return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query7')/List`, `Country='${data.countryCode}'`, {
@@ -413,4 +421,62 @@ export const syncBpMaster = action
       revalidateTag(cacheKey)
       return { status: 200, message: "Sync completed successfully!", action: "BP_MASTER_SYNC" }
     } else return { error: true, status: 500, message: "Failed to sync, please try again later!", action: "BP_MASTER_SYNC" }
+  })
+
+export const bpMasterAddressSetAsDefault = action
+  .use(authenticationMiddleware)
+  .schema(bpMasterAddressSetAsDefaultSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    try {
+      const { cardCode, addressType, addressId } = data
+
+      const bpMaster = await prisma.businessPartner.findUnique({ where: { CardCode: cardCode } })
+
+      if (!bpMaster) return { error: true, status: 404, message: "Business partner not found!", action: "BP_MASTER_ADDRESS_SET_AS_DEFAULT" }
+
+      const fieldToUpdate = addressType === "B" ? "BillToDef" : addressType === "S" ? "ShipToDef" : null
+
+      //* update default shipping or billing address based on type
+      await prisma.businessPartner.update({
+        where: { CardCode: cardCode },
+        data: { ...(fieldToUpdate && fieldToUpdate !== null && { [fieldToUpdate]: addressId, updatedBy: ctx.userId }) },
+      })
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Something went wrong!",
+        action: "BP_MASTER_ADDRESS_SET_AS_DEFAULT",
+      }
+    }
+  })
+
+export const bpMasterContactSetAsDefault = action
+  .use(authenticationMiddleware)
+  .schema(bpMasterContactSetAsDefaultSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    try {
+      const { cardCode, contactId } = data
+
+      const bpMaster = await prisma.businessPartner.findUnique({ where: { CardCode: cardCode } })
+
+      if (!bpMaster) return { error: true, status: 404, message: "Business partner not found!", action: "BP_MASTER_CONTACT_SET_AS_DEFAULT" }
+
+      //* update default contact person
+      await prisma.businessPartner.update({
+        where: { CardCode: cardCode },
+        data: { CntctPrsn: contactId, updatedBy: ctx.userId },
+      })
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Something went wrong!",
+        action: "BP_MASTER_CONTACT_SET_AS_DEFAULT",
+      }
+    }
   })

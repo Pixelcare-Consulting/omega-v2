@@ -27,9 +27,9 @@ export const addressMasterFormSchema = z.object({
   syncStatus: z.string().min(1, { message: "Sync status is required" }),
 })
 
-export const syncAddressMasterByBPSchema = z.object({
+export const syncAddressMasterByBpSchema = z.object({
   cardCode: z.string().min(1, { message: "Card code is required" }),
 })
 
 //* Types
-export type AddressForm = z.infer<typeof addressMasterFormSchema>
+export type AddressMasterForm = z.infer<typeof addressMasterFormSchema>

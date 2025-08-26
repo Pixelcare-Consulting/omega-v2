@@ -5,6 +5,7 @@ import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
 import { saleQuoteFormSchema, updateLineItemForm } from "@/schema/sale-quote"
 import { getSupplierQuoteByCode } from "./supplier-quote"
+import { getBpMasterByCardCode } from "./master-bp"
 
 export type LineItemsJSONData = {
   requisitionCode: number
@@ -36,19 +37,25 @@ export async function getSaleQuoteByCode(code: number) {
     const saleQuote = await prisma.saleQuote.findUnique({
       where: { code, deletedAt: null, deletedBy: null },
       include: {
-        customer: true,
         salesRep: { select: { name: true, email: true } },
         approval: { select: { name: true, email: true } },
       },
     })
 
+    if (!saleQuote) return null
+
+    const customer = await getBpMasterByCardCode(saleQuote.customerCode)
     const lineItems = (saleQuote?.lineItems || []) as LineItemsJSONData
     const supplierQuotes = await Promise.all(lineItems.map((li) => getSupplierQuoteByCode(li.supplierQuoteCode))).then(data => data.filter(sq => sq !== null)) // prettier-ignore
 
     return {
       ...saleQuote,
       supplierQuotes,
-    } as typeof saleQuote & { supplierQuotes: NonNullable<Awaited<ReturnType<typeof getSupplierQuoteByCode>>>[] }
+      customer,
+    } as typeof saleQuote & {
+      customer: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
+      supplierQuotes: NonNullable<Awaited<ReturnType<typeof getSupplierQuoteByCode>>>[]
+    }
   } catch (error) {
     console.error(error)
     return null

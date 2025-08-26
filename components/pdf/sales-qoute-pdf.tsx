@@ -96,11 +96,13 @@ const styles = StyleSheet.create({
 
 type SalesQuotationPdfProps = {
   salesQuote: NonNullable<Awaited<ReturnType<typeof getSaleQuoteByCode>>>
+  billTo?: string
+  shipTo?: string
   lineItems: LineItemForm[]
   paymentTerms: any
 }
 
-export default function SalesQuotationPdf({ salesQuote, lineItems, paymentTerms }: SalesQuotationPdfProps) {
+export default function SalesQuotationPdf({ salesQuote, lineItems, paymentTerms, billTo, shipTo }: SalesQuotationPdfProps) {
   const [totalPages, setTotalPages] = useState(0)
 
   const total = lineItems.reduce((acc, item) => {
@@ -226,11 +228,13 @@ export default function SalesQuotationPdf({ salesQuote, lineItems, paymentTerms 
           <View style={styles.tableRow}>
             <View style={[styles.tableColumnNoBorder, { justifyContent: "flex-start", width: "50%" }]}>
               <Text>{renderValue(salesQuote.billTo)}</Text>
+              {/* <Text>{renderValue(billTo)}</Text> */} {/* //* temp comment */}
               <Text style={{ width: "100%" }}>Customer ID: {renderValue(salesQuote.customerCode)}</Text>
             </View>
 
             <View style={[styles.tableColumnWithBorder, { justifyContent: "flex-start", width: "50%" }]}>
               <Text>{salesQuote.shipTo}</Text>
+              {/* <Text>{shipTo}</Text> */} {/* //* temp comment */}
             </View>
           </View>
 

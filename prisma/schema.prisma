@@ -156,6 +156,7 @@ model Role {
   users       User[]
 }
 
+//TODO: make it nested permissions / supports parent-child relationship permission (RnD)
 model Permission {
   id          String  @id @default(uuid())
   code        String  @unique
@@ -209,47 +210,7 @@ model CompanyAccount {
   updatedBy String?
   deletedBy String?
 
-  contacts CompanyAccountContact[]
-  leads    Lead[]
-}
-
-model CompanyAccountContact {
-  accountId String
-  contactId String
-
-  account CompanyAccount @relation(fields: [accountId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  contact Contact        @relation(fields: [contactId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-
-  @@unique([accountId, contactId])
-}
-
-model Contact {
-  id                String   @id @default(uuid())
-  name              String
-  email             String
-  phone             String
-  title             String?  @default("")
-  isActive          Boolean? @default(true)
-  street            String?  @default("")
-  streetNo          String?  @default("")
-  buildingFloorRoom String?  @default("")
-  block             String?  @default("")
-  city              String?  @default("")
-  zipCode           String?  @default("")
-  county            String?  @default("")
-  state             String?  @default("")
-  country           String?  @default("")
-  gln               String?  @default("")
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  createdBy String?
-  updatedBy String?
-  deletedBy String?
-
-  accountContacts CompanyAccountContact[]
-  leadContacts    LeadContact[]
+  leads Lead[]
 }
 
 model Lead {
@@ -283,22 +244,11 @@ model Lead {
   deletedBy String?
 
   activities LeadActivity[]
-  contacts   LeadContact[]
 
   account       CompanyAccount? @relation(fields: [accountId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   createdByUser User?           @relation("user-created-leads", fields: [createdBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
   updatedByUser User?           @relation("user-updated-leads", fields: [updatedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
   deletedByUser User?           @relation("user-deleted-leads", fields: [deletedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
-}
-
-model LeadContact {
-  leadId    String
-  contactId String
-
-  lead    Lead    @relation(fields: [leadId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  contact Contact @relation(fields: [contactId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-
-  @@unique([leadId, contactId])
 }
 
 model LeadActivity {
@@ -641,10 +591,9 @@ model Address {
   StreetNo   String? @default("")
   Building   String? @default("")
   GlblLocNum String? @default("")
-
   CreateDate String
-  source     String @default("portal")
-  syncStatus String @default("pending")
+  source     String  @default("portal")
+  syncStatus String  @default("pending")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -654,25 +603,27 @@ model Address {
   deletedBy String?
 }
 
-// model Contact {
-//   id         String  @id //* ID - prefix wit "CO"
-//   CardCode   String
-//   FirstName  String
-//   LastName   String
-//   Title      String? @default("")
-//   Position   String? @default("")
-//   Cellolar   String? @default("")
-//   E_MailL    String? @default("")
-//   CreateDate String
-//   UpdateDate String
+model Contact {
+  id         String  @id //* ID - prefix wit "CO"
+  CardCode   String
+  FirstName  String
+  LastName   String
+  Title      String? @default("")
+  Position   String? @default("")
+  Cellolar   String? @default("")
+  E_MailL    String? @default("")
+  CreateDate String
+  UpdateDate String
+  source     String  @default("portal")
+  syncStatus String  @default("pending")
 
-//   createdAt DateTime  @default(now())
-//   updatedAt DateTime  @updatedAt
-//   deletedAt DateTime?
-//   createdBy String?
-//   updatedBy String?
-//   deletedBy String?
-// }
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+}
 
 //* synchronization metadata table
 model SyncMeta {

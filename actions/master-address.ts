@@ -4,10 +4,12 @@ import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { callSapServiceLayerApi } from "@/lib/sap-service-layer"
 import { paramsSchema } from "@/schema/common"
-import { addressMasterFormSchema, syncAddressMasterByBPSchema } from "@/schema/master-address"
+import { addressMasterFormSchema, syncAddressMasterByBpSchema } from "@/schema/master-address"
 import { Address } from "@prisma/client"
 import { isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
+import { z } from "zod"
+import { getCountries, getStates } from "./master-bp"
 
 const sapCredentials = {
   BaseURL: process.env.SAP_BASE_URL || "",
@@ -32,6 +34,30 @@ export async function getAddresses(cardCode: string) {
     return []
   }
 }
+
+export const getAddressesClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ cardCode: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    try {
+      const [addresses, countries] = await Promise.all([prisma.address.findMany({ where: { CardCode: data.cardCode } }), getCountries()])
+
+      const addressFullDetails = await Promise.all(
+        addresses.map(async (ad) => {
+          const states = ad.Country ? await getStates(ad.Country) : []
+          const countryName = countries?.value?.find((country: any) => country?.Code === ad?.Country)?.Name || ""
+          const stateName = states?.value?.find((state: any) => state?.Code === ad?.State)?.Name || ""
+
+          return { ...ad, countryName, stateName }
+        })
+      )
+
+      return addressFullDetails
+    } catch (error) {
+      console.error(error)
+      return []
+    }
+  })
 
 export async function getAddressById(id: string) {
   try {
@@ -71,7 +97,7 @@ export const upsertAddressMaster = action
         .sort((a, b) => a - b)
 
       let lastIdNumber = addressesIdNumber.pop()
-      const newIdNumber = lastIdNumber !== 0 && lastIdNumber !== undefined && lastIdNumber !== null ? lastIdNumber++ : 1
+      const newIdNumber = lastIdNumber !== 0 && lastIdNumber !== undefined && lastIdNumber !== null ? ++lastIdNumber : 1
       const newAddressId = `A${newIdNumber}`
 
       const newAddress = await prisma.address.create({
@@ -134,7 +160,7 @@ export const deleteAddressMaster = action
 
 export const syncAddressMaster = action
   .use(authenticationMiddleware)
-  .schema(syncAddressMasterByBPSchema)
+  .schema(syncAddressMasterByBpSchema)
   .action(async ({ ctx, parsedInput }) => {
     let success = false
 

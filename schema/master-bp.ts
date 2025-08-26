@@ -145,6 +145,17 @@ export const deleteBpMasterSchema = z.object({
   type: z.string().min(1, { message: "Type is required" }),
 })
 
+export const bpMasterAddressSetAsDefaultSchema = z.object({
+  cardCode: z.string().min(1, { message: "Card code is required" }),
+  addressType: z.string().min(1, { message: "Address type is required" }),
+  addressId: z.string().min(1, { message: "Address ID is required" }),
+})
+
+export const bpMasterContactSetAsDefaultSchema = z.object({
+  cardCode: z.string().min(1, { message: "Card code is required" }),
+  contactId: z.string().min(1, { message: "Contact ID is required" }),
+})
+
 //* Zod schema
 export const bpMasterFormSchema = z
   .object({})

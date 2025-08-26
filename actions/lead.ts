@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
 import { deleteLeadAccountSchema, deleteLeadContactSchema, leadFormSchema, updateStatusSchema } from "@/schema/lead"
+import { getCountries, getStates } from "./master-bp"
 
 export async function getLeads() {
   try {
@@ -25,18 +26,28 @@ export async function getLeads() {
 
 export async function getLeadById(id: string) {
   try {
-    return await prisma.lead.findUnique({
-      where: { id },
-      include: {
-        activities: {
-          where: { deletedAt: null, deletedBy: null },
-          include: { createdByUser: true },
+    const [lead, countries] = await Promise.all([
+      prisma.lead.findUnique({
+        where: { id },
+        include: {
+          activities: {
+            where: { deletedAt: null, deletedBy: null },
+            include: { createdByUser: true },
+          },
+          createdByUser: true,
+          account: true,
         },
-        createdByUser: true,
-        account: true,
-        contacts: { include: { contact: true } },
-      },
-    })
+      }),
+      getCountries(),
+    ])
+
+    if (!lead) return null
+
+    const states = lead.country ? await getStates(lead.country) : []
+    const countryName = countries?.value?.find((country: any) => country?.Code === lead?.country)?.Name || ""
+    const stateName = states?.value?.find((state: any) => state?.Code === lead?.state)?.Name || ""
+
+    return { ...lead, countryName, stateName }
   } catch (error) {
     console.error(error)
     return null
@@ -48,22 +59,11 @@ export const upsertLead = action
   .schema(leadFormSchema)
   .action(async ({ ctx, parsedInput }) => {
     try {
-      const { id, relatedContacts, ...data } = parsedInput
+      const { id, ...data } = parsedInput
       const { userId } = ctx
 
       if (id && id !== "add") {
-        const [updatedLead] = await prisma.$transaction([
-          //* update lead
-          prisma.lead.update({ where: { id }, data: { ...data, updatedBy: userId } }),
-
-          //* delete the existing lead's contacts
-          prisma.leadContact.deleteMany({ where: { leadId: id } }),
-
-          //* create new lead's contacts
-          prisma.leadContact.createMany({
-            data: relatedContacts?.map((contactId) => ({ leadId: id, contactId })) || [],
-          }),
-        ])
+        const updatedLead = await prisma.lead.update({ where: { id }, data: { ...data, updatedBy: userId } })
 
         return { status: 200, message: "Lead updated successfully!", data: { lead: updatedLead }, action: "UPSERT_LEAD" }
       }
@@ -73,9 +73,6 @@ export const upsertLead = action
           ...data,
           createdBy: userId,
           updatedBy: userId,
-          contacts: {
-            create: relatedContacts?.map((contactId) => ({ contactId })) || [],
-          },
         },
       })
       return { status: 200, message: "Lead created successfully!", data: { lead: newLead }, action: "UPSERT_LEAD" }
@@ -158,29 +155,6 @@ export const deleteLeadAccount = action
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
         action: "DELETE_LEAD_ACCOUNT",
-      }
-    }
-  })
-
-export const deleteLeadContact = action
-  .use(authenticationMiddleware)
-  .schema(deleteLeadContactSchema)
-  .action(async ({ parsedInput: data }) => {
-    try {
-      const leadContact = await prisma.leadContact.findUnique({ where: { leadId_contactId: { ...data } } })
-
-      if (!leadContact) return { error: true, status: 404, message: "Lead contact not found!", action: "DELETE_LEAD_CONTACT" }
-
-      await prisma.leadContact.delete({ where: { leadId_contactId: { ...data } } })
-      return { status: 200, message: "Lead contact removed successfully!", action: "DELETE_LEAD_CONTACT" }
-    } catch (error) {
-      console.error(error)
-
-      return {
-        error: true,
-        status: 500,
-        message: error instanceof Error ? error.message : "Something went wrong!",
-        action: "DELETE_LEAD_CONTACT",
       }
     }
   })

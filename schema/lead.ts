@@ -44,7 +44,6 @@ export const leadFormSchema = z
     title: z.string().nullish(),
     accountId: z.string().nullish(),
     status: z.string().min(1, { message: "Status is required" }),
-    relatedContacts: z.array(z.string()).nullish(),
   })
   .merge(addressFormSchema)
 
