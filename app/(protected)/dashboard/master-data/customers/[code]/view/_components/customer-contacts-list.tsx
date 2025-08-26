@@ -15,8 +15,8 @@ type CustomerContactsListProps = {
   contactPerson?: string | null
 }
 
-export default function CustomerContactsList({ contacts }: CustomerContactsListProps) {
-  const columns = useMemo(() => getColumns(), [])
+export default function CustomerContactsList({ contacts, contactPerson }: CustomerContactsListProps) {
+  const columns = useMemo(() => getColumns(contactPerson), [contactPerson])
 
   const filterFields = useMemo((): FilterFields[] => {
     return [

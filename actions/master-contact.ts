@@ -67,7 +67,7 @@ export const upsertContactMaster = action
         return { status: 200, message: "Contact updated successfully!", data: { contact: updatedContact }, action: "UPSERT_CONTACT_MASTER" }
       }
 
-      const contacts = (await prisma.$queryRaw`SELECT * FROM "Contact" WHERE "id" ~ '^A[0-9]+$'`) as Contact[]
+      const contacts = (await prisma.$queryRaw`SELECT * FROM "Contact" WHERE "id" ~ '^CO[0-9]+$'`) as Contact[]
       const contactsIdNumber = contacts
         .map((contact) => contact.id.slice(1))
         .filter((num) => !isNaN(parseInt(num)))

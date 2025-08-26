@@ -221,7 +221,10 @@ export default function AddressForm({ address, countries }: AddressFormProps) {
               control={form.control}
               name='Country'
               label='Country'
-              callback={(args) => getStatesExecute({ countryCode: args.option.value })}
+              callback={(args) => {
+                getStatesExecute({ countryCode: args.option.value })
+                form.setValue("State", null)
+              }}
             />
           </div>
 

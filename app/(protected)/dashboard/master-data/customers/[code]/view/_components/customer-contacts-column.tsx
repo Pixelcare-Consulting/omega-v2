@@ -36,7 +36,11 @@ export function getColumns(contactPerson?: string | null): ColumnDef<ContactData
         return (
           <div className='flex flex-col justify-center gap-2'>
             <span>{id}</span>
-            {isDefault && <Badge variant='soft-violet'>Default</Badge>}
+            {isDefault && (
+              <Badge className='w-fit' variant='soft-violet'>
+                Default
+              </Badge>
+            )}
           </div>
         )
       },
@@ -222,8 +226,8 @@ export function getColumns(contactPerson?: string | null): ColumnDef<ContactData
 
               <DropdownMenuContent align='end'>
                 {!isDefault && (
-                  <DropdownMenuItem>
-                    <Icons.checkCircleBig className='mr-2 size-4' onClick={() => setShowConfirmationSetAsDefault(true)} /> Set as Default
+                  <DropdownMenuItem onClick={() => setShowConfirmationSetAsDefault(true)}>
+                    <Icons.checkCircleBig className='mr-2 size-4' /> Set as Default
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -232,7 +236,7 @@ export function getColumns(contactPerson?: string | null): ColumnDef<ContactData
             <AlertModal
               isOpen={showConfirmationDelete}
               title='Are you sure?'
-              description={`Are you sure you want to delete this contact #${CardCode}?`}
+              description={`Are you sure you want to delete this contact #${id}?`}
               onConfirm={handleDelete}
               onConfirmText='Delete'
               onCancel={() => setShowConfirmationDelete(false)}
@@ -241,7 +245,7 @@ export function getColumns(contactPerson?: string | null): ColumnDef<ContactData
             <AlertModal
               isOpen={showConfirmationSetAsDefault}
               title='Are you sure?'
-              description={`Are you sure you want to set this contact #${CardCode} as default contact?`}
+              description={`Are you sure you want to set this contact #${id} as default contact?`}
               onConfirm={handleSetAsDefault}
               onConfirmText='Set as Default'
               onCancel={() => setShowConfirmationDelete(false)}

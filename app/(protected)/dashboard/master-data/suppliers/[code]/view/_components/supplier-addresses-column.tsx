@@ -38,7 +38,11 @@ export function getColumns(billToDef?: string | null, shipToDef?: string | null)
         return (
           <div className='flex flex-col justify-center gap-2'>
             <span>{id}</span>
-            {isDefault && <Badge variant='soft-violet'>Default</Badge>}
+            {isDefault && (
+              <Badge className='w-fit' variant='soft-violet'>
+                Default
+              </Badge>
+            )}
           </div>
         )
       },
@@ -294,7 +298,7 @@ export function getColumns(billToDef?: string | null, shipToDef?: string | null)
             <AlertModal
               isOpen={showConfirmationDelete}
               title='Are you sure?'
-              description={`Are you sure you want to delete this address #${CardCode}?`}
+              description={`Are you sure you want to delete this address #${id}?`}
               onConfirm={handleDelete}
               onConfirmText='Delete'
               onCancel={() => setShowConfirmationDelete(false)}
@@ -303,7 +307,7 @@ export function getColumns(billToDef?: string | null, shipToDef?: string | null)
             <AlertModal
               isOpen={showConfirmationSetAsDefault}
               title='Are you sure?'
-              description={`Are you sure you want to set this address #${CardCode} as default ${type?.toLowerCase()} address?`}
+              description={`Are you sure you want to set this address #${id} as default ${type?.toLowerCase()} address?`}
               onConfirm={handleSetAsDefault}
               onConfirmText='Set as Default'
               onCancel={() => setShowConfirmationDelete(false)}
