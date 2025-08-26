@@ -102,6 +102,8 @@ import {
   Printer,
   Download,
   CircleCheckBig,
+  Ban,
+  LockKeyhole,
 } from "lucide-react"
 
 export type Icon = LucideIcon
@@ -142,6 +144,7 @@ export const Icons = {
   x: X,
   fileText: FileText,
   lock: Lock,
+  lockKeyHole: LockKeyhole,
   report: BarChart2,
   calendar: Calendar,
   calendarClock: CalendarClock,
@@ -212,4 +215,5 @@ export const Icons = {
   hash: Hash,
   print: Printer,
   download: Download,
+  ban: Ban,
 }

@@ -4,6 +4,8 @@ type Submenu = {
   href: string
   label: string
   active?: boolean
+  actions?: string | string[]
+  subjects?: string | string[]
 }
 
 type Menu = {
@@ -13,17 +15,23 @@ type Menu = {
   icon: Icon
   submenus?: Submenu[]
   target?: string
+  actions?: string | string[]
+  subjects?: string | string[]
 }
 
 type MenuGroup = {
   groupLabel: string
   menus: Menu[]
+  actions?: string | string[]
+  subjects?: string | string[]
 }
 
 type RoleBasedMenuGroups = {
   role: string
   menuGroups: MenuGroup[]
 }
+
+type FoundMenu = Menu | Submenu | undefined
 
 export function getMenuList(role: string | null | undefined): MenuGroup[] {
   if (!role) return []
@@ -35,230 +43,114 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
       menuGroups: [
         {
           groupLabel: "",
+          actions: "manage",
+          subjects: "all",
           menus: [
             {
               href: "/dashboard",
               label: "Dashboard",
               icon: Icons.dashboard,
+              actions: "manage",
+              subjects: "all",
               submenus: [],
             },
             {
               href: "/dashboard/admin/calendar",
               label: "Calendar",
               icon: Icons.calendar,
+              actions: "manage",
+              subjects: "all",
               submenus: [],
             },
             {
               href: "/dashboard/activity-logs",
               label: "Activity Logs",
               icon: Icons.history,
+              actions: "manage",
+              subjects: "all",
               submenus: [],
             },
             {
               href: `/dashboard/settings/${role}`,
               label: "Settings",
               icon: Icons.settings,
+              actions: "manage",
+              subjects: "all",
               submenus: [],
             },
           ],
         },
         {
           groupLabel: "Systems",
+          actions: "read",
+          subjects: ["p-csrm", "p-master-data", "p-master-data-customers", "p-master-data-suppliers", "p-master-data-items"],
           menus: [
-            // {
-            //   href: "/dashboard/admin/accounting",
-            //   label: "Accounting",
-            //   icon: Icons.wallet,
-            //   submenus: [],
-            // },
-            // {
-            //   href: "/dashboard/admin/quality-control",
-            //   label: "Quality Control",
-            //   icon: Icons.checkCircle,
-            //   submenus: [],
-            // },
             {
               href: "/dashboard/admin/crm",
               label: "CSRM",
               icon: Icons.handeShake,
+              actions: "manage",
+              subjects: "all",
               submenus: [
                 {
                   href: "/dashboard/crm/accounts",
                   label: "Accounts",
+                  actions: "manage",
+                  subjects: "all",
                 },
                 {
                   href: "/dashboard/crm/leads",
                   label: "Leads",
-                },
-                {
-                  href: "/dashboard/crm/contacts",
-                  label: "Contacts",
+                  actions: "manage",
+                  subjects: "all",
                 },
                 {
                   href: "/dashboard/crm/requisitions",
                   label: "Requisitions",
+                  actions: "manage",
+                  subjects: "all",
                 },
                 {
                   href: "/dashboard/crm/supplier-quotes",
                   label: "Supplier Quotes",
+                  actions: "manage",
+                  subjects: "all",
                 },
                 {
                   href: "/dashboard/crm/sale-quotes",
-                  label: "Sale Quotes",
+                  label: "Sales Quotes",
+                  actions: "manage",
+                  subjects: "all",
                 },
-
-                // {
-                //   href: "/dashboard/admin/crm/lead-lists",
-                //   label: "Lead Lists",
-                // },
-                // {
-                //   href: "/dashboard/admin/crm/leads",
-                //   label: "Leads",
-                // },
-                // {
-                //   href: "/dashboard/admin/crm/activities",
-                //   label: "Activities",
-                // },
-                // {
-                //   href: "/dashboard/admin/crm/contacts",
-                //   label: "Contacts",
-                // },
-                // {
-                //   href: "/dashboard/admin/crm/call-logs",
-                //   label: "Call Logs Details (API)",
-                // },
-                // {
-                //   href: "/dashboard/admin/crm/meetings",
-                //   label: "Meeting Tracker",
-                // },
-                // {
-                //   href: "/dashboard/admin/crm/employees",
-                //   label: "Employees",
-                // },
               ],
             },
             {
               href: "/dashboard/master-data",
               label: "Master Data",
               icon: Icons.database,
+              actions: "read",
+              subjects: ["p-master-data", "p-master-data-customers", "p-master-data-suppliers", "p-master-data-items"],
               submenus: [
                 {
                   href: "/dashboard/master-data/customers",
                   label: "Customers",
+                  actions: "manage",
+                  subjects: "all",
                 },
                 {
                   href: "/dashboard/master-data/suppliers",
                   label: "Suppliers",
+                  actions: "manage",
+                  subjects: "all",
                 },
                 {
                   href: "/dashboard/master-data/items",
                   label: "Items",
+                  actions: "manage",
+                  subjects: "all",
                 },
               ],
             },
-            // {
-            //   href: "/dashboard/admin/global-procurement",
-            //   label: "Global Procurement",
-            //   icon: Icons.dollar,
-            //   submenus: [
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/requisitions",
-            //     //   label: "Requisitions",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/supplier-quotes",
-            //     //   label: "Supplier Quotes",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/global-procurement/customers",
-            //     //   label: "Customers",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/global-procurement/suppliers",
-            //     //   label: "Suppliers",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/contacts",
-            //     //   label: "Contacts",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/employees",
-            //     //   label: "Employees (New)",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/so-report",
-            //     //   label: "SO Report",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/commission",
-            //     //   label: "Commission",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/commission-adjustments",
-            //     //   label: "Commission Adjustments",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/employee-commission-adjustments",
-            //     //   label: "Employee Commission Adjustments",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/product-brands",
-            //     //   label: "Product Brands",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/product-availability",
-            //     //   label: "Product Availability",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/product-commodities",
-            //     //   label: "Product Commodities",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/incoming-tracking",
-            //     //   label: "Incoming Tracking",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/boms",
-            //     //   label: "BOMS",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/global-procurement/items",
-            //     //   label: "Items",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/boms-items-quotes",
-            //     //   label: "BOMS Items Quotes",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/customer-excess",
-            //     //   label: "Customer Excess",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/supplier-offers",
-            //     //   label: "Supplier Offers",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/documents",
-            //     //   label: "Documents",
-            //     // },
-            //     // {
-            //     //   href: "/dashboard/admin/global-procurement/requisitions-kpi",
-            //     //   label: "Requisitions KPI Table",
-            //     // },
-            //   ],
-            // },
-            // {
-            //   href: "/dashboard/admin/warehouse-services",
-            //   label: "Warehouse Services",
-            //   icon: Icons.truck,
-            //   submenus: [],
-            // },
-            // {
-            //   href: "/dashboard/admin/document-library",
-            //   label: "Document Library",
-            //   icon: Icons.fileText,
-            //   submenus: [],
-            // },
           ],
         },
       ],
@@ -267,71 +159,105 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
       role: "sales",
       menuGroups: [
         {
-          groupLabel: "CRM",
+          groupLabel: "",
+          actions: "read",
+          subjects: ["p-dashboard", "p-calendar"],
           menus: [
             {
-              href: "/crm",
+              href: "/dashboard",
               label: "Dashboard",
               icon: Icons.dashboard,
+              actions: "read",
+              subjects: "p-dashboard",
               submenus: [],
             },
             {
-              href: "/crm/users",
-              label: "Users",
-              icon: Icons.users,
-              submenus: [],
-            },
-            {
-              href: "/crm/settings",
-              label: "Settings",
-              icon: Icons.settings,
+              href: "/dashboard/admin/calendar",
+              label: "Calendar",
+              icon: Icons.calendar,
+              actions: "read",
+              subjects: "p-calendar",
               submenus: [],
             },
           ],
         },
         {
-          groupLabel: "Menu",
+          groupLabel: "Systems",
+          actions: "read",
+          subjects: ["p-csrm", "p-master-data"],
           menus: [
             {
-              href: "/crm/lead-list",
-              label: "Lead List",
-              icon: Icons.table,
-              submenus: [],
-            },
-            {
-              href: "/crm/leads",
-              label: "Leads",
-              icon: Icons.table,
-              submenus: [],
-            },
-            {
-              href: "/crm/call-logs-details",
-              label: "Call Logs Details (API)",
-              icon: Icons.folder,
-              submenus: [],
-            },
-            {
-              href: "/crm/meeting-tracker",
-              label: "Meeting Tracker",
+              href: "/dashboard/admin/crm",
+              label: "CSRM",
               icon: Icons.handeShake,
-              submenus: [],
+              actions: "read",
+              subjects: "p-csrm",
+              submenus: [
+                {
+                  href: "/dashboard/crm/accounts",
+                  label: "Accounts",
+                  actions: "read",
+                  subjects: "p-csrm-accounts",
+                },
+                {
+                  href: "/dashboard/crm/leads",
+                  label: "Leads",
+                  actions: "read",
+                  subjects: "p-csrm-leads",
+                },
+                {
+                  href: "/dashboard/crm/requisitions",
+                  label: "Requisitions",
+                  actions: "read",
+                  subjects: "p-csrm-requisitions",
+                },
+                {
+                  href: "/dashboard/crm/supplier-quotes",
+                  label: "Supplier Quotes",
+                  actions: "read",
+                  subjects: "p-csrm-supplier-quotes",
+                },
+                {
+                  href: "/dashboard/crm/sale-quotes",
+                  label: "Sales Quotes",
+                  actions: "read",
+                  subjects: "p-csrm-sales-quotes",
+                },
+              ],
             },
             {
-              href: "/crm/employees",
-              label: "Employees",
-              icon: Icons.folder,
-              submenus: [],
-            },
-            {
-              href: "/crm/email-communication",
-              label: "Email Communication",
-              icon: Icons.inbox,
-              submenus: [],
+              href: "/dashboard/master-data",
+              label: "Master Data",
+              icon: Icons.database,
+              actions: "read",
+              subjects: "p-master-data",
+              submenus: [
+                {
+                  href: "/dashboard/master-data/customers",
+                  label: "Customers",
+                  actions: "read",
+                  subjects: "p-master-data-customers",
+                },
+                {
+                  href: "/dashboard/master-data/suppliers",
+                  label: "Suppliers",
+                  actions: "read",
+                  subjects: "p-master-data-suppliers",
+                },
+                {
+                  href: "/dashboard/master-data/items",
+                  label: "Items",
+                  actions: "read",
+                  subjects: "p-master-data-items",
+                },
+              ],
             },
           ],
         },
       ],
     },
+
+    //? unconfigured role (no permissions assigned)
     {
       role: "supply-chain",
       menuGroups: [
@@ -885,7 +811,23 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
   //* filter menu group by role
   const menusGroups = roleBasedMenuGroups.find((item) => item.role === role)
 
-  // console.log(menusGroups)
-
   return menusGroups?.menuGroups || roleBasedMenuGroups[0].menuGroups
+}
+
+//* Find menu or submenu by href for a given role
+//* use this to get the action and subject based on pathname then use it to check if user has permission to access the page
+// TODO: find behavior needs improvement
+export function findMenuByHref(menus: MenuGroup[], role: string, href: string): FoundMenu {
+  for (const group of menus) {
+    for (const menu of group.menus) {
+      if (menu.href === href) return menu
+
+      if (menu.submenus) {
+        const found = menu.submenus.find((sm) => sm.href === href)
+        if (found) return found
+      }
+    }
+  }
+
+  return undefined
 }
