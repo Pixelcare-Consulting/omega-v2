@@ -22,7 +22,7 @@ model User {
   lastActiveAt  DateTime?
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -71,7 +71,7 @@ model Profile {
   details Json?
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -125,7 +125,7 @@ model Settings {
   data     Json?  @default("{}") //* JSON containing all settings
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -146,7 +146,7 @@ model Role {
   isSystem    Boolean @default(false) // To mark built-in roles that can't be deleted
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -164,7 +164,7 @@ model Permission {
   description String? @default("")
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -204,7 +204,7 @@ model CompanyAccount {
   gln               String?  @default("")
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -237,7 +237,7 @@ model Lead {
   owners            String[] @default([]) //* ids of users who manages the lead
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -265,7 +265,7 @@ model LeadActivity {
   metadata  Json?     @default("{}")
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -301,7 +301,7 @@ model Requisition {
   estimatedDeliveryDate            DateTime?
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -354,7 +354,7 @@ model RequisitionActivity {
   metadata      Json?     @default("{}")
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -402,7 +402,7 @@ model SupplierQuote {
   estimatedDeliveryDate       DateTime?
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -434,7 +434,7 @@ model SaleQuote {
   approvalDate   DateTime
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -516,7 +516,7 @@ model BusinessPartner {
   qualificationNotes String? @default("")
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -568,7 +568,7 @@ model Item {
   syncStatus String @default("pending")
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -596,7 +596,7 @@ model Address {
   syncStatus String  @default("pending")
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -618,7 +618,7 @@ model Contact {
   syncStatus String  @default("pending")
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
@@ -633,7 +633,7 @@ model SyncMeta {
   lastSyncAt  DateTime @default(now())
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
