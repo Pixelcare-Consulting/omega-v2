@@ -682,7 +682,7 @@ export default function SaleQuoteForm({
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+          <div className='col-span-12 md:col-span-6'>
             <ComboboxField
               data={billingAddressesOptions}
               control={form.control}
@@ -723,7 +723,7 @@ export default function SaleQuoteForm({
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+          <div className='col-span-12 md:col-span-6'>
             <ComboboxField
               data={shippingAddressesOptions}
               control={form.control}
