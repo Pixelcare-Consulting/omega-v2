@@ -66,8 +66,8 @@ export async function getBpMasterByCardCode(cardCode: string) {
           assignedExcessManagers: { include: { user: { select: { name: true, email: true } } } },
         },
       }),
-      prisma.contact.findMany({ where: { CardCode: cardCode } }),
-      prisma.address.findMany({ where: { CardCode: cardCode } }),
+      prisma.contact.findMany({ where: { CardCode: cardCode, deletedAt: null, deletedBy: null } }),
+      prisma.address.findMany({ where: { CardCode: cardCode, deletedAt: null, deletedBy: null } }),
       getCountries(),
     ])
 
@@ -441,6 +441,8 @@ export const bpMasterAddressSetAsDefault = action
         where: { CardCode: cardCode },
         data: { ...(fieldToUpdate && fieldToUpdate !== null && { [fieldToUpdate]: addressId, updatedBy: ctx.userId }) },
       })
+
+      return { status: 200, message: "Address set as default successfully!", action: "BP_MASTER_ADDRESS_SET_AS_DEFAULT" }
     } catch (error) {
       console.error(error)
 
@@ -469,6 +471,8 @@ export const bpMasterContactSetAsDefault = action
         where: { CardCode: cardCode },
         data: { CntctPrsn: contactId, updatedBy: ctx.userId },
       })
+
+      return { status: 200, message: "Contact set as default successfully!", action: "BP_MASTER_CONTACT_SET_AS_DEFAULT" }
     } catch (error) {
       console.error(error)
 

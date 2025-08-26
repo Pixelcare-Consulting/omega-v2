@@ -76,7 +76,7 @@ export const upsertContactMaster = action
 
       let lastIdNumber = contactsIdNumber.pop()
       const newIdNumber = lastIdNumber !== 0 && lastIdNumber !== undefined && lastIdNumber !== null ? ++lastIdNumber : 1
-      const newContactId = `CO${newIdNumber}`
+      const newContactId = `CO${String(newIdNumber).padStart(6, "0")}`
 
       const newContact = await prisma.contact.create({
         data: {

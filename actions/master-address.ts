@@ -98,7 +98,7 @@ export const upsertAddressMaster = action
 
       let lastIdNumber = addressesIdNumber.pop()
       const newIdNumber = lastIdNumber !== 0 && lastIdNumber !== undefined && lastIdNumber !== null ? ++lastIdNumber : 1
-      const newAddressId = `A${newIdNumber}`
+      const newAddressId = `A${String(newIdNumber).padStart(6, "0")}`
 
       const newAddress = await prisma.address.create({
         data: {

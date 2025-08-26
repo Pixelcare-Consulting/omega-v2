@@ -139,7 +139,7 @@ export default function AddressForm({ address, countries }: AddressFormProps) {
           </div>
 
           <div className='col-span-12 md:col-span-6'>
-            <ComboboxField data={ADDRESS_TYPE_OPTIONS} control={form.control} name='AddrType' label='Type' />
+            <ComboboxField data={ADDRESS_TYPE_OPTIONS} control={form.control} name='AddrType' label='Type' isRequired />
           </div>
 
           <Separator className='col-span-12' />

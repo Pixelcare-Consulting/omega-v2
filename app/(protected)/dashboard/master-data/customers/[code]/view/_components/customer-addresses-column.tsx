@@ -180,7 +180,6 @@ export function getColumns(billToDef?: string | null, shipToDef?: string | null)
     {
       accessorKey: "actions",
       header: "Actions",
-      size: 80,
       cell: function ActionCell({ row }) {
         const router = useRouter()
 
@@ -285,8 +284,8 @@ export function getColumns(billToDef?: string | null, shipToDef?: string | null)
 
               <DropdownMenuContent align='end'>
                 {!isDefault && (
-                  <DropdownMenuItem>
-                    <Icons.checkCircleBig className='mr-2 size-4' onClick={() => setShowConfirmationSetAsDefault(true)} /> Set as Default
+                  <DropdownMenuItem onClick={() => setShowConfirmationSetAsDefault(true)}>
+                    <Icons.checkCircleBig className='mr-2 size-4' /> Set as Default
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>

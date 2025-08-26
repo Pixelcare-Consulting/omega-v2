@@ -51,7 +51,22 @@ export const callbacks: NextAuthConfig["callbacks"] = {
 
       //* query existing user based on token.sub (userID)
       //* fetching the the user using the token.sub, make sure to get the up to date data of the user
-      const existingUser = await getUserById(token.sub)
+      const existingUser = await prisma.user.findUnique({
+        where: { id: token.sub },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          emailVerified: true,
+          profile: true,
+          settings: true,
+          roleId: true,
+          role: { include: { permissions: { include: { permission: true } } } },
+          isOnline: true,
+          isActive: true,
+          lastActiveAt: true,
+        },
+      })
 
       if (!existingUser) return token
 
