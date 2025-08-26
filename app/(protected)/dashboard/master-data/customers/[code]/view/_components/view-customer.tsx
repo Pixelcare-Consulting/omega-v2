@@ -17,12 +17,14 @@ import {
   BP_MASTER_CUSTOMER_TYPE_OPTIONS,
 } from "@/schema/master-bp"
 import CustomerAddressesTab from "./tabs/customer-addresses-tab"
+import CustomerContactsTab from "./tabs/customer-contacts-tab"
 
 type ViewCustomerProps = {
   customer: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
+  countries?: any
 }
 
-export default function ViewCustomer({ customer }: ViewCustomerProps) {
+export default function ViewCustomer({ customer, countries }: ViewCustomerProps) {
   const accountType = BP_MASTER_CUSTOMER_ACCOUNT_TYPE_OPTIONS.find((item) => item.value === customer.accountType)?.label
   const type = BP_MASTER_CUSTOMER_TYPE_OPTIONS.find((item) => item.value === customer.type)?.label
   const status = BP_MASTER_CUSTOMER_STATUS_OPTIONS.find((item) => item.value === customer.status)?.label
@@ -92,8 +94,8 @@ export default function ViewCustomer({ customer }: ViewCustomerProps) {
         <Tabs defaultValue='1' className='w-full'>
           <TabsList className='mb-2 h-fit flex-wrap'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
-            <TabsTrigger value='2'>Sales Quotes</TabsTrigger>
-            <TabsTrigger value='3'>Sales Quotes</TabsTrigger>
+            <TabsTrigger value='2'>Addresses</TabsTrigger>
+            <TabsTrigger value='3'>Contacts</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -101,15 +103,11 @@ export default function ViewCustomer({ customer }: ViewCustomerProps) {
           </TabsContent>
 
           <TabsContent value='2'>
-            <CustomerAddressesTab customer={customer} />
+            <CustomerAddressesTab customer={customer} countries={countries} />
           </TabsContent>
 
           <TabsContent value='3'>
-            <Card className='rounded-lg p-6 shadow-md'>
-              <div className='grid grid-cols-12 gap-5'>
-                <UnderDevelopment className='col-span-12 h-[40vh]' />
-              </div>
-            </Card>
+            <CustomerContactsTab customer={customer} />
           </TabsContent>
         </Tabs>
       </div>

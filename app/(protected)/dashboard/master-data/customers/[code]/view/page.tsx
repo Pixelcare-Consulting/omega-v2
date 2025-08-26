@@ -4,11 +4,12 @@ import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import ViewCustomer from "./_components/view-customer"
-import { getBpMasterByCardCode } from "@/actions/master-bp"
+import { getBpMasterByCardCode, getCountries } from "@/actions/master-bp"
 
 export default async function ViewCustomersPage({ params }: { params: { code: string } }) {
   const { code } = params
-  const customer = !code ? null : await getBpMasterByCardCode(code)
+
+  const [customer, countries] = await Promise.all([!code ? null : await getBpMasterByCardCode(code), getCountries()])
 
   if (!customer) notFound()
 
@@ -25,7 +26,7 @@ export default async function ViewCustomersPage({ params }: { params: { code: st
         ]}
       />
       <ContentContainer>
-        <ViewCustomer customer={customer} />
+        <ViewCustomer customer={customer} countries={countries?.value || []} />
       </ContentContainer>
     </ContentLayout>
   )

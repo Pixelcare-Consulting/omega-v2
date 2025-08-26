@@ -7,20 +7,20 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import UnderDevelopment from "@/components/under-development"
 import { getInitials } from "@/lib/utils"
 import SupplierSummaryTab from "./tabs/supplier-summary-tab"
 import { getBpMasterByCardCode } from "@/actions/master-bp"
-import { getUsers } from "@/actions/user"
 import SupplierAddressesTab from "./tabs/supplier-addresses-tab"
+import SupplierContactsTab from "./tabs/supplier-contacts-tab"
 
 type ViewSupplierProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
   itemGroups?: any
   manufacturers?: any
+  countries?: any
 }
 
-export default function ViewSupplier({ supplier, itemGroups, manufacturers }: ViewSupplierProps) {
+export default function ViewSupplier({ supplier, itemGroups, manufacturers, countries }: ViewSupplierProps) {
   return (
     <PageWrapper
       title='Supplier Details'
@@ -81,6 +81,7 @@ export default function ViewSupplier({ supplier, itemGroups, manufacturers }: Vi
           <TabsList className='mb-2 h-fit flex-wrap'>
             <TabsTrigger value='1'>Summary</TabsTrigger>
             <TabsTrigger value='2'>Addresses</TabsTrigger>
+            <TabsTrigger value='3'>Contacts</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -88,7 +89,11 @@ export default function ViewSupplier({ supplier, itemGroups, manufacturers }: Vi
           </TabsContent>
 
           <TabsContent value='2'>
-            <SupplierAddressesTab supplier={supplier} />
+            <SupplierAddressesTab supplier={supplier} countries={countries} />
+          </TabsContent>
+
+          <TabsContent value='3'>
+            <SupplierContactsTab supplier={supplier} />
           </TabsContent>
         </Tabs>
       </div>

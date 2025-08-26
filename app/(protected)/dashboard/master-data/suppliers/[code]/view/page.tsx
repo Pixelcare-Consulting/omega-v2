@@ -4,17 +4,18 @@ import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import ViewSupplier from "./_components/view-supplier"
-import { getBpMasterByCardCode } from "@/actions/master-bp"
+import { getBpMasterByCardCode, getCountries } from "@/actions/master-bp"
 import { getItemMasterGroups } from "@/actions/master-item"
 import { getManufacturers } from "@/actions/manufacturer"
 
 export default async function ViewSupplierPage({ params }: { params: { code: string } }) {
   const { code } = params
 
-  const [supplier, itemGroups, manufacturers] = await Promise.all([
+  const [supplier, itemGroups, manufacturers, countries] = await Promise.all([
     !code ? null : await getBpMasterByCardCode(code),
     getItemMasterGroups(),
     getManufacturers(),
+    getCountries(),
   ])
 
   if (!supplier) notFound()
@@ -32,7 +33,12 @@ export default async function ViewSupplierPage({ params }: { params: { code: str
         ]}
       />
       <ContentContainer>
-        <ViewSupplier supplier={supplier} itemGroups={itemGroups?.value || []} manufacturers={manufacturers?.value || []} />
+        <ViewSupplier
+          supplier={supplier}
+          itemGroups={itemGroups?.value || []}
+          manufacturers={manufacturers?.value || []}
+          countries={countries?.value || []}
+        />
       </ContentContainer>
     </ContentLayout>
   )

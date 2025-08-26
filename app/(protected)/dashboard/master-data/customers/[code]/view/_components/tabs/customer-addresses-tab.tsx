@@ -7,12 +7,14 @@ import { Card } from "@/components/ui/card"
 import { useDialogStore } from "@/hooks/use-dialog"
 import { Dialog, DialogTitle, DialogContent, DialogDescription, DialogHeader } from "@/components/ui/dialog"
 import CustomerAddressesList from "../customer-addresses-list"
+import AddressForm from "../../../../../_components/address-form"
 
 type CustomerAddressesTabProps = {
   customer: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
+  countries?: any
 }
 
-export default function CustomerAddressesTab({ customer }: CustomerAddressesTabProps) {
+export default function CustomerAddressesTab({ customer, countries }: CustomerAddressesTabProps) {
   const addresses = customer.addresses || []
   const billToDef = customer.BillToDef
   const shipToDef = customer.ShipToDef
@@ -46,10 +48,14 @@ export default function CustomerAddressesTab({ customer }: CustomerAddressesTabP
         <DialogContent className='max-h-[85vh] overflow-auto sm:max-w-5xl'>
           <DialogHeader>
             <DialogTitle>Add address for customer #{customer.CardCode}</DialogTitle>
-            <DialogDescription>Fill in the form to create a new address for this customer.</DialogDescription>
+            <DialogDescription>Fill in the form to {data ? "edit" : "create a new"} address for this customer.</DialogDescription>
           </DialogHeader>
 
-          <Card className='p-3'></Card>
+          <Card className='p-3'>
+            <Card className='p-3'>
+              <AddressForm address={data || null} countries={countries} />
+            </Card>
+          </Card>
         </DialogContent>
       </Dialog>
     </Card>

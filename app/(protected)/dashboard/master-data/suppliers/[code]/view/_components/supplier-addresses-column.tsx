@@ -1,5 +1,8 @@
 import { format } from "date-fns"
 import { ColumnDef } from "@tanstack/react-table"
+import { toast } from "sonner"
+import { useRouter } from "nextjs-toploader/app"
+import { useAction } from "next-safe-action/hooks"
 
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
@@ -7,10 +10,16 @@ import { Badge, BadgeProps } from "@/components/badge"
 import { Icons } from "@/components/icons"
 import { useState } from "react"
 import { dateFilter, dateSort } from "@/lib/data-table/data-table"
-import { getBpMasterByCardCode } from "@/actions/master-bp"
+import { bpMasterAddressSetAsDefault, getBpMasterByCardCode } from "@/actions/master-bp"
 import { SYNC_STATUSES_COLORS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ADDRESS_TYPE_OPTIONS } from "@/schema/master-address"
+import { useDialogStore } from "@/hooks/use-dialog"
+import { deleteAddressMaster } from "@/actions/master-address"
+import AlertModal from "@/components/alert-modal"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Card } from "@/components/ui/card"
+import AddressReadOnlyView from "../../../../_components/address-read-only"
 
 type AddressData = NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>["addresses"][number]
 
@@ -35,8 +44,8 @@ export function getColumns(billToDef?: string | null, shipToDef?: string | null)
       },
     },
     {
-      accessorKey: "date",
-
+      accessorKey: "createdAt",
+      id: "date",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Date' />,
       cell: ({ row }) => {
         const date = row.original.createdAt
@@ -173,28 +182,97 @@ export function getColumns(billToDef?: string | null, shipToDef?: string | null)
       header: "Actions",
       size: 80,
       cell: function ActionCell({ row }) {
-        const [showConfirmation, setShowConfirmation] = useState(false)
+        const router = useRouter()
+
+        const { executeAsync: deleteAddressMasterExecuteAsync } = useAction(deleteAddressMaster)
+        const { executeAsync: bpMasterAddressSetAsDefaultExecuteAsync } = useAction(bpMasterAddressSetAsDefault)
+
+        const [showConfirmationDelete, setShowConfirmationDelete] = useState(false)
+        const [showConfirmationSetAsDefault, setShowConfirmationSetAsDefault] = useState(false)
+        const [showReadOnlyView, setShowReadOnlyView] = useState(false)
+
         const { id, CardCode, source, AddrType } = row.original
+
+        const { setIsOpen, setData } = useDialogStore(["setIsOpen", "setData"])
 
         const defaultAddressId = AddrType === "B" ? billToDef || "" : AddrType === "S" ? shipToDef || "" : null
         const isDefault = id === defaultAddressId
 
+        const type = ADDRESS_TYPE_OPTIONS.find((item) => item.value === AddrType)?.label
+
+        const handleEdit = () => {
+          setData(row.original)
+          setTimeout(() => setIsOpen(true), 1000)
+        }
+
+        async function handleDelete() {
+          setShowConfirmationDelete(false)
+
+          toast.promise(deleteAddressMasterExecuteAsync({ id }), {
+            loading: "Deleting address...",
+            success: (response) => {
+              const result = response?.data
+
+              if (!response || !result) throw { message: "Failed to delete address!", unExpectedError: true }
+
+              if (!result.error) {
+                setTimeout(() => {
+                  router.refresh()
+                }, 1500)
+
+                return result.message
+              }
+
+              throw { message: result.message, expectedError: true }
+            },
+            error: (err: Error & { expectedError: boolean }) => {
+              return err?.expectedError ? err.message : "Something went wrong! Please try again later."
+            },
+          })
+        }
+
+        async function handleSetAsDefault() {
+          setShowConfirmationSetAsDefault(false)
+
+          toast.promise(bpMasterAddressSetAsDefaultExecuteAsync({ cardCode: CardCode, addressType: AddrType, addressId: id }), {
+            loading: "Setting as default...",
+            success: (response) => {
+              const result = response?.data
+
+              if (!response || !result) throw { message: "Failed to set as default!", unExpectedError: true }
+
+              if (!result.error) {
+                setTimeout(() => {
+                  router.refresh()
+                }, 1500)
+
+                return result.message
+              }
+
+              throw { message: result.message, expectedError: true }
+            },
+            error: (err: Error & { expectedError: boolean }) => {
+              return err?.expectedError ? err.message : "Something went wrong! Please try again later."
+            },
+          })
+        }
+
         return (
           <div className='flex gap-2'>
             <ActionTooltipProvider label='View Address'>
-              <Icons.eye className='size-4 cursor-pointer transition-all hover:scale-125' />
+              <Icons.eye className='size-4 cursor-pointer transition-all hover:scale-125' onClick={() => setShowReadOnlyView(true)} />
             </ActionTooltipProvider>
 
             {source === "portal" && (
               <ActionTooltipProvider label='Edit Address'>
-                <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' />
+                <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' onClick={handleEdit} />
               </ActionTooltipProvider>
             )}
 
             <ActionTooltipProvider label='Delete Address'>
               <Icons.trash
                 className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125'
-                onClick={() => setShowConfirmation(true)}
+                onClick={() => setShowConfirmationDelete(true)}
               />
             </ActionTooltipProvider>
 
@@ -205,14 +283,40 @@ export function getColumns(billToDef?: string | null, shipToDef?: string | null)
                 </ActionTooltipProvider>
               </DropdownMenuTrigger>
 
-              {!isDefault && (
-                <DropdownMenuContent align='end'>
+              <DropdownMenuContent align='end'>
+                {!isDefault && (
                   <DropdownMenuItem>
-                    <Icons.checkCircleBig className='mr-2 size-4' /> Set as Default
+                    <Icons.checkCircleBig className='mr-2 size-4' onClick={() => setShowConfirmationSetAsDefault(true)} /> Set as Default
                   </DropdownMenuItem>
-                </DropdownMenuContent>
-              )}
+                )}
+              </DropdownMenuContent>
             </DropdownMenu>
+
+            <AlertModal
+              isOpen={showConfirmationDelete}
+              title='Are you sure?'
+              description={`Are you sure you want to delete this address #${CardCode}?`}
+              onConfirm={handleDelete}
+              onConfirmText='Delete'
+              onCancel={() => setShowConfirmationDelete(false)}
+            />
+
+            <AlertModal
+              isOpen={showConfirmationSetAsDefault}
+              title='Are you sure?'
+              description={`Are you sure you want to set this address #${CardCode} as default ${type?.toLowerCase()} address?`}
+              onConfirm={handleSetAsDefault}
+              onConfirmText='Set as Default'
+              onCancel={() => setShowConfirmationDelete(false)}
+            />
+
+            <Dialog open={showReadOnlyView} onOpenChange={setShowReadOnlyView}>
+              <DialogContent className='max-h-[85vh] overflow-auto sm:max-w-5xl'>
+                <Card className='p-3'>
+                  <AddressReadOnlyView address={row.original} />
+                </Card>
+              </DialogContent>
+            </Dialog>
           </div>
         )
       },

@@ -350,7 +350,7 @@ export default function CustomerForm({ customer, bpGroups, currencies, countries
       form.setValue("billingAddress.GlblLocNum", lead.gln)
 
       //* pre populate shipping address
-      form.setValue("shippingAddress.AddrType", "B")
+      form.setValue("shippingAddress.AddrType", "S")
       form.setValue("shippingAddress.Street", lead.street1)
       form.setValue("shippingAddress.Address2", lead.street2)
       form.setValue("shippingAddress.Address3", lead.street3)
