@@ -98,12 +98,12 @@ export default function RoleForm({ role, permissions }: RoleFormProps) {
   }
 
   const code = useMemo(() => {
-    const value = form.getValues("code")
+    const value = form.getValues("name")
     const result = value ? value.toLowerCase().replaceAll(" ", "-") : ""
     form.setValue("code", result)
     return result
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.watch("code")])
+  }, [form.watch("name")])
 
   const isActionSelected = useCallback(
     (id: string, action: string) => {
@@ -218,7 +218,7 @@ export default function RoleForm({ role, permissions }: RoleFormProps) {
               label='Role Code'
               description='Role code must be unique'
               isRequired
-              extendedProps={{ inputProps: { value: code } }}
+              extendedProps={{ inputProps: { value: code, disabled: true } }}
             />
           </div>
 
