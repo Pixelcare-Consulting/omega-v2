@@ -84,7 +84,7 @@ export function getColumns(saleQuoteId: string, lineItems: LineItemForm[]): Colu
         const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === row.original?.ltToSjcUom)?.label
 
         return (
-          <div className='flex min-w-[200px] flex-col justify-center gap-2'>
+          <div className='flex min-w-[200px] flex-col justify-start gap-2'>
             <div className='flex gap-1.5'>
               <span className='text-wrap font-semibold'>{mpn}</span>
             </div>
@@ -178,12 +178,61 @@ export function getColumns(saleQuoteId: string, lineItems: LineItemForm[]): Colu
       },
     },
     {
-      accessorKey: "leadTime",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Lead Time' />,
+      accessorFn: (row) => {
+        const details = row.details
+        let value = ""
+        if (details.mpn) value += `${details.mpn}`
+        if (details.mfr) value += ` ${details.mfr}`
+        if (details.dateCode) value += ` ${details.dateCode}`
+        if (details.condition) value += ` ${details.condition}`
+        if (details.coo) value += ` ${details.coo}`
+        if (details.leadTime) value += ` ${details.leadTime}`
+        if (details.notes) value += ` ${details.notes}`
+        return value
+      },
+      id: "details",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Details' />,
       cell: ({ row }) => {
-        const leadTime = row.original.leadTime
-        if (!leadTime) return null
-        return <div className='whitespace-pre-line text-muted-foreground'>{leadTime}</div>
+        const { mpn, mfr, dateCode, condition, coo, leadTime, notes } = row.original.details
+
+        return (
+          <div className='flex min-w-[200px] flex-col justify-center gap-2'>
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>MPN:</span>
+              <span className='text-muted-foreground'>{mpn || ""}</span>
+            </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>MFR:</span>
+              <span className='text-muted-foreground'>{mfr || ""}</span>
+            </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>Date Code:</span>
+              <span className='text-muted-foreground'>{dateCode || ""}</span>
+            </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>Condition:</span>
+              <span className='text-muted-foreground'>{condition || ""}</span>
+            </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>COO:</span>
+              <span className='text-muted-foreground'>{coo || ""}</span>
+            </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>lead Time:</span>
+              <span className='whitespace-pre-line text-muted-foreground'>{leadTime || ""}</span>
+            </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>Notes:</span>
+              <span className='whitespace-pre-line text-muted-foreground'>{notes || ""}</span>
+            </div>
+          </div>
+        )
       },
     },
     {

@@ -425,7 +425,7 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
             <InputField
               control={form.control}
               name='details.mfr'
-              label='MPN'
+              label='MFR'
               extendedProps={{ inputProps: { placeholder: "Enter MFR" } }}
             />
           </div>
@@ -434,7 +434,7 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
             <InputField
               control={form.control}
               name='details.dateCode'
-              label='MPN'
+              label='Date Code'
               extendedProps={{ inputProps: { placeholder: "Enter date code" } }}
             />
           </div>

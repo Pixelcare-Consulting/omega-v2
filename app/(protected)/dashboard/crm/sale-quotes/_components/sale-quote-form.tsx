@@ -20,7 +20,7 @@ import { FormDebug } from "@/components/form/form-debug"
 import InputField from "@/components/form/input-field"
 import TextAreaField from "@/components/form/textarea-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
-import { Form } from "@/components/ui/form"
+import { Form, FormMessage } from "@/components/ui/form"
 import { cn } from "@/lib/utils"
 import { LineItemForm, lineItemFormSchema, type SaleQuoteForm, saleQuoteFormSchema } from "@/schema/sale-quote"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
@@ -140,12 +140,6 @@ export default function SaleQuoteForm({ salesQuote, requisitions, customers, ite
       notes: "",
     },
   }
-
-  const lineItemForm = useForm({
-    mode: "onChange",
-    values: lineItemDefaultValues,
-    resolver: zodResolver(lineItemFormSchema),
-  })
 
   const lineItems = useWatch({ control: form.control, name: "lineItems" })
   const customerCode = useWatch({ control: form.control, name: "customerCode" })
@@ -323,7 +317,7 @@ export default function SaleQuoteForm({ salesQuote, requisitions, customers, ite
           return value
         },
         id: "details",
-        header: ({ column }) => <DataTableColumnHeader column={column} title='Lead Time' />,
+        header: ({ column }) => <DataTableColumnHeader column={column} title='Details' />,
         cell: ({ row }) => {
           const { mpn, mfr, dateCode, condition, coo, leadTime, notes } = row.original.details
 
@@ -409,7 +403,7 @@ export default function SaleQuoteForm({ salesQuote, requisitions, customers, ite
           }
 
           return (
-            <div className='w-[50px]'>
+            <div className='flex items-center gap-2'>
               <ActionTooltipProvider label='Edit Line Item'>
                 <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' onClick={handleEdit} />
               </ActionTooltipProvider>
@@ -813,12 +807,17 @@ export default function SaleQuoteForm({ salesQuote, requisitions, customers, ite
 
           <Separator className='col-span-12' />
 
-          <ReadOnlyFieldHeader
-            className='col-span-12'
-            title='Line Items'
-            description='List of items sourced from the selected requisition.'
-            actions={<LineItemAction />}
-          />
+          <div className='col-span-12'>
+            <ReadOnlyFieldHeader
+              title='Line Items'
+              description='List of items sourced from the selected requisition.'
+              actions={<LineItemAction />}
+            />
+
+            {form.formState?.errors?.lineItems?.message && (
+              <FormMessage className='mt-1'>{form.formState?.errors?.lineItems?.message}</FormMessage>
+            )}
+          </div>
 
           <div className='col-span-12'>
             <DataTable table={table}>

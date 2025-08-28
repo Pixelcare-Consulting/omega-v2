@@ -134,7 +134,7 @@ export default function SaleQuoteLineItemForm({ lineItem, requisitions, items }:
       }))
   }, [JSON.stringify(supplierQuotes), JSON.stringify(items), JSON.stringify(lineItems), JSON.stringify(lineItem)])
 
-  const handleAddLineItem = async () => {
+  const handleAddLineItem = useCallback(async () => {
     const isValid = await lineItemForm.trigger()
 
     if (!isValid) {
@@ -142,14 +142,22 @@ export default function SaleQuoteLineItemForm({ lineItem, requisitions, items }:
       return
     }
 
-    const currentValues = form.getValues("lineItems") || []
-    const newValues = lineItemForm.getValues()
+    const lineItemFormData = lineItemForm.getValues()
+    const newLineItems = lineItems ? [...lineItems] : []
 
-    form.setValue("lineItems", [...currentValues, newValues])
+    if (lineItem) {
+      newLineItems.splice(
+        newLineItems.findIndex((item) => item.code == lineItem.code),
+        1,
+        lineItemFormData
+      )
+    } else newLineItems.push(lineItemFormData)
+
+    form.setValue("lineItems", newLineItems)
     lineItemForm.reset()
     form.clearErrors("lineItems")
     setIsOpen(false)
-  }
+  }, [JSON.stringify(lineItems), JSON.stringify(lineItem)])
 
   const requisitionCodeCallback = useCallback(
     (code: number) => {
@@ -198,6 +206,8 @@ export default function SaleQuoteLineItemForm({ lineItem, requisitions, items }:
         lineItemForm.setValue("details.mfr", selectedItem.FirmName)
         lineItemForm.setValue("details.dateCode", supplierQuote.dateCode)
         lineItemForm.setValue("details.coo", supplierQuote.coo)
+        lineItemForm.setValue("details.leadTime", "")
+        lineItemForm.setValue("details.notes", "")
       }
     },
     [JSON.stringify(items)]
@@ -390,7 +400,7 @@ export default function SaleQuoteLineItemForm({ lineItem, requisitions, items }:
         <InputField
           control={lineItemForm.control}
           name='details.mfr'
-          label='MPN'
+          label='MFR'
           extendedProps={{ inputProps: { placeholder: "Enter MFR" } }}
         />
       </div>
@@ -399,7 +409,7 @@ export default function SaleQuoteLineItemForm({ lineItem, requisitions, items }:
         <InputField
           control={lineItemForm.control}
           name='details.dateCode'
-          label='MPN'
+          label='Date Code'
           extendedProps={{ inputProps: { placeholder: "Enter date code" } }}
         />
       </div>
