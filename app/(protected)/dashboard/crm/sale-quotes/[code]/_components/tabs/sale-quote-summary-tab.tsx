@@ -109,7 +109,7 @@ export default function SaleQuoteSummaryTab({ saleQuote, items, requisitions, pa
               estimatedDeliveryDate: supplierQuote.estimatedDeliveryDate,
               unitPrice: isNaN(unitPrice) ? 0 : unitPrice,
               quantity: isNaN(quantity) ? 0 : quantity,
-              leadTime: li.leadTime,
+              details: li.details,
             }
           }
         }

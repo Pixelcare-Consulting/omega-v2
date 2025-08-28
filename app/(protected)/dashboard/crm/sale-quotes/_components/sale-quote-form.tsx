@@ -570,7 +570,6 @@ export default function SaleQuoteForm({ salesQuote, requisitions, customers, ite
                 quantity: isNaN(quantity) ? 0 : quantity,
                 quotedPrice: isNaN(quotedPrice) ? "" : formatCurrency({ amount: quotedPrice, maxDecimal: 2 }),
                 quotedQuantity: isNaN(quotedQuantity) ? "" : formatNumber({ amount: quotedQuantity }),
-                leadTime: li.leadTime,
                 details: li.details,
               }
             }

@@ -30,7 +30,6 @@ export const lineItemFormSchema = z.object({
   quotedQuantity: z.string().nullish(),
   unitPrice: z.coerce.number(),
   quantity: z.coerce.number().min(1, { message: "Quantity is required" }),
-  leadTime: z.string().nullish(),
   details: lineItemsDetailsSchema,
 })
 

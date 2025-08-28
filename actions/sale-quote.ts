@@ -89,7 +89,6 @@ export const upsertSaleQuote = action
       code: item.code,
       unitPrice: item.unitPrice,
       quantity: item.quantity,
-      leadTime: item.leadTime,
       details: item.details,
     }))
 
@@ -160,7 +159,7 @@ export const updateLineItems = action
         code: item.code,
         unitPrice: item.unitPrice,
         quantity: item.quantity,
-        leadTime: item.leadTime,
+        details: item.details,
       }))
 
       if (!saleQuote) return { error: true, status: 404, message: "Sale quote not found!", action: "UPDATE_LINE_ITEMS" }

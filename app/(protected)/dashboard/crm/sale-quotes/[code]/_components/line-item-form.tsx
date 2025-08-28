@@ -65,7 +65,6 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
     quotedQuantity: "",
     unitPrice: 0,
     quantity: 0,
-    leadTime: "",
     details: {
       mpn: "",
       mfr: "",
