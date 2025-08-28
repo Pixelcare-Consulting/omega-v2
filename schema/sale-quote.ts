@@ -1,5 +1,15 @@
 import { z } from "zod"
 
+const lineItemsDetailsSchema = z.object({
+  mpn: z.string().nullish(),
+  mfr: z.string().nullish(),
+  dateCode: z.string().nullish(),
+  condition: z.string().nullish(),
+  coo: z.string().nullish(),
+  leadTime: z.string().nullish(),
+  notes: z.string().nullish(),
+})
+
 //* Zod schema
 export const lineItemFormSchema = z.object({
   requisitionCode: z.coerce.number().min(1, { message: "Requisitionis required" }),
@@ -16,9 +26,12 @@ export const lineItemFormSchema = z.object({
   coo: z.string().nullish(),
   dateCode: z.string().nullish(),
   estimatedDeliveryDate: z.date().nullish(),
+  quotedPrice: z.string().nullish(),
+  quotedQuantity: z.string().nullish(),
   unitPrice: z.coerce.number(),
   quantity: z.coerce.number().min(1, { message: "Quantity is required" }),
   leadTime: z.string().nullish(),
+  details: lineItemsDetailsSchema,
 })
 
 export const lineItemsFormSchema = z.array(lineItemFormSchema).min(1, { message: "Please select at least one item" })

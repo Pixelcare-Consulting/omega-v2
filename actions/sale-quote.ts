@@ -15,6 +15,15 @@ export type LineItemsJSONData = {
   unitPrice: number
   quantity: number
   leadTime: string
+  details: {
+    mpn?: string
+    mfr?: string
+    dateCode?: string
+    condition?: string
+    coo?: string
+    leadTime?: string
+    notes?: string
+  }
 }[]
 
 export async function getSaleQuotes() {
@@ -81,6 +90,7 @@ export const upsertSaleQuote = action
       unitPrice: item.unitPrice,
       quantity: item.quantity,
       leadTime: item.leadTime,
+      details: item.details,
     }))
 
     try {

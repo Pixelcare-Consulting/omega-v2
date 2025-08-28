@@ -10,7 +10,7 @@ import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { formatCurrency } from "@/lib/formatter"
+import { formatCurrency, formatNumber } from "@/lib/formatter"
 import SaleQuoteLineItemList from "../sale-quote-line-items-list"
 import { useDialogStore } from "@/hooks/use-dialog"
 import { Dialog, DialogTitle, DialogContent, DialogDescription, DialogHeader } from "@/components/ui/dialog"
@@ -39,6 +39,9 @@ export default function SaleQuoteLineItemsTab({ saleQuote, items, requisitions }
           const selectedItem = items.find((item) => item.ItemCode == li.code)
 
           if (selectedItem) {
+            const quotedPrice = parseFloat(String(supplierQuote.quotedPrice))
+            const quotedQuantity = parseFloat(String(supplierQuote.quotedQuantity))
+
             const unitPrice = parseFloat(String(li.unitPrice))
             const quantity = parseFloat(String(li.quantity))
 
@@ -59,7 +62,10 @@ export default function SaleQuoteLineItemsTab({ saleQuote, items, requisitions }
               estimatedDeliveryDate: supplierQuote.estimatedDeliveryDate,
               unitPrice: isNaN(unitPrice) ? 0 : unitPrice,
               quantity: isNaN(quantity) ? 0 : quantity,
+              quotedPrice: isNaN(quotedPrice) ? "" : formatCurrency({ amount: quotedPrice, maxDecimal: 2 }),
+              quotedQuantity: isNaN(quotedQuantity) ? "" : formatNumber({ amount: quotedQuantity }),
               leadTime: li.leadTime,
+              details: li.details,
             }
           }
         }

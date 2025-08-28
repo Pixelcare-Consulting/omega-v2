@@ -22,7 +22,21 @@ export function getColumns(saleQuoteId: string, lineItems: LineItemForm[]): Colu
   return [
     {
       accessorFn: (row) => {
-        const { requisitionCode, supplierQuoteCode, name, mpn, mfr, cpn, source, condition, coo, dateCode, estimatedDeliveryDate } = row
+        const {
+          requisitionCode,
+          supplierQuoteCode,
+          name,
+          mpn,
+          mfr,
+          cpn,
+          source,
+          condition,
+          coo,
+          dateCode,
+          estimatedDeliveryDate,
+          quotedPrice,
+          quotedQuantity,
+        } = row
 
         const ltToSjcNumber = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === row.ltToSjcNumber)?.label
         const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === row.ltToSjcUom)?.label
@@ -40,6 +54,8 @@ export function getColumns(saleQuoteId: string, lineItems: LineItemForm[]): Colu
         if (condition) value += ` ${condition}`
         if (coo) value += ` ${coo}`
         if (dateCode) value += ` ${dateCode}`
+        if (quotedPrice) value += ` ${quotedPrice}`
+        if (quotedQuantity) value += ` ${quotedQuantity}`
         if (estimatedDeliveryDate) value += ` ${format(estimatedDeliveryDate, "MM/dd/yyyy")}`
 
         return value
@@ -48,8 +64,21 @@ export function getColumns(saleQuoteId: string, lineItems: LineItemForm[]): Colu
       header: ({ column }) => <DataTableColumnHeader column={column} title='Reference' />,
       enableSorting: false,
       cell: ({ row }) => {
-        const { requisitionCode, supplierQuoteCode, mpn, mfr, name, cpn, source, condition, coo, dateCode, estimatedDeliveryDate } =
-          row.original
+        const {
+          requisitionCode,
+          supplierQuoteCode,
+          mpn,
+          mfr,
+          name,
+          cpn,
+          source,
+          condition,
+          coo,
+          dateCode,
+          estimatedDeliveryDate,
+          quotedPrice,
+          quotedQuantity,
+        } = row.original
 
         const ltToSjcNumber = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === row.original?.ltToSjcNumber)?.label
         const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === row.original?.ltToSjcUom)?.label
@@ -88,6 +117,16 @@ export function getColumns(saleQuoteId: string, lineItems: LineItemForm[]): Colu
             <div className='flex gap-1.5'>
               <span className='font-semibold'>LT to SJC:</span>
               <span className='text-muted-foreground'>{`${ltToSjcNumber || ""} ${ltToSjcUom || ""}`}</span>
+            </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>Quoted Price:</span>
+              <span className='text-muted-foreground'>{quotedPrice || ""}</span>
+            </div>
+
+            <div className='flex gap-1.5'>
+              <span className='font-semibold'>Qty Quoted:</span>
+              <span className='text-muted-foreground'>{quotedQuantity || ""}</span>
             </div>
 
             <div className='flex gap-1.5'>

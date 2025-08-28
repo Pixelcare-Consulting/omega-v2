@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import { useAction } from "next-safe-action/hooks"
 import { useParams, useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useCallback, useEffect, useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { useForm, useWatch } from "react-hook-form"
 
 import { getBpMasters } from "@/actions/master-bp"
@@ -23,15 +23,14 @@ import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Form } from "@/components/ui/form"
 import { cn } from "@/lib/utils"
 import { LineItemForm, lineItemFormSchema, type SaleQuoteForm, saleQuoteFormSchema } from "@/schema/sale-quote"
-import { Separator } from "@radix-ui/react-dropdown-menu"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { format } from "date-fns"
-import { formatCurrency } from "@/lib/formatter"
+import { formatCurrency, formatNumber } from "@/lib/formatter"
 import { Icons } from "@/components/icons"
 import { useDataTable } from "@/hooks/use-data-table"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
-import { multiply } from "mathjs"
+import { det, multiply } from "mathjs"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import LoadingButton from "@/components/loading-button"
@@ -39,33 +38,30 @@ import { getSupplierQuotes } from "@/actions/supplier-quote"
 import { SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS, SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS } from "@/schema/supplier-quote"
 import { getAddressesClient } from "@/actions/master-address"
 import { getContactsClient } from "@/actions/master-contact"
+import { Separator } from "@/components/ui/separator"
+import { useDialogStore } from "@/hooks/use-dialog"
+import ActionTooltipProvider from "@/components/provider/tooltip-provider"
+import { Dialog, DialogTitle, DialogContent, DialogDescription, DialogHeader } from "@/components/ui/dialog"
+import { Card } from "@/components/ui/card"
+import SaleQuoteLineItemForm from "./sale-quote-line-item-form"
 
 type SaleQuoteFormProps = {
-  isModal?: boolean
   salesQuote: Awaited<ReturnType<typeof getSaleQuoteByCode>>
   requisitions: Awaited<ReturnType<typeof getRequisitions>>
   customers: Awaited<ReturnType<typeof getBpMasters>>
   items: Awaited<ReturnType<typeof getItems>>
   users: Awaited<ReturnType<typeof getUsers>>
   paymentTerms?: any
-  initialCustomerCode?: string
 }
 
-export default function SaleQuoteForm({
-  isModal,
-  salesQuote,
-  requisitions,
-  customers,
-  items,
-  users,
-  paymentTerms,
-  initialCustomerCode,
-}: SaleQuoteFormProps) {
+export default function SaleQuoteForm({ salesQuote, requisitions, customers, items, users, paymentTerms }: SaleQuoteFormProps) {
   const router = useRouter()
   const { code } = useParams() as { code: string }
   const { data: session } = useSession()
 
   const isCreate = code === "add" || !salesQuote
+
+  const { isOpen, setIsOpen, data: lineItemData, setData } = useDialogStore(["isOpen", "setIsOpen", "data", "setData"])
 
   const values = useMemo(() => {
     if (salesQuote) {
@@ -134,6 +130,15 @@ export default function SaleQuoteForm({
     estimatedDeliveryDate: null,
     unitPrice: 0,
     quantity: 0,
+    details: {
+      mpn: "",
+      mfr: "",
+      dateCode: "",
+      condition: "",
+      coo: "",
+      leadTime: "",
+      notes: "",
+    },
   }
 
   const lineItemForm = useForm({
@@ -143,20 +148,33 @@ export default function SaleQuoteForm({
   })
 
   const lineItems = useWatch({ control: form.control, name: "lineItems" })
-  const lineItemReqCode = useWatch({ control: lineItemForm.control, name: "requisitionCode" })
   const customerCode = useWatch({ control: form.control, name: "customerCode" })
 
   const columns = useMemo((): ColumnDef<LineItemForm>[] => {
     return [
       {
         accessorFn: (row) => {
-          const { requisitionCode, supplierQuoteCode, name, mpn, mfr, cpn, source, condition, coo, dateCode, estimatedDeliveryDate } = row
+          const {
+            requisitionCode,
+            supplierQuoteCode,
+            name,
+            mpn,
+            mfr,
+            cpn,
+            source,
+            condition,
+            coo,
+            dateCode,
+            estimatedDeliveryDate,
+            quotedPrice,
+            quotedQuantity,
+          } = row
 
           const ltToSjcNumber = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === row.ltToSjcNumber)?.label
           const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === row.ltToSjcUom)?.label
 
           let value = ""
-          if (requisitionCode) value += ` ${requisitionCode}`
+          if (requisitionCode) value += `${requisitionCode}`
           if (supplierQuoteCode) value += ` ${supplierQuoteCode}`
           if (name) value += ` ${name}`
           if (cpn) value += ` ${cpn}`
@@ -168,6 +186,8 @@ export default function SaleQuoteForm({
           if (condition) value += ` ${condition}`
           if (coo) value += ` ${coo}`
           if (dateCode) value += ` ${dateCode}`
+          if (quotedPrice) value += ` ${quotedPrice}`
+          if (quotedQuantity) value += ` ${quotedQuantity}`
           if (estimatedDeliveryDate) value += ` ${format(estimatedDeliveryDate, "MM/dd/yyyy")}`
 
           return value
@@ -176,8 +196,21 @@ export default function SaleQuoteForm({
         header: ({ column }) => <DataTableColumnHeader column={column} title='Reference' />,
         enableSorting: false,
         cell: ({ row }) => {
-          const { requisitionCode, supplierQuoteCode, mpn, mfr, name, cpn, source, condition, coo, dateCode, estimatedDeliveryDate } =
-            row.original
+          const {
+            requisitionCode,
+            supplierQuoteCode,
+            mpn,
+            mfr,
+            name,
+            cpn,
+            source,
+            condition,
+            coo,
+            dateCode,
+            estimatedDeliveryDate,
+            quotedPrice,
+            quotedQuantity,
+          } = row.original
 
           const ltToSjcNumber = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === row.original?.ltToSjcNumber)?.label
           const ltToSjcUom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === row.original?.ltToSjcUom)?.label
@@ -219,6 +252,16 @@ export default function SaleQuoteForm({
               </div>
 
               <div className='flex gap-1.5'>
+                <span className='font-semibold'>Quoted Price:</span>
+                <span className='text-muted-foreground'>{quotedPrice || ""}</span>
+              </div>
+
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>Qty Quoted:</span>
+                <span className='text-muted-foreground'>{quotedQuantity || ""}</span>
+              </div>
+
+              <div className='flex gap-1.5'>
                 <span className='font-semibold'>Condition:</span>
                 <span className='text-muted-foreground'>{condition || ""}</span>
               </div>
@@ -252,50 +295,75 @@ export default function SaleQuoteForm({
         accessorKey: "unitPrice",
         header: ({ column }) => <DataTableColumnHeader column={column} title='Unit Price' />,
         cell: ({ row }) => {
-          const index = row.index
-
-          return (
-            <InputField
-              control={form.control}
-              name={`lineItems.${index}.unitPrice`}
-              label='Unit Price'
-              isHideLabel
-              extendedProps={{ inputProps: { placeholder: "Enter unit price", type: "number", startContent: "$" } }}
-            />
-          )
+          const unitPrice = parseFloat(String(row.original.unitPrice))
+          if (isNaN(unitPrice)) return ""
+          return <div>{formatCurrency({ amount: unitPrice, maxDecimal: 2 })}</div>
         },
       },
       {
         accessorKey: "quantity",
         header: ({ column }) => <DataTableColumnHeader column={column} title='Quantity' />,
         cell: ({ row }) => {
-          const index = row.index
-
-          return (
-            <InputField
-              control={form.control}
-              name={`lineItems.${index}.quantity`}
-              label='Quantity'
-              isHideLabel
-              extendedProps={{ inputProps: { placeholder: "Enter quantity", type: "number" } }}
-            />
-          )
+          const quantity = parseFloat(String(row.original.quantity))
+          if (isNaN(quantity)) return ""
+          return <div>{formatNumber({ amount: quantity as any, maxDecimal: 2 })}</div>
         },
       },
       {
-        accessorKey: "leadTime",
+        accessorFn: (row) => {
+          const details = row.details
+          let value = ""
+          if (details.mpn) value += `${details.mpn}`
+          if (details.mfr) value += ` ${details.mfr}`
+          if (details.dateCode) value += ` ${details.dateCode}`
+          if (details.condition) value += ` ${details.condition}`
+          if (details.coo) value += ` ${details.coo}`
+          if (details.leadTime) value += ` ${details.leadTime}`
+          if (details.notes) value += ` ${details.notes}`
+          return value
+        },
+        id: "details",
         header: ({ column }) => <DataTableColumnHeader column={column} title='Lead Time' />,
         cell: ({ row }) => {
-          const index = row.index
+          const { mpn, mfr, dateCode, condition, coo, leadTime, notes } = row.original.details
 
           return (
-            <TextAreaField
-              control={form.control}
-              name={`lineItems.${index}.leadTime`}
-              label='Lead Time'
-              isHideLabel
-              extendedProps={{ textAreaProps: { placeholder: "Enter lead time" } }}
-            />
+            <div className='flex min-w-[200px] flex-col justify-center gap-2'>
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>MPN:</span>
+                <span className='text-muted-foreground'>{mpn || ""}</span>
+              </div>
+
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>MFR:</span>
+                <span className='text-muted-foreground'>{mfr || ""}</span>
+              </div>
+
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>Date Code:</span>
+                <span className='text-muted-foreground'>{dateCode || ""}</span>
+              </div>
+
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>Condition:</span>
+                <span className='text-muted-foreground'>{condition || ""}</span>
+              </div>
+
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>COO:</span>
+                <span className='text-muted-foreground'>{coo || ""}</span>
+              </div>
+
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>lead Time:</span>
+                <span className='whitespace-pre-line text-muted-foreground'>{leadTime || ""}</span>
+              </div>
+
+              <div className='flex gap-1.5'>
+                <span className='font-semibold'>Notes:</span>
+                <span className='whitespace-pre-line text-muted-foreground'>{notes || ""}</span>
+              </div>
+            </div>
           )
         },
       },
@@ -335,9 +403,20 @@ export default function SaleQuoteForm({
             form.setValue("lineItems", newLineItems)
           }
 
+          const handleEdit = () => {
+            setData(row.original)
+            setTimeout(() => setIsOpen(true), 1000)
+          }
+
           return (
             <div className='w-[50px]'>
-              <Icons.trash className='size-4 cursor-pointer text-red-600' onClick={() => handleRemoveItem(code)} />
+              <ActionTooltipProvider label='Edit Line Item'>
+                <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' onClick={handleEdit} />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Remove Line Item'>
+                <Icons.trash className='size-4 cursor-pointer text-red-600' onClick={() => handleRemoveItem(code)} />
+              </ActionTooltipProvider>
             </div>
           )
         },
@@ -402,37 +481,6 @@ export default function SaleQuoteForm({
     })
   }, [JSON.stringify(contacts), JSON.stringify(customersOptions), isContactsLoading, customerCode])
 
-  const requisitionsOptions = useMemo(() => {
-    if (!requisitions || !customerCode) return []
-
-    //* only show requisition that is related to the customer
-    return requisitions
-      .filter((req) => req.customerCode == customerCode)
-      .map((req) => ({ label: String(req.code), value: String(req.code), requisition: req }))
-  }, [JSON.stringify(requisitions), JSON.stringify(lineItems), customerCode])
-
-  const supplierQuotes = useMemo(() => {
-    if (!lineItemReqCode || !requisitions) return []
-
-    const requisition = requisitions.find((req) => req.code == lineItemReqCode)
-    return requisition?.supplierQuotes || []
-  }, [lineItemReqCode])
-
-  const itemsOptions = useMemo(() => {
-    if (!supplierQuotes || !items) return []
-
-    //* filter items that are in supplier quotes and only show item that are not in line items
-    return items
-      .filter((item) => supplierQuotes.find((quote) => quote.itemCode == item.ItemCode))
-      .filter((item) => !lineItems.find((lineItem) => lineItem.code == item.ItemCode))
-      .map((item) => ({
-        label: item?.ItemName || item.ItemCode,
-        value: item.ItemCode,
-        item,
-        supplierQuote: supplierQuotes.find((quote) => quote.itemCode == item.ItemCode),
-      }))
-  }, [JSON.stringify(supplierQuotes), JSON.stringify(items), JSON.stringify(lineItems)])
-
   const usersOptions = useMemo(() => {
     if (!users) return []
     return users.map((user) => ({ label: user.name || user.email, value: user.id, user }))
@@ -468,22 +516,6 @@ export default function SaleQuoteForm({
     }
   }
 
-  const handleAddLineItem = async () => {
-    const isValid = await lineItemForm.trigger()
-
-    if (!isValid) {
-      toast.error("Failed to add line item!")
-      return
-    }
-
-    const currentValues = form.getValues("lineItems") || []
-    const newValues = lineItemForm.getValues()
-
-    form.setValue("lineItems", [...currentValues, newValues])
-    lineItemForm.reset()
-    form.clearErrors("lineItems")
-  }
-
   const customerCodeCallback = (value?: number) => {
     form.setValue("lineItems", [])
     form.setValue("paymentTerms", value ?? 0)
@@ -492,52 +524,18 @@ export default function SaleQuoteForm({
     form.setValue("contactId", null)
   }
 
-  const requisitionCodeCallback = useCallback(
-    (code: number) => {
-      const selectedRequisition = requisitions?.find((req) => req.code == code)
+  const LineItemAction = () => {
+    const handleActionClick = () => {
+      setIsOpen(true)
+      setData(null)
+    }
 
-      if (selectedRequisition) {
-        lineItemForm.setValue("cpn", selectedRequisition.customerPn)
-
-        const excludedFields = ["requisitionCode", "cpn"]
-
-        //* reset fields excluding requisition code & cpn
-        Object.entries(lineItemDefaultValues).forEach(([key, value]) => {
-          const lineItemKey = key as keyof typeof lineItemDefaultValues
-          if (!excludedFields.includes(lineItemKey)) lineItemForm.setValue(lineItemKey, value)
-        })
-      }
-    },
-    [JSON.stringify(requisitions)]
-  )
-
-  const itemCodeCallback = useCallback(
-    (code: string, supplierQuote: Awaited<ReturnType<typeof getRequisitions>>[number]["supplierQuotes"][number]) => {
-      if (!code || !items || !supplierQuote) return
-
-      const selectedItem = items.find((item) => code == item.ItemCode)
-
-      if (selectedItem) {
-        const unitPrice = parseFloat(String(supplierQuote?.quotedPrice))
-        const quantity = parseFloat(String(supplierQuote?.quotedQuantity))
-
-        lineItemForm.setValue("supplierQuoteCode", supplierQuote.code)
-        lineItemForm.setValue("name", selectedItem.ItemName)
-        lineItemForm.setValue("mpn", selectedItem.ItemCode)
-        lineItemForm.setValue("mfr", selectedItem.FirmName)
-        lineItemForm.setValue("source", selectedItem.source)
-        lineItemForm.setValue("ltToSjcNumber", supplierQuote.ltToSjcNumber)
-        lineItemForm.setValue("ltToSjcUom", supplierQuote.ltToSjcUom)
-        lineItemForm.setValue("condition", supplierQuote.condition)
-        lineItemForm.setValue("coo", supplierQuote.coo)
-        lineItemForm.setValue("dateCode", supplierQuote.dateCode)
-        lineItemForm.setValue("estimatedDeliveryDate", supplierQuote.estimatedDeliveryDate)
-        lineItemForm.setValue("unitPrice", isNaN(unitPrice) ? 0 : unitPrice)
-        lineItemForm.setValue("quantity", isNaN(quantity) ? 0 : quantity)
-      }
-    },
-    [JSON.stringify(items)]
-  )
+    return (
+      <Button type='button' variant='outline-primary' onClick={handleActionClick}>
+        Add Line Item
+      </Button>
+    )
+  }
 
   //* set line items if sales qoute data exists
   useEffect(() => {
@@ -553,6 +551,9 @@ export default function SaleQuoteForm({
             const selectedItem = items.find((item) => item.ItemCode == li.code)
 
             if (selectedItem) {
+              const quotedPrice = parseFloat(String(supplierQuote.quotedPrice))
+              const quotedQuantity = parseFloat(String(supplierQuote.quotedQuantity))
+
               const unitPrice = parseFloat(String(li.unitPrice))
               const quantity = parseFloat(String(li.quantity))
 
@@ -573,7 +574,10 @@ export default function SaleQuoteForm({
                 estimatedDeliveryDate: supplierQuote.estimatedDeliveryDate,
                 unitPrice: isNaN(unitPrice) ? 0 : unitPrice,
                 quantity: isNaN(quantity) ? 0 : quantity,
+                quotedPrice: isNaN(quotedPrice) ? "" : formatCurrency({ amount: quotedPrice, maxDecimal: 2 }),
+                quotedQuantity: isNaN(quotedQuantity) ? "" : formatNumber({ amount: quotedQuantity }),
                 leadTime: li.leadTime,
+                details: li.details,
               }
             }
           }
@@ -807,71 +811,14 @@ export default function SaleQuoteForm({
             />
           </div>
 
-          <div className='col-span-12 mt-2 space-y-4 lg:col-span-12'>
-            <Separator />
+          <Separator className='col-span-12' />
 
-            <ReadOnlyFieldHeader title='Line Items' description='List of items sourced from the selected requisition.' />
-          </div>
-
-          <Form {...lineItemForm}>
-            <div className='col-span-12 md:col-span-6'>
-              <ComboboxField
-                data={requisitionsOptions}
-                control={lineItemForm.control}
-                name='requisitionCode'
-                label='Requisition'
-                isRequired
-                callback={(args) => requisitionCodeCallback(args?.option?.value)}
-                extendedProps={{ buttonProps: { disabled: !customerCode } }}
-                renderItem={(item, selected) => (
-                  <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
-                    <div className='flex w-[80%] flex-col justify-center'>
-                      <span className={cn("truncate", selected && "text-accent-foreground")}>{item?.requisition?.customer?.CardName}</span>
-                      {item?.requisition?.requestedItems?.length > 0 && (
-                        <span className='text-xs text-muted-foreground'>{item.requisition.requestedItems[0].code}</span>
-                      )}
-                    </div>
-
-                    <span className={cn("text-xs text-muted-foreground", selected && "text-accent-foreground")}>#{item?.value}</span>
-                  </div>
-                )}
-              />
-            </div>
-
-            <div className='col-span-12 md:col-span-6'>
-              <ComboboxField
-                data={itemsOptions}
-                control={lineItemForm.control}
-                name='code'
-                label='Item'
-                description='Item/s from supplier quote related to the selected requisition.'
-                isRequired
-                extendedProps={{ buttonProps: { disabled: !lineItemReqCode } }}
-                callback={(args) => itemCodeCallback(args?.option?.value, args?.option?.supplierQuote)}
-                renderItem={(item, selected, index) => {
-                  return (
-                    <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
-                      <div className='flex w-[75%] flex-col justify-center'>
-                        <span className={cn("truncate", selected && "text-accent-foreground")}>{item.label}</span>
-                        <span className='truncate text-xs text-muted-foreground'>{item.item.ItemCode}</span>
-                      </div>
-
-                      {item.item.source === "portal" ? <Badge variant='soft-amber'>Portal</Badge> : <Badge variant='soft-green'>SAP</Badge>}
-                    </div>
-                  )
-                }}
-              />
-            </div>
-
-            <div className='col-span-12 flex items-center justify-end gap-2'>
-              <Button variant='secondary' type='button' onClick={() => lineItemForm.reset()}>
-                <Icons.x className='size-4' /> Clear
-              </Button>
-              <Button variant='outline-primary' type='button' onClick={handleAddLineItem}>
-                <Icons.plus className='size-4' /> Add
-              </Button>
-            </div>
-          </Form>
+          <ReadOnlyFieldHeader
+            className='col-span-12'
+            title='Line Items'
+            description='List of items sourced from the selected requisition.'
+            actions={<LineItemAction />}
+          />
 
           <div className='col-span-12'>
             <DataTable table={table}>
@@ -879,6 +826,23 @@ export default function SaleQuoteForm({
                 <DataTableSearch table={table} />
               </div>
             </DataTable>
+
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogContent className='max-h-[85vh] overflow-auto sm:max-w-5xl'>
+                <DialogHeader>
+                  <DialogTitle>Add line item for this sales quotation</DialogTitle>
+                  <DialogDescription>
+                    Fill in the form to {lineItemData ? "edit" : "add a new"} line item for this sale quote.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <Card className='p-3'>
+                  <div className='grid grid-cols-12 gap-4'>
+                    <SaleQuoteLineItemForm lineItem={lineItemData || null} requisitions={requisitions} items={items} />
+                  </div>
+                </Card>
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className='col-span-12 mt-2 space-y-4 lg:col-span-12'>

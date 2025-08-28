@@ -29,6 +29,8 @@ import { Icons } from "@/components/icons"
 import { format } from "date-fns"
 import { SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS, SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS } from "@/schema/supplier-quote"
 import { FormDebug } from "@/components/form/form-debug"
+import { Separator } from "@/components/ui/separator"
+import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 
 type LineItemFormProps = {
   saleQuoteId: string
@@ -44,7 +46,7 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
   const { setIsOpen, setData } = useDialogStore(["setIsOpen", "setData"])
   const [isOpenReference, setIsOpenReference] = useState(false)
 
-  const defaultValues = {
+  const defaultValues: LineItemForm = {
     requisitionCode: 0,
     supplierQuoteCode: 0,
     code: "",
@@ -59,8 +61,20 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
     coo: "",
     dateCode: "",
     estimatedDeliveryDate: null,
+    quotedPrice: "",
+    quotedQuantity: "",
     unitPrice: 0,
     quantity: 0,
+    leadTime: "",
+    details: {
+      mpn: "",
+      mfr: "",
+      dateCode: "",
+      condition: "",
+      coo: "",
+      leadTime: "",
+      notes: "",
+    },
   }
 
   const values = useMemo(() => {
@@ -170,6 +184,11 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
         form.setValue("estimatedDeliveryDate", supplierQuote.estimatedDeliveryDate)
         form.setValue("unitPrice", isNaN(unitPrice) ? 0 : unitPrice)
         form.setValue("quantity", isNaN(quantity) ? 0 : quantity)
+
+        form.setValue("details.mpn", selectedItem.ItemCode)
+        form.setValue("details.mfr", selectedItem.FirmName)
+        form.setValue("details.dateCode", supplierQuote.dateCode)
+        form.setValue("details.coo", supplierQuote.coo)
       }
     },
     [JSON.stringify(items)]
@@ -268,6 +287,16 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
                   <div className='flex gap-1.5'>
                     <span className='font-semibold'>LT to SJC:</span>
                     <span className='text-muted-foreground'>{`${ltToSjcNumber || ""} ${ltToSjcUom || ""}`}</span>
+                  </div>
+
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>Quoted Price:</span>
+                    <span className='text-muted-foreground'>{formValues.quotedPrice || ""}</span>
+                  </div>
+
+                  <div className='flex gap-1.5'>
+                    <span className='font-semibold'>Qty Quoted:</span>
+                    <span className='text-muted-foreground'>{formValues.quotedQuantity || ""}</span>
                   </div>
 
                   <div className='flex gap-1.5'>
@@ -379,13 +408,70 @@ export default function LineItemForm({ saleQuoteId, customerCode, items, requisi
             </FormItem>
           </div>
 
-          <div className='col-span-12'>
+          <Separator className='col-span-12' />
+
+          <ReadOnlyFieldHeader className='col-span-12' title='Details' description='Line item details' />
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <InputField
+              control={form.control}
+              name='details.mpn'
+              label='MPN'
+              extendedProps={{ inputProps: { placeholder: "Enter MPN" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <InputField
+              control={form.control}
+              name='details.mfr'
+              label='MPN'
+              extendedProps={{ inputProps: { placeholder: "Enter MFR" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <InputField
+              control={form.control}
+              name='details.dateCode'
+              label='MPN'
+              extendedProps={{ inputProps: { placeholder: "Enter date code" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <InputField
+              control={form.control}
+              name='details.condition'
+              label='Condition'
+              extendedProps={{ inputProps: { placeholder: "Enter condition" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-2'>
+            <InputField
+              control={form.control}
+              name='details.coo'
+              label='COO'
+              extendedProps={{ inputProps: { placeholder: "Enter COO" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-5'>
             <TextAreaField
               control={form.control}
-              name='leadTime'
+              name='details.leadTime'
               label='Lead Time'
-              isHideLabel
               extendedProps={{ textAreaProps: { placeholder: "Enter lead time" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-5'>
+            <TextAreaField
+              control={form.control}
+              name='details.notes'
+              label='Notes'
+              extendedProps={{ textAreaProps: { placeholder: "Enter notes" } }}
             />
           </div>
 
