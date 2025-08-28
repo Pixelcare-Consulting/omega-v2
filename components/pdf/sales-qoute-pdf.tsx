@@ -313,7 +313,7 @@ export default function SalesQuotationPdf({ salesQuote, lineItems, paymentTerms,
           </View>
 
           {lineItems &&
-            lineItems.map((li: any) => {
+            lineItems.map((li) => {
               const x = parseFloat(String(li.unitPrice))
               const y = parseFloat(String(li.quantity))
 
@@ -329,10 +329,15 @@ export default function SalesQuotationPdf({ salesQuote, lineItems, paymentTerms,
                   </View>
 
                   <View style={[styles.tableColumnWithBorder, { width: "32%" }]}>
-                    <Text style={{ width: "100%" }}>CPN: {renderValue(li.cpn)}</Text>
+                    <Text style={{ width: "100%" }}>MPN: {renderValue(li.details.mpn)}</Text>
                     <Text style={{ width: "100%" }}>Desc: {renderValue(li.name)}</Text>
-                    <Text style={{ width: "100%" }}>D.C: {renderValue(li.dateCode)}</Text>
+                    <Text style={{ width: "100%" }}>CPN: {renderValue(li.cpn)}</Text>
+                    <Text style={{ width: "100%" }}>MFR: {renderValue(li.details.mfr)}</Text>
+                    <Text style={{ width: "100%" }}>D.C: {renderValue(li.details.dateCode)}</Text>
+                    <Text style={{ width: "100%" }}>COO: {renderValue(li.details.coo)}</Text>
                     <Text style={{ width: "100%" }}>Est. Del. Date: {renderValue(li.estimatedDeliveryDate, "MM/dd/yyyy")}</Text>
+                    <Text style={{ width: "100%" }}>Lead Time: {renderValue(li.details.leadTime)}</Text>
+                    <Text style={{ width: "100%" }}>Notes: {renderValue(li.details.notes)}</Text>
                   </View>
 
                   <View style={[styles.tableColumnWithBorder, { width: "18%" }]}>
