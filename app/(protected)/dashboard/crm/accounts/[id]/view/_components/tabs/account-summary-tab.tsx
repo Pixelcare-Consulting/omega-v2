@@ -43,48 +43,9 @@ export default function AccountSummaryTab({ account }: AccountSummaryTabProps) {
 
         <ReadOnlyField className='col-span-12 lg:col-span-6' title='Website' value={account?.website || ""} />
 
-        <ReadOnlyField
-          className='col-span-12 lg:col-span-6'
-          title='Industry'
-          value={
-            <div className='flex flex-wrap items-center gap-1.5'>
-              {account.industry.map((ind, i) => (
-                <span
-                  key={i}
-                  className='inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-center text-xs font-medium text-red-600 ring-1 ring-red-500/10'
-                >
-                  {ACCOUNT_INDUSTRY_OPTIONS.find((item) => item.value === ind)?.label || ""}
-                </span>
-              ))}
-            </div>
-          }
-        />
+        <ReadOnlyField className='col-span-12 lg:col-span-6' title='Industry' value={account?.industry || ""} />
 
-        <ReadOnlyFieldHeader className='col-span-12' title='Address' description='Account full address details' />
-
-        <ReadOnlyField className='col-span-12' title='Street' value={account?.street || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Street No.' value={account?.streetNo || ""} />
-
-        <ReadOnlyField
-          className='col-span-12 md:col-span-6 lg:col-span-3'
-          title='Building/Floor/Room'
-          value={account?.buildingFloorRoom || ""}
-        />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Block' value={account?.block || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='City' value={account?.city || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Zip Code' value={account?.zipCode || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='County' value={account?.county || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='State' value={account?.state || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Country' value={account?.country || ""} />
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='GLN' value={account?.gln || ""} />
+        <ReadOnlyField className='col-span-12' title='Full Address' value={account.fullAddress || ""} />
       </div>
     </Card>
   )

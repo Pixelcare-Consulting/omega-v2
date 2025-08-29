@@ -104,6 +104,9 @@ import {
   CircleCheckBig,
   Ban,
   LockKeyhole,
+  FileUp,
+  FileDown,
+  FileSpreadsheet,
 } from "lucide-react"
 
 export type Icon = LucideIcon
@@ -142,7 +145,7 @@ export const Icons = {
   refreshCw: RefreshCw,
   plusCircle: PlusCircle,
   x: X,
-  fileText: FileText,
+
   lock: Lock,
   lockKeyHole: LockKeyhole,
   report: BarChart2,
@@ -199,6 +202,10 @@ export const Icons = {
   mail: Mail,
   filePlus: FilePlus,
   fileMinus: FileMinus,
+  fileUp: FileUp,
+  fileDown: FileDown,
+  fileText: FileText,
+  fileSpreadSheet: FileSpreadsheet,
   blocks: Blocks,
   landPlot: LandPlot,
   userPlus: UserPlus,

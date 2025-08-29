@@ -9,7 +9,6 @@ import { useDialogStore } from "@/hooks/use-dialog"
 import { Dialog, DialogTitle, DialogContent, DialogDescription, DialogHeader } from "@/components/ui/dialog"
 import AccountLeadList from "../account-leads-list"
 import LeadForm from "@/app/(protected)/dashboard/crm/leads/_components/lead-form"
-import { getContacts } from "@/actions/contacts"
 
 type AccountLeadsTabProps = {
   account: NonNullable<Awaited<ReturnType<typeof getAccountById>>>

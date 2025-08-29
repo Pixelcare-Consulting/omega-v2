@@ -108,7 +108,7 @@ function DataTableFilterComponent<TData>({
       <Popover>
         <PopoverTrigger asChild>
           <Button className={cn("flex items-center", className)} variant='outline' {...buttonProps}>
-            <Icons.funnel className='mr-2 size-4' />
+            <Icons.funnel className='size-4' />
             Filter
             {filterCount > 0 && <Badge className='text-xs'>{filterCount}</Badge>}
           </Button>
@@ -151,7 +151,7 @@ function DataTableFilterComponent<TData>({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button className={cn("flex items-center", className)} variant='outline' {...buttonProps}>
-            <Icons.funnel className='mr-2 size-4' />
+            <Icons.funnel className='size-4' />
             Filter
             {filterCount > 0 && <Badge className='text-xs'>{filterCount}</Badge>}
           </Button>

@@ -25,8 +25,8 @@ function DataTableViewOptionsComponent<TData>({ table, className }: DataTableVie
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button aria-label='Toggle columns' variant='outline' size='sm' className={cn("flex items-center", className)}>
-          <Icons.adjustmentHorizontal className='mr-2 size-4' />
+        <Button aria-label='Toggle columns' variant='outline' size='sm' className={cn(className)}>
+          <Icons.adjustmentHorizontal className='size-4' />
           View
         </Button>
       </DropdownMenuTrigger>

@@ -10,15 +10,13 @@ import { useAction } from "next-safe-action/hooks"
 import { getAccountById, upsertAccount } from "@/actions/account"
 import { type AccountForm, accountFormSchema, ACCOUNT_INDUSTRY_OPTIONS } from "@/schema/account"
 import { toast } from "sonner"
-import { FormDebug } from "@/components/form/form-debug"
 import { Form } from "@/components/ui/form"
 import InputField from "@/components/form/input-field"
-import { Card } from "@/components/ui/card"
 import MultiSelectField from "@/components/form/multi-select-field"
 import SwitchField from "@/components/form/switch-field"
-import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import LoadingButton from "@/components/loading-button"
+import TextAreaField from "@/components/form/textarea-field"
 
 type AccountFormProps = {
   account?: Awaited<ReturnType<typeof getAccountById>>
@@ -40,18 +38,9 @@ export default function AccountForm({ account }: AccountFormProps) {
         email: "",
         phone: "",
         website: "",
-        industry: [],
+        industry: "",
         isActive: true,
-        street: "",
-        streetNo: "",
-        buildingFloorRoom: "",
-        block: "",
-        city: "",
-        zipCode: "",
-        county: "",
-        state: "",
-        country: "",
-        gln: "",
+        fullAddress: "",
       }
     }
 
@@ -136,86 +125,21 @@ export default function AccountForm({ account }: AccountFormProps) {
           </div>
 
           <div className='col-span-12 lg:col-span-6'>
-            <MultiSelectField data={ACCOUNT_INDUSTRY_OPTIONS} control={form.control} name='industry' label='Industry' isRequired />
-          </div>
-
-          <div className='col-span-12 mt-2 space-y-4 lg:col-span-12'>
-            <Separator />
-
-            <div>
-              <h1 className='text-base font-bold'>Address</h1>
-              <p className='text-xs text-muted-foreground'>Account address details</p>
-            </div>
-          </div>
-
-          <div className='col-span-12 lg:col-span-12'>
             <InputField
               control={form.control}
-              name='street'
-              label='Street'
-              extendedProps={{ inputProps: { placeholder: "Enter street address 3" } }}
+              name='industry'
+              label='Industry'
+              extendedProps={{ inputProps: { placeholder: "Enter name" } }}
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
+          <div className='col-span-12'>
+            <TextAreaField
               control={form.control}
-              name='streetNo'
-              label='Street No.'
-              extendedProps={{ inputProps: { placeholder: "Enter street" } }}
+              name='fullAddress'
+              label='Full Address'
+              extendedProps={{ textAreaProps: { placeholder: "Enter full address" } }}
             />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='buildingFloorRoom'
-              label='Building/Floor/ Room'
-              extendedProps={{ inputProps: { placeholder: "Enter building/floor/room" } }}
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField control={form.control} name='block' label='Block' extendedProps={{ inputProps: { placeholder: "Enter block" } }} />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField control={form.control} name='city' label='City' extendedProps={{ inputProps: { placeholder: "Enter city" } }} />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='zipCode'
-              label='Zip Code'
-              extendedProps={{ inputProps: { placeholder: "Enter zip code" } }}
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='county'
-              label='County'
-              extendedProps={{ inputProps: { placeholder: "Enter county" } }}
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField control={form.control} name='state' label='State' extendedProps={{ inputProps: { placeholder: "Enter state" } }} />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='country'
-              label='Country'
-              extendedProps={{ inputProps: { placeholder: "Enter country" } }}
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField control={form.control} name='gln' label='GLN' extendedProps={{ inputProps: { placeholder: "Enter gln" } }} />
           </div>
 
           <div className='col-span-12 mt-2 flex items-center justify-end gap-2'>

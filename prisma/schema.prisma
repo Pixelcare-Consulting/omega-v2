@@ -185,23 +185,14 @@ model RolePermissions {
 }
 
 model CompanyAccount {
-  id                String   @id @default(uuid())
-  name              String
-  email             String?  @default("")
-  phone             String?  @default("")
-  website           String?  @default("")
-  industry          String[] @default([])
-  isActive          Boolean? @default(true)
-  street            String?  @default("")
-  streetNo          String?  @default("")
-  buildingFloorRoom String?  @default("")
-  block             String?  @default("")
-  city              String?  @default("")
-  zipCode           String?  @default("")
-  county            String?  @default("")
-  state             String?  @default("")
-  country           String?  @default("")
-  gln               String?  @default("")
+  id          String   @id @default(uuid())
+  name        String
+  email       String?  @default("")
+  phone       String?  @default("")
+  website     String?  @default("")
+  industry    String?  @default("")
+  isActive    Boolean? @default(true)
+  fullAddress String?  @default("")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt

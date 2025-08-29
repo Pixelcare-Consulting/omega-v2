@@ -3,7 +3,9 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
-import { accountFormSchema, deleteAccountContactSchema, deleteAccountLeadSchema } from "@/schema/account"
+import { accountFormSchema, deleteAccountLeadSchema } from "@/schema/account"
+import { Prisma } from "@prisma/client"
+import { z } from "zod"
 
 export async function getAccounts() {
   try {
@@ -99,6 +101,89 @@ export const deleteAccountLead = action
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
         action: "DELETE_ACCOUNT_LEAD",
+      }
+    }
+  })
+
+export const accountCreateMany = action
+  .use(authenticationMiddleware)
+  .schema(
+    z.object({
+      data: z.array(z.record(z.string(), z.any())),
+      total: z.number(),
+      stats: z.object({
+        total: z.number(),
+        completed: z.number(),
+        progress: z.number(),
+        error: z.array(z.record(z.string(), z.any())),
+        status: z.string(),
+      }),
+      isLastBatch: z.boolean(),
+    })
+  )
+  .action(async ({ parsedInput, ctx }) => {
+    const { data, total, stats, isLastBatch } = parsedInput
+    const { userId } = ctx
+
+    try {
+      const batch: Prisma.CompanyAccountCreateInput[] = []
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i]
+
+        //* check required fields
+        if (!row.Name) {
+          console.log("Skipping row due to missing required fields", row)
+          stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
+          continue
+        }
+
+        //* reshape data
+        const accountData: Prisma.CompanyAccountCreateInput = {
+          name: row.Name,
+          email: row?.["Email"] || "",
+          phone: row?.["Phone"] || "",
+          website: row?.["Website"] || "",
+          industry: row?.["Industry"] ? row.Industry.split(",") : [],
+          isActive: row?.["Status"] === "Active",
+          fullAddress: row?.["Full Address"],
+          createdBy: userId,
+          updatedBy: userId,
+        }
+
+        //* add to batch
+        batch.push(accountData)
+      }
+
+      //* commit the batch
+      await prisma.companyAccount.createMany({
+        data: batch,
+        skipDuplicates: true,
+      })
+
+      const progress = ((stats.completed + batch.length) / total) * 100
+
+      const updatedStats = {
+        ...stats,
+        completed: stats.completed + batch.length,
+        progress,
+        status: progress >= 100 || isLastBatch ? "completed" : "processing",
+      }
+
+      return {
+        status: 200,
+        message: `${updatedStats.completed} accounts created successfully!`,
+        action: "BATCH_WRITE_ACCOUNT",
+        stats: updatedStats,
+      }
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Batch write error!",
+        action: "BATCH_WRITE_ACCOUNT",
       }
     }
   })

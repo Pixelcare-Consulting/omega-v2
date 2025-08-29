@@ -1,5 +1,4 @@
 import { z } from "zod"
-import { addressFormSchema } from "./address"
 
 export const ACCOUNT_INDUSTRY_OPTIONS = [
   { label: "Technology", value: "technology" },
@@ -55,21 +54,15 @@ export const ACCOUNT_INDUSTRY_OPTIONS = [
 ]
 
 //* Zod Schema
-export const accountFormSchema = z
-  .object({
-    id: z.string().min(1, { message: "ID is required" }),
-    name: z.string().min(1, { message: "Name is required" }),
-    email: z.union([z.string().email().nullish(), z.literal("")]),
-    phone: z.string().nullish(),
-    website: z.string().nullish(),
-    industry: z.array(z.string()).min(1, { message: "Please select at least one industry" }),
-    isActive: z.boolean().nullish(),
-  })
-  .merge(addressFormSchema)
-
-export const deleteAccountContactSchema = z.object({
-  accountId: z.string().min(1, { message: "Account ID is required" }),
-  contactId: z.string().min(1, { message: "Contact ID is required" }),
+export const accountFormSchema = z.object({
+  id: z.string().min(1, { message: "ID is required" }),
+  name: z.string().min(1, { message: "Name is required" }),
+  email: z.union([z.string().email().nullish(), z.literal("")]),
+  phone: z.string().nullish(),
+  website: z.string().nullish(),
+  industry: z.string().nullish(),
+  isActive: z.boolean().nullish(),
+  fullAddress: z.string().nullish(),
 })
 
 export const deleteAccountLeadSchema = z.object({
