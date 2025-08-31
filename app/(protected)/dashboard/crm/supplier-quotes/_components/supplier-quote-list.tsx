@@ -142,7 +142,7 @@ export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuo
         { wch: 20 }, //* Condition
         { wch: 30 }, //* Quantity Quoted
         { wch: 30 }, //* Quoted Price
-        { wch: 150 }, //* Comments
+        { wch: 100 }, //* Comments
         { wch: 35 }, //* Total Cost
       ]
 
@@ -160,7 +160,7 @@ export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuo
 
       //* append worksheet to workbook
       utils.book_append_sheet(wb, ws, "SUPPLIER_QUOTES")
-      writeFileXLSX(wb, `SUPPLIER_QUOTES")-${format(new Date(), "MM-dd-yyyy")}.xlsx`)
+      writeFileXLSX(wb, `SUPPLIER_QUOTES-${format(new Date(), "MM-dd-yyyy")}.xlsx`)
 
       //* end exporting
       end()

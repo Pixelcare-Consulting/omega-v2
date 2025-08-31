@@ -69,7 +69,7 @@ export default function RequisitionList({ requisitions, items }: RequisitionList
         const item = items.find((item) => item.ItemCode === primaryRequestedItem?.code)
 
         return {
-          "Id #": req.code,
+          "ID #": req.code,
           Date: format(req.date, "MM-dd-yyyy"),
           Customer: req.customer?.CardName || "",
           Salesperson: req.salesPersons?.map((person) => person?.user?.name || person?.user?.email).join(", ") || "",
