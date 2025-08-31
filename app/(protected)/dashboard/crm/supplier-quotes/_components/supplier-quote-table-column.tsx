@@ -260,7 +260,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       cell: ({ row }) => {
         const quantity = parseFloat(row.original?.quotedQuantity || "")
         if (!quantity || isNaN(quantity)) return null
-        return <div>{formatNumber({ amount: quantity as any, maxDecimal: 2 })}</div>
+        return <div>{formatNumber({ amount: quantity, maxDecimal: 2 })}</div>
       },
     },
     {
@@ -270,7 +270,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       cell: ({ row }) => {
         const price = parseFloat(row.original?.quotedPrice || "")
         if (!price || isNaN(price)) return null
-        return <div>{formatCurrency({ amount: price as any, maxDecimal: 5 })}</div>
+        return <div>{formatCurrency({ amount: price, maxDecimal: 5 })}</div>
       },
     },
     {

@@ -153,7 +153,7 @@ export default function AccountList({ accounts }: AccountListProps) {
 
       //* append worksheet to workbook
       utils.book_append_sheet(wb, ws, "Accounts")
-      writeFileXLSX(wb, `ACCOUNTS-${format(new Date(), "yyyy-MM-dd")}.xlsx`)
+      writeFileXLSX(wb, `ACCOUNTS-${format(new Date(), "MM-dd-yyyy")}.xlsx`)
 
       //* end exporting
       end()
@@ -181,9 +181,7 @@ export default function AccountList({ accounts }: AccountListProps) {
 
           <DataImportExport
             className='w-full md:w-fit'
-            onImport={(args) => {
-              handleImport(args)
-            }}
+            onImport={(args) => handleImport(args)}
             onExport={(args) => handleExport({ ...args, data: accounts })}
           />
         </div>

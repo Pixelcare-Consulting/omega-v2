@@ -70,8 +70,8 @@ export function getColumns(): ColumnDef<LeadData>[] {
     },
     {
       accessorFn: (row) => row.account?.name,
-      id: "company",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Company' />,
+      id: "account",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Account' />,
       cell: ({ row }) => {
         const account = row.original?.account
 

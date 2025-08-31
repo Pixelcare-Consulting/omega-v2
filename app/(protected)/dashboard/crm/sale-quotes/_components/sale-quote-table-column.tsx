@@ -66,7 +66,7 @@ export function getColumns(): ColumnDef<SalesQuoteData>[] {
     {
       accessorFn: (row) => row.approval?.name || row.approval.email || "",
       id: "approval",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Sales Rep' />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Approval' />,
       cell: ({ row }) => {
         const approval = row.original?.approval
         return <div className='text-muted-foreground'>{approval?.name || approval?.email}</div>

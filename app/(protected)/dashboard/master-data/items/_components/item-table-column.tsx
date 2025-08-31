@@ -20,8 +20,8 @@ export default function getColumns(): ColumnDef<ItemData>[] {
   return [
     {
       accessorFn: (row) => row.ItemName,
-      id: "item",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Item' />,
+      id: "description",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Description' />,
       size: 150,
       cell: ({ row }) => <span className='font-semibold'>{row.original.ItemName}</span>,
     },

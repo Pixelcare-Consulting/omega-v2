@@ -18,6 +18,7 @@ import { SOURCES_OPTIONS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
 import { BP_MASTER_CUSTOMER_STATUS_OPTIONS, BP_MASTER_CUSTOMER_TYPE_OPTIONS } from "@/schema/master-bp"
 import { styleWorkSheet } from "@/lib/xlsx"
 import { delay } from "@/lib/utils"
+import DataImportExport from "@/components/data-table/data-import-export"
 
 type CustomersListsProps = {
   customers: Awaited<ReturnType<typeof getBpMasters>>
@@ -76,7 +77,22 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
 
       //* reshape data - property names will be the header values
       const excelData = tableData.map((customer) => {
-        return {}
+        return {
+          Code: customer.CardCode,
+          Name: customer.CardName,
+          Group: customer.GroupName,
+          "Credit Hold": customer.isCreditHold ? "Yes" : "No",
+          Type: BP_MASTER_CUSTOMER_TYPE_OPTIONS.find((item) => item.value === customer.type)?.label || "",
+          Status: BP_MASTER_CUSTOMER_STATUS_OPTIONS.find((item) => item.value === customer.status)?.label || "",
+          Active: customer.isActive ? "Yes" : "No",
+          "Sales Employee": customer.salesEmployee?.name || customer.salesEmployee?.email || "",
+          "Account Executive": customer.accountExecutive?.name || customer.accountExecutive?.email || "",
+          "Account Associate": customer.accountAssociate?.name || customer.accountAssociate?.email || "",
+          "BDR / Inside Sales Rep": customer.bdrInsideSalesRep?.name || customer.bdrInsideSalesRep?.email || "",
+          "Excess Manager": customer?.assignedExcessManagers?.map((person) => person?.user?.name || person?.user?.email).join(", ") || "",
+          "Sync Status": SYNC_STATUSES_OPTIONS.find((item) => item.value === customer.syncStatus)?.label || "",
+          Source: SOURCES_OPTIONS.find((item) => item.value === customer.source)?.label || "",
+        }
       })
 
       setStats({ total: 1, completed: 0, progress: 75, error: [] })
@@ -87,16 +103,23 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
 
       //* set Column widths
       ws["!cols"] = [
-        { wch: 20 }, //* Name
-        { wch: 15 }, //* Email
-        { wch: 15 }, //* Phone
-        { wch: 25 }, //* Website
-        { wch: 30 }, //* Industry
-        { wch: 10 }, //* Status
-        { wch: 35 }, //* Full Address
+        { wch: 30 }, //* Code
+        { wch: 45 }, //* Name
+        { wch: 45 }, //* Group
+        { wch: 15 }, //* Credit Hold
+        { wch: 20 }, //* Type
+        { wch: 20 }, //* Status
+        { wch: 20 }, //* Active
+        { wch: 50 }, //* Sales Employee
+        { wch: 50 }, //* Account Executive
+        { wch: 50 }, //* Account Associate
+        { wch: 50 }, //* BDR / Inside Sales Rep
+        { wch: 100 }, //* Excess Manager
+        { wch: 20 }, //* Sync Status
+        { wch: 20 }, //* Source
       ]
 
-      //* tyle worksheet
+      //* style worksheet
       styleWorkSheet({
         worksheet: ws,
         cellStyle: { alignment: { horizontal: "left", vertical: "center", wrapText: true } },
@@ -109,8 +132,8 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
       await delay(500)
 
       //* append worksheet to workbook
-      utils.book_append_sheet(wb, ws, "CUSTOMER")
-      writeFileXLSX(wb, `CUSTOMER-${format(new Date(), "yyyy-MM-dd")}.xlsx`)
+      utils.book_append_sheet(wb, ws, "CUSTOMERS")
+      writeFileXLSX(wb, `CUSTOMERS-${format(new Date(), "MM-dd-yyyy")}.xlsx`)
 
       //* end exporting
       end()
@@ -135,6 +158,11 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
         <div className='flex items-center gap-2'>
           <DataTableFilter className='w-full md:w-fit' table={table} filterFields={filterFields} columnFilters={columnFilters} />
           <DataTableViewOptions className='w-full md:w-fit' table={table} columnVisibility={columnVisibility} />
+          <DataImportExport
+            className='w-full md:w-fit'
+            onImport={(args) => handleImport(args)}
+            onExport={(args) => handleExport({ ...args, data: customers })}
+          />
         </div>
       </div>
     </DataTable>
