@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { callSapServiceLayerApi } from "@/lib/sap-service-layer"
+import { importSchema } from "@/schema/import-export"
 import {
   bpMasterAddressSetAsDefaultSchema,
   bpMasterContactSetAsDefaultSchema,
@@ -12,8 +13,8 @@ import {
   deleteBpMasterSchema,
   syncBpMasterSchema,
 } from "@/schema/master-bp"
-import { Address, Contact } from "@prisma/client"
-import { isAfter, parse } from "date-fns"
+import { Address, Contact, Prisma } from "@prisma/client"
+import { format, isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
 import { z } from "zod"
 
@@ -103,6 +104,17 @@ export async function getBpMasterGroups() {
     return []
   }
 }
+
+export const getBpMasterGroupsClient = action.use(authenticationMiddleware).action(async () => {
+  try {
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/BusinessPartnerGroups`, undefined, {
+      Prefer: "odata.maxpagesize=999",
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+})
 
 export async function getPaymentTerms() {
   try {
@@ -481,6 +493,216 @@ export const bpMasterContactSetAsDefault = action
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
         action: "BP_MASTER_CONTACT_SET_AS_DEFAULT",
+      }
+    }
+  })
+
+export const bpMasterCreateMany = action
+  .use(authenticationMiddleware)
+  .schema(importSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    const { data, total, stats, isLastBatch, metaData } = parsedInput
+    const { userId } = ctx
+    const bpGroups = metaData?.bpGroups || []
+
+    const cardCodes = data?.map((row: any) => row?.["Code"]) || []
+
+    try {
+      const bpBatch: Prisma.BusinessPartnerCreateInput[] = []
+      const addressBatch: Prisma.AddressCreateInput[] = []
+
+      //* get existing BP CardCodes
+      const existingBpMasterCodes = await prisma.businessPartner.findMany({
+        where: { CardCode: { in: cardCodes } },
+        select: { CardCode: true },
+      })
+
+      //* Get the latest numeric address id
+      const latestAddress = await prisma.$queryRaw<{ maxId: number }[]>`
+       SELECT MAX(CAST(SUBSTRING("id" FROM 2) AS INT)) AS "maxId"
+       FROM "Address"
+       WHERE "id" ~ '^A[0-9]+$'
+     `
+      let addressCounter = latestAddress?.[0]?.maxId || 0
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i]
+        const cardType = row?.["Card Type"]
+        let hasError = false
+
+        const group = bpGroups.find((group: any) => group?.Code === row?.["Group"])
+
+        //* reshape address data
+        const billingAddress: Prisma.AddressCreateInput = {
+          id: "",
+          CardCode: row?.["Code"],
+          AddrType: "B",
+          Street: row?.["Billing - Street"] || "",
+          Address2: row?.["Billing - Street 2"] || "",
+          Address3: row?.["Billing - Street 3"] || "",
+          StreetNo: row?.["Billing - Street No"] || "",
+          Building: row?.["Billing - Building/Floor/Room"] || "",
+          Block: row?.["Billing - Block"] || "",
+          City: row?.["Billing - City"] || "",
+          ZipCode: row?.["Billing - Zip Code"] || "",
+          County: row?.["Billing - County"] || "",
+          Country: row?.["Billing - Country"] || "",
+          State: row?.["Billing - State"] || "",
+          GlblLocNum: row?.["Billing - GLN"] || "",
+          CreateDate: format(new Date(), "yyyyMMdd"),
+        }
+
+        const shippingAddress: Prisma.AddressCreateInput = {
+          id: "",
+          CardCode: row?.["Code"],
+          AddrType: "S",
+          Street: row?.["Shipping - Street"] || "",
+          Address2: row?.["Shipping - Street 2"] || "",
+          Address3: row?.["Shipping - Street 3"] || "",
+          StreetNo: row?.["Shipping - Street No"] || "",
+          Building: row?.["Shipping - Building/Floor/Room"] || "",
+          Block: row?.["Shipping - Block"] || "",
+          City: row?.["Shipping - City"] || "",
+          ZipCode: row?.["Shipping - Zip Code"] || "",
+          County: row?.["Shipping - County"] || "",
+          Country: row?.["Shipping - Country"] || "",
+          State: row?.["Shipping - State"] || "",
+          GlblLocNum: row?.["Shipping - GLN"] || "",
+          CreateDate: format(new Date(), "yyyyMMdd") || "",
+        }
+
+        //* operations for customer
+        if (cardType === "C") {
+          //* check required fields
+          if (!row?.["Company Name"] || !row?.["Group"] || !row?.["Type"] || !row?.["Status"]) {
+            console.log("Skipping row due to missing required fields", row)
+            stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
+            hasError = true
+          }
+
+          //* check if customer code already exists
+          if (existingBpMasterCodes.find((bp) => bp.CardCode === row?.["Code"])) {
+            console.log("Skipping row due to customer code already exists", row)
+            stats.error.push({ rowNumber: row.rowNumber, description: "Customer code already exists", row })
+            hasError = true
+          }
+
+          //* skip if has error
+          if (hasError) continue
+
+          //* Generate new IDs
+          const billingId = `A${String(++addressCounter).padStart(6, "0")}`
+          const shippingId = `A${String(++addressCounter).padStart(6, "0")}`
+
+          billingAddress.id = billingId
+          shippingAddress.id = shippingId
+
+          //* reshape data
+          const bpCustomer: Prisma.BusinessPartnerCreateInput = {
+            CardType: "C",
+            CardCode: row?.["Code"] || "",
+            CardName: row?.["Company Name"] || "",
+            GroupCode: group?.Code || 0,
+            GroupName: group?.Name || "",
+            type: row?.["Type"] || "",
+            status: row?.["Status"] || "",
+            CreateDate: format(new Date(), "yyyyMMdd"),
+            UpdateDate: format(new Date(), "yyyyMMdd"),
+            BillToDef: billingId,
+            ShipToDef: shippingId,
+            createdBy: userId,
+            updatedBy: userId,
+          }
+
+          //* add to batch
+          bpBatch.push(bpCustomer)
+          addressBatch.push(billingAddress, shippingAddress)
+        }
+
+        //* operations for supplier
+        if (cardType === "S") {
+          //* check required fields
+          if (!row?.["Company Name"] || !row?.["Group"] || !row?.["Status"] || !row?.["Scope"]) {
+            console.log("Skipping row due to missing required fields", row)
+            stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
+            hasError = true
+          }
+
+          //* check if customer code already exists
+          if (existingBpMasterCodes.find((bp) => bp.CardCode === row?.["Code"])) {
+            console.log("Skipping row due to supplier code already exists", row)
+            stats.error.push({ rowNumber: row.rowNumber, description: "Supplier code already exists", row })
+            hasError = true
+          }
+
+          //* skip if has error
+          if (hasError) continue
+
+          //* Generate new IDs
+          const billingId = `A${String(++addressCounter).padStart(6, "0")}`
+          const shippingId = `A${String(++addressCounter).padStart(6, "0")}`
+
+          billingAddress.id = billingId
+          shippingAddress.id = shippingId
+
+          //* reshape data
+          const bpSupplier: Prisma.BusinessPartnerCreateInput = {
+            CardType: "S",
+            CardCode: row?.["Code"] || "",
+            CardName: row?.["Company Name"] || "",
+            GroupCode: group?.Code || 0,
+            GroupName: group?.Name || "",
+            type: row?.["Scope"] || "",
+            status: row?.["Status"] || "",
+            CreateDate: format(new Date(), "yyyyMMdd"),
+            UpdateDate: format(new Date(), "yyyyMMdd"),
+            BillToDef: billingId,
+            ShipToDef: shippingId,
+            createdBy: userId,
+            updatedBy: userId,
+          }
+
+          //* add to batch
+          bpBatch.push(bpSupplier)
+          addressBatch.push(billingAddress, shippingAddress)
+        }
+      }
+
+      //* commit both in a transaction
+      await prisma.$transaction([
+        prisma.address.createMany({
+          data: addressBatch,
+          skipDuplicates: true,
+        }),
+        prisma.businessPartner.createMany({
+          data: bpBatch,
+          skipDuplicates: true,
+        }),
+      ])
+
+      const progress = ((stats.completed + bpBatch.length) / total) * 100
+
+      const updatedStats = {
+        ...stats,
+        completed: stats.completed + bpBatch.length,
+        progress,
+        status: progress >= 100 || isLastBatch ? "completed" : "processing",
+      }
+
+      return {
+        status: 200,
+        message: `${updatedStats.completed} bp masters created successfully!`,
+        action: "BATCH_WRITE_BP_MASTER",
+        stats: updatedStats,
+      }
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Batch write error!",
+        action: "BATCH_WRITE_BP_MASTER",
       }
     }
   })

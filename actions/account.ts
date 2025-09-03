@@ -6,6 +6,7 @@ import { paramsSchema } from "@/schema/common"
 import { accountFormSchema, deleteAccountLeadSchema } from "@/schema/account"
 import { Prisma } from "@prisma/client"
 import { z } from "zod"
+import { importSchema } from "@/schema/import-export"
 
 export async function getAccounts() {
   try {
@@ -107,20 +108,7 @@ export const deleteAccountLead = action
 
 export const accountCreateMany = action
   .use(authenticationMiddleware)
-  .schema(
-    z.object({
-      data: z.array(z.record(z.string(), z.any())),
-      total: z.number(),
-      stats: z.object({
-        total: z.number(),
-        completed: z.number(),
-        progress: z.number(),
-        error: z.array(z.record(z.string(), z.any())),
-        status: z.string(),
-      }),
-      isLastBatch: z.boolean(),
-    })
-  )
+  .schema(importSchema)
   .action(async ({ parsedInput, ctx }) => {
     const { data, total, stats, isLastBatch } = parsedInput
     const { userId } = ctx
@@ -132,7 +120,7 @@ export const accountCreateMany = action
         const row = data[i]
 
         //* check required fields
-        if (!row.Name) {
+        if (!row?.["Name"]) {
           console.log("Skipping row due to missing required fields", row)
           stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
           continue

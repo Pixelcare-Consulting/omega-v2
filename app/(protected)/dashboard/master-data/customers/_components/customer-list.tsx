@@ -1,7 +1,7 @@
 "use client"
 
 import { utils, writeFileXLSX } from "xlsx-js-style"
-import { useMemo } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 import { toast } from "sonner"
 import { useAction } from "next-safe-action/hooks"
 import { format } from "date-fns"
@@ -13,18 +13,20 @@ import { useDataTable } from "@/hooks/use-data-table"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
-import { getBpMasters } from "@/actions/master-bp"
+import { bpMasterCreateMany, getBpMasterGroupsClient, getBpMasters } from "@/actions/master-bp"
 import { SOURCES_OPTIONS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
 import { BP_MASTER_CUSTOMER_STATUS_OPTIONS, BP_MASTER_CUSTOMER_TYPE_OPTIONS } from "@/schema/master-bp"
-import { styleWorkSheet } from "@/lib/xlsx"
+import { parseExcelFile, styleWorkSheet } from "@/lib/xlsx"
 import { delay } from "@/lib/utils"
 import DataImportExport from "@/components/data-table/data-import-export"
+import { Stats } from "@/types/common"
 
 type CustomersListsProps = {
   customers: Awaited<ReturnType<typeof getBpMasters>>
 }
 
 export default function CustomerLists({ customers }: CustomersListsProps) {
+  const router = useRouter()
   const columns = useMemo(() => getColumns(), [])
 
   const filterFields = useMemo((): FilterFields[] => {
@@ -65,7 +67,106 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
     ]
   }, [])
 
-  const handleImport: (...args: any[]) => void = async (args) => {}
+  const { executeAsync: ExecuteAsyncBpMasterCreateMany } = useAction(bpMasterCreateMany)
+  const {
+    execute: getBpGroups,
+    isPending: bpGroupsIsLoading,
+    result: { data: bpGroups },
+  } = useAction(getBpMasterGroupsClient)
+
+  const handleImport: (...args: any[]) => void = useCallback(
+    async (args) => {
+      const { end, file, setStats, setShowErrorDialog } = args
+
+      try {
+        //* constant values
+        const headers = [
+          "Company Name",
+          "Code",
+          "Group",
+          "Type",
+          "Status",
+          "Billing - Street",
+          "Billing - Street 2",
+          "Billing - Street 3",
+          "Billing - Street No",
+          "Billing - Building/Floor/Room",
+          "Billing - Block",
+          "Billing - City",
+          "Billing - Zip Code",
+          "Billing - County",
+          "Billing - Country",
+          "Billing - State",
+          "Billing - GLN",
+          "Shipping - Street",
+          "Shipping - Street 2",
+          "Shipping - Street 3",
+          "Shipping - Street No",
+          "Shipping - Building/Floor/Room",
+          "Shipping - Block",
+          "Shipping - City",
+          "Shipping - Zip Code",
+          "Shipping - County",
+          "Shipping - Country",
+          "Shipping - State",
+          "Shipping - GLN",
+        ]
+        const batchSize = 5
+
+        //* parse excel file
+        const parseData = await parseExcelFile({ file, header: headers })
+
+        //* trigger write by batch
+        let batch: typeof parseData = []
+        let stats: Stats = { total: 0, completed: 0, progress: 0, error: [], status: "processing" }
+
+        for (let i = 0; i < parseData.length; i++) {
+          const isLastBatch = i === parseData.length - 1
+          const row = parseData[i]
+
+          //* add to batch
+          batch.push({ rowNumber: i + 2, ...row })
+
+          //* check if batch size is reached or last batch
+          if (batch.length === batchSize || isLastBatch) {
+            const response = await ExecuteAsyncBpMasterCreateMany({
+              data: batch,
+              total: parseData.length,
+              stats,
+              isLastBatch,
+              metaData: { bpGroups },
+            })
+            const result = response?.data
+
+            if (result?.error) {
+              setStats((prev: any) => ({ ...prev, error: [...prev.error, ...batch] }))
+              stats.error = [...stats.error, ...batch]
+            } else if (result?.stats) {
+              setStats(result.stats)
+              stats = result.stats
+            }
+
+            batch = []
+          }
+        }
+
+        if (stats.status === "completed") {
+          toast.success("Customers imported successfully!")
+          setStats((prev: any) => ({ ...prev, total: 0, completed: 0, progress: 0, status: "processing" }))
+          router.refresh()
+        }
+
+        if (stats.error.length > 0) setShowErrorDialog(true)
+
+        end()
+      } catch (error: any) {
+        console.error(error)
+        toast.error(error?.message || "Failed to import file")
+        end()
+      }
+    },
+    [JSON.stringify(bpGroups), bpGroupsIsLoading]
+  )
 
   const handleExport: (...args: any[]) => void = async (args) => {
     const { start, end, data, setStats } = args
@@ -80,7 +181,7 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
         return {
           Code: customer.CardCode,
           Name: customer.CardName,
-          Group: customer.GroupName,
+          Group: customer?.GroupName || "",
           "Credit Hold": customer.isCreditHold ? "Yes" : "No",
           Type: BP_MASTER_CUSTOMER_TYPE_OPTIONS.find((item) => item.value === customer.type)?.label || "",
           Status: BP_MASTER_CUSTOMER_STATUS_OPTIONS.find((item) => item.value === customer.status)?.label || "",
@@ -150,6 +251,11 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
     initialState: { columnPinning: { right: ["actions"] } },
   })
 
+  useEffect(() => {
+    //* trigger fetching onload
+    getBpGroups()
+  }, [])
+
   return (
     <DataTable table={table}>
       <div className='flex flex-col items-stretch justify-center gap-2 md:flex-row md:items-center md:justify-between'>
@@ -160,6 +266,7 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
           <DataTableViewOptions className='w-full md:w-fit' table={table} columnVisibility={columnVisibility} />
           <DataImportExport
             className='w-full md:w-fit'
+            isLoadingDependencies={bpGroupsIsLoading}
             onImport={(args) => handleImport(args)}
             onExport={(args) => handleExport({ ...args, data: customers })}
           />

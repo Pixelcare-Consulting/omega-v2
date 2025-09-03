@@ -17,9 +17,10 @@ type DataImportExportProps = {
   className?: string
   onImport: (...args: any[]) => void
   onExport: (...args: any[]) => void
+  isLoadingDependencies?: boolean
 }
 
-export default function DataImportExport({ className, onImport, onExport }: DataImportExportProps) {
+export default function DataImportExport({ className, onImport, onExport, isLoadingDependencies }: DataImportExportProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [isLoading, setIsLoading] = useState(false)
@@ -90,7 +91,7 @@ export default function DataImportExport({ className, onImport, onExport }: Data
   ]
 
   const { table } = useDataTable({
-    data: stats?.error,
+    data: stats?.error?.sort((a, b) => a.rowNumber - b.rowNumber) || [],
     columns,
     initialState: { columnVisibility: { email: false }, columnPinning: { right: ["actions"] } },
   })
@@ -101,11 +102,15 @@ export default function DataImportExport({ className, onImport, onExport }: Data
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button disabled={isLoading} variant='outline' size='sm' className={cn("capitalize", className)}>
-            {isLoading ? (
+          <Button disabled={isLoading || isLoadingDependencies} variant='outline' size='sm' className={cn("capitalize", className)}>
+            {isLoading || isLoadingDependencies ? (
               <>
                 <Icons.spinner className='size-4 animate-spin text-pretty' />
-                {action ? `${stats.progress.toFixed(0)}% ${action}...` : "Processing..."}
+                {isLoadingDependencies
+                  ? "Loading dependencies..."
+                  : action
+                    ? `${stats.progress.toFixed(0)}% ${action}...`
+                    : "Processing..."}
               </>
             ) : (
               <>

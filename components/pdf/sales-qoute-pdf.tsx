@@ -3,7 +3,7 @@ import { BASE_URL } from "@/constant/common"
 import { formatCurrency, formatNumber } from "@/lib/formatter"
 import { renderValue } from "@/lib/pdf-utils"
 import { LineItemForm } from "@/schema/sale-quote"
-import { Page, Text, View, Document, StyleSheet, Font, Link } from "@react-pdf/renderer"
+import { Page, Text, View, Document, StyleSheet, Font, Link, Image } from "@react-pdf/renderer"
 import { add, multiply } from "mathjs"
 import { useMemo, useState } from "react"
 
@@ -30,6 +30,15 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     paddingBottom: 150,
     fontSize: 8,
+  },
+  logoContainer: {
+    position: "absolute",
+    top: 25,
+    left: "35%",
+  },
+  logo: {
+    width: "120px",
+    height: "auto",
   },
   tableContainer: {
     display: "flex",
@@ -123,7 +132,15 @@ export default function SalesQuotationPdf({ salesQuote, lineItems, paymentTerms,
       }}
     >
       <Page size='A4' style={styles.body} wrap>
-        <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            position: "relative",
+          }}
+        >
           <View style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <Text style={{ fontFamily: "ArialNovaBold" }}>Omega Global Technologies, Inc.</Text>
 
@@ -138,6 +155,10 @@ export default function SalesQuotationPdf({ salesQuote, lineItems, paymentTerms,
             <Text style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
               <Text style={{ fontFamily: "ArialNovaBold" }}>Email: </Text>jalfonso@omegagti.com
             </Text>
+          </View>
+
+          <View style={styles.logoContainer}>
+            <Image source='/omega-logo.png' style={styles.logo} />
           </View>
 
           <View
