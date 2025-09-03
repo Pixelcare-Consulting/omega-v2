@@ -30,7 +30,6 @@ export default function ItemForm({ item, itemGroups, manufacturers }: ItemFormPr
   const router = useRouter()
   const { code } = useParams() as { code: string }
 
-  //TODO: Add additinal fields for item new added by Chris
   const values = useMemo(() => {
     if (item)
       return {
@@ -144,7 +143,12 @@ export default function ItemForm({ item, itemGroups, manufacturers }: ItemFormPr
       <Form {...form}>
         <form className='grid grid-cols-12 gap-4' onSubmit={form.handleSubmit(onSubmit)}>
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField control={form.control} name='ItemName' label='Name' extendedProps={{ inputProps: { placeholder: "Enter name" } }} />
+            <InputField
+              control={form.control}
+              name='ItemName'
+              label='Description'
+              extendedProps={{ inputProps: { placeholder: "Enter name" } }}
+            />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
@@ -171,7 +175,6 @@ export default function ItemForm({ item, itemGroups, manufacturers }: ItemFormPr
               name='BuyUnitMsr'
               label='Unit of Measure'
               extendedProps={{ inputProps: { placeholder: "Enter unit of measure" } }}
-              isRequired
             />
           </div>
 

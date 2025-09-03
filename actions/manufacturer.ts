@@ -1,5 +1,6 @@
 "use server"
 
+import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { callSapServiceLayerApi } from "@/lib/sap-service-layer"
 
 const sapCredentials = {
@@ -19,3 +20,14 @@ export async function getManufacturers() {
     return []
   }
 }
+
+export const getManufacturersClient = action.use(authenticationMiddleware).action(async () => {
+  try {
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/Manufacturers`, undefined, {
+      Prefer: "odata.maxpagesize=999",
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+})

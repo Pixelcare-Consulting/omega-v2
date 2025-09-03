@@ -543,7 +543,7 @@ model Item {
   ItemName   String  @default("")
   ItmsGrpCod Int
   ItmsGrpNam String? @default("")
-  ManBtchNum String
+  ManBtchNum String? @default("N")
   CstGrpCode Int?
   VATLiable  String? @default("N")
   PrchseItem String? @default("N")

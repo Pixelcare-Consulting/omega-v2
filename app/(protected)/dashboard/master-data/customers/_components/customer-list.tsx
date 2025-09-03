@@ -67,7 +67,7 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
     ]
   }, [])
 
-  const { executeAsync: ExecuteAsyncBpMasterCreateMany } = useAction(bpMasterCreateMany)
+  const { executeAsync: executeAsyncBpMasterCreateMany } = useAction(bpMasterCreateMany)
   const {
     execute: getBpGroups,
     isPending: bpGroupsIsLoading,
@@ -129,7 +129,7 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
 
           //* check if batch size is reached or last batch
           if (batch.length === batchSize || isLastBatch) {
-            const response = await ExecuteAsyncBpMasterCreateMany({
+            const response = await executeAsyncBpMasterCreateMany({
               data: batch,
               total: parseData.length,
               stats,

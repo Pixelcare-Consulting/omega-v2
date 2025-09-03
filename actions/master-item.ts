@@ -4,8 +4,10 @@ import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { callSapServiceLayerApi } from "@/lib/sap-service-layer"
 import { paramsSchema } from "@/schema/common"
+import { importSchema } from "@/schema/import-export"
 import { deleteItemMasterSchema, itemMasterFormSchema } from "@/schema/master-item"
-import { isAfter, parse } from "date-fns"
+import { Prisma } from "@prisma/client"
+import { format, isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
 
 const sapCredentials = {
@@ -51,6 +53,17 @@ export async function getItemMasterGroups() {
     return []
   }
 }
+
+export const getItemMasterGroupsClient = action.use(authenticationMiddleware).action(async () => {
+  try {
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/ItemGroups`, undefined, {
+      Prefer: "odata.maxpagesize=999",
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+})
 
 export const upsertItemMaster = action
   .use(authenticationMiddleware)
@@ -213,3 +226,101 @@ export const syncItemMaster = action.use(authenticationMiddleware).action(async 
     return { status: 200, message: "Sync completed successfully!", action: "ITEM_MASTER_SYNC" }
   } else return { error: true, status: 500, message: "Failed to sync, please try again later!", action: "ITEM_MASTER_SYNC" }
 })
+
+export const itemMasterCreateMany = action
+  .use(authenticationMiddleware)
+  .schema(importSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    const { data, total, stats, isLastBatch, metaData } = parsedInput
+    const { userId } = ctx
+    const itemGroups = metaData?.itemGroups || []
+    const manufacturers = metaData?.manufacturers || []
+
+    const itemCodes = data?.map((row: any) => row?.["Code"]).filter(Boolean) || []
+    const cacheKey = "item-master"
+
+    try {
+      const batch: Prisma.ItemCreateInput[] = []
+
+      //* get existing item codes
+      const existingItemCodes = await prisma.item.findMany({
+        where: { ItemCode: { in: itemCodes } },
+        select: { ItemCode: true },
+      })
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i]
+        let hasError = false
+
+        const group = itemGroups.find((group: any) => group?.Code == row?.["Group"])
+        const manufacturer = manufacturers.find((manufacturer: any) => manufacturer?.Code == row?.["Manufacturer"])
+
+        //* check required fields
+        if (!row?.["Description"] || !row?.["Code"] || !row?.["Group"]) {
+          console.log("Skipping row due to missing required fields", row)
+          stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
+          hasError = true
+        }
+
+        //* check if item code already exists
+        if (existingItemCodes.find((item) => item.ItemCode === row?.["Code"])) {
+          console.log("Skipping row due to item code already exists", row)
+          stats.error.push({ rowNumber: row.rowNumber, description: "Item code already exists", row })
+          hasError = true
+        }
+
+        //* skip if has error
+        if (hasError) continue
+
+        //* reshape data
+        const itemData: Prisma.ItemCreateInput = {
+          ItemName: row.Description,
+          ItemCode: row.ItemCode,
+          ItmsGrpCod: group?.Number ?? 0,
+          ItmsGrpNam: group?.GroupName || "",
+          FirmCode: manufacturer?.Code ?? null,
+          FirmName: manufacturer?.ManufacturerName || "",
+          CreateDate: format(new Date(), "yyyyMMdd"),
+          UpdateDate: format(new Date(), "yyyyMMdd"),
+          createdBy: userId,
+          updatedBy: userId,
+        }
+
+        //* add to batch
+        batch.push(itemData)
+      }
+
+      //* commit the batch
+      await prisma.item.createMany({
+        data: batch,
+        skipDuplicates: true,
+      })
+
+      revalidateTag(cacheKey)
+
+      const progress = ((stats.completed + batch.length) / total) * 100
+
+      const updatedStats = {
+        ...stats,
+        completed: stats.completed + batch.length,
+        progress,
+        status: progress >= 100 || isLastBatch ? "completed" : "processing",
+      }
+
+      return {
+        status: 200,
+        message: `${updatedStats.completed} items created successfully!`,
+        action: "BATCH_WRITE_ITEM_MASTER",
+        stats: updatedStats,
+      }
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Batch write error!",
+        action: "BATCH_WRITE_ITEM_MASTER",
+      }
+    }
+  })

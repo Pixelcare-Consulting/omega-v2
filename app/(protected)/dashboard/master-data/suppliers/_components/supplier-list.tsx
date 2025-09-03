@@ -46,7 +46,7 @@ export default function SupplierLists({ suppliers, itemGroups, manufacturers }: 
     ]
   }, [])
 
-  const { executeAsync: ExecuteAsyncBpMasterCreateMany } = useAction(bpMasterCreateMany)
+  const { executeAsync: executeAsyncBpMasterCreateMany } = useAction(bpMasterCreateMany)
   const {
     execute: getBpGroups,
     isPending: bpGroupsIsLoading,
@@ -108,7 +108,7 @@ export default function SupplierLists({ suppliers, itemGroups, manufacturers }: 
 
           //* check if batch size is reached or last batch
           if (batch.length === batchSize || isLastBatch) {
-            const response = await ExecuteAsyncBpMasterCreateMany({
+            const response = await executeAsyncBpMasterCreateMany({
               data: batch,
               total: parseData.length,
               stats,
