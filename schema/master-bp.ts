@@ -163,16 +163,6 @@ export const bpMasterFormSchema = z
   .merge(bpPortalFieldsSchema)
   .refine(
     (formObj) => {
-      if (formObj.CardType === "S") {
-        if (!formObj.scope) return false
-        return true
-      }
-      return true
-    },
-    { message: "Scope is required", path: ["scope"] }
-  )
-  .refine(
-    (formObj) => {
       if (formObj.CardType === "C") {
         if (!formObj.type) return false
         return true
@@ -180,6 +170,16 @@ export const bpMasterFormSchema = z
       return true
     },
     { message: "Type is required", path: ["type"] }
+  )
+  .refine(
+    (formObj) => {
+      if (formObj.CardType === "S") {
+        if (!formObj.scope) return false
+        return true
+      }
+      return true
+    },
+    { message: "Scope is required", path: ["scope"] }
   )
 
 //* Types

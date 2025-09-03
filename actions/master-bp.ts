@@ -538,7 +538,7 @@ export const bpMasterCreateMany = action
         //* reshape address data
         const billingAddress: Prisma.AddressCreateInput = {
           id: "",
-          CardCode: row?.["Code"],
+          CardCode: "",
           AddrType: "B",
           Street: row?.["Billing - Street"] || "",
           Address2: row?.["Billing - Street 2"] || "",
@@ -553,11 +553,13 @@ export const bpMasterCreateMany = action
           State: row?.["Billing - State"] || "",
           GlblLocNum: row?.["Billing - GLN"] || "",
           CreateDate: format(new Date(), "yyyyMMdd"),
+          createdBy: userId,
+          updatedBy: userId,
         }
 
         const shippingAddress: Prisma.AddressCreateInput = {
           id: "",
-          CardCode: row?.["Code"],
+          CardCode: "",
           AddrType: "S",
           Street: row?.["Shipping - Street"] || "",
           Address2: row?.["Shipping - Street 2"] || "",
@@ -572,6 +574,8 @@ export const bpMasterCreateMany = action
           State: row?.["Shipping - State"] || "",
           GlblLocNum: row?.["Shipping - GLN"] || "",
           CreateDate: format(new Date(), "yyyyMMdd") || "",
+          createdBy: userId,
+          updatedBy: userId,
         }
 
         //* operations for customer
@@ -663,7 +667,7 @@ export const bpMasterCreateMany = action
             CardName: row?.["Company Name"] || "",
             GroupCode: group?.Code ?? 0,
             GroupName: group?.Name || "",
-            type: row?.["Scope"] || "",
+            scope: row?.["Scope"] || "",
             status: row?.["Status"] || "",
             CreateDate: format(new Date(), "yyyyMMdd"),
             UpdateDate: format(new Date(), "yyyyMMdd"),

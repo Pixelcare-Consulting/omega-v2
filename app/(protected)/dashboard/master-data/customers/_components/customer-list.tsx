@@ -111,7 +111,7 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
           "Shipping - State",
           "Shipping - GLN",
         ]
-        const batchSize = 2
+        const batchSize = 5
 
         //* parse excel file
         const parseData = await parseExcelFile({ file, header: headers })
