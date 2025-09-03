@@ -252,7 +252,7 @@ export const itemMasterCreateMany = action
         const row = data[i]
         let hasError = false
 
-        const group = itemGroups.find((group: any) => group?.Code == row?.["Group"])
+        const group = itemGroups.find((group: any) => group?.Number == row?.["Group"])
         const manufacturer = manufacturers.find((manufacturer: any) => manufacturer?.Code == row?.["Manufacturer"])
 
         //* check required fields
@@ -275,7 +275,7 @@ export const itemMasterCreateMany = action
         //* reshape data
         const itemData: Prisma.ItemCreateInput = {
           ItemName: row.Description,
-          ItemCode: row.ItemCode,
+          ItemCode: row.Code,
           ItmsGrpCod: group?.Number ?? 0,
           ItmsGrpNam: group?.GroupName || "",
           FirmCode: manufacturer?.Code ?? null,
