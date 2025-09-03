@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { callSapServiceLayerApi } from "@/lib/sap-service-layer"
+import { delay } from "@/lib/utils"
 import { importSchema } from "@/schema/import-export"
 import {
   bpMasterAddressSetAsDefaultSchema,
@@ -17,6 +18,7 @@ import { Address, Contact, Prisma } from "@prisma/client"
 import { format, isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
 import { z } from "zod"
+import { v4 as uuidv4 } from "uuid"
 
 const sapCredentials = {
   BaseURL: process.env.SAP_BASE_URL || "",
@@ -504,8 +506,10 @@ export const bpMasterCreateMany = action
     const { data, total, stats, isLastBatch, metaData } = parsedInput
     const { userId } = ctx
     const bpGroups = metaData?.bpGroups || []
+    const cardType = metaData?.cardType
 
-    const cardCodes = data?.map((row: any) => row?.["Code"]) || []
+    const cardCodes = data?.map((row: any) => row?.["Code"]).filter(Boolean) || []
+    const cacheKey = `bp-master-${cardType.toLowerCase()}`
 
     try {
       const bpBatch: Prisma.BusinessPartnerCreateInput[] = []
@@ -527,10 +531,9 @@ export const bpMasterCreateMany = action
 
       for (let i = 0; i < data.length; i++) {
         const row = data[i]
-        const cardType = row?.["Card Type"]
         let hasError = false
 
-        const group = bpGroups.find((group: any) => group?.Code === row?.["Group"])
+        const group = bpGroups.find((group: any) => group?.Code == row?.["Group"])
 
         //* reshape address data
         const billingAddress: Prisma.AddressCreateInput = {
@@ -593,16 +596,20 @@ export const bpMasterCreateMany = action
           //* Generate new IDs
           const billingId = `A${String(++addressCounter).padStart(6, "0")}`
           const shippingId = `A${String(++addressCounter).padStart(6, "0")}`
+          const customerCode = row?.["Code"] || uuidv4()
 
           billingAddress.id = billingId
           shippingAddress.id = shippingId
 
+          billingAddress.CardCode = customerCode
+          shippingAddress.CardCode = customerCode
+
           //* reshape data
           const bpCustomer: Prisma.BusinessPartnerCreateInput = {
             CardType: "C",
-            CardCode: row?.["Code"] || "",
+            CardCode: customerCode,
             CardName: row?.["Company Name"] || "",
-            GroupCode: group?.Code || 0,
+            GroupCode: group?.Code ?? 0,
             GroupName: group?.Name || "",
             type: row?.["Type"] || "",
             status: row?.["Status"] || "",
@@ -641,16 +648,20 @@ export const bpMasterCreateMany = action
           //* Generate new IDs
           const billingId = `A${String(++addressCounter).padStart(6, "0")}`
           const shippingId = `A${String(++addressCounter).padStart(6, "0")}`
+          const customerCode = row?.["Code"] || uuidv4()
 
           billingAddress.id = billingId
           shippingAddress.id = shippingId
 
+          billingAddress.CardCode = customerCode
+          shippingAddress.CardCode = customerCode
+
           //* reshape data
           const bpSupplier: Prisma.BusinessPartnerCreateInput = {
             CardType: "S",
-            CardCode: row?.["Code"] || "",
+            CardCode: customerCode,
             CardName: row?.["Company Name"] || "",
-            GroupCode: group?.Code || 0,
+            GroupCode: group?.Code ?? 0,
             GroupName: group?.Name || "",
             type: row?.["Scope"] || "",
             status: row?.["Status"] || "",
@@ -679,6 +690,8 @@ export const bpMasterCreateMany = action
           skipDuplicates: true,
         }),
       ])
+
+      revalidateTag(cacheKey)
 
       const progress = ((stats.completed + bpBatch.length) / total) * 100
 

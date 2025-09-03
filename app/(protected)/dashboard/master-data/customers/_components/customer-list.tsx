@@ -111,7 +111,7 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
           "Shipping - State",
           "Shipping - GLN",
         ]
-        const batchSize = 5
+        const batchSize = 2
 
         //* parse excel file
         const parseData = await parseExcelFile({ file, header: headers })
@@ -134,7 +134,7 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
               total: parseData.length,
               stats,
               isLastBatch,
-              metaData: { bpGroups },
+              metaData: { cardType: "C", bpGroups: bpGroups?.value || [] },
             })
             const result = response?.data
 
