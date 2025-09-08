@@ -64,7 +64,7 @@ export async function getRequisitionByCode(code: number) {
       ...result,
       quantity: result.quantity?.toString(),
       customerStandardPrice: result.customerStandardPrice?.toString(),
-      customerStandardOpportunityValue: result.customerStandardPrice?.toString(),
+      customerStandardOpportunityValue: result.customerStandardOpportunityValue?.toString(),
     }
   } catch (error) {
     console.error(error)
