@@ -240,7 +240,7 @@ export const itemMasterCreateMany = action
     const cacheKey = "item-master"
 
     try {
-      const batch: Prisma.ItemCreateInput[] = []
+      const batch: Prisma.ItemCreateManyInput[] = []
 
       //* get existing item codes
       const existingItemCodes = await prisma.item.findMany({
@@ -273,7 +273,7 @@ export const itemMasterCreateMany = action
         if (hasError) continue
 
         //* reshape data
-        const itemData: Prisma.ItemCreateInput = {
+        const itemData: Prisma.ItemCreateManyInput = {
           ItemName: row.Description,
           ItemCode: row.Code,
           ItmsGrpCod: group?.Number ?? 0,

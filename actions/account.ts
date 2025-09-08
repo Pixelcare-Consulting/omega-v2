@@ -114,7 +114,7 @@ export const accountCreateMany = action
     const { userId } = ctx
 
     try {
-      const batch: Prisma.CompanyAccountCreateInput[] = []
+      const batch: Prisma.CompanyAccountCreateManyInput[] = []
 
       for (let i = 0; i < data.length; i++) {
         const row = data[i]
@@ -127,7 +127,7 @@ export const accountCreateMany = action
         }
 
         //* reshape data
-        const accountData: Prisma.CompanyAccountCreateInput = {
+        const accountData: Prisma.CompanyAccountCreateManyInput = {
           name: row.Name,
           email: row?.["Email"] || "",
           phone: row?.["Phone"] || "",

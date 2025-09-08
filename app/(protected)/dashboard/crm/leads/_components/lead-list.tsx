@@ -7,7 +7,7 @@ import { useAction } from "next-safe-action/hooks"
 import { format } from "date-fns"
 import { useRouter } from "nextjs-toploader/app"
 
-import { getLeads } from "@/actions/lead"
+import { getLeads, leadCreateMany } from "@/actions/lead"
 import { getColumns } from "./lead-table-column"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
@@ -16,14 +16,16 @@ import { DataTableViewOptions } from "@/components/data-table/data-table-view-op
 import { useDataTable } from "@/hooks/use-data-table"
 import { LEAD_STATUSES_OPTIONS } from "@/schema/lead"
 import DataImportExport from "@/components/data-table/data-import-export"
-import { styleWorkSheet } from "@/lib/xlsx"
+import { parseExcelFile, styleWorkSheet } from "@/lib/xlsx"
 import { delay } from "@/lib/utils"
+import { Stats } from "@/types/common"
 
 type LeadListProps = {
   leads: Awaited<ReturnType<typeof getLeads>>
 }
 
 export default function LeadList({ leads }: LeadListProps) {
+  const router = useRouter()
   const columns = useMemo(() => getColumns(), [])
 
   const filterFields = useMemo((): FilterFields[] => {
@@ -37,7 +39,81 @@ export default function LeadList({ leads }: LeadListProps) {
     ]
   }, [])
 
-  const handleImport: (...args: any[]) => void = async (args) => {}
+  const { executeAsync } = useAction(leadCreateMany)
+
+  const handleImport: (...args: any[]) => void = async (args) => {
+    const { end, file, setStats, setShowErrorDialog } = args
+
+    try {
+      //* constant values
+      const headers = [
+        "Name",
+        "Email",
+        "Phone",
+        "Status",
+        "Title",
+        "Related Account",
+        "Street 1",
+        "Street 2",
+        "Street 3",
+        "Street No",
+        "Building/Floor/Room",
+        "Block",
+        "City",
+        "Zip Code",
+        "County",
+        "Country",
+        "State",
+        "GLN",
+      ]
+      const batchSize = 5
+
+      //* parse excel file
+      const parseData = await parseExcelFile({ file, header: headers })
+
+      //* trigger write by batch
+      let batch: typeof parseData = []
+      let stats: Stats = { total: 0, completed: 0, progress: 0, error: [], status: "processing" }
+
+      for (let i = 0; i < parseData.length; i++) {
+        const isLastBatch = i === parseData.length - 1
+        const row = parseData[i]
+
+        //* add to batch
+        batch.push({ rowNumber: i + 2, ...row })
+
+        //* check if batch size is reached or last batch
+        if (batch.length === batchSize || isLastBatch) {
+          const response = await executeAsync({ data: batch, total: parseData.length, stats, isLastBatch })
+          const result = response?.data
+
+          if (result?.error) {
+            setStats((prev: any) => ({ ...prev, error: [...prev.error, ...batch] }))
+            stats.error = [...stats.error, ...batch]
+          } else if (result?.stats) {
+            setStats(result.stats)
+            stats = result.stats
+          }
+
+          batch = []
+        }
+      }
+
+      if (stats.status === "completed") {
+        toast.success("Leads imported successfully!")
+        setStats((prev: any) => ({ ...prev, total: 0, completed: 0, progress: 0, status: "processing" }))
+        router.refresh()
+      }
+
+      if (stats.error.length > 0) setShowErrorDialog(true)
+
+      end()
+    } catch (error: any) {
+      console.error(error)
+      toast.error(error?.message || "Failed to import file")
+      end()
+    }
+  }
 
   const handleExport: (...args: any[]) => void = async (args) => {
     const { start, end, data, setStats } = args

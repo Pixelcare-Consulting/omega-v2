@@ -512,8 +512,8 @@ export const bpMasterCreateMany = action
     const cacheKey = `bp-master-${cardType.toLowerCase()}`
 
     try {
-      const bpBatch: Prisma.BusinessPartnerCreateInput[] = []
-      const addressBatch: Prisma.AddressCreateInput[] = []
+      const bpBatch: Prisma.BusinessPartnerCreateManyInput[] = []
+      const addressBatch: Prisma.AddressCreateManyInput[] = []
 
       //* get existing BP CardCodes
       const existingBpMasterCodes = await prisma.businessPartner.findMany({
@@ -609,7 +609,7 @@ export const bpMasterCreateMany = action
           shippingAddress.CardCode = customerCode
 
           //* reshape data
-          const bpCustomer: Prisma.BusinessPartnerCreateInput = {
+          const bpCustomerData: Prisma.BusinessPartnerCreateManyInput = {
             CardType: "C",
             CardCode: customerCode,
             CardName: row?.["Company Name"] || "",
@@ -626,7 +626,7 @@ export const bpMasterCreateMany = action
           }
 
           //* add to batch
-          bpBatch.push(bpCustomer)
+          bpBatch.push(bpCustomerData)
           addressBatch.push(billingAddress, shippingAddress)
         }
 
@@ -661,7 +661,7 @@ export const bpMasterCreateMany = action
           shippingAddress.CardCode = customerCode
 
           //* reshape data
-          const bpSupplier: Prisma.BusinessPartnerCreateInput = {
+          const bpSupplierData: Prisma.BusinessPartnerCreateManyInput = {
             CardType: "S",
             CardCode: customerCode,
             CardName: row?.["Company Name"] || "",
@@ -678,7 +678,7 @@ export const bpMasterCreateMany = action
           }
 
           //* add to batch
-          bpBatch.push(bpSupplier)
+          bpBatch.push(bpSupplierData)
           addressBatch.push(billingAddress, shippingAddress)
         }
       }

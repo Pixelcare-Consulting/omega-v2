@@ -5,6 +5,8 @@ import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
 import { deleteLeadAccountSchema, deleteLeadContactSchema, leadFormSchema, updateStatusSchema } from "@/schema/lead"
 import { getCountries, getStates } from "./master-bp"
+import { importSchema } from "@/schema/import-export"
+import { Prisma } from "@prisma/client"
 
 export async function getLeads() {
   try {
@@ -155,6 +157,87 @@ export const deleteLeadAccount = action
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
         action: "DELETE_LEAD_ACCOUNT",
+      }
+    }
+  })
+
+export const leadCreateMany = action
+  .use(authenticationMiddleware)
+  .schema(importSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    const { data, total, stats, isLastBatch } = parsedInput
+    const { userId } = ctx
+
+    try {
+      const batch: Prisma.LeadCreateManyInput[] = []
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i]
+
+        //* check required fields
+        if (!row?.["Name"] || !row?.["Email"] || !row?.["Phone"] || !row?.["Status"]) {
+          console.log("Skipping row due to missing required fields", row)
+          stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
+          continue
+        }
+
+        //* reshape data
+        const leadData: Prisma.LeadCreateManyInput = {
+          name: row.Name,
+          email: row.Email,
+          phone: row.Phone,
+          status: row.Status,
+          title: row?.["Title"] || "",
+          accountId: row?.["Related Account"] || null,
+          street1: row?.["Street 1"] || "",
+          street2: row?.["Street 2"] || "",
+          street3: row?.["Street 3"] || "",
+          streetNo: row?.["Street No"] || "",
+          buildingFloorRoom: row?.["Building/Floor/Room"] || "",
+          block: row?.["Block"] || "",
+          city: row?.["City"] || "",
+          zipCode: row?.["Zip Code"] || "",
+          county: row?.["County"] || "",
+          country: row?.["Country"] || "",
+          state: row?.["State"] || "",
+          gln: row?.["GLN"] || "",
+          createdBy: userId,
+          updatedBy: userId,
+        }
+
+        //* add to batch
+        batch.push(leadData)
+      }
+
+      //* commit the batch
+      await prisma.lead.createMany({
+        data: batch,
+        skipDuplicates: true,
+      })
+
+      const progress = ((stats.completed + batch.length) / total) * 100
+
+      const updatedStats = {
+        ...stats,
+        completed: stats.completed + batch.length,
+        progress,
+        status: progress >= 100 || isLastBatch ? "completed" : "processing",
+      }
+
+      return {
+        status: 200,
+        message: `${updatedStats.completed} leads created successfully!`,
+        action: "BATCH_WRITE_LEAD",
+        stats: updatedStats,
+      }
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Batch write error!",
+        action: "BATCH_WRITE_LEAD",
       }
     }
   })
