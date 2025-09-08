@@ -13,10 +13,10 @@ import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
 import { DataTableFilter, FilterFields } from "@/components/data-table/data-table-filter"
 import { useDataTable } from "@/hooks/use-data-table"
-import { getRequisitions, RequestedItemsJSONData } from "@/actions/requisition"
+import { getRequisitions, RequestedItemsJSONData, requisitionCreateMany } from "@/actions/requisition"
 import { getItems } from "@/actions/master-item"
 import DataImportExport from "@/components/data-table/data-import-export"
-import { styleWorkSheet } from "@/lib/xlsx"
+import { parseExcelFile, styleWorkSheet } from "@/lib/xlsx"
 import { delay } from "@/lib/utils"
 import {
   REQUISITION_PURCHASING_STATUS_OPTIONS,
@@ -24,6 +24,7 @@ import {
   REQUISITION_SALES_CATEGORY_OPTIONS,
   REQUISITION_URGENCY_OPTIONS,
 } from "@/schema/requisition"
+import { Stats } from "@/types/common"
 
 type RequisitionListProps = {
   requisitions: Awaited<ReturnType<typeof getRequisitions>>
@@ -31,6 +32,7 @@ type RequisitionListProps = {
 }
 
 export default function RequisitionList({ requisitions, items }: RequisitionListProps) {
+  const router = useRouter()
   const columns = useMemo(() => getColumns(items), [JSON.stringify(items)])
 
   const filterFields = useMemo((): FilterFields[] => {
@@ -51,7 +53,77 @@ export default function RequisitionList({ requisitions, items }: RequisitionList
     ]
   }, [])
 
-  const handleImport: (...args: any[]) => void = async (args) => {}
+  const { executeAsync } = useAction(requisitionCreateMany)
+
+  const handleImport: (...args: any[]) => void = async (args) => {
+    const { end, file, setStats, setShowErrorDialog } = args
+
+    try {
+      //* constant values
+      const headers = [
+        "ID",
+        "Item",
+        "Supplier Suggested", //*  - Yes, No
+        "Row Type", //* - MAIN, REQUESTED_ITEM
+        "Date",
+        "Urgency",
+        "Sales Category",
+        "Purchasing Status",
+        "Result",
+        "Reason",
+        "Customer",
+        "Requested Quantity",
+        "Cust. Standard Price",
+        "Cust. Standard Opportunity Value",
+      ]
+      const batchSize = 5
+
+      //* parse excel file
+      const parseData = await parseExcelFile({ file, header: headers })
+
+      //* trigger write by batch
+      let batch: typeof parseData = []
+      let stats: Stats = { total: 0, completed: 0, progress: 0, error: [], status: "processing" }
+
+      for (let i = 0; i < parseData.length; i++) {
+        const isLastBatch = i === parseData.length - 1
+        const row = parseData[i]
+
+        //   //* add to batch
+        batch.push({ rowNumber: i + 2, ...row })
+
+        //   //* check if batch size is reached or last batch
+        if (batch.length === batchSize || isLastBatch) {
+          const response = await executeAsync({ data: batch, total: parseData.length, stats, isLastBatch })
+          const result = response?.data
+
+          if (result?.error) {
+            setStats((prev: any) => ({ ...prev, error: [...prev.error, ...batch] }))
+            stats.error = [...stats.error, ...batch]
+          } else if (result?.stats) {
+            setStats(result.stats)
+            stats = result.stats
+          }
+
+          batch = []
+        }
+      }
+
+      if (stats.status === "completed") {
+        toast.success("Requisitions imported successfully!")
+        setStats((prev: any) => ({ ...prev, total: 0, completed: 0, progress: 0, status: "processing" }))
+        router.refresh()
+      }
+
+      if (stats.error.length > 0) setShowErrorDialog(true)
+
+      end()
+    } catch (error: any) {
+      console.error(error)
+      toast.error(error?.message || "Failed to import file")
+      end()
+    }
+  }
 
   const handleExport: (...args: any[]) => void = async (args) => {
     const { start, end, data, setStats } = args

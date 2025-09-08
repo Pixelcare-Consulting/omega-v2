@@ -3,7 +3,10 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
+import { importSchema } from "@/schema/import-export"
 import { requisitionFormSchema, updateRequisitionReqItemsSchema } from "@/schema/requisition"
+import { Prisma } from "@prisma/client"
+import { parse } from "date-fns"
 
 export type RequestedItemsJSONData = { code: string; isSupplierSuggested: boolean }[] | null
 
@@ -192,6 +195,115 @@ export const updateRequisitionReqItems = action
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
         action: "UPDATE_REQUISITION_REQ_ITEMS",
+      }
+    }
+  })
+
+export const requisitionCreateMany = action
+  .use(authenticationMiddleware)
+  .schema(importSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    const { data, total, stats, isLastBatch } = parsedInput
+    const { userId } = ctx
+
+    try {
+      const batch: Prisma.RequisitionCreateManyInput[] = []
+
+      const dataWithDetails = data
+        .filter((row) => row["Row Type"] === "MAIN")
+        .map((row) => {
+          const requestedItems = data
+            .filter((r) => r?.["ID"] === row?.["ID"] && r?.["Row Type"] === "REQUESTED_ITEM")
+            .map((r) => ({ code: r?.["Item"] || "", isSupplierSuggested: r?.["Supplier Suggested"] === "Yes" }))
+            .filter((item) => item.code !== "")
+
+          return {
+            ...row,
+            ["Requested Items"]: requestedItems?.length > 0 ? requestedItems : [],
+          }
+        })
+
+      for (let i = 0; i < dataWithDetails.length; i++) {
+        const row = data[i]
+
+        const quantity = parseFloat(row?.["Requested Quantity"])
+        const customerStandardPrice = parseFloat(row?.["Cust. Standard Price"])
+        const customerStandardOpportunityValue = parseFloat(row?.["Cust. Standard Opportunity Value"])
+
+        //* check required fields
+        if (
+          !row?.["Date"] ||
+          !row?.["Sales Category"] ||
+          !row?.["Purchasing Status"] ||
+          !row?.["Customer"] ||
+          isNaN(quantity) ||
+          isNaN(customerStandardPrice) ||
+          isNaN(customerStandardOpportunityValue) ||
+          !quantity ||
+          !customerStandardPrice ||
+          !customerStandardOpportunityValue
+        ) {
+          console.log("Skipping row due to missing required fields", row)
+          stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
+          continue
+        }
+
+        if (row?.["Requested Items"]?.length < 1) {
+          console.log("Skipping row due to missing requested items", row)
+          stats.error.push({ rowNumber: row.rowNumber, description: "Missing requested items", row })
+          continue
+        }
+
+        //* reshape data
+        const requisitionData: Prisma.RequisitionCreateManyInput = {
+          date: parse(row?.["Date"], "MM/dd/yyyy", new Date()),
+          urgency: row?.["Urgency"],
+          salesCategory: row?.["Sales Category"],
+          purchasingStatus: row?.["Purchasing Status"],
+          result: row?.["Result"],
+          reason: row?.["Reason"],
+          customerCode: row["Customer"],
+          quantity: row?.["Requested Quantity"],
+          customerStandardPrice: row?.["Cust. Standard Price"],
+          customerStandardOpportunityValue: row?.["Cust. Standard Opportunity Value"],
+          requestedItems: row?.["Requested Items"],
+          createdBy: userId,
+          updatedBy: userId,
+        }
+
+        //* add to batch
+        batch.push(requisitionData)
+      }
+
+      //* commit the batch
+      await prisma.requisition.createMany({
+        data: batch,
+        skipDuplicates: true,
+      })
+
+      const progress = ((stats.completed + batch.length) / total) * 100
+
+      const updatedStats = {
+        ...stats,
+        completed: stats.completed + batch.length,
+        progress,
+        status: progress >= 100 || isLastBatch ? "completed" : "processing",
+      }
+
+      return {
+        status: 200,
+        message: `${updatedStats.completed} requisitions created successfully!`,
+        action: "BATCH_WRITE_REQUISITION",
+        stats: updatedStats,
+      }
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Batch write error!",
+        action: "BATCH_WRITE_REQUISITION",
       }
     }
   })
