@@ -189,8 +189,8 @@ export const supplierQuoteFormSchema = z.object({
   condition: z.string().nullish(),
   coo: z.string().nullish(),
   roHs: z.string().nullish(),
-  quotedQuantity: z.coerce.number(),
-  quotedPrice: z.coerce.number(),
+  quotedQuantity: z.coerce.number().min(1, { message: "Quoted quantity is required" }),
+  quotedPrice: z.coerce.number().min(1, { message: "Quoted price is required" }),
   comments: z.string().nullish(),
 })
 

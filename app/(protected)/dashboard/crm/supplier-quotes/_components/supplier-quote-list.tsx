@@ -8,7 +8,7 @@ import { format } from "date-fns"
 import { useRouter } from "nextjs-toploader/app"
 
 import { getItems } from "@/actions/master-item"
-import { getSupplierQuotes } from "@/actions/supplier-quote"
+import { getSupplierQuotes, supplierQuoteCreateMany } from "@/actions/supplier-quote"
 import { getColumns } from "./supplier-quote-table-column"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
@@ -19,11 +19,12 @@ import { REQUISITION_PURCHASING_STATUS_OPTIONS, REQUISITION_RESULT_OPTIONS } fro
 import { SUPPLIER_QUOTE_STATUS_OPTIONS } from "@/schema/supplier-quote"
 import { useDataTable } from "@/hooks/use-data-table"
 import DataImportExport from "@/components/data-table/data-import-export"
-import { styleWorkSheet } from "@/lib/xlsx"
+import { parseExcelFile, styleWorkSheet } from "@/lib/xlsx"
 import { delay } from "@/lib/utils"
 import { RequestedItemsJSONData } from "@/actions/requisition"
 import { multiply } from "mathjs"
 import { formatCurrency, formatNumber } from "@/lib/formatter"
+import { Stats } from "@/types/common"
 
 type SupplierQuoteListProps = {
   supplierQuotes: Awaited<ReturnType<typeof getSupplierQuotes>>
@@ -31,6 +32,7 @@ type SupplierQuoteListProps = {
 }
 
 export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuoteListProps) {
+  const router = useRouter()
   const columns = useMemo(() => getColumns(items), [JSON.stringify(items)])
 
   const filterFields = useMemo((): FilterFields[] => {
@@ -54,7 +56,74 @@ export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuo
     ]
   }, [])
 
-  const handleImport: (...args: any[]) => void = async (args) => {}
+  const { executeAsync } = useAction(supplierQuoteCreateMany)
+
+  const handleImport: (...args: any[]) => void = async (args) => {
+    const { end, file, setStats, setShowErrorDialog } = args
+
+    try {
+      //* constant values
+      const headers = [
+        "Date",
+        "Requisition",
+        "Status",
+        "Result",
+        "Sourcing Round",
+        "Follow Up Date",
+        "Supplier",
+        "Item",
+        "Quantity Quoted",
+        "Quoted Price",
+      ]
+
+      const batchSize = 5
+
+      //* parse excel file
+      const parseData = await parseExcelFile({ file, header: headers })
+
+      //* trigger write by batch
+      let batch: typeof parseData = []
+      let stats: Stats = { total: 0, completed: 0, progress: 0, error: [], status: "processing" }
+
+      for (let i = 0; i < parseData.length; i++) {
+        const isLastBatch = i === parseData.length - 1
+        const row = parseData[i]
+
+        //* add to batch
+        batch.push({ rowNumber: i + 2, ...row })
+
+        //* check if batch size is reached or last batch
+        if (batch.length === batchSize || isLastBatch) {
+          const response = await executeAsync({ data: batch, total: parseData.length, stats, isLastBatch })
+          const result = response?.data
+
+          if (result?.error) {
+            setStats((prev: any) => ({ ...prev, error: [...prev.error, ...batch] }))
+            stats.error = [...stats.error, ...batch]
+          } else if (result?.stats) {
+            setStats(result.stats)
+            stats = result.stats
+          }
+
+          batch = []
+        }
+      }
+
+      if (stats.status === "completed") {
+        toast.success("Leads imported successfully!")
+        setStats((prev: any) => ({ ...prev, total: 0, completed: 0, progress: 0, status: "processing" }))
+        router.refresh()
+      }
+
+      if (stats.error.length > 0) setShowErrorDialog(true)
+
+      end()
+    } catch (error: any) {
+      console.error(error)
+      toast.error(error?.message || "Failed to import file")
+      end()
+    }
+  }
 
   const handleExport: (...args: any[]) => void = async (args) => {
     const { start, end, data, setStats } = args

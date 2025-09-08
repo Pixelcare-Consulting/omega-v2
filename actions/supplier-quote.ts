@@ -3,7 +3,10 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
+import { importSchema } from "@/schema/import-export"
 import { supplierQuoteFormSchema } from "@/schema/supplier-quote"
+import { Prisma } from "@prisma/client"
+import { parse } from "date-fns"
 
 export async function getSupplierQuotes() {
   try {
@@ -133,6 +136,90 @@ export const deleteSupplierQuote = action
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
         action: "DELETE_SUPPLIER_QUOTE",
+      }
+    }
+  })
+
+export const supplierQuoteCreateMany = action
+  .use(authenticationMiddleware)
+  .schema(importSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    const { data, total, stats, isLastBatch } = parsedInput
+    const { userId } = ctx
+
+    try {
+      const batch: Prisma.SupplierQuoteCreateManyInput[] = []
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i]
+
+        const quantity = parseFloat(row?.["Quantity Quoted"])
+        const price = parseFloat(row?.["Quoted Price"])
+
+        //* check required fields
+        if (
+          !row?.["Date"] ||
+          !row?.["Requisition"] ||
+          !row?.["Status"] ||
+          !row?.["Supplier"] ||
+          !row?.["Item"] ||
+          isNaN(quantity) ||
+          isNaN(price) ||
+          !quantity ||
+          !price
+        ) {
+          console.log("Skipping row due to missing required fields", row)
+          stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
+          continue
+        }
+
+        //* reshape data
+        const supplierQuoteData: Prisma.SupplierQuoteCreateManyInput = {
+          date: parse(row.Date, "MM/dd/yyyy", new Date()),
+          requisitionCode: parseInt(String(row.Requisition)),
+          status: row?.["Status"] || "",
+          result: row?.["Result"] || "",
+          sourcingRound: row?.["Sourcing Round"] || "",
+          followUpDate: row?.["Follow Up Date"] ? parse(row["Follow Up Date"], "MM/dd/yyyy", new Date()) : null,
+          supplierCode: row?.["Supplier"] || "",
+          itemCode: row?.["Item"] || "",
+          createdBy: userId,
+          updatedBy: userId,
+        }
+
+        // //* add to batch
+        batch.push(supplierQuoteData)
+      }
+
+      //* commit the batch
+      await prisma.supplierQuote.createMany({
+        data: batch,
+        skipDuplicates: true,
+      })
+
+      const progress = ((stats.completed + batch.length) / total) * 100
+
+      const updatedStats = {
+        ...stats,
+        completed: stats.completed + batch.length,
+        progress,
+        status: progress >= 100 || isLastBatch ? "completed" : "processing",
+      }
+
+      return {
+        status: 200,
+        message: `${updatedStats.completed} supplier quotes created successfully!`,
+        action: "BATCH_WRITE_SUPPLIER_QUOTE",
+        stats: updatedStats,
+      }
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Batch write error!",
+        action: "BATCH_WRITE_SUPPLIER_QUOTE",
       }
     }
   })
