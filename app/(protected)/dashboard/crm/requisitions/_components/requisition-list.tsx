@@ -16,7 +16,7 @@ import { useDataTable } from "@/hooks/use-data-table"
 import { getRequisitions, RequestedItemsJSONData, requisitionCreateMany } from "@/actions/requisition"
 import { getItems } from "@/actions/master-item"
 import DataImportExport from "@/components/data-table/data-import-export"
-import { parseExcelFile, styleWorkSheet } from "@/lib/xlsx"
+import { ExcelParseData, parseExcelFile, styleWorkSheet } from "@/lib/xlsx"
 import { delay } from "@/lib/utils"
 import {
   REQUISITION_PURCHASING_STATUS_OPTIONS,
@@ -61,9 +61,9 @@ export default function RequisitionList({ requisitions, items }: RequisitionList
     try {
       //* constant values
       const headers = [
-        "ID",
         "Item",
         "Supplier Suggested", //*  - Yes, No
+        "ID",
         "Row Type", //* - MAIN, REQUESTED_ITEM
         "Date",
         "Urgency",
@@ -81,20 +81,35 @@ export default function RequisitionList({ requisitions, items }: RequisitionList
       //* parse excel file
       const parseData = await parseExcelFile({ file, header: headers })
 
+      const parseDataWithDetails = parseData
+        .map((row: any, i: number) => ({ ...row, rowNumber: i + 2 }))
+        .filter((row: any) => row["Row Type"] === "MAIN")
+        .map((row: any) => {
+          const requestedItems = parseData
+            .filter((r) => r?.["ID"] === row?.["ID"] && r?.["Row Type"] === "REQUESTED_ITEM")
+            .map((r) => ({ code: r?.["Item"] || "", isSupplierSuggested: r?.["Supplier Suggested"] === "Yes" }))
+            .filter((item) => item.code !== "")
+
+          return {
+            ...row,
+            ["Requested Items"]: requestedItems?.length > 0 ? requestedItems : [],
+          }
+        })
+
       //* trigger write by batch
-      let batch: typeof parseData = []
+      let batch: ExcelParseData[] = []
       let stats: Stats = { total: 0, completed: 0, progress: 0, error: [], status: "processing" }
 
-      for (let i = 0; i < parseData.length; i++) {
-        const isLastBatch = i === parseData.length - 1
-        const row = parseData[i]
+      for (let i = 0; i < parseDataWithDetails.length; i++) {
+        const isLastBatch = i === parseDataWithDetails.length - 1
+        const row = parseDataWithDetails[i]
 
         //   //* add to batch
-        batch.push({ rowNumber: i + 2, ...row })
+        batch.push({ ...row })
 
         //   //* check if batch size is reached or last batch
         if (batch.length === batchSize || isLastBatch) {
-          const response = await executeAsync({ data: batch, total: parseData.length, stats, isLastBatch })
+          const response = await executeAsync({ data: batch, total: parseDataWithDetails.length, stats, isLastBatch })
           const result = response?.data
 
           if (result?.error) {

@@ -26,7 +26,7 @@ export async function getRequisitions() {
       ...req,
       quantity: req.quantity?.toString(),
       customerStandardPrice: req?.customerStandardPrice?.toString(),
-      customerStandardOpportunityValue: req?.customerStandardPrice?.toString(),
+      customerStandardOpportunityValue: req?.customerStandardOpportunityValue?.toString(),
     }))
   } catch (error) {
     console.error(error)
@@ -209,21 +209,7 @@ export const requisitionCreateMany = action
     try {
       const batch: Prisma.RequisitionCreateManyInput[] = []
 
-      const dataWithDetails = data
-        .filter((row) => row["Row Type"] === "MAIN")
-        .map((row) => {
-          const requestedItems = data
-            .filter((r) => r?.["ID"] === row?.["ID"] && r?.["Row Type"] === "REQUESTED_ITEM")
-            .map((r) => ({ code: r?.["Item"] || "", isSupplierSuggested: r?.["Supplier Suggested"] === "Yes" }))
-            .filter((item) => item.code !== "")
-
-          return {
-            ...row,
-            ["Requested Items"]: requestedItems?.length > 0 ? requestedItems : [],
-          }
-        })
-
-      for (let i = 0; i < dataWithDetails.length; i++) {
+      for (let i = 0; i < data.length; i++) {
         const row = data[i]
 
         const quantity = parseFloat(row?.["Requested Quantity"])
