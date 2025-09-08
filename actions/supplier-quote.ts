@@ -183,6 +183,8 @@ export const supplierQuoteCreateMany = action
           followUpDate: row?.["Follow Up Date"] ? parse(row["Follow Up Date"], "MM/dd/yyyy", new Date()) : null,
           supplierCode: row?.["Supplier"] || "",
           itemCode: row?.["Item"] || "",
+          quotedQuantity: quantity,
+          quotedPrice: price,
           createdBy: userId,
           updatedBy: userId,
         }

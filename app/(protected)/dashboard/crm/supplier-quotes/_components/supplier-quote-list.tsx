@@ -110,7 +110,7 @@ export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuo
       }
 
       if (stats.status === "completed") {
-        toast.success("Leads imported successfully!")
+        toast.success("supplier quotes imported successfully!")
         setStats((prev: any) => ({ ...prev, total: 0, completed: 0, progress: 0, status: "processing" }))
         router.refresh()
       }
