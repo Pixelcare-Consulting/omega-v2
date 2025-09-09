@@ -10,7 +10,7 @@ import { useRouter } from "nextjs-toploader/app"
 import { useAction } from "next-safe-action/hooks"
 import { deleteUser, getUsers } from "@/actions/user"
 import AlertModal from "@/components/alert-modal"
-import { getInitials } from "@/lib/utils"
+import { copyText, getInitials } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/badge"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
@@ -24,7 +24,7 @@ export function getColumns(): ColumnDef<UserData>[] {
       id: "user",
       header: ({ column }) => <DataTableColumnHeader column={column} title='User' />,
       cell: ({ row }) => {
-        const name = row.original?.name
+        const { id, name } = row.original
         const profileDetails = row.original?.profile?.details as any
         const imageUrl = profileDetails?.avatarUrl || undefined
 
@@ -37,7 +37,10 @@ export function getColumns(): ColumnDef<UserData>[] {
               <AvatarFallback className='uppercase'>{getInitials(name)}</AvatarFallback>
             </Avatar>
 
-            <span className='font-medium'>{name}</span>
+            <div className='flex flex-col justify-center gap-0.5'>
+              <span className='font-medium'>{name}</span>
+              <span className='text-xs text-muted-foreground'>{id}</span>
+            </div>
           </div>
         )
       },
@@ -132,9 +135,19 @@ export function getColumns(): ColumnDef<UserData>[] {
                 />
               </ActionTooltipProvider>
 
-              <ActionTooltipProvider label='More Options'>
-                <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
-              </ActionTooltipProvider>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <ActionTooltipProvider label='More Options'>
+                    <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
+                  </ActionTooltipProvider>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align='end'>
+                  <DropdownMenuItem onClick={() => copyText(id)}>
+                    <Icons.copy className='mr-2 size-4' /> Copy ID
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <AlertModal

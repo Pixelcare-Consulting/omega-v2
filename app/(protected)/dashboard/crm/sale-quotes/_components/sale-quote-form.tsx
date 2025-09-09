@@ -762,7 +762,7 @@ export default function SaleQuoteForm({ salesQuote, requisitions, customers, ite
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={paymentTermsOptions} control={form.control} name='paymentTerms' label='Payment Terms' />
+            <ComboboxField data={paymentTermsOptions} control={form.control} name='paymentTerms' label='Payment Terms' isRequired />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>

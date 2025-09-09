@@ -1,5 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
+import { toast } from "sonner"
 import { twMerge } from "tailwind-merge"
+import * as clipboard from "clipboard-polyfill"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -25,3 +27,10 @@ export function titleCase(str: string) {
 }
 
 export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+export function copyText(text: string) {
+  clipboard.writeText(text).then(
+    () => toast.success("Copied"),
+    () => console.log("Failed to copy!")
+  )
+}

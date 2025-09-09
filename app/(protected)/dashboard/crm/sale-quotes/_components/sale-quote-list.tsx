@@ -7,7 +7,7 @@ import { useAction } from "next-safe-action/hooks"
 import { format } from "date-fns"
 import { useRouter } from "nextjs-toploader/app"
 
-import { getSaleQuotes } from "@/actions/sale-quote"
+import { getSaleQuotes, salesQuoteCreateMany } from "@/actions/sale-quote"
 import { getColumns } from "./sale-quote-table-column"
 import { DataTableFilter, FilterFields } from "@/components/data-table/data-table-filter"
 import { useDataTable } from "@/hooks/use-data-table"
@@ -15,14 +15,16 @@ import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
 import DataImportExport from "@/components/data-table/data-import-export"
-import { styleWorkSheet } from "@/lib/xlsx"
+import { ExcelParseData, parseExcelFile, styleWorkSheet } from "@/lib/xlsx"
 import { delay } from "@/lib/utils"
+import { Stats } from "@/types/common"
 
 type SalesQuoteListProps = {
   salesQuotes: Awaited<ReturnType<typeof getSaleQuotes>>
 }
 
 export default function SaleQuoteList({ salesQuotes }: SalesQuoteListProps) {
+  const router = useRouter()
   const columns = useMemo(() => getColumns(), [])
 
   const filterFields = useMemo((): FilterFields[] => {
@@ -36,7 +38,128 @@ export default function SaleQuoteList({ salesQuotes }: SalesQuoteListProps) {
     ]
   }, [])
 
-  const handleImport: (...args: any[]) => void = async (args) => {}
+  const { executeAsync } = useAction(salesQuoteCreateMany)
+
+  const handleImport: (...args: any[]) => void = async (args) => {
+    const { end, file, setStats, setShowErrorDialog } = args
+
+    try {
+      //* constant values
+      const headers = [
+        "Item",
+        "Requisition",
+        "Supplier Quote",
+        "Quantity",
+        "Unit Price",
+        "MPN",
+        "MFR",
+        "Date Code",
+        "Condition",
+        "COO",
+        "Lead Time",
+        "Notes",
+        "ID",
+        "Row Type", //* - MAIN, LINE_ITEM
+        "Date",
+        "Customer",
+        "Sales Rep",
+        "Bill To",
+        "Ship To",
+        "Payment Terms",
+        "FOB Point",
+        "Shipping Method",
+        "Valid Until",
+        "Approval",
+        "Approval Date",
+      ]
+      const batchSize = 5
+
+      //* parse excel file
+      const parseData = await parseExcelFile({ file, header: headers })
+
+      const parseDataWithDetails = parseData
+        .map((row: any, i: number) => ({ ...row, rowNumber: i + 2 }))
+        .filter((row: any) => row["Row Type"] === "MAIN")
+        .map((row: any) => {
+          const lineItems = parseData
+            .filter((r) => r?.["ID"] === row?.["ID"] && r?.["Row Type"] === "LINE_ITEM")
+            .map((r) => {
+              const quantity = parseFloat(String(r?.["Quantity"]))
+              const unitPrice = parseFloat(String(r?.["Unit Price"]))
+              const requisition = parseInt(r?.["Requisition"])
+              const supplierQuote = parseInt(r?.["Supplier Quote"])
+
+              return {
+                code: r?.["Item"] || "",
+                requisitionCode: isNaN(requisition) ? 0 : requisition,
+                supplierQuoteCode: isNaN(supplierQuote) ? 0 : supplierQuote,
+                quantity: isNaN(quantity) ? 0 : quantity,
+                unitPrice: isNaN(unitPrice) ? 0 : unitPrice,
+                details: {
+                  mpn: r?.["MPN"] || "",
+                  mfr: r?.["MFR"] || "",
+                  dateCode: r?.["Date Code"] || "",
+                  condition: r?.["Condition"] || "",
+                  coo: r?.["COO"] || "",
+                  leadTime: r?.["Lead Time"] || "",
+                  notes: r?.["Notes"] || "",
+                },
+              }
+            })
+            .filter((item) => {
+              if (item.code !== "" && item.requisitionCode !== 0 && item.supplierQuoteCode !== 0) return true
+              return false
+            })
+
+          return {
+            ...row,
+            ["Line Items"]: lineItems?.length > 0 ? lineItems : [],
+          }
+        })
+
+      //* trigger write by batch
+      let batch: ExcelParseData[] = []
+      let stats: Stats = { total: 0, completed: 0, progress: 0, error: [], status: "processing" }
+
+      for (let i = 0; i < parseDataWithDetails.length; i++) {
+        const isLastBatch = i === parseDataWithDetails.length - 1
+        const row = parseDataWithDetails[i]
+
+        //   //* add to batch
+        batch.push({ ...row })
+
+        //   //* check if batch size is reached or last batch
+        if (batch.length === batchSize || isLastBatch) {
+          const response = await executeAsync({ data: batch, total: parseDataWithDetails.length, stats, isLastBatch })
+          const result = response?.data
+
+          if (result?.error) {
+            setStats((prev: any) => ({ ...prev, error: [...prev.error, ...batch] }))
+            stats.error = [...stats.error, ...batch]
+          } else if (result?.stats) {
+            setStats(result.stats)
+            stats = result.stats
+          }
+
+          batch = []
+        }
+      }
+
+      if (stats.status === "completed") {
+        toast.success("Requisitions imported successfully!")
+        setStats((prev: any) => ({ ...prev, total: 0, completed: 0, progress: 0, status: "processing" }))
+        router.refresh()
+      }
+
+      if (stats.error.length > 0) setShowErrorDialog(true)
+
+      end()
+    } catch (error: any) {
+      console.error(error)
+      toast.error(error?.message || "Failed to import file")
+      end()
+    }
+  }
 
   const handleExport: (...args: any[]) => void = async (args) => {
     const { start, end, data, setStats } = args

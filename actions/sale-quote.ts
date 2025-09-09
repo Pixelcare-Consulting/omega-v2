@@ -6,7 +6,9 @@ import { paramsSchema } from "@/schema/common"
 import { saleQuoteFormSchema, updateLineItemForm } from "@/schema/sale-quote"
 import { getSupplierQuoteByCode } from "./supplier-quote"
 import { getBpMasterByCardCode } from "./master-bp"
-import { Contact } from "@prisma/client"
+import { Contact, Prisma } from "@prisma/client"
+import { importSchema } from "@/schema/import-export"
+import { parse } from "date-fns"
 
 export type LineItemsJSONData = {
   requisitionCode: number
@@ -175,6 +177,95 @@ export const updateLineItems = action
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
         action: "UPDATE_LINE_ITEMS",
+      }
+    }
+  })
+
+export const salesQuoteCreateMany = action
+  .use(authenticationMiddleware)
+  .schema(importSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    const { data, total, stats, isLastBatch } = parsedInput
+    const { userId } = ctx
+
+    try {
+      const batch: Prisma.SaleQuoteCreateManyInput[] = []
+
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i]
+
+        //* check required fields
+        if (
+          !row?.["Date"] ||
+          !row?.["Customer"] ||
+          !row?.["Sales Rep"] ||
+          !row?.["Payment Terms"] ||
+          !row?.["Valid Until"] ||
+          !row?.["Approval"] ||
+          !row?.["Approval Date"]
+        ) {
+          console.log("Skipping row due to missing required fields", row)
+          stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
+          continue
+        }
+
+        if (row?.["Line Items"]?.length < 1) {
+          console.log("Skipping row due to missing line items", row)
+          stats.error.push({ rowNumber: row.rowNumber, description: "Missing line items", row })
+          continue
+        }
+
+        //* reshape data
+        const requisitionData: Prisma.SaleQuoteCreateManyInput = {
+          date: parse(row?.["Date"], "MM/dd/yyyy", new Date()),
+          customerCode: row?.["Customer"],
+          salesRepId: row?.["Sales Rep"],
+          billTo: row?.["Bill To"],
+          shipTo: row?.["Ship To"],
+          paymentTerms: row?.["Payment Terms"],
+          fobPoint: row?.["FOB Point"],
+          shippingMethod: row?.["Shipping Method"],
+          validUntil: parse(row?.["Valid Until"], "MM/dd/yyyy", new Date()),
+          approvalId: row?.["Approval"],
+          approvalDate: parse(row?.["Approval Date"], "MM/dd/yyyy", new Date()),
+          lineItems: row?.["Line Items"],
+          createdBy: userId,
+          updatedBy: userId,
+        }
+
+        //* add to batch
+        batch.push(requisitionData)
+      }
+
+      //* commit the batch
+      await prisma.saleQuote.createMany({
+        data: batch,
+        skipDuplicates: true,
+      })
+
+      const progress = ((stats.completed + batch.length) / total) * 100
+
+      const updatedStats = {
+        ...stats,
+        completed: stats.completed + batch.length,
+        progress,
+        status: progress >= 100 || isLastBatch ? "completed" : "processing",
+      }
+
+      return {
+        status: 200,
+        message: `${updatedStats.completed} sales quotes created successfully!`,
+        action: "BATCH_WRITE_SALES_QUOTE",
+        stats: updatedStats,
+      }
+    } catch (error) {
+      console.error(error)
+
+      return {
+        error: true,
+        status: 500,
+        message: error instanceof Error ? error.message : "Batch write error!",
+        action: "BATCH_WRITE_SALES_QUOTE",
       }
     }
   })
