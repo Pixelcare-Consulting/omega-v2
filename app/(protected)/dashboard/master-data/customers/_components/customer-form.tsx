@@ -331,7 +331,9 @@ export default function CustomerForm({ customer, bpGroups, currencies, countries
   //* pre populate data based on lead
   useEffect(() => {
     if (lead) {
-      form.setValue("CardName", lead.name)
+      const cardName = lead.account ? `${lead.account.name} - ${lead.name}` : lead.name
+
+      form.setValue("CardName", cardName)
       form.setValue("Phone1", lead.phone)
 
       //* pre populate billing address
