@@ -18,8 +18,6 @@ import { toast } from "sonner"
 import { useRouter } from "nextjs-toploader/app"
 import LeadSummaryTab from "./tabs/lead-summary-tab"
 import LeadAccountTab from "./tabs/lead-account-tab"
-import LeadContactsTab from "./tabs/lead-contacts-tab"
-import { getAccounts } from "@/actions/account"
 import LeadActivitiesTab from "./tabs/lead-activities-tab"
 
 type ViewLeadProps = {
