@@ -32,6 +32,8 @@ export default function SaleQuoteSummaryTab({ saleQuote, items, requisitions, pa
   const salesRep = saleQuote.salesRep
   const approval = saleQuote.approval
   const contact = saleQuote.contact
+  const billTo = saleQuote?.billTo
+  const shipTo = saleQuote?.shipTo
 
   const getAddress = (address?: NonNullable<Awaited<ReturnType<typeof getSaleQuoteByCode>>>["customer"]["addresses"][number]) => {
     let result = ""
@@ -56,12 +58,12 @@ export default function SaleQuoteSummaryTab({ saleQuote, items, requisitions, pa
   }
 
   const billToAddress = useMemo(() => {
-    const address = customer.addresses.find((address) => customer.BillToDef === address.id)
+    const address = customer.addresses.find((address) => customer.BillToDef === address.id || address.id === billTo)
     return getAddress(address)
   }, [JSON.stringify(customer)])
 
   const shipToAddress = useMemo(() => {
-    const address = customer.addresses.find((address) => customer.ShipToDef === address.id)
+    const address = customer.addresses.find((address) => customer.ShipToDef === address.id || address.id === shipTo)
     return getAddress(address)
   }, [JSON.stringify(customer)])
 
