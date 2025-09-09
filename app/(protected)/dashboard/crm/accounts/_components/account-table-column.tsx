@@ -11,7 +11,7 @@ import { useRouter } from "nextjs-toploader/app"
 import { useAction } from "next-safe-action/hooks"
 import { deleteAccount, getAccounts } from "@/actions/account"
 import AlertModal from "@/components/alert-modal"
-import { cn } from "@/lib/utils"
+import { cn, copyText } from "@/lib/utils"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 
 type AccountData = Awaited<ReturnType<typeof getAccounts>>[number]
@@ -143,9 +143,19 @@ export function getColumns(): ColumnDef<AccountData>[] {
                 />
               </ActionTooltipProvider>
 
-              <ActionTooltipProvider label='More Options'>
-                <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
-              </ActionTooltipProvider>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <ActionTooltipProvider label='More Options'>
+                    <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />
+                  </ActionTooltipProvider>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align='end'>
+                  <DropdownMenuItem onClick={() => copyText(id)}>
+                    <Icons.copy className='mr-2 size-4' /> Copy ID
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <AlertModal
