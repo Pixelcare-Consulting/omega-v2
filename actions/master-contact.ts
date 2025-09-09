@@ -82,7 +82,7 @@ export const upsertContactMaster = action
 
       const contacts = (await prisma.$queryRaw`SELECT * FROM "Contact" WHERE "id" ~ '^CO[0-9]+$'`) as Contact[]
       const contactsIdNumber = contacts
-        .map((contact) => contact.id.slice(1))
+        .map((contact) => contact.id.slice(2))
         .filter((num) => !isNaN(parseInt(num)))
         .map((num) => parseInt(num))
         .sort((a, b) => a - b)
