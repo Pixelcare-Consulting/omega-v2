@@ -194,12 +194,15 @@ export const salesQuoteCreateMany = action
       for (let i = 0; i < data.length; i++) {
         const row = data[i]
 
+        const paymentTerms = parseInt(row?.["Payment Terms"])
+
         //* check required fields
         if (
           !row?.["Date"] ||
           !row?.["Customer"] ||
           !row?.["Sales Rep"] ||
-          !row?.["Payment Terms"] ||
+          isNaN(paymentTerms) ||
+          !paymentTerms ||
           !row?.["Valid Until"] ||
           !row?.["Approval"] ||
           !row?.["Approval Date"]
@@ -222,7 +225,7 @@ export const salesQuoteCreateMany = action
           salesRepId: row?.["Sales Rep"],
           billTo: row?.["Bill To"],
           shipTo: row?.["Ship To"],
-          paymentTerms: row?.["Payment Terms"],
+          paymentTerms: paymentTerms,
           fobPoint: row?.["FOB Point"],
           shippingMethod: row?.["Shipping Method"],
           validUntil: parse(row?.["Valid Until"], "MM/dd/yyyy", new Date()),

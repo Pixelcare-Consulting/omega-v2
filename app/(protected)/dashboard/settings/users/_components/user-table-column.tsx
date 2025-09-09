@@ -37,10 +37,7 @@ export function getColumns(): ColumnDef<UserData>[] {
               <AvatarFallback className='uppercase'>{getInitials(name)}</AvatarFallback>
             </Avatar>
 
-            <div className='flex flex-col justify-center gap-0.5'>
-              <span className='font-medium'>{name}</span>
-              <span className='text-xs text-muted-foreground'>{id}</span>
-            </div>
+            <span className='font-medium'>{name}</span>
           </div>
         )
       },

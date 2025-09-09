@@ -146,7 +146,7 @@ export default function SaleQuoteList({ salesQuotes }: SalesQuoteListProps) {
       }
 
       if (stats.status === "completed") {
-        toast.success("Requisitions imported successfully!")
+        toast.success("Sales quotes imported successfully!")
         setStats((prev: any) => ({ ...prev, total: 0, completed: 0, progress: 0, status: "processing" }))
         router.refresh()
       }
