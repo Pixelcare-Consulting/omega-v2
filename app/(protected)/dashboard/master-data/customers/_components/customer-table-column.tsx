@@ -251,20 +251,22 @@ export default function getColumns(): ColumnDef<CustomerData>[] {
               </ActionTooltipProvider>
 
               {source === "portal" && (
-                <ActionTooltipProvider label='Edit Customer'>
-                  <Icons.pencil
-                    className='size-4 cursor-pointer transition-all hover:scale-125'
-                    onClick={() => router.push(`/dashboard/master-data/customers/${CardCode}`)}
-                  />
-                </ActionTooltipProvider>
-              )}
+                <>
+                  <ActionTooltipProvider label='Edit Customer'>
+                    <Icons.pencil
+                      className='size-4 cursor-pointer transition-all hover:scale-125'
+                      onClick={() => router.push(`/dashboard/master-data/customers/${CardCode}`)}
+                    />
+                  </ActionTooltipProvider>
 
-              <ActionTooltipProvider label='Delete Customer'>
-                <Icons.trash
-                  className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125'
-                  onClick={() => setShowConfirmation(true)}
-                />
-              </ActionTooltipProvider>
+                  <ActionTooltipProvider label='Delete Customer'>
+                    <Icons.trash
+                      className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125'
+                      onClick={() => setShowConfirmation(true)}
+                    />
+                  </ActionTooltipProvider>
+                </>
+              )}
 
               <ActionTooltipProvider label='More Options'>
                 <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />

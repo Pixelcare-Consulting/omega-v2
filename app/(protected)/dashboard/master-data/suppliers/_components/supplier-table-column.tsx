@@ -280,20 +280,22 @@ export default function getColumns(itemGroups?: any, manufacturers?: any): Colum
               </ActionTooltipProvider>
 
               {source === "portal" && (
-                <ActionTooltipProvider label='Edit Supplier'>
-                  <Icons.pencil
-                    className='size-4 cursor-pointer transition-all hover:scale-125'
-                    onClick={() => router.push(`/dashboard/master-data/suppliers/${CardCode}`)}
-                  />
-                </ActionTooltipProvider>
-              )}
+                <>
+                  <ActionTooltipProvider label='Edit Supplier'>
+                    <Icons.pencil
+                      className='size-4 cursor-pointer transition-all hover:scale-125'
+                      onClick={() => router.push(`/dashboard/master-data/suppliers/${CardCode}`)}
+                    />
+                  </ActionTooltipProvider>
 
-              <ActionTooltipProvider label='Delete Supplier'>
-                <Icons.trash
-                  className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125'
-                  onClick={() => setShowConfirmation(true)}
-                />
-              </ActionTooltipProvider>
+                  <ActionTooltipProvider label='Delete Supplier'>
+                    <Icons.trash
+                      className='size-4 cursor-pointer text-red-500 transition-all hover:scale-125'
+                      onClick={() => setShowConfirmation(true)}
+                    />
+                  </ActionTooltipProvider>
+                </>
+              )}
 
               <ActionTooltipProvider label='More Options'>
                 <Icons.moreHorizontal className='size-4 cursor-pointer transition-all hover:scale-125' />

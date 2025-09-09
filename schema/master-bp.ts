@@ -72,7 +72,13 @@ export const BP_MASTER_CUSTOMER_STATUS_OPTIONS = [
 
 //* SAP form schema contains
 export const bpSapFieldsSchema = z.object({
-  CardCode: z.string().default(uuidv4()),
+  CardCode: z
+    .string()
+    .default(uuidv4())
+    .transform((val) => {
+      if (!val) return uuidv4()
+      return val
+    }),
   CardName: z.string().min(1, { message: "Company name is required" }),
   CardType: z.string().min(1, { message: "Card type is required" }),
   CntctPrsn: z.string().nullish(),
