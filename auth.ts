@@ -168,17 +168,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     maxAge: 8 * 60 * 60, //* 8 hours
     updateAge: 4 * 60 * 60, //* 4 hours
   },
-  cookies: {
-    sessionToken: {
-      name: `${cookiePrefix}authjs.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: isSecureCookies,
-      },
-    },
-  },
+  // cookies: {
+  //   sessionToken: {
+  //     // name: `${cookiePrefix}authjs.session-token`,
+  //     name: `authjs.session-token`,
+  //     options: {
+  //       httpOnly: true,
+  //       sameSite: "lax",
+  //       path: "/",
+  //       secure: false,
+  //     },
+  //   },
+  // },
   callbacks,
   pages: {
     signIn: "/login",
