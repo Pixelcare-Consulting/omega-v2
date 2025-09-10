@@ -139,8 +139,8 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
             const result = response?.data
 
             if (result?.error) {
-              setStats((prev: any) => ({ ...prev, error: [...prev.error, ...batch] }))
-              stats.error = [...stats.error, ...batch]
+              setStats((prev: any) => ({ ...prev, error: [...prev.error, ...result.stats.error] }))
+              stats.error = [...stats.error, ...result.stats.error]
             } else if (result?.stats) {
               setStats(result.stats)
               stats = result.stats
@@ -269,6 +269,7 @@ export default function CustomerLists({ customers }: CustomersListsProps) {
             isLoadingDependencies={bpGroupsIsLoading}
             onImport={(args) => handleImport(args)}
             onExport={(args) => handleExport({ ...args, data: customers })}
+            code='customer'
           />
         </div>
       </div>

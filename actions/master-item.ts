@@ -249,28 +249,30 @@ export const itemMasterCreateMany = action
       })
 
       for (let i = 0; i < data.length; i++) {
+        const errors: string[] = []
         const row = data[i]
-        let hasError = false
 
         const group = itemGroups.find((group: any) => group?.Number == row?.["Group"])
         const manufacturer = manufacturers.find((manufacturer: any) => manufacturer?.Code == row?.["Manufacturer"])
 
         //* check required fields
         if (!row?.["Description"] || !row?.["Code"] || !row?.["Group"]) {
-          console.log("Skipping row due to missing required fields", row)
-          stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
-          hasError = true
+          errors.push("Missing required fields")
         }
 
         //* check if item code already exists
         if (existingItemCodes.find((item) => item.ItemCode === row?.["Code"])) {
-          console.log("Skipping row due to item code already exists", row)
-          stats.error.push({ rowNumber: row.rowNumber, description: "Item code already exists", row })
-          hasError = true
+          errors.push("Item code already exists")
         }
 
-        //* skip if has error
-        if (hasError) continue
+        //* if errors array is not empty, then update/push to stats.error
+        if (errors.length > 0) {
+          console.log("ERRORS:")
+          console.log({ rowNumber: row.rowNumber, entries: errors }, "\n")
+
+          stats.error.push({ rowNumber: row.rowNumber, entries: errors, row })
+          continue
+        }
 
         //* reshape data
         const itemData: Prisma.ItemCreateManyInput = {
@@ -314,13 +316,16 @@ export const itemMasterCreateMany = action
         stats: updatedStats,
       }
     } catch (error) {
-      console.error(error)
+      console.error("Batch Write Error - ", error)
+
+      stats.error.push(...data.map((row) => ({ rowNumber: row.rowNumber, entries: ["Unexpected batch write error"], row })))
 
       return {
         error: true,
         status: 500,
         message: error instanceof Error ? error.message : "Batch write error!",
         action: "BATCH_WRITE_ITEM_MASTER",
+        stats,
       }
     }
   })

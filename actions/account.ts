@@ -117,12 +117,20 @@ export const accountCreateMany = action
       const batch: Prisma.CompanyAccountCreateManyInput[] = []
 
       for (let i = 0; i < data.length; i++) {
+        const errors: string[] = []
         const row = data[i]
 
         //* check required fields
         if (!row?.["Name"]) {
-          console.log("Skipping row due to missing required fields", row)
-          stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
+          errors.push("Missing required fields")
+        }
+
+        //* if errors array is not empty, then update/push to stats.error
+        if (errors.length > 0) {
+          console.log("ERRORS:")
+          console.log({ rowNumber: row.rowNumber, entries: errors }, "\n")
+
+          stats.error.push({ rowNumber: row.rowNumber, entries: errors, row })
           continue
         }
 
@@ -165,13 +173,16 @@ export const accountCreateMany = action
         stats: updatedStats,
       }
     } catch (error) {
-      console.error(error)
+      console.error("Batch Write Error - ", error)
+
+      stats.error.push(...data.map((row) => ({ rowNumber: row.rowNumber, entries: ["Unexpected batch write error"], row })))
 
       return {
         error: true,
         status: 500,
         message: error instanceof Error ? error.message : "Batch write error!",
         action: "BATCH_WRITE_ACCOUNT",
+        stats,
       }
     }
   })

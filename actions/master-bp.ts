@@ -530,8 +530,8 @@ export const bpMasterCreateMany = action
       let addressCounter = latestAddress?.[0]?.maxId || 0
 
       for (let i = 0; i < data.length; i++) {
+        const errors: string[] = []
         const row = data[i]
-        let hasError = false
 
         const group = bpGroups.find((group: any) => group?.Code == row?.["Group"])
 
@@ -582,20 +582,22 @@ export const bpMasterCreateMany = action
         if (cardType === "C") {
           //* check required fields
           if (!row?.["Company Name"] || !row?.["Group"] || !row?.["Type"] || !row?.["Status"]) {
-            console.log("Skipping row due to missing required fields", row)
-            stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
-            hasError = true
+            errors.push("Missing required fields")
           }
 
           //* check if customer code already exists
           if (existingBpMasterCodes.find((bp) => bp.CardCode === row?.["Code"])) {
-            console.log("Skipping row due to customer code already exists", row)
-            stats.error.push({ rowNumber: row.rowNumber, description: "Customer code already exists", row })
-            hasError = true
+            errors.push("Customer code already exists")
           }
 
-          //* skip if has error
-          if (hasError) continue
+          //* if errors array is not empty, then update/push to stats.error
+          if (errors.length > 0) {
+            console.log("ERRORS:")
+            console.log({ rowNumber: row.rowNumber, entries: errors }, "\n")
+
+            stats.error.push({ rowNumber: row.rowNumber, entries: errors, row })
+            continue
+          }
 
           //* Generate new IDs
           const billingId = `A${String(++addressCounter).padStart(6, "0")}`
@@ -634,20 +636,22 @@ export const bpMasterCreateMany = action
         if (cardType === "S") {
           //* check required fields
           if (!row?.["Company Name"] || !row?.["Group"] || !row?.["Status"] || !row?.["Scope"]) {
-            console.log("Skipping row due to missing required fields", row)
-            stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
-            hasError = true
+            errors.push("Missing required fields")
           }
 
           //* check if customer code already exists
           if (existingBpMasterCodes.find((bp) => bp.CardCode === row?.["Code"])) {
-            console.log("Skipping row due to supplier code already exists", row)
-            stats.error.push({ rowNumber: row.rowNumber, description: "Supplier code already exists", row })
-            hasError = true
+            errors.push("Supplier code already exists")
           }
 
-          //* skip if has error
-          if (hasError) continue
+          //* if errors array is not empty, then update/push to stats.error
+          if (errors.length > 0) {
+            console.log("ERRORS:")
+            console.log({ rowNumber: row.rowNumber, entries: errors }, "\n")
+
+            stats.error.push({ rowNumber: row.rowNumber, entries: errors, row })
+            continue
+          }
 
           //* Generate new IDs
           const billingId = `A${String(++addressCounter).padStart(6, "0")}`
@@ -713,13 +717,16 @@ export const bpMasterCreateMany = action
         stats: updatedStats,
       }
     } catch (error) {
-      console.error(error)
+      console.error("Batch Write Error - ", error)
+
+      stats.error.push(...data.map((row) => ({ rowNumber: row.rowNumber, entries: ["Unexpected batch write error"], row })))
 
       return {
         error: true,
         status: 500,
         message: error instanceof Error ? error.message : "Batch write error!",
         action: "BATCH_WRITE_BP_MASTER",
+        stats,
       }
     }
   })
