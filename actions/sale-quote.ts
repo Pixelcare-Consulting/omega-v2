@@ -191,10 +191,47 @@ export const salesQuoteCreateMany = action
     try {
       const batch: Prisma.SaleQuoteCreateManyInput[] = []
 
+      const itemCodes = data.map((row) => row?.["Line Items"]?.map((item: any) => item?.code)?.filter(Boolean) || []).flat()
+      const uniqueItemCodes = [...new Set(itemCodes)]
+
+      const reqCodes = data
+        .map(
+          (row) =>
+            row?.["Line Items"]
+              ?.map((item: any) => (isNaN(parseInt(String(item?.requisitionCode))) ? 0 : parseInt(String(item?.requisitionCode))))
+              .filter(Boolean) || []
+        )
+        .flat()
+      const uniqueReqCodes = [...new Set(reqCodes)]
+
+      const supQuoteCodes = data
+        .map((row) =>
+          row?.["Line Items"]?.map((item: any) =>
+            isNaN(parseInt(String(item?.supplierQuoteCode))) ? 0 : parseInt(String(item?.supplierQuoteCode))
+          )
+        )
+        .flat()
+      const uniqueSupQuoteCodes = [...new Set(supQuoteCodes)]
+
+      const customerCodes = data.map((row) => row?.["Customer"]).filter(Boolean)
+      const uniqueCustomerCodes = [...new Set(customerCodes)]
+
+      //* get existing item, requisition, suppplier quote, customer
+      const [existingItems, existingRequisitions, existingSupplierQuotes, existingCustomers] = await Promise.all([
+        prisma.item.findMany({ where: { ItemCode: { in: uniqueItemCodes } }, select: { ItemCode: true } }),
+        prisma.requisition.findMany({ where: { code: { in: uniqueReqCodes } }, select: { code: true } }),
+        prisma.supplierQuote.findMany({ where: { code: { in: uniqueSupQuoteCodes } }, select: { code: true } }),
+        prisma.businessPartner.findMany({ where: { CardCode: { in: uniqueCustomerCodes } }, select: { CardCode: true } }),
+      ])
+
       for (let i = 0; i < data.length; i++) {
+        const errors: string[] = []
         const row = data[i]
 
         const paymentTerms = parseInt(row?.["Payment Terms"])
+        const lineItemCodes: string[] = row?.["Line Items"]?.length > 0 ? row?.["Line Items"]?.map((item: any) => item?.code)?.filter(Boolean) || [] : [] // prettier-ignore
+        const lineReqCodes: number[] = row?.["Line Items"]?.length > 0 ? row?.["Line Items"]?.map((item: any) => item?.requisitionCode)?.filter(Boolean) || [] : [] // prettier-ignore
+        const lineSupQuoteCodes: number[] = row?.["Line Items"]?.length > 0 ? row?.["Line Items"]?.map((item: any) => item?.supplierQuoteCode)?.filter(Boolean) || [] : [] // prettier-ignore
 
         //* check required fields
         if (
@@ -207,14 +244,40 @@ export const salesQuoteCreateMany = action
           !row?.["Approval"] ||
           !row?.["Approval Date"]
         ) {
-          console.log("Skipping row due to missing required fields", row)
-          stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
-          continue
+          errors.push("Missing required fields")
         }
 
+        //* check if theres any line items
         if (row?.["Line Items"]?.length < 1) {
-          console.log("Skipping row due to missing line items", row)
-          stats.error.push({ rowNumber: row.rowNumber, description: "Missing line items", row })
+          errors.push("Missing line items")
+        }
+
+        //* check if all items in line items exist, if one of them doesn't exist, skip the row
+        if (!lineItemCodes.every((i) => existingItems.find((item) => item.ItemCode === i))) {
+          errors.push("One or more line items not found")
+        }
+
+        //* check if all requsition code in line items exist, if one of them doesn't exist, skip the row
+        if (!lineReqCodes.every((r) => existingRequisitions.find((req) => req.code == r))) {
+          errors.push("One or more requisitions not found")
+        }
+
+        //* check if all supplier quote code in line items exist, if one of them doesn't exist, skip the row
+        if (!lineSupQuoteCodes.every((sq) => existingSupplierQuotes.find((supQuote) => supQuote.code == sq))) {
+          errors.push("One or more supplier quotes not found")
+        }
+
+        //* check if customer exist, if not, skip the row
+        if (!existingCustomers.find((c) => row["Customer"] === c.CardCode)) {
+          errors.push("Customer not found")
+        }
+
+        //* if errors array is not empty, then update/push to stats.error
+        if (errors.length > 0) {
+          console.log("ERRORS:")
+          console.log({ rowNumber: row.rowNumber, entries: errors }, "\n")
+
+          stats.error.push({ rowNumber: row.rowNumber, entries: errors, row })
           continue
         }
 
@@ -262,13 +325,16 @@ export const salesQuoteCreateMany = action
         stats: updatedStats,
       }
     } catch (error) {
-      console.error(error)
+      console.error("Batch Write Error - ", error)
+
+      stats.error.push(...data.map((row) => ({ rowNumber: row.rowNumber, entries: ["Unexpected batch write error"], row })))
 
       return {
         error: true,
         status: 500,
         message: error instanceof Error ? error.message : "Batch write error!",
         action: "BATCH_WRITE_SALES_QUOTE",
+        stats,
       }
     }
   })

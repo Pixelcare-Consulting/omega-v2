@@ -252,7 +252,7 @@ export const requisitionCreateMany = action
         }
 
         //* check if all items in requested items exist, if one of them doesn't exist, skip the row
-        if (!reqItemCodes.every((itemCodes) => existingItems.find((item) => item.ItemCode === itemCodes))) {
+        if (!reqItemCodes.every((i) => existingItems.find((item) => item.ItemCode === i))) {
           errors.push("One or more requested items not found")
         }
 
