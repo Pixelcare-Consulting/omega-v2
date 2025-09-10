@@ -98,8 +98,8 @@ export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuo
           const result = response?.data
 
           if (result?.error) {
-            setStats((prev: any) => ({ ...prev, error: [...prev.error, ...batch] }))
-            stats.error = [...stats.error, ...batch]
+            setStats((prev: any) => ({ ...prev, error: [...prev.error, ...result.stats.error] }))
+            stats.error = [...stats.error, ...result.stats.error]
           } else if (result?.stats) {
             setStats(result.stats)
             stats = result.stats
@@ -262,6 +262,7 @@ export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuo
             className='w-full md:w-fit'
             onImport={(args) => handleImport(args)}
             onExport={(args) => handleExport({ ...args, data: supplierQuotes })}
+            code='supplier-quote'
           />
         </div>
       </div>

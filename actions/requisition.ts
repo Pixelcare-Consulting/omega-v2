@@ -315,7 +315,7 @@ export const requisitionCreateMany = action
     } catch (error) {
       console.error("Batch Write Error - ", error)
 
-      stats.error.push(data.map((row) => ({ rowNumber: row.rowNumber, entries: ["Unexpected batch write error"], row })))
+      stats.error.push(...data.map((row) => ({ rowNumber: row.rowNumber, entries: ["Unexpected batch write error"], row })))
 
       return {
         error: true,
