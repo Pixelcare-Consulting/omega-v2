@@ -3,7 +3,6 @@ import { SessionProvider } from "next-auth/react"
 import React from "react"
 import PanelLayout from "./_components/panel-layout"
 import AuthErrorDialog from "../components/auth-error-dialog"
-import "@/lib/suppress-warnings"
 
 export const dynamic = "force-dynamic"
 

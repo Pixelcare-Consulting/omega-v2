@@ -150,7 +150,9 @@ export const supplierQuoteCreateMany = action
     try {
       const batch: Prisma.SupplierQuoteCreateManyInput[] = []
 
-      const reqCodes = data.map((row) => row?.["Requisition"]).filter(Boolean)
+      const reqCodes = data
+        .map((row) => (isNaN(parseInt(String(row?.["Requisition"]))) ? 0 : parseInt(String(row?.["Requisition"]))))
+        .filter(Boolean)
       const uniqueReqCodes = [...new Set(reqCodes)]
 
       const supplierCodes = data.map((row) => row?.["Supplier"]).filter(Boolean)
@@ -189,7 +191,7 @@ export const supplierQuoteCreateMany = action
         }
 
         //* check if requisition exist, if not skip the row
-        if (!existingRequisitions.find((r) => r.code === row?.["Requisition"])) {
+        if (!existingRequisitions.find((r) => r.code == row?.["Requisition"])) {
           errors.push("Requisition not found")
         }
 
