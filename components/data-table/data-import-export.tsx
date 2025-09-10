@@ -12,15 +12,18 @@ import { Card } from "../ui/card"
 import { useDataTable } from "@/hooks/use-data-table"
 import { DataTable } from "./data-table"
 import { DataTableColumnHeader } from "./data-table-column-header"
+import { utils, writeFileXLSX } from "xlsx-js-style"
+import { styleWorkSheet } from "@/lib/xlsx"
 
 type DataImportExportProps = {
   className?: string
+  code?: string
   onImport: (...args: any[]) => void
   onExport: (...args: any[]) => void
   isLoadingDependencies?: boolean
 }
 
-export default function DataImportExport({ className, onImport, onExport, isLoadingDependencies }: DataImportExportProps) {
+export default function DataImportExport({ className, code, onImport, onExport, isLoadingDependencies }: DataImportExportProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [isLoading, setIsLoading] = useState(false)
@@ -64,6 +67,39 @@ export default function DataImportExport({ className, onImport, onExport, isLoad
     onImport({ end, file, setStats, setShowErrorDialog })
   }
 
+  const handleDownloadErrorLog = (data: any[]) => {
+    //* reshape data - property names will be the header values
+    const excelData = data.map((row) => {
+      const entries = row?.entries || []
+
+      return {
+        "Row #": row.rowNumber,
+        Errors: entries.map((log: string) => `• ${log}`).join("\r\n"),
+      }
+    })
+
+    //* create workbook & worksheet
+    const wb = utils.book_new()
+    const ws = utils.json_to_sheet(excelData)
+
+    //* set Column widths
+    ws["!cols"] = [
+      { wch: 15 }, //* Row #
+      { wch: 100 }, //* Errors
+    ]
+
+    //* style worksheet
+    styleWorkSheet({
+      worksheet: ws,
+      cellStyle: { alignment: { horizontal: "left", vertical: "center", wrapText: true } },
+      headerStyle: { font: { bold: true } },
+    })
+
+    //* append worksheet to workbook
+    utils.book_append_sheet(wb, ws, "LOGS")
+    writeFileXLSX(wb, `${code ? `${code.replaceAll(" ", "-").toUpperCase()}-` : ""}ERROR-LOGS.xlsx`)
+  }
+
   const columns: ColumnDef<{ [key: string]: any }>[] = [
     {
       accessorKey: "rowNumber",
@@ -75,16 +111,18 @@ export default function DataImportExport({ className, onImport, onExport, isLoad
       },
     },
     {
-      accessorKey: "description",
+      accessorKey: "entries",
       enableSorting: false,
       header: ({ column }) => <DataTableColumnHeader className='justify-center' column={column} title='Description' />,
-      size: 100,
       cell: ({ row }) => {
+        const entries = row.original?.entries || []
+
         return (
-          <div className='flex items-center justify-center gap-2'>
-            <Icons.triangleAlert className='mr-1 text-red-500' />
-            {row.original.description}
-          </div>
+          <ul className='mx-auto w-[90%] text-center'>
+            {entries.map((entry: any, i: number) => (
+              <li key={i}>• {entry}</li>
+            ))}
+          </ul>
         )
       },
     },
@@ -135,10 +173,23 @@ export default function DataImportExport({ className, onImport, onExport, isLoad
       </DropdownMenu>
 
       <Dialog modal={false} open={showErrorDialog} onOpenChange={setShowErrorDialog}>
-        <DialogContent className='max-h-[85vh] overflow-auto sm:max-w-5xl'>
+        <DialogContent
+          className='max-h-[85vh] overflow-auto sm:max-w-5xl'
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>Import Error</DialogTitle>
-            <DialogDescription>There was an error encountered while importing. Please see the table below for details.</DialogDescription>
+            <DialogDescription>
+              There was an error encountered while importing. Please see the table below for details. Click{" "}
+              <span
+                className='cursor-pointer text-red-500'
+                onClick={() => handleDownloadErrorLog(stats?.error?.sort((a, b) => a.rowNumber - b.rowNumber) || [])}
+              >
+                here
+              </span>{" "}
+              to download the log.
+            </DialogDescription>
           </DialogHeader>
 
           <Card className='p-0'>

@@ -209,12 +209,26 @@ export const requisitionCreateMany = action
     try {
       const batch: Prisma.RequisitionCreateManyInput[] = []
 
+      const itemCodes = data.map((row) => row?.["Requested Items"]?.map((item: any) => item?.code)?.filter(Boolean) || []).flat()
+      const uniqueItemCodes = [...new Set(itemCodes)]
+
+      const customerCodes = data.map((row) => row?.["Customer"]).filter(Boolean)
+      const uniqueCustomerCodes = [...new Set(customerCodes)]
+
+      //* get existing item, customer
+      const [existingItems, existingCustomers] = await Promise.all([
+        prisma.item.findMany({ where: { ItemCode: { in: uniqueItemCodes } }, select: { ItemCode: true } }),
+        prisma.businessPartner.findMany({ where: { CardCode: { in: uniqueCustomerCodes } }, select: { CardCode: true } }),
+      ])
+
       for (let i = 0; i < data.length; i++) {
+        const errors: string[] = []
         const row = data[i]
 
         const quantity = parseFloat(row?.["Requested Quantity"])
         const customerStandardPrice = parseFloat(row?.["Cust. Standard Price"])
         const customerStandardOpportunityValue = parseFloat(row?.["Cust. Standard Opportunity Value"])
+        const reqItemCodes: string[] = row?.["Requested Items"]?.length > 0 ? row?.["Requested Items"]?.map((item: any) => item?.code)?.filter(Boolean) || [] : [] // prettier-ignore
 
         //* check required fields
         if (
@@ -229,14 +243,30 @@ export const requisitionCreateMany = action
           !customerStandardPrice ||
           !customerStandardOpportunityValue
         ) {
-          console.log("Skipping row due to missing required fields", row)
-          stats.error.push({ rowNumber: row.rowNumber, description: "Missing required fields", row })
-          continue
+          errors.push("Missing required fields")
         }
 
+        //* check if there is any requested items
         if (row?.["Requested Items"]?.length < 1) {
-          console.log("Skipping row due to missing requested items", row)
-          stats.error.push({ rowNumber: row.rowNumber, description: "Missing requested items", row })
+          errors.push("Missing requested items")
+        }
+
+        //* check if all items in requested items exist, if one of them doesn't exist, skip the row
+        if (!reqItemCodes.every((itemCodes) => existingItems.find((item) => item.ItemCode === itemCodes))) {
+          errors.push("One or more requested items not found")
+        }
+
+        //* check if customer exist, if not, skip the row
+        if (!existingCustomers.find((c) => row["Customer"] === c.CardCode)) {
+          errors.push("Customer not found")
+        }
+
+        //* if errors array is not empty, then update/push to stats.error
+        if (errors.length > 0) {
+          console.log("ERRORS:")
+          console.log({ rowNumber: row.rowNumber, entries: errors }, "\n")
+
+          stats.error.push({ rowNumber: row.rowNumber, entries: errors, row })
           continue
         }
 
@@ -283,13 +313,16 @@ export const requisitionCreateMany = action
         stats: updatedStats,
       }
     } catch (error) {
-      console.error(error)
+      console.error("Batch Write Error - ", error)
+
+      stats.error.push(data.map((row) => ({ rowNumber: row.rowNumber, entries: ["Unexpected batch write error"], row })))
 
       return {
         error: true,
         status: 500,
         message: error instanceof Error ? error.message : "Batch write error!",
         action: "BATCH_WRITE_REQUISITION",
+        stats,
       }
     }
   })

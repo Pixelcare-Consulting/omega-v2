@@ -104,17 +104,17 @@ export default function RequisitionList({ requisitions, items }: RequisitionList
         const isLastBatch = i === parseDataWithDetails.length - 1
         const row = parseDataWithDetails[i]
 
-        //   //* add to batch
+        //* add to batch
         batch.push({ ...row })
 
-        //   //* check if batch size is reached or last batch
+        //* check if batch size is reached or last batch
         if (batch.length === batchSize || isLastBatch) {
           const response = await executeAsync({ data: batch, total: parseDataWithDetails.length, stats, isLastBatch })
           const result = response?.data
 
           if (result?.error) {
-            setStats((prev: any) => ({ ...prev, error: [...prev.error, ...batch] }))
-            stats.error = [...stats.error, ...batch]
+            setStats((prev: any) => ({ ...prev, error: [...prev.error, ...result.stats.error] }))
+            stats.error = [...stats.error, ...result.stats.error]
           } else if (result?.stats) {
             setStats(result.stats)
             stats = result.stats
@@ -240,6 +240,7 @@ export default function RequisitionList({ requisitions, items }: RequisitionList
             className='w-full md:w-fit'
             onImport={(args) => handleImport(args)}
             onExport={(args) => handleExport({ ...args, data: requisitions })}
+            code='requisition'
           />
         </div>
       </div>
