@@ -34,10 +34,10 @@ import { Badge, BadgeProps } from "@/components/badge"
 type RequisitionActivityFormDrawerProps = {
   activity: Activity | null
   setActivity: (value: Activity | null) => void
-  requisitionId: string
+  requisitionCode: string
 }
 
-export default function RequisitionActivityFormDrawer({ requisitionId, activity, setActivity }: RequisitionActivityFormDrawerProps) {
+export default function RequisitionActivityFormDrawer({ requisitionCode, activity, setActivity }: RequisitionActivityFormDrawerProps) {
   const router = useRouter()
 
   const { isOpen, setIsOpen } = useDialogStore(["isOpen", "setIsOpen"])
@@ -47,7 +47,7 @@ export default function RequisitionActivityFormDrawer({ requisitionId, activity,
 
     return {
       id: "add",
-      referenceId: requisitionId,
+      referenceId: requisitionCode,
       module: "requisition",
       title: "",
       type: "",
@@ -61,7 +61,7 @@ export default function RequisitionActivityFormDrawer({ requisitionId, activity,
       status: "pending",
       metadata: {},
     }
-  }, [JSON.stringify(activity), requisitionId])
+  }, [JSON.stringify(activity), requisitionCode])
 
   const form = useForm<ActivityForm>({
     mode: "onChange",
@@ -112,7 +112,7 @@ export default function RequisitionActivityFormDrawer({ requisitionId, activity,
     }
   }
 
-  if (!requisitionId || requisitionId === "add") return null
+  if (!requisitionCode || requisitionCode === "add") return null
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen} direction='right' dismissible={false} modal={false}>

@@ -88,7 +88,9 @@ export default function RequisitionActivitiesTab({ requisition }: RequisitionAct
           <DataTableFilter table={table} filterFields={filterFields} columnFilters={columnFilters} buttonProps={{ variant: "ghost" }} />
         </div>
 
-        {requisition && <RequisitionActivityFormDrawer activity={activity} setActivity={setActivity} requisitionId={requisition.id} />}
+        {requisition && (
+          <RequisitionActivityFormDrawer activity={activity} setActivity={setActivity} requisitionCode={String(requisition.code)} />
+        )}
       </div>
     )
   }
