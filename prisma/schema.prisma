@@ -41,13 +41,9 @@ model User {
   updatedRequisitions Requisition[] @relation("user-updated-requisitions")
   deletedRequisitions Requisition[] @relation("user-deleted-requisitions")
 
-  createdLeadActivities LeadActivity[] @relation("user-created-lead-activities")
-  updatedLeadActivities LeadActivity[] @relation("user-updated-lead-activities")
-  deletedLeadActivities LeadActivity[] @relation("user-deleted-lead-activities")
-
-  createdRequisitionActivities RequisitionActivity[] @relation("user-created-requisition-activities")
-  updatedRequisitionActivities RequisitionActivity[] @relation("user-updated-requisition-activities")
-  deletedRequisitionActivities RequisitionActivity[] @relation("user-deleted-requisition-activities")
+  createdLeadActivities Activity[] @relation("user-created-activities")
+  updatedLeadActivities Activity[] @relation("user-updated-activities")
+  deletedLeadActivities Activity[] @relation("user-deleted-activities")
 
   requisitionSalesPersons RequisitionSalesPerson[]
   requisitionOmegaBuyers  RequisitionOmegaBuyer[]
@@ -204,6 +200,32 @@ model CompanyAccount {
   leads Lead[]
 }
 
+model Activity {
+  id          String    @id @default(uuid())
+  referenceId String
+  module      String
+  title       String
+  type        String
+  link        String?   @default("")
+  body        String?   @default("")
+  date        DateTime?
+  startTime   String?   @default("")
+  endTime     String?   @default("")
+  status      String
+  metadata    Json?     @default("{}")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+
+  createdByUser User? @relation("user-created-activities", fields: [createdBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  updatedByUser User? @relation("user-updated-activities", fields: [updatedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  deletedByUser User? @relation("user-deleted-activities", fields: [deletedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
 model Lead {
   id                String   @id @default(uuid())
   name              String   @default("")
@@ -234,39 +256,10 @@ model Lead {
   updatedBy String?
   deletedBy String?
 
-  activities LeadActivity[]
-
   account       CompanyAccount? @relation(fields: [accountId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   createdByUser User?           @relation("user-created-leads", fields: [createdBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
   updatedByUser User?           @relation("user-updated-leads", fields: [updatedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
   deletedByUser User?           @relation("user-deleted-leads", fields: [deletedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
-}
-
-model LeadActivity {
-  id        String    @id @default(uuid())
-  leadId    String
-  title     String
-  type      String
-  link      String?   @default("")
-  body      String?   @default("")
-  date      DateTime?
-  startTime String?   @default("")
-  endTime   String?   @default("")
-  status    String
-  metadata  Json?     @default("{}")
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  deletedAt DateTime?
-  createdBy String?
-  updatedBy String?
-  deletedBy String?
-
-  lead Lead @relation(fields: [leadId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-
-  createdByUser User? @relation("user-created-lead-activities", fields: [createdBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  updatedByUser User? @relation("user-updated-lead-activities", fields: [updatedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  deletedByUser User? @relation("user-deleted-lead-activities", fields: [deletedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model Requisition {
@@ -300,7 +293,6 @@ model Requisition {
 
   salesPersons   RequisitionSalesPerson[]
   omegaBuyers    RequisitionOmegaBuyer[]
-  activities     RequisitionActivity[]
   supplierQuotes SupplierQuote[]
   customer       BusinessPartner?         @relation(fields: [customerCode], references: [CardCode], onUpdate: Cascade, onDelete: Cascade)
 
@@ -329,33 +321,6 @@ model RequisitionOmegaBuyer {
   user        User        @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@unique([requisitionId, userId])
-}
-
-model RequisitionActivity {
-  id            String    @id @default(uuid())
-  requisitionId String
-  title         String
-  type          String
-  link          String?   @default("")
-  body          String?   @default("")
-  date          DateTime?
-  startTime     String?   @default("")
-  endTime       String?   @default("")
-  status        String
-  metadata      Json?     @default("{}")
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  deletedAt DateTime?
-  createdBy String?
-  updatedBy String?
-  deletedBy String?
-
-  requisition Requisition @relation(fields: [requisitionId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-
-  createdByUser User? @relation("user-created-requisition-activities", fields: [createdBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  updatedByUser User? @relation("user-updated-requisition-activities", fields: [updatedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  deletedByUser User? @relation("user-deleted-requisition-activities", fields: [deletedBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model SupplierQuote {

@@ -1,0 +1,100 @@
+/* Schedule Calendar Custom CSS */
+
+.e-appointment,
+.e-popup-header {
+  @apply rounded-md bg-transparent !important;
+}
+
+.e-popup-content {
+  @apply p-0 !important;
+}
+
+.e-popup-footer {
+  @apply block p-0 !important;
+}
+
+.e-appointment-details > div {
+  @apply w-full rounded-md !important;
+}
+
+.e-quick-popup-wrapper {
+  @apply overflow-hidden rounded-md !important;
+}
+
+.e-more-popup-wrapper {
+  @apply w-[400px] !important;
+}
+
+.e-more-appointment-wrapper .e-appointment {
+  @apply block w-full !important;
+}
+
+.e-more-popup-wrapper .e-more-event-content {
+  @apply max-h-[400px] min-h-[200px] !important;
+}
+
+.e-more-popup-wrapper .e-more-event-date-header .e-current-date {
+  @apply text-primary !important;
+}
+
+.e-schedule .e-schedule-toolbar .e-active-view .e-tbar-btn-text,
+.e-schedule .e-schedule-toolbar .e-active-view .e-icons {
+  @apply bg-primary/10 text-xs font-medium text-primary !important;
+}
+
+.e-tbar-btn:hover {
+  @apply bg-primary/10 text-primary !important;
+}
+
+.e-tbar-btn > .e-tbar-btn-text,
+.e-tbar-btn > .e-btn-icon {
+  @apply text-inherit !important;
+}
+
+.e-schedule .e-month-view .e-date-header-wrap table td.e-current-day,
+.e-schedule .e-month-agenda-view .e-date-header-wrap table td.e-current-day {
+  @apply text-primary !important;
+}
+
+.e-schedule .e-vertical-view .e-header-cells.e-current-day {
+  @apply text-primary !important;
+}
+
+.e-schedule .e-vertical-view .e-header-cells.e-current-day {
+  @apply text-primary !important;
+}
+
+.e-schedule .e-agenda-view .e-day-date-header.e-current-day {
+  @apply text-primary !important;
+}
+
+.e-schedule .e-agenda-view .e-appointment {
+  @apply border-primary !important;
+}
+
+.e-calendar .e-content td.e-selected span.e-day {
+  @apply bg-primary !important;
+}
+
+.e-schedule .e-month-view .e-current-date .e-date-header,
+.e-schedule .e-month-agenda-view .e-current-date .e-date-header {
+  @apply bg-primary !important;
+}
+
+.e-schedule .e-timeline-view .e-clone-time-indicator,
+.e-schedule .e-timeline-view .e-current-time {
+  @apply text-xs text-primary !important;
+}
+
+.e-current-timeline {
+  @apply border-l border-primary !important;
+}
+
+.e-calendar .e-content td.e-today.e-selected span.e-day {
+  @apply border border-primary bg-primary !important;
+}
+
+.e-btn.e-flat.e-primary,
+.e-css.e-btn.e-flat.e-primary {
+  @apply text-primary !important;
+}

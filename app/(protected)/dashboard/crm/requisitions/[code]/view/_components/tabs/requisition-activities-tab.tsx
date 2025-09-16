@@ -15,10 +15,11 @@ import RequisitionActivityCardList from "../requisition-activity-card-list"
 import { useDataTable } from "@/hooks/use-data-table"
 import { dateFilter, dateSort } from "@/lib/data-table/data-table"
 import { DataTableFilter, FilterFields } from "@/components/data-table/data-table-filter"
-import { REQUISITION_ACTIVITY_STATUSES_OPTIONS, REQUISITION_ACTIVITY_TYPES_OPTIONS } from "@/schema/requisition-activity"
+import { ACTIVITY_STATUSES_OPTIONS, ACTIVITY_TYPES_OPTIONS } from "@/schema/activity"
+import { Prisma } from "@prisma/client"
 
 export type Requisition = NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
-export type RequisitionActivity = Requisition["activities"][number]
+export type Activity = Prisma.ActivityGetPayload<{ include: { createdByUser: { select: { name: true; email: true } } } }>
 
 type RequisitionActivitiesTabProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
@@ -28,11 +29,11 @@ export default function RequisitionActivitiesTab({ requisition }: RequisitionAct
   const router = useRouter()
   const requisitionActivities = requisition?.activities || []
 
-  const [activity, setActivity] = useState<RequisitionActivity | null>(null)
+  const [activity, setActivity] = useState<Activity | null>(null)
 
   const { setIsOpen } = useDialogStore(["setIsOpen"])
 
-  const columns = useMemo((): ColumnDef<RequisitionActivity>[] => {
+  const columns = useMemo((): ColumnDef<Activity>[] => {
     return [
       { accessorKey: "title" },
       { accessorKey: "type" },
@@ -62,10 +63,10 @@ export default function RequisitionActivitiesTab({ requisition }: RequisitionAct
   const filterFields = useMemo((): FilterFields[] => {
     return [
       { label: "Title", columnId: "title", type: "text" },
-      { label: "Type", columnId: "type", type: "select", options: REQUISITION_ACTIVITY_TYPES_OPTIONS },
+      { label: "Type", columnId: "type", type: "select", options: ACTIVITY_TYPES_OPTIONS },
       { label: "Owner", columnId: "owner", type: "text" },
       { label: "Schedule", columnId: "schedule", type: "date" },
-      { label: "Status", columnId: "status", type: "select", options: REQUISITION_ACTIVITY_STATUSES_OPTIONS },
+      { label: "Status", columnId: "status", type: "select", options: ACTIVITY_STATUSES_OPTIONS },
     ]
   }, [])
 

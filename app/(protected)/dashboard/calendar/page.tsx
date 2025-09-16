@@ -1,47 +1,40 @@
-import { Metadata } from "next"
-import CalenderClient from "./_components/calendar-client"
+import Breadcrumbs from "@/components/breadcrumbs"
+import { Icons } from "@/components/icons"
+import { Card } from "@/components/ui/card"
+import { ContentLayout } from "../../_components/content-layout"
+import ContentContainer from "../../_components/content-container"
+import PageWrapper from "../../_components/page-wrapper"
+import ScheduleCalendar from "./_components/schedule-calendar"
+import { getActivitiesByType, getActivitiesByModule } from "@/actions/activity"
 
-import { registerLicense } from '@syncfusion/ej2-base'
-import Link from 'next/link'
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb'
-import { ContentLayout } from '@/app/(protected)/_components/content-layout'
-// Register Syncfusion license  
-if (process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE_KEY) {
-  registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE_KEY as string)
-}
-export const metadata: Metadata = {
-  title: 'Calendar | Omega Admin',
-  description: 'Calendar management system',
-}
+export default async function CalendarPage() {
+  const activities = await getActivitiesByType(["meeting"])
 
-export default function CalendarPage() {
   return (
-    <ContentLayout title='Calendar'>
-      <div className="mb-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href='/'>Home</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href='/dashboard'>Dashboard</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Calendar</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+    <ContentLayout title='Leads'>
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Calendar", href: "/dashboard/calendar", isPage: true },
+        ]}
+      />
 
-      <div className="min-h-[calc(100vh-56px-64px-20px-24px-56px-48px)]">
-        <CalenderClient />
-      </div>
-    </ContentLayout>  
+      <ContentContainer>
+        <PageWrapper
+          title='Calendar'
+          description='Manage and track your meetings and other various events.'
+          defaultAction={{
+            label: "Add ",
+            href: "/dashboard/crm/activities/add",
+            icon: Icons.plus,
+          }}
+        >
+          <Card className='rounded-lg p-6 shadow-md'>
+            <ScheduleCalendar activities={activities} />
+          </Card>
+        </PageWrapper>
+      </ContentContainer>
+    </ContentLayout>
   )
-} 
+}

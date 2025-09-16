@@ -9,13 +9,13 @@ import { Icons } from "@/components/icons"
 import RequisitionActivityCard from "./requisition-activity-card"
 import { getInitials } from "@/lib/utils"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
-import { RequisitionActivity } from "./tabs/requisition-activities-tab"
+import { Activity } from "./tabs/requisition-activities-tab"
 
 type RequisitionActivityCardListProps<TData> = {
   table: TanstackTable<TData>
   columnFilters: ColumnFiltersState
   requisition?: Awaited<ReturnType<typeof getRequisitionByCode>>
-  setActivity: (value: RequisitionActivity | null) => void
+  setActivity: (value: Activity | null) => void
   setIsOpen: (value: boolean) => void
 }
 
@@ -29,7 +29,7 @@ function RequisitionActivityCardListComponent<TData>({
 
   const user = requisition.createdByUser
   const tableRow = table.getRowModel().rows || []
-  const activities = tableRow.map((row) => row.original) as RequisitionActivity[]
+  const activities = tableRow.map((row) => row.original) as Activity[]
 
   return (
     <ol className='relative border-s border-gray-200 dark:border-gray-700'>
@@ -91,9 +91,7 @@ function RequisitionActivityCardListComponent<TData>({
 
 const RequisitionActivityCardList = memo(
   RequisitionActivityCardListComponent,
-  (prev, next) =>
-    JSON.stringify(prev.requisition) === JSON.stringify(next.requisition) &&
-    JSON.stringify(prev.columnFilters) === JSON.stringify(next.columnFilters)
+  (prev, next) => JSON.stringify(prev.requisition) === JSON.stringify(next.requisition)
 ) as typeof RequisitionActivityCardListComponent
 
 export default RequisitionActivityCardList

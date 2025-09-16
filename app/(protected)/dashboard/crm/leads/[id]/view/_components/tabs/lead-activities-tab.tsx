@@ -15,10 +15,11 @@ import LeadActivityCardList from "../lead-activity-card-list"
 import { useDataTable } from "@/hooks/use-data-table"
 import { dateFilter, dateSort } from "@/lib/data-table/data-table"
 import { DataTableFilter, FilterFields } from "@/components/data-table/data-table-filter"
-import { LEAD_ACTIVITY_STATUSES_OPTIONS, LEAD_ACTIVITY_TYPES_OPTIONS } from "@/schema/lead-activity"
+import { ACTIVITY_STATUSES_OPTIONS, ACTIVITY_TYPES_OPTIONS } from "@/schema/activity"
+import { Prisma } from "@prisma/client"
 
 export type Lead = NonNullable<Awaited<ReturnType<typeof getLeadById>>>
-export type Activity = Lead["activities"][number]
+export type Activity = Prisma.ActivityGetPayload<{ include: { createdByUser: { select: { name: true; email: true } } } }>
 
 type LeadActivitiesTabProps = {
   lead: NonNullable<Awaited<ReturnType<typeof getLeadById>>>
@@ -62,10 +63,10 @@ export default function LeadActivitiesTab({ lead }: LeadActivitiesTabProps) {
   const filterFields = useMemo((): FilterFields[] => {
     return [
       { label: "Title", columnId: "title", type: "text" },
-      { label: "Type", columnId: "type", type: "select", options: LEAD_ACTIVITY_TYPES_OPTIONS },
+      { label: "Type", columnId: "type", type: "select", options: ACTIVITY_TYPES_OPTIONS },
       { label: "Owner", columnId: "owner", type: "text" },
       { label: "Schedule", columnId: "schedule", type: "date" },
-      { label: "Status", columnId: "status", type: "select", options: LEAD_ACTIVITY_STATUSES_OPTIONS },
+      { label: "Status", columnId: "status", type: "select", options: ACTIVITY_STATUSES_OPTIONS },
     ]
   }, [])
 

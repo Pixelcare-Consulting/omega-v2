@@ -83,7 +83,7 @@ export function ComboboxField<T extends FieldValues>({
                     variant='outline'
                     className='w-full justify-between truncate disabled:bg-muted disabled:opacity-100'
                     {...extendedProps?.buttonProps}
-                    disabled={isLoading}
+                    disabled={isLoading || extendedProps?.buttonProps?.disabled}
                   >
                     {isLoading ? (
                       <>

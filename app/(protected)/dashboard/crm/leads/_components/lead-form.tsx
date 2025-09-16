@@ -317,7 +317,7 @@ export default function LeadForm({ isModal, lead, accounts, accountId, countries
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField data={statesOptions} control={form.control} name='state' label='State' />
+            <ComboboxField data={statesOptions} control={form.control} name='state' label='State' isLoading={isStatesLoading} />
           </div>
 
           <div className='col-span-12 lg:col-span-3'>

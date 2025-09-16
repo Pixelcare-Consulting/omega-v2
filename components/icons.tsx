@@ -107,6 +107,11 @@ import {
   FileUp,
   FileDown,
   FileSpreadsheet,
+  Tag,
+  Activity,
+  User,
+  MapPin,
+  FolderCog,
 } from "lucide-react"
 
 export type Icon = LucideIcon
@@ -125,11 +130,14 @@ export const Icons = {
   moon: MoonIcon,
   dashboard: LayoutGrid,
   circleUser: CircleUser,
+  user: User,
   users: Users,
   cicleUser: CircleUser,
   settings: Settings,
   table: Sheet,
   folder: Folder,
+  folderClosed: FolderClosed,
+  folderCog: FolderCog,
   handeShake: Handshake,
   shield: Shield,
   shieldCheck: ShieldCheck,
@@ -145,7 +153,6 @@ export const Icons = {
   refreshCw: RefreshCw,
   plusCircle: PlusCircle,
   x: X,
-
   lock: Lock,
   lockKeyHole: LockKeyhole,
   report: BarChart2,
@@ -156,7 +163,7 @@ export const Icons = {
   wallet: Wallet,
   truck: Truck,
   cirleDollar: DollarSign,
-  folderClosed: FolderClosed,
+
   squareActivity: FileBarChart2,
   store: Store,
   contact: UserCheck,
@@ -223,4 +230,7 @@ export const Icons = {
   print: Printer,
   download: Download,
   ban: Ban,
+  tag: Tag,
+  activity: Activity,
+  location: MapPin,
 }

@@ -13,22 +13,23 @@ import { Icons } from "@/components/icons"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Form } from "@/components/ui/form"
 import {
-  LEAD_ACTIVITY_STATUSES_OPTIONS,
-  LEAD_ACTIVITY_TYPES_COLORS,
-  LEAD_ACTIVITY_TYPES_OPTIONS,
-  type LeadActivityForm,
-  leadActivityFormSchema,
-} from "@/schema/lead-activity"
+  ACTIVITY_STATUSES_OPTIONS,
+  ACTIVITY_TYPES_COLORS,
+  ACTIVITY_TYPES_OPTIONS,
+  type ActivityForm,
+  activityFormSchema,
+} from "@/schema/activity"
 import InputField from "@/components/form/input-field"
 import { cn } from "@/lib/utils"
 import DatePickerField from "@/components/form/date-picker-field"
 import MinimalRichTextEditorField from "@/components/form/minimal-rich-text-editor-field"
 import LoadingButton from "@/components/loading-button"
-import { upsertLeadActivity } from "@/actions/lead-activity"
+import { upsertActivity } from "@/actions/activity"
 import { ComboboxField } from "@/components/form/combobox-field"
 import { Activity } from "./tabs/lead-activities-tab"
 import { useDialogStore } from "@/hooks/use-dialog"
 import { FormDebug } from "@/components/form/form-debug"
+import { Badge, BadgeProps } from "@/components/badge"
 
 type LeadActivityFormDrawerProps = {
   activity: Activity | null
@@ -46,43 +47,38 @@ export default function LeadActivityFormDrawer({ leadId, activity, setActivity }
 
     return {
       id: "add",
-      leadId,
+      referenceId: leadId,
+      module: "lead",
       title: "",
       type: "",
       body: "",
       link: "",
-      date: undefined,
-      startDate: undefined,
-      endDate: undefined,
+      date: null,
+      startDate: null,
+      endDate: null,
       startTime: "",
       endTime: "",
       status: "pending",
       metadata: {},
     }
-  }, [JSON.stringify(activity)])
+  }, [JSON.stringify(activity), leadId])
 
-  const form = useForm<LeadActivityForm>({
+  const form = useForm<ActivityForm>({
     mode: "onChange",
     values,
-    resolver: zodResolver(leadActivityFormSchema),
+    resolver: zodResolver(activityFormSchema),
   })
 
-  const { executeAsync, isExecuting } = useAction(upsertLeadActivity)
+  const { executeAsync, isExecuting } = useAction(upsertActivity)
 
   const type = useWatch({ control: form.control, name: "type" })
 
-  const typeMetadata = useMemo(() => {
+  const typeBadge = useMemo(() => {
     const value = type || "note"
-    const label = LEAD_ACTIVITY_TYPES_OPTIONS.find((item: any) => item.value === value)?.label ?? "Note"
-    const color = LEAD_ACTIVITY_TYPES_COLORS.find((item: any) => item.value === value)?.color ?? "slate"
+    const label = ACTIVITY_TYPES_OPTIONS.find((item: any) => item.value === value)?.label ?? "Note"
+    const color = ACTIVITY_TYPES_COLORS.find((item: any) => item.value === value)?.color ?? "slate"
 
-    const STATUS_CLASSES: Record<string, string> = {
-      slate: "bg-slate-50 text-slate-600 ring-slate-500/10",
-      purple: "bg-purple-50 text-purple-600 ring-purple-500/10",
-      orange: "bg-orange-50 text-orange-600 ring-orange-500/10",
-    }
-
-    return { label, color, class: STATUS_CLASSES[color], value }
+    return <Badge variant={`soft-${color}` as BadgeProps["variant"]}>{label}</Badge>
   }, [type])
 
   const handleClose = () => {
@@ -92,7 +88,7 @@ export default function LeadActivityFormDrawer({ leadId, activity, setActivity }
     setActivity(null)
   }
 
-  const onSubmit = async (formData: LeadActivityForm) => {
+  const onSubmit = async (formData: ActivityForm) => {
     try {
       const response = await executeAsync(formData)
       const result = response?.data
@@ -158,9 +154,7 @@ export default function LeadActivityFormDrawer({ leadId, activity, setActivity }
 
       <DrawerContent className='righ-0 fixed left-auto h-fit w-[540px] overflow-hidden rounded-lg shadow-2xl'>
         <header className='flex items-center justify-between gap-2 border-b px-4 py-1.5'>
-          <span className={cn("inline-flex items-center rounded-md px-2 py-1 text-center text-sm font-medium ring-1", typeMetadata.class)}>
-            {typeMetadata.label}
-          </span>
+          {typeBadge}
 
           <Button size='icon' variant='ghost' className='ml-auto' onClick={() => handleClose()}>
             <Icons.x className='size-4' />
@@ -185,7 +179,7 @@ export default function LeadActivityFormDrawer({ leadId, activity, setActivity }
               <>
                 <div className='col-span-4'>
                   <ComboboxField
-                    data={LEAD_ACTIVITY_STATUSES_OPTIONS}
+                    data={ACTIVITY_STATUSES_OPTIONS}
                     control={form.control}
                     name='status'
                     label='Status'

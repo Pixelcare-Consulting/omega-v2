@@ -84,8 +84,7 @@ function LeadActivityCardListComponent<TData>({ table, lead, setActivity, setIsO
 
 const LeadActivityCardList = memo(
   LeadActivityCardListComponent,
-  (prev, next) =>
-    JSON.stringify(prev.lead) === JSON.stringify(next.lead) && JSON.stringify(prev.columnFilters) === JSON.stringify(next.columnFilters)
+  (prev, next) => JSON.stringify(prev.lead) === JSON.stringify(next.lead)
 ) as typeof LeadActivityCardListComponent
 
 export default LeadActivityCardList

@@ -110,6 +110,7 @@
     "nextjs-toploader": "^3.8.16",
     "path": "^0.12.7",
     "qrcode": "^1.5.4",
+    "radash": "^12.1.1",
     "react": "^18",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18",

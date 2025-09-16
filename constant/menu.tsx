@@ -48,7 +48,7 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
           submenus: [],
         },
         {
-          href: "/dashboard/admin/calendar",
+          href: "/dashboard/calendar",
           label: "Calendar",
           icon: Icons.calendar,
           actions: "read",

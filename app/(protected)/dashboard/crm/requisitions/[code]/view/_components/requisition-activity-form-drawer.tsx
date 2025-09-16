@@ -13,26 +13,27 @@ import { Icons } from "@/components/icons"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Form } from "@/components/ui/form"
 import {
-  REQUISITION_ACTIVITY_STATUSES_OPTIONS,
-  REQUISITION_ACTIVITY_TYPES_COLORS,
-  REQUISITION_ACTIVITY_TYPES_OPTIONS,
-  type RequisitionActivityForm,
-  requisitionActivityFormSchema,
-} from "@/schema/requisition-activity"
+  ACTIVITY_STATUSES_OPTIONS,
+  ACTIVITY_TYPES_COLORS,
+  ACTIVITY_TYPES_OPTIONS,
+  type ActivityForm,
+  activityFormSchema,
+} from "@/schema/activity"
 import InputField from "@/components/form/input-field"
 import { cn } from "@/lib/utils"
 import DatePickerField from "@/components/form/date-picker-field"
 import MinimalRichTextEditorField from "@/components/form/minimal-rich-text-editor-field"
 import LoadingButton from "@/components/loading-button"
-import { upsertRequisitionActivity } from "@/actions/requisition-activity"
+import { upsertActivity } from "@/actions/activity"
 import { ComboboxField } from "@/components/form/combobox-field"
-import { RequisitionActivity } from "./tabs/requisition-activities-tab"
+import { Activity } from "./tabs/requisition-activities-tab"
 import { useDialogStore } from "@/hooks/use-dialog"
 import { FormDebug } from "@/components/form/form-debug"
+import { Badge, BadgeProps } from "@/components/badge"
 
 type RequisitionActivityFormDrawerProps = {
-  activity: RequisitionActivity | null
-  setActivity: (value: RequisitionActivity | null) => void
+  activity: Activity | null
+  setActivity: (value: Activity | null) => void
   requisitionId: string
 }
 
@@ -46,43 +47,38 @@ export default function RequisitionActivityFormDrawer({ requisitionId, activity,
 
     return {
       id: "add",
-      requisitionId,
+      referenceId: requisitionId,
+      module: "requisition",
       title: "",
       type: "",
       body: "",
       link: "",
-      date: undefined,
-      startDate: undefined,
-      endDate: undefined,
+      date: null,
+      startDate: null,
+      endDate: null,
       startTime: "",
       endTime: "",
       status: "pending",
       metadata: {},
     }
-  }, [JSON.stringify(activity)])
+  }, [JSON.stringify(activity), requisitionId])
 
-  const form = useForm<RequisitionActivityForm>({
+  const form = useForm<ActivityForm>({
     mode: "onChange",
     values,
-    resolver: zodResolver(requisitionActivityFormSchema),
+    resolver: zodResolver(activityFormSchema),
   })
 
-  const { executeAsync, isExecuting } = useAction(upsertRequisitionActivity)
+  const { executeAsync, isExecuting } = useAction(upsertActivity)
 
   const type = useWatch({ control: form.control, name: "type" })
 
-  const typeMetadata = useMemo(() => {
+  const typeBadge = useMemo(() => {
     const value = type || "note"
-    const label = REQUISITION_ACTIVITY_TYPES_OPTIONS.find((item: any) => item.value === value)?.label ?? "Note"
-    const color = REQUISITION_ACTIVITY_TYPES_COLORS.find((item: any) => item.value === value)?.color ?? "slate"
+    const label = ACTIVITY_TYPES_OPTIONS.find((item: any) => item.value === value)?.label ?? "Note"
+    const color = ACTIVITY_TYPES_COLORS.find((item: any) => item.value === value)?.color ?? "slate"
 
-    const STATUS_CLASSES: Record<string, string> = {
-      slate: "bg-slate-50 text-slate-600 ring-slate-500/10",
-      purple: "bg-purple-50 text-purple-600 ring-purple-500/10",
-      orange: "bg-orange-50 text-orange-600 ring-orange-500/10",
-    }
-
-    return { label, color, class: STATUS_CLASSES[color], value }
+    return <Badge variant={`soft-${color}` as BadgeProps["variant"]}>{label}</Badge>
   }, [type])
 
   const handleClose = () => {
@@ -92,7 +88,7 @@ export default function RequisitionActivityFormDrawer({ requisitionId, activity,
     setActivity(null)
   }
 
-  const onSubmit = async (formData: RequisitionActivityForm) => {
+  const onSubmit = async (formData: ActivityForm) => {
     try {
       const response = await executeAsync(formData)
       const result = response?.data
@@ -158,9 +154,7 @@ export default function RequisitionActivityFormDrawer({ requisitionId, activity,
 
       <DrawerContent className='righ-0 fixed left-auto h-fit w-[540px] overflow-hidden rounded-lg shadow-2xl'>
         <header className='flex items-center justify-between gap-2 border-b px-4 py-1.5'>
-          <span className={cn("inline-flex items-center rounded-md px-2 py-1 text-center text-sm font-medium ring-1", typeMetadata.class)}>
-            {typeMetadata.label}
-          </span>
+          {typeBadge}
 
           <Button size='icon' variant='ghost' className='ml-auto' onClick={() => handleClose()}>
             <Icons.x className='size-4' />
@@ -185,7 +179,7 @@ export default function RequisitionActivityFormDrawer({ requisitionId, activity,
               <>
                 <div className='col-span-4'>
                   <ComboboxField
-                    data={REQUISITION_ACTIVITY_STATUSES_OPTIONS}
+                    data={ACTIVITY_STATUSES_OPTIONS}
                     control={form.control}
                     name='status'
                     label='Status'

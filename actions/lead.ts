@@ -13,10 +13,6 @@ export async function getLeads() {
     return await prisma.lead.findMany({
       where: { deletedAt: null, deletedBy: null },
       include: {
-        activities: {
-          where: { deletedAt: null, deletedBy: null },
-          include: { createdByUser: true },
-        },
         account: true,
       },
     })
@@ -26,19 +22,30 @@ export async function getLeads() {
   }
 }
 
+export const getLeadsClient = action.use(authenticationMiddleware).action(async () => {
+  try {
+    return await prisma.lead.findMany({
+      where: { deletedAt: null, deletedBy: null },
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+})
+
 export async function getLeadById(id: string) {
   try {
-    const [lead, countries] = await Promise.all([
+    const [lead, activities, countries] = await Promise.all([
       prisma.lead.findUnique({
         where: { id },
         include: {
-          activities: {
-            where: { deletedAt: null, deletedBy: null },
-            include: { createdByUser: true },
-          },
           createdByUser: true,
           account: true,
         },
+      }),
+      prisma.activity.findMany({
+        where: { module: "lead", referenceId: id, deletedAt: null, deletedBy: null },
+        include: { createdByUser: { select: { name: true, email: true } } },
       }),
       getCountries(),
     ])
@@ -49,7 +56,7 @@ export async function getLeadById(id: string) {
     const countryName = countries?.value?.find((country: any) => country?.Code === lead?.country)?.Name || ""
     const stateName = states?.value?.find((state: any) => state?.Code === lead?.state)?.Name || ""
 
-    return { ...lead, countryName, stateName }
+    return { ...lead, activities, countryName, stateName }
   } catch (error) {
     console.error(error)
     return null

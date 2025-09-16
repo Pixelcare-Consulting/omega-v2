@@ -34,37 +34,51 @@ export async function getRequisitions() {
   }
 }
 
+export const getRequisitionsClient = action.use(authenticationMiddleware).action(async () => {
+  try {
+    return await prisma.requisition.findMany({
+      where: { deletedAt: null, deletedBy: null },
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+})
+
 export async function getRequisitionByCode(code: number) {
   try {
-    const result = await prisma.requisition.findUnique({
-      where: { code: code },
-      include: {
-        salesPersons: { include: { user: { select: { name: true, email: true } } } },
-        omegaBuyers: { include: { user: { select: { name: true, email: true } } } },
-        customer: { select: { CardName: true, CardCode: true } },
-        supplierQuotes: {
-          where: { deletedAt: null, deletedBy: null },
-          include: {
-            requisition: { include: { salesPersons: { include: { user: { select: { name: true, email: true } } } } } },
-            supplier: true,
-            buyers: { include: { user: { select: { name: true, email: true } } } },
+    const [requisition, activities] = await Promise.all([
+      prisma.requisition.findUnique({
+        where: { code: code },
+        include: {
+          salesPersons: { include: { user: { select: { name: true, email: true } } } },
+          omegaBuyers: { include: { user: { select: { name: true, email: true } } } },
+          customer: { select: { CardName: true, CardCode: true } },
+          supplierQuotes: {
+            where: { deletedAt: null, deletedBy: null },
+            include: {
+              requisition: { include: { salesPersons: { include: { user: { select: { name: true, email: true } } } } } },
+              supplier: true,
+              buyers: { include: { user: { select: { name: true, email: true } } } },
+            },
           },
+          createdByUser: true,
         },
-        activities: {
-          where: { deletedAt: null, deletedBy: null },
-          include: { createdByUser: true },
-        },
-        createdByUser: true,
-      },
-    })
+      }),
+      prisma.activity.findMany({
+        where: { module: "requisition", referenceId: String(code), deletedAt: null, deletedBy: null },
+        include: { createdByUser: { select: { name: true, email: true } } },
+      }),
+    ])
 
-    if (!result) return null
+    if (!requisition) return null
 
     return {
-      ...result,
-      quantity: result.quantity?.toString(),
-      customerStandardPrice: result.customerStandardPrice?.toString(),
-      customerStandardOpportunityValue: result.customerStandardOpportunityValue?.toString(),
+      ...requisition,
+      activities,
+      quantity: requisition.quantity?.toString(),
+      customerStandardPrice: requisition.customerStandardPrice?.toString(),
+      customerStandardOpportunityValue: requisition.customerStandardOpportunityValue?.toString(),
     }
   } catch (error) {
     console.error(error)

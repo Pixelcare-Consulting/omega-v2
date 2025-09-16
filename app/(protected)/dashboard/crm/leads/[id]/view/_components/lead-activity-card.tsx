@@ -9,14 +9,15 @@ import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn, getInitials } from "@/lib/utils"
-import { LEAD_ACTIVITY_ICONS, LEAD_ACTIVITY_STATUSES_COLORS, LEAD_ACTIVITY_STATUSES_OPTIONS } from "@/schema/lead-activity"
+import { ACTIVITY_ICONS, ACTIVITY_STATUSES_COLORS, ACTIVITY_STATUSES_OPTIONS } from "@/schema/activity"
 import { format } from "date-fns"
 import AlertModal from "@/components/alert-modal"
 import { toast } from "sonner"
 import { useAction } from "next-safe-action/hooks"
-import { deletedActivity } from "@/actions/lead-activity"
+import { deleteActivity } from "@/actions/activity"
 import { useRouter } from "nextjs-toploader/app"
 import { Activity } from "./tabs/lead-activities-tab"
+import { Badge, BadgeProps } from "@/components/badge"
 
 type LeadActivityCardProps = {
   activity: Activity
@@ -25,7 +26,7 @@ type LeadActivityCardProps = {
 }
 
 export default function LeadActivityCard({ activity, setActivity, setIsOpen }: LeadActivityCardProps) {
-  const Icon = LEAD_ACTIVITY_ICONS.find((item: any) => item.value === activity.type)?.icon ?? Icons.notebookPen
+  const Icon = ACTIVITY_ICONS.find((item: any) => item.value === activity.type)?.icon ?? Icons.notebookPen
 
   switch (activity.type) {
     case "meeting":
@@ -109,7 +110,7 @@ function ActivityHeader({ activity, setActivity, setIsOpen }: ActivityHeaderProp
   const router = useRouter()
 
   const [showConfirmation, setShowConfirmation] = useState(false)
-  const { executeAsync } = useAction(deletedActivity)
+  const { executeAsync } = useAction(deleteActivity)
 
   const meetingSchedule = (date: Date | null, startTime: string | null, endTime: string | null) => {
     if (!date || !startTime || !endTime) return ""
@@ -136,22 +137,10 @@ function ActivityHeader({ activity, setActivity, setIsOpen }: ActivityHeaderProp
   const StatusBadge = ({ type, status }: StatusBadgeProps) => {
     if (type === "note") return null
 
-    const label = LEAD_ACTIVITY_STATUSES_OPTIONS.find((item: any) => item.value === status)?.label ?? "Pending"
-    const color = LEAD_ACTIVITY_STATUSES_COLORS.find((item: any) => item.value === status)?.color ?? "slate"
+    const label = ACTIVITY_STATUSES_OPTIONS.find((item: any) => item.value === status)?.label ?? "Pending"
+    const color = ACTIVITY_STATUSES_COLORS.find((item: any) => item.value === status)?.color ?? "slate"
 
-    const STATUS_CLASSES: Record<string, string> = {
-      slate: "bg-slate-50 text-slate-600 ring-slate-500/10",
-      amber: "bg-amber-50 text-amber-600 ring-amber-500/10",
-      lime: "bg-lime-50 text-lime-600 ring-lime-500/10",
-    }
-
-    return (
-      <div>
-        <span className={cn(`inline-flex items-center rounded-md px-2 py-1 text-center text-xs font-medium ring-1`, STATUS_CLASSES[color])}>
-          {label}
-        </span>
-      </div>
-    )
+    return <Badge variant={`soft-${color}` as BadgeProps["variant"]}>{label}</Badge>
   }
 
   async function handleDelete() {

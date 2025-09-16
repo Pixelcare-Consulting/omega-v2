@@ -1,44 +1,56 @@
 import { Icon, Icons } from "@/components/icons"
+import { Prisma } from "@prisma/client"
 import { z } from "zod"
 
-type LeadActivityTypeOptions = { label: string; value: (typeof LEAD_ACTIVITY_TYPES)[number] }[]
-type LeadActivityTypeColor = { color: string; value: (typeof LEAD_ACTIVITY_TYPES)[number] }[]
-type LeadActivityStatusOptions = { label: string; value: (typeof LEAD_ACTIVITY_STATUSES)[number] }[]
-type LeadActivityStatusColor = { color: string; value: (typeof LEAD_ACTIVITY_STATUSES)[number] }[]
-type LeadActivityIcon = { icon: Icon; value: (typeof LEAD_ACTIVITY_TYPES)[number] }[]
+type ActivityTypeOptions = { label: string; value: (typeof ACTIVITY_TYPES)[number] }[]
+type ActivityTypeColor = { color: string; value: (typeof ACTIVITY_TYPES)[number] }[]
 
-export const LEAD_ACTIVITY_TYPES = ["meeting", "note"] as const
-export const LEAD_ACTIVITY_TYPES_OPTIONS: LeadActivityTypeOptions = [
+type ActivityStatusOptions = { label: string; value: (typeof ACTIVITY_STATUSES)[number] }[]
+type ActivityStatusColor = { color: string; value: (typeof ACTIVITY_STATUSES)[number] }[]
+
+type ActivityModuleOptions = { label: string; value: (typeof ACTIVITY_MODULES)[number] }[]
+
+type ActivityIcon = { icon: Icon; value: (typeof ACTIVITY_TYPES)[number] }[]
+
+export const ACTIVITY_MODULES = ["lead", "requisition"] as const
+export const ACTIVITY_MODULES_OPTIONS: ActivityModuleOptions = [
+  { label: "Lead", value: "lead" },
+  { label: "Requisition", value: "requisition" },
+]
+
+export const ACTIVITY_TYPES = ["meeting", "note"] as const
+export const ACTIVITY_TYPES_OPTIONS: ActivityTypeOptions = [
   { label: "Meeting", value: "meeting" },
   { label: "Note", value: "note" },
 ]
-export const LEAD_ACTIVITY_TYPES_COLORS: LeadActivityTypeColor = [
+export const ACTIVITY_TYPES_COLORS: ActivityTypeColor = [
   { color: "purple", value: "meeting" },
   { color: "orange", value: "note" },
 ]
 
-export const LEAD_ACTIVITY_ICONS: LeadActivityIcon = [
+export const ACTIVITY_ICONS: ActivityIcon = [
   { icon: Icons.calendar, value: "meeting" },
   { icon: Icons.notebookPen, value: "note" },
 ]
 
-export const LEAD_ACTIVITY_STATUSES = ["pending", "done"] as const
-export const LEAD_ACTIVITY_STATUSES_OPTIONS: LeadActivityStatusOptions = [
+export const ACTIVITY_STATUSES = ["pending", "done"] as const
+export const ACTIVITY_STATUSES_OPTIONS: ActivityStatusOptions = [
   { label: "Pending", value: "pending" },
   { label: "Done", value: "done" },
 ]
-export const LEAD_ACTIVITY_STATUSES_COLORS: LeadActivityStatusColor = [
+export const ACTIVITY_STATUSES_COLORS: ActivityStatusColor = [
   { color: "amber", value: "pending" },
   { color: "lime", value: "done" },
 ]
 
 //* Zod schema
-export const leadActivityFormSchema = z
+export const activityFormSchema = z
   .object({
     id: z.string().min(1, { message: "ID is required" }),
-    leadId: z.string().min(1, { message: "Lead is required" }),
+    referenceId: z.string().min(1, { message: "Reference is required" }),
     title: z.string().min(1, { message: "Title is required" }),
     type: z.string().min(1, { message: "Type is required" }),
+    module: z.string().min(1, { message: "Module is required" }),
     link: z.string().url().nullish().or(z.literal("")),
     body: z.string().nullish(),
     date: z.date().nullish(),
@@ -80,4 +92,4 @@ export const leadActivityFormSchema = z
   )
 
 //* Types
-export type LeadActivityForm = z.infer<typeof leadActivityFormSchema>
+export type ActivityForm = z.infer<typeof activityFormSchema>
