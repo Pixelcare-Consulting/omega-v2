@@ -183,6 +183,16 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       header: ({ column }) => <DataTableColumnHeader column={column} title='Date Code' />,
     },
     {
+      accessorFn: (row) => {
+        const { ltToSjcNumber, ltToSjcUom } = row
+
+        const num = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === ltToSjcNumber)?.label
+        const uom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === ltToSjcUom)?.label
+
+        if (!num || !uom) return ""
+
+        return `${num} ${uom}`
+      },
       id: "lead time",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Lead Time' />,
       cell: ({ row }) => {
@@ -193,7 +203,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
 
         if (!num || !uom) return null
 
-        return `${ltToSjcNumber} ${ltToSjcUom}`
+        return `${num} ${uom}`
       },
     },
     {
