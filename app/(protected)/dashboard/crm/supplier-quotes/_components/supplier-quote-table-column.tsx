@@ -168,7 +168,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
         if (!supplier) return null
 
         return (
-          <div className='flex flex-col'>
+          <div className='flex flex-col gap-2'>
             <Link className='text-blue-500 hover:underline' href={`/dashboard/master-data/suppliers/${supplier.CardCode}/view`}>
               {supplier.CardName}
             </Link>
@@ -181,7 +181,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       },
     },
     {
-      accessorFn: (row) => row?.supplier?.CardName || "",
+      accessorFn: (row) => row.supplier?.status,
       id: "supplier status",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Supplier - Status' />,
       cell: ({ row }) => {
@@ -194,7 +194,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       },
     },
     {
-      accessorFn: (row) => row?.supplier?.CardName || "",
+      accessorFn: (row) => row?.supplier?.scope || "",
       id: "supplier scope",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Supplier - Scope' />,
       cell: ({ row }) => {

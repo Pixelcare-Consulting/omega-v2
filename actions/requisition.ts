@@ -72,11 +72,16 @@ export async function getRequisitionByCode(code: number) {
 
     if (!requisition) return null
 
+    const contact = requisition.contactId
+      ? await prisma.contact.findUnique({ where: { id: requisition.contactId }, select: { FirstName: true, LastName: true } })
+      : null
+
     return {
       ...requisition,
       activities,
       quantity: requisition.quantity?.toString(),
       customerStandardPrice: requisition.customerStandardPrice?.toString(),
+      contact,
     }
   } catch (error) {
     console.error(error)

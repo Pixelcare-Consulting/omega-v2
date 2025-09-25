@@ -587,6 +587,9 @@ export default function RequisitionForm({ requisition, users, customers, items }
               name='customerCode'
               label='Company Name'
               isRequired
+              callback={(args) => {
+                getContactsExecute({ cardCode: args?.option?.customer?.CardCode })
+              }}
               renderItem={(item, selected) => (
                 <div className='flex w-full items-center justify-between'>
                   <div className='flex w-[80%] flex-col justify-center'>

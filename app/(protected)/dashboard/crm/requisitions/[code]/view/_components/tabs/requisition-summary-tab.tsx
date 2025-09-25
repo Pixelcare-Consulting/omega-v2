@@ -27,6 +27,8 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
   const customerName = requisition.customer?.CardName || ""
   const customerCode = requisition.customer?.CardCode || ""
 
+  const contact = requisition.contact ? `${requisition.contact.FirstName} ${requisition.contact.LastName}` : ""
+
   const urgency = REQUISITION_URGENCY_OPTIONS.find((item) => item.value === requisition.urgency)?.label
   const purchasingStatus = REQUISITION_PURCHASING_STATUS_OPTIONS.find((item) => item.value === requisition.purchasingStatus)?.label
   const result = REQUISITION_RESULT_OPTIONS.find((item) => item.value === requisition.result)?.label
@@ -161,7 +163,7 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Name' value={customerName || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Contact - Full Name' value={""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Contact - Full Name' value={contact} />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='PO Hit Rate' value={"0.0%"} />
       </div>
