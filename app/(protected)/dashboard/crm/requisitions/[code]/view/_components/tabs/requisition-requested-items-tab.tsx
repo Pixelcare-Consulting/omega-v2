@@ -23,6 +23,8 @@ import ReadOnlyField from "@/components/read-only-field"
 import { Badge } from "@/components/badge"
 import { getItems } from "@/actions/master-item"
 import SwitchField from "@/components/form/switch-field"
+import { multiply } from "mathjs"
+import { formatCurrency } from "@/lib/formatter"
 
 type RequisitionRequestedItemsTabProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
@@ -78,6 +80,44 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
       .filter((item) => !reqItems.find((reqItem) => reqItem.code === item.ItemCode))
       .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.ItemCode, item }))
   }, [JSON.stringify(items), JSON.stringify(requestedItems)])
+
+  const customerStandardPrice = useMemo(() => {
+    const x = parseFloat(String(requisition.customerStandardPrice))
+
+    if (isNaN(x)) return ""
+
+    return formatCurrency({ amount: x, maxDecimal: 2 })
+  }, [JSON.stringify(requisition)])
+
+  const quotedPrice = useMemo(() => {
+    const x = parseFloat(String(requisition.quotedPrice))
+
+    if (isNaN(x)) return ""
+
+    return formatCurrency({ amount: x, maxDecimal: 2 })
+  }, [JSON.stringify(requisition)])
+
+  const custStandardOpportunityValue = useMemo(() => {
+    const x = parseInt(String(requisition.quantity))
+    const y = parseInt(String(requisition.customerStandardPrice))
+
+    if (isNaN(x) || isNaN(y)) return ""
+
+    const result = multiply(x, y)
+
+    return formatCurrency({ amount: result, minDecimal: 2 })
+  }, [JSON.stringify(requisition)])
+
+  const quotedOpportunityValue = useMemo(() => {
+    const x = parseFloat(String(requisition.quotedQuantity))
+    const y = parseFloat(String(requisition.quotedPrice))
+
+    if (isNaN(x) || isNaN(y)) return ""
+
+    const result = multiply(x, y)
+
+    return formatCurrency({ amount: result, minDecimal: 2 })
+  }, [JSON.stringify(requisition)])
 
   const Actions = () => {
     return (
@@ -148,18 +188,38 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
           actions={<Actions />}
         />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Quantity' value={(requisition.quantity as any) ?? 0} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Customer PN' value={requisition.customerPn} />
 
         <ReadOnlyField
-          className='col-span-12 md:col-span-6 lg:col-span-4'
-          title='Customer Standard Price'
-          value={(requisition.customerStandardPrice as any) ?? 0}
+          className='col-span-12 md:col-span-6 lg:col-span-3'
+          title='Requested Quantity'
+          value={(requisition.quantity as any) ?? 0}
         />
 
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Customer Standard Price' value={customerStandardPrice} />
+
+        <ReadOnlyField
+          className='col-span-12 md:col-span-6 lg:col-span-3'
+          title='Customer Standard Opportunity Value'
+          value={custStandardOpportunityValue}
+        />
+
+        <ReadOnlyField className='col-span-12 md:col-span-6' title='SAP Quote #' value={requisition.sapQuoteNumber} />
+
+        <ReadOnlyField className='col-span-12 md:col-span-6' title='Quoted MPN' value={requisition.quotedMpn} />
+
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-4'
-          title='Customer Standard Opportunity Value'
-          value={(requisition.customerStandardOpportunityValue as any) ?? 0}
+          title='Quoted Quantity'
+          value={(requisition.quotedQuantity as any) ?? 0}
+        />
+
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Quoted Price' value={quotedPrice} />
+
+        <ReadOnlyField
+          className='col-span-12 md:col-span-6 lg:col-span-4'
+          title='Quoted Opportunity Value'
+          value={quotedOpportunityValue}
         />
 
         <div className='col-span-12'>

@@ -392,7 +392,7 @@ export default function SupplierForm({
               data={usersOptions}
               control={form.control}
               name='assignedBuyer'
-              label='Assigned Byer'
+              label='Assigned Buyer'
               renderItem={(item, selected) => {
                 return (
                   <div className='flex flex-col justify-center'>
@@ -478,8 +478,8 @@ export default function SupplierForm({
               control={form.control}
               layout='default'
               name='isCompliantToAs'
-              label='Compliant to As'
-              description='Is this supplier compliant to As?'
+              label='Compliant to AS'
+              description='Is this supplier compliant to AS?'
             />
           </div>
 

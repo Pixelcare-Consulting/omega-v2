@@ -1,9 +1,13 @@
+"use client"
+
+import { getBpMasterByCardCodeClient } from "@/actions/master-bp"
 import { getRequisitionByCode } from "@/actions/requisition"
 import { Badge } from "@/components/badge"
 import ReadOnlyField from "@/components/read-only-field"
 import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { Card } from "@/components/ui/card"
 import {
+  REQUISITION_PO_STATUS_OPTIONS,
   REQUISITION_PURCHASING_STATUS_OPTIONS,
   REQUISITION_REASON_OPTIONS,
   REQUISITION_REQ_REVIEW_RESULT_OPTIONS,
@@ -12,22 +16,24 @@ import {
   REQUISITION_URGENCY_OPTIONS,
 } from "@/schema/requisition"
 import { format } from "date-fns"
+import { useAction } from "next-safe-action/hooks"
+import { useEffect } from "react"
 
 type RequisitionSummaryTabProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
 }
 
 export default function RequisitionSummaryTab({ requisition }: RequisitionSummaryTabProps) {
-  const customer = requisition.customer?.CardName || requisition.customer?.CardCode
+  const customerName = requisition.customer?.CardName || ""
+  const customerCode = requisition.customer?.CardCode || ""
+
   const urgency = REQUISITION_URGENCY_OPTIONS.find((item) => item.value === requisition.urgency)?.label
   const purchasingStatus = REQUISITION_PURCHASING_STATUS_OPTIONS.find((item) => item.value === requisition.purchasingStatus)?.label
   const result = REQUISITION_RESULT_OPTIONS.find((item) => item.value === requisition.result)?.label
   const salesCategory = REQUISITION_SALES_CATEGORY_OPTIONS.find((item) => item.value === requisition.salesCategory)?.label
   const reason = REQUISITION_REASON_OPTIONS.find((item) => item.value === requisition.reason)?.label
-  const reqReviewResult =
-    requisition.reqReviewResult
-      ?.map((item) => REQUISITION_REQ_REVIEW_RESULT_OPTIONS.find((option) => option.value === item)?.label)
-      .filter(Boolean) || []
+  const reqReviewResult =requisition.reqReviewResult?.map((item) => REQUISITION_REQ_REVIEW_RESULT_OPTIONS.find((option) => option.value === item)?.label) .filter(Boolean) || [] //prettier-ignore
+  const poStatus = REQUISITION_PO_STATUS_OPTIONS.find((item) => item.value === requisition.poStatus)?.label
 
   const salesPersons = requisition.salesPersons?.map((person) => person?.user?.name || person?.user?.email).filter(Boolean) || []
   const omegaBuyers = requisition.omegaBuyers?.map((person) => person?.user?.name || person?.user?.email).filter(Boolean) || []
@@ -120,7 +126,7 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
         />
 
         <ReadOnlyField
-          className='col-span-12 md:col-span-6'
+          className='col-span-12'
           title='REQ Review Result'
           value={
             <div className='flex flex-wrap items-center gap-1.5'>
@@ -133,15 +139,31 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
           }
         />
 
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Cust. PO #' value={requisition.custPoNum ?? ""} />
+
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='PO Status' value={poStatus} />
+
+        <ReadOnlyField
+          className='col-span-12 md:col-span-6 lg:col-span-3'
+          title='PO Status Last Updated'
+          value={requisition.poStatusLastUpdated ? format(requisition.poStatusLastUpdated, "MM-dd-yyyy") : ""}
+        />
+
+        <ReadOnlyField
+          className='col-span-12 md:col-span-6 lg:col-span-3'
+          title='Customer PO Dock Date'
+          value={requisition.custPoDockDate ? format(requisition.custPoDockDate, "MM-dd-yyyy") : ""}
+        />
+
         <ReadOnlyFieldHeader className='col-span-12' title='Customer' description='Requisition customer details' />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Date' value={customer || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Code' value={customerCode || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Contact - Full Name' value={""} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Name' value={customerName || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Customer - PO Hit Rate' value={"0.0%"} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Contact - Full Name' value={""} />
 
-        <ReadOnlyField className='col-span-12' title='Customer PN' value={requisition.customerPn} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='PO Hit Rate' value={"0.0%"} />
       </div>
     </Card>
   )

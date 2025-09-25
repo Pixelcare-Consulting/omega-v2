@@ -19,6 +19,27 @@ export function getColumns(reqId: string, requestedItems: RequestedItemForm[]): 
       header: ({ column }) => <DataTableColumnHeader column={column} title='Item' />,
     },
     {
+      accessorKey: "mpn",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
+      enableSorting: false,
+      cell: ({ row }) => {
+        const mpn = row.original?.mpn
+        const source = row.original?.source
+        if (!mpn || source === "portal") return null
+        return <Badge variant='soft-slate'>{mpn}</Badge>
+      },
+    },
+    {
+      accessorKey: "mfr",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='MFR' />,
+      enableSorting: false,
+      cell: ({ row }) => {
+        const mfr = row.original?.mfr
+        if (!mfr) return null
+        return <Badge variant='soft-slate'>{mfr}</Badge>
+      },
+    },
+    {
       accessorFn: (row, index) => (index === 0 ? "primary" : "alternative"),
       id: "type",
       enableSorting: false,
@@ -42,27 +63,7 @@ export function getColumns(reqId: string, requestedItems: RequestedItemForm[]): 
         return <Badge variant={isSupplierSuggested ? "soft-green" : "soft-red"}>{isSupplierSuggested ? "Yes" : "No"}</Badge>
       },
     },
-    {
-      accessorKey: "mpn",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
-      enableSorting: false,
-      cell: ({ row }) => {
-        const mpn = row.original?.mpn
-        const source = row.original?.source
-        if (!mpn || source === "portal") return null
-        return <Badge variant='soft-slate'>{mpn}</Badge>
-      },
-    },
-    {
-      accessorKey: "mfr",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='MFR' />,
-      enableSorting: false,
-      cell: ({ row }) => {
-        const mfr = row.original?.mfr
-        if (!mfr) return null
-        return <Badge variant='soft-slate'>{mfr}</Badge>
-      },
-    },
+
     {
       accessorFn: (row) => row.source,
       accessorKey: "source",

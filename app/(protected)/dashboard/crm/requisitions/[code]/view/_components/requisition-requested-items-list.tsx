@@ -18,7 +18,7 @@ export default function RequisitionRequestedItemsList({ reqId, requestedItems }:
   const { table } = useDataTable({
     data: requestedItems,
     columns: columns,
-    initialState: { pagination: { pageIndex: 0, pageSize: 5 } },
+    initialState: { pagination: { pageIndex: 0, pageSize: 5 }, columnVisibility: { name: false } },
   })
 
   return (

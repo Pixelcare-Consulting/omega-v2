@@ -8,7 +8,11 @@ import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import { Badge } from "@/components/badge"
 import { getItems } from "@/actions/master-item"
 import { formatCurrency, formatNumber } from "@/lib/formatter"
-import { SUPPLIER_QUOTE_STATUS_OPTIONS } from "@/schema/supplier-quote"
+import {
+  SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS,
+  SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS,
+  SUPPLIER_QUOTE_STATUS_OPTIONS,
+} from "@/schema/supplier-quote"
 import { multiply } from "mathjs"
 import { Icons } from "@/components/icons"
 import { useRouter } from "nextjs-toploader/app"
@@ -18,11 +22,18 @@ import { toast } from "sonner"
 import AlertModal from "@/components/alert-modal"
 import { getRequisitionByCode } from "@/actions/requisition"
 import { useDialogStore } from "@/hooks/use-dialog"
+import { dateFilter, dateSort } from "@/lib/data-table/data-table"
+import { BP_MASTER_SUPPLIER_SCOPE_OPTIONS, BP_MASTER_SUPPLIER_STATUS_OPTIONS } from "@/schema/master-bp"
 
 type SupplierQuoteData = NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>["supplierQuotes"][number]
 
 export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnDef<SupplierQuoteData>[] {
   return [
+    {
+      accessorKey: "code",
+      id: "id #",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='ID #' />,
+    },
     {
       accessorKey: "date",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Date' />,
@@ -30,20 +41,63 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
         const date = row.original.date
         return <div className='min-w-[100px]'>{format(date, "MM-dd-yyyy")}</div>
       },
+      filterFn: (row, columnId, filterValue, addMeta) => {
+        const date = row.original.date
+        const filterDateValue = new Date(filterValue)
+        return dateFilter(date, filterDateValue)
+      },
+      sortingFn: (rowA, rowB, columnId) => {
+        const rowADate = rowA.original.date
+        const rowBDate = rowB.original.date
+        return dateSort(rowADate, rowBDate)
+      },
     },
     {
-      accessorFn: (row) => row?.supplier?.CardName || "",
+      accessorFn: (row) => `${row?.supplier?.CardName || ""} ${row?.supplier?.CardCode || ""}`,
       id: "supplier",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Supplier' />,
       cell: ({ row }) => {
-        const supplierCode = row.original.supplier.CardCode
-        const supplierName = row.original.supplier.CardName
+        const supplier = row.original.supplier
+
+        if (!supplier) return null
 
         return (
-          <Link className='text-blue-500 hover:underline' href={`/dashboard/master-data/suppliers/${supplierCode}/view`}>
-            {supplierName}
-          </Link>
+          <div className='flex flex-col'>
+            <Link className='text-blue-500 hover:underline' href={`/dashboard/master-data/suppliers/${supplier.CardCode}/view`}>
+              {supplier.CardName}
+            </Link>
+
+            <Link className='text-blue-500 hover:underline' href={`/dashboard/master-data/suppliers/${supplier.CardCode}/view`}>
+              {supplier.CardCode}
+            </Link>
+          </div>
         )
+      },
+    },
+    {
+      accessorFn: (row) => row?.supplier?.CardName || "",
+      id: "supplier status",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Supplier - Status' />,
+      cell: ({ row }) => {
+        const supplier = row.original.supplier
+        const status = BP_MASTER_SUPPLIER_STATUS_OPTIONS.find((item) => item.value === supplier?.status)?.label
+
+        if (!supplier || !status) return null
+
+        return <Badge variant='soft-slate'>{status}</Badge>
+      },
+    },
+    {
+      accessorFn: (row) => row?.supplier?.CardName || "",
+      id: "supplier scope",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Supplier - Scope' />,
+      cell: ({ row }) => {
+        const supplier = row.original.supplier
+        const scope = BP_MASTER_SUPPLIER_SCOPE_OPTIONS.find((item) => item.value === supplier?.scope)?.label
+
+        if (!supplier || !scope) return null
+
+        return <Badge variant='soft-slate'>{scope}</Badge>
       },
     },
     {
@@ -129,8 +183,26 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       header: ({ column }) => <DataTableColumnHeader column={column} title='Date Code' />,
     },
     {
+      id: "lead time",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Lead Time' />,
+      cell: ({ row }) => {
+        const { ltToSjcNumber, ltToSjcUom } = row.original
+
+        const num = SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS.find((item) => item.value === ltToSjcNumber)?.label
+        const uom = SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS.find((item) => item.value === ltToSjcUom)?.label
+
+        if (!num || !uom) return null
+
+        return `${ltToSjcNumber} ${ltToSjcUom}`
+      },
+    },
+    {
       accessorKey: "condition",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Condition' />,
+    },
+    {
+      accessorKey: "coo",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='COO' />,
     },
     {
       accessorFn: (row) => row.quotedQuantity ?? "",

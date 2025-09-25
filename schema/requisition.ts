@@ -70,6 +70,34 @@ export const REQUISITION_REQ_REVIEW_RESULT_OPTIONS = [
   { label: "To Re-Quote", value: "to-re-quote" },
 ]
 
+export const REQUISITION_PO_STATUS_OPTIONS = [
+  { label: "Rehash / negotiate for best price", value: "rehash-negotiate-for-best-price" },
+  { label: "Rehash - must find alt. source", value: "rehash-must-find-alt-source" },
+  { label: "PA - Pending Internal Approval", value: "pa-pending-internal-approval" },
+  { label: "In progress - See SO Tab", value: "in-progress-see-so-tab" },
+  { label: "Partial", value: "partial" },
+  { label: "Need Verification", value: "need-verification" },
+  { label: "Closed", value: "closed" },
+  { label: "Offer", value: "offer" },
+  { label: "Warehouse finding parts", value: "warehouse-finding-parts" },
+  { label: "Waiting for payments", value: "waiting-for-payments" },
+  { label: "Approved PO", value: "approved-po" },
+  { label: "Qualifying Vendor", value: "qualifying-vendor" },
+  { label: "Negotiating the price", value: "negotiating-the-price" },
+  { label: "Stock - Under VMI", value: "stock-under-vmi" },
+  { label: "Closed Short", value: "closed-short" },
+  { label: "Closed - Duplicate Req", value: "closed-duplicate-req" },
+  { label: "Customer cancelled the PO", value: "customer-cancelled-the-po" },
+  { label: "On Hold per Customer", value: "on-hold-per-customer" },
+  { label: "Vendor under VQP", value: "vendor-under-vqp" },
+  { label: "To Secure in May 2023", value: "to-secure-in-may-2023" },
+  { label: "PO Cancelled", value: "po-cancelled" },
+  { label: "RMA REPLACEMENT", value: "rma-replacement" },
+  { label: "RFQ ON HOLD", value: "rfq-on-hold" },
+  { label: "To Secure Per Dock Date", value: "to-secure-per-dock-date" },
+  { label: "po won", value: "po-won" },
+]
+
 //* Zod Schema
 export const requestedItemFormSchema = z.object({
   code: z.string().min(1, { message: "Item is required" }),
@@ -101,9 +129,16 @@ export const requisitionFormSchema = z.object({
   reqReviewResult: z.array(z.string()).nullish(),
   quantity: z.coerce.number().min(1, { message: "Quantity is required" }),
   customerStandardPrice: z.coerce.number().min(1, { message: "Customer standard price is required" }),
-  customerStandardOpportunityValue: z.coerce.number().min(1, { message: "Customer standard opportunity value is required" }),
   dateCode: z.string().max(6, { message: "Date code is too long; it should be a maximum of 6 characters" }).nullish(),
   estimatedDeliveryDate: z.coerce.date().nullish(),
+  custPoNum: z.string().nullish(),
+  custPoDockDate: z.coerce.date().nullish(),
+  poStatus: z.string().nullish(),
+  poStatusLastUpdated: z.coerce.date().nullish(),
+  sapQuoteNumber: z.string().nullish(),
+  quotedMpn: z.string().nullish(),
+  quotedQuantity: z.coerce.number().nullish(),
+  quotedPrice: z.coerce.number().nullish(),
 })
 
 export const updateRequisitionReqItemsSchema = z.object({

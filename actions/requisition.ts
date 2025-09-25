@@ -26,7 +26,6 @@ export async function getRequisitions() {
       ...req,
       quantity: req.quantity?.toString(),
       customerStandardPrice: req?.customerStandardPrice?.toString(),
-      customerStandardOpportunityValue: req?.customerStandardOpportunityValue?.toString(),
     }))
   } catch (error) {
     console.error(error)
@@ -78,7 +77,6 @@ export async function getRequisitionByCode(code: number) {
       activities,
       quantity: requisition.quantity?.toString(),
       customerStandardPrice: requisition.customerStandardPrice?.toString(),
-      customerStandardOpportunityValue: requisition.customerStandardOpportunityValue?.toString(),
     }
   } catch (error) {
     console.error(error)
@@ -295,7 +293,6 @@ export const requisitionCreateMany = action
           customerCode: row["Customer"],
           quantity: row?.["Requested Quantity"],
           customerStandardPrice: row?.["Cust. Standard Price"],
-          customerStandardOpportunityValue: row?.["Cust. Standard Opportunity Value"],
           requestedItems: row?.["Requested Items"],
           createdBy: userId,
           updatedBy: userId,

@@ -25,6 +25,7 @@ import { RequestedItemsJSONData } from "@/actions/requisition"
 import { multiply } from "mathjs"
 import { formatCurrency, formatNumber } from "@/lib/formatter"
 import { Stats } from "@/types/common"
+import { BP_MASTER_SUPPLIER_SCOPE_OPTIONS, BP_MASTER_SUPPLIER_STATUS_OPTIONS } from "@/schema/master-bp"
 
 type SupplierQuoteListProps = {
   supplierQuotes: Awaited<ReturnType<typeof getSupplierQuotes>>
@@ -45,12 +46,16 @@ export default function SupplierQuoteList({ supplierQuotes, items }: SupplierQuo
       { label: "Requisition - Result", columnId: "requisition result", type: "select", options: REQUISITION_RESULT_OPTIONS },
       { label: "Requisition - MPN", columnId: "requisition mpn", type: "text" },
       { label: "Supplier", columnId: "supplier", type: "text" },
+      { label: "Supplier - Status", columnId: "supplier status", type: "select", options: BP_MASTER_SUPPLIER_STATUS_OPTIONS },
+      { label: "Supplier - Scope", columnId: "supplier scope", type: "select", options: BP_MASTER_SUPPLIER_SCOPE_OPTIONS },
       { label: "Buyer", columnId: "buyers", type: "text" },
       { label: "Status", columnId: "status", type: "select", options: SUPPLIER_QUOTE_STATUS_OPTIONS },
       { label: "MPN", columnId: "mpn", type: "text" },
       { label: "MFR", columnId: "mfr", type: "text" },
       { label: "Date Code", columnId: "date code", type: "text" },
+      { label: "Lead Time", columnId: "lead time", type: "text" },
       { label: "Condition", columnId: "condition", type: "text" },
+      { label: "COO", columnId: "coo", type: "text" },
       { label: "Comments", columnId: "comments", type: "text" },
       { label: "Total Cost", columnId: "total cost", type: "text" },
     ]

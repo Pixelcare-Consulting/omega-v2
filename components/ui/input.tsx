@@ -15,7 +15,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
         className
       )}
     >
-      {startContent && <span className='pointer-events-none flex items-center pl-3 text-muted-foreground'>{startContent}</span>}
+      {startContent && (
+        <span className={cn("pointer-events-none flex h-full items-center pl-3 text-muted-foreground", props.disabled && "bg-muted")}>
+          {startContent}
+        </span>
+      )}
       <input
         type={type}
         ref={ref}
@@ -28,7 +32,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
           }
         )}
       />
-      {endContent && <span className='pointer-events-none flex items-center pr-3 text-muted-foreground'>{endContent}</span>}
+      {endContent && (
+        <span className={cn("pointer-events-none flex items-center pr-3 text-muted-foreground", props.disabled && "bg-muted")}>
+          {endContent}
+        </span>
+      )}
     </div>
   )
 })

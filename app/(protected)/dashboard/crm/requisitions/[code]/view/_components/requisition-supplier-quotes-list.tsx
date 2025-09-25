@@ -12,6 +12,7 @@ import { FilterFields } from "@/components/data-table/data-table-filter"
 import { SUPPLIER_QUOTE_STATUS_OPTIONS } from "@/schema/supplier-quote"
 import { useDataTable } from "@/hooks/use-data-table"
 import { getRequisitionByCode } from "@/actions/requisition"
+import { BP_MASTER_SUPPLIER_SCOPE_OPTIONS, BP_MASTER_SUPPLIER_STATUS_OPTIONS } from "@/schema/master-bp"
 
 type SupplierQuoteList = {
   supplierQuotes: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>["supplierQuotes"][number][]
@@ -23,14 +24,19 @@ export default function RequisitionSupplierQuoteList({ supplierQuotes, items }: 
 
   const filterFields = useMemo((): FilterFields[] => {
     return [
+      { label: "ID #", columnId: "id #", type: "text" },
       { label: "Date", columnId: "date", type: "date" },
       { label: "Supplier", columnId: "supplier", type: "text" },
+      { label: "Supplier - Status", columnId: "supplier status", type: "select", options: BP_MASTER_SUPPLIER_STATUS_OPTIONS },
+      { label: "Supplier - Scope", columnId: "supplier scope", type: "select", options: BP_MASTER_SUPPLIER_SCOPE_OPTIONS },
       { label: "Buyer", columnId: "buyers", type: "text" },
       { label: "Status", columnId: "status", type: "select", options: SUPPLIER_QUOTE_STATUS_OPTIONS },
       { label: "MPN", columnId: "mpn", type: "text" },
       { label: "MFR", columnId: "mfr", type: "text" },
       { label: "Date Code", columnId: "date code", type: "text" },
+      { label: "Lead Time", columnId: "lead time", type: "text" },
       { label: "Condition", columnId: "condition", type: "text" },
+      { label: "COO", columnId: "coo", type: "text" },
       { label: "Comments", columnId: "comments", type: "text" },
       { label: "Total Cost", columnId: "total cost", type: "text" },
     ]

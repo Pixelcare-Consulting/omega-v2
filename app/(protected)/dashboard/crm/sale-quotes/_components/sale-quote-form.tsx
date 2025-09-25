@@ -113,36 +113,9 @@ export default function SaleQuoteForm({ salesQuote, requisitions, customers, ite
     result: { data: contacts },
   } = useAction(getContactsClient)
 
-  const lineItemDefaultValues: LineItemForm = {
-    requisitionCode: 0,
-    supplierQuoteCode: 0,
-    code: "",
-    name: "",
-    mpn: "",
-    mfr: "",
-    cpn: "",
-    source: "",
-    ltToSjcNumber: "",
-    ltToSjcUom: "",
-    condition: "",
-    coo: "",
-    dateCode: "",
-    estimatedDeliveryDate: null,
-    unitPrice: 0,
-    quantity: 0,
-    details: {
-      mpn: "",
-      mfr: "",
-      dateCode: "",
-      condition: "",
-      coo: "",
-      leadTime: "",
-      notes: "",
-    },
-  }
-
   const lineItems = useWatch({ control: form.control, name: "lineItems" })
   const customerCode = useWatch({ control: form.control, name: "customerCode" })
+  const contactId = useWatch({ control: form.control, name: "contactId" })
 
   const columns = useMemo((): ColumnDef<LineItemForm>[] => {
     return [
@@ -463,7 +436,7 @@ export default function SaleQuoteForm({ salesQuote, requisitions, customers, ite
 
     const defaultContact = contacts.find((contact) => contact.id === contactPerson)
 
-    if (defaultContact) form.setValue("contactId", defaultContact.id)
+    if (!contactId && defaultContact) form.setValue("contactId", defaultContact.id)
 
     return contacts.map((contact) => {
       let fullName = ""
@@ -473,7 +446,7 @@ export default function SaleQuoteForm({ salesQuote, requisitions, customers, ite
 
       return { label: fullName, value: contact.id, contact }
     })
-  }, [JSON.stringify(contacts), JSON.stringify(customersOptions), isContactsLoading, customerCode])
+  }, [JSON.stringify(contacts), JSON.stringify(customersOptions), isContactsLoading, customerCode, contactId])
 
   const usersOptions = useMemo(() => {
     if (!users) return []
@@ -647,6 +620,7 @@ export default function SaleQuoteForm({ salesQuote, requisitions, customers, ite
               control={form.control}
               name='contactId'
               label='Contact - Full Name'
+              isLoading={isContactsLoading}
               renderItem={(item, selected) => (
                 <div className={cn("flex w-full items-center justify-between", selected && "bg-accent")}>
                   <div className='flex w-[80%] flex-col justify-center'>

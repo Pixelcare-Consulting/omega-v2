@@ -263,26 +263,33 @@ model Lead {
 }
 
 model Requisition {
-  id                               String    @id @default(uuid())
-  code                             Int       @unique @default(autoincrement())
-  customerCode                     String
-  contactId                        String?
-  customerPn                       String?   @default("")
-  requestedItems                   Json?     @default("[]")
-  date                             DateTime
-  urgency                          String?   @default("")
-  salesCategory                    String
-  isPurchasingInitiated            Boolean   @default(false)
-  isActiveFollowUp                 Boolean   @default(false)
-  purchasingStatus                 String?   @default("")
-  result                           String?   @default("")
-  reason                           String?   @default("")
-  reqReviewResult                  String[]  @default([])
-  quantity                         Decimal?
-  customerStandardPrice            Decimal?
-  customerStandardOpportunityValue Decimal?
-  dateCode                         String?   @default("")
-  estimatedDeliveryDate            DateTime?
+  id                    String    @id @default(uuid())
+  code                  Int       @unique @default(autoincrement())
+  customerCode          String
+  contactId             String?
+  customerPn            String?   @default("")
+  requestedItems        Json?     @default("[]")
+  date                  DateTime
+  urgency               String?   @default("")
+  salesCategory         String
+  isPurchasingInitiated Boolean   @default(false)
+  isActiveFollowUp      Boolean   @default(false)
+  purchasingStatus      String?   @default("")
+  result                String?   @default("")
+  reason                String?   @default("")
+  reqReviewResult       String[]  @default([])
+  quantity              Decimal?
+  customerStandardPrice Decimal?
+  dateCode              String?   @default("")
+  estimatedDeliveryDate DateTime?
+  custPoNum             String?
+  custPoDockDate        DateTime?
+  poStatus              String?   @default("")
+  poStatusLastUpdated   DateTime?
+  sapQuoteNumber        String?
+  quotedMpn             String?
+  quotedQuantity        Decimal?
+  quotedPrice           Decimal?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
