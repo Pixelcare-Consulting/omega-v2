@@ -1,6 +1,5 @@
 "use client"
 
-import { getBpMasterByCardCodeClient } from "@/actions/master-bp"
 import { getRequisitionByCode } from "@/actions/requisition"
 import { Badge } from "@/components/badge"
 import ReadOnlyField from "@/components/read-only-field"
