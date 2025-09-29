@@ -2,13 +2,24 @@
 
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
-import { ShipmentForm, shipmentFormSchema } from "@/schema/shipment"
+import { shipmentFormSchema } from "@/schema/shipment"
 import { paramsSchema } from "@/schema/common"
 import { Prisma } from "@prisma/client"
 
 const SHIPMENT_INCLUDE = {
-  requisition: true,
-  supplierQuote: true,
+  requisition: {
+    include: {
+      salesPersons: { include: { user: { select: { name: true, email: true } } } },
+      salesTeam: { include: { user: { select: { name: true, email: true } } } },
+      omegaBuyers: { include: { user: { select: { name: true, email: true } } } },
+      customer: { select: { CardName: true, CardCode: true } },
+    },
+  },
+  supplierQuote: {
+    include: {
+      supplier: { select: { CardName: true, CardCode: true, PymntGroup: true } },
+    },
+  },
   purchaser: { select: { name: true, email: true } },
 } satisfies Prisma.ShipmentInclude
 

@@ -355,11 +355,15 @@ export default function ShipmentForm({
 
           <ReadOnlyFormField
             className='col-span-12 md:col-span-6 lg:col-span-3'
-            label='Customer Name'
+            label='Requisition - Customer - Name'
             value={requisition?.customer?.CardName || ""}
           />
 
-          <ReadOnlyFormField className='col-span-12 md:col-span-6 lg:col-span-3' label='Cust. PO #' value={requisition?.custPoNum || ""} />
+          <ReadOnlyFormField
+            className='col-span-12 md:col-span-6 lg:col-span-3'
+            label='Requisition - Cust. PO #'
+            value={requisition?.custPoNum || ""}
+          />
 
           <ReadOnlyFormField
             className='col-span-12 md:col-span-6 lg:col-span-3'
@@ -388,7 +392,7 @@ export default function ShipmentForm({
 
           <ReadOnlyFormField
             className='col-span-12 md:col-span-6 lg:col-span-3'
-            label='MPN'
+            label='Requisition - MPN'
             value={reqItem?.ItemCode || ""}
             isLoading={isReqItemLoading}
           />
@@ -401,14 +405,14 @@ export default function ShipmentForm({
 
           <ReadOnlyFormField
             className='col-span-12 md:col-span-6 lg:col-span-3'
-            label='MFR'
+            label='Requisition - MFR'
             value={reqItem?.FirmName || ""}
             isLoading={isReqItemLoading}
           />
 
           <ReadOnlyFormField
             className='col-span-12 md:col-span-6 lg:col-span-3'
-            label='Customer PN'
+            label='Requisition - Customer PN'
             value={requisition?.customerPn || ""}
           />
 
@@ -493,7 +497,7 @@ export default function ShipmentForm({
 
           <ReadOnlyFormField
             className='col-span-12 md:col-span-6 lg:col-span-3'
-            label='Supplier Name'
+            label='Supplier Quote - Supplier - Name'
             value={supplierQuote?.supplier?.CardName || ""}
           />
 

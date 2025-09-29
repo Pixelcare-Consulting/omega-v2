@@ -33,10 +33,10 @@ type ViewRequisitionProps = {
 
 export default function ViewRequisition({ requisition, requisitions, suppliers, users, items }: ViewRequisitionProps) {
   const customer = requisition.customer?.CardName || requisition.customer?.CardCode
-  const urgency = REQUISITION_URGENCY_OPTIONS.find((item) => item.value === requisition.urgency)?.label
-  const purchasingStatus = REQUISITION_PURCHASING_STATUS_OPTIONS.find((item) => item.value === requisition.purchasingStatus)?.label
-  const result = REQUISITION_RESULT_OPTIONS.find((item) => item.value === requisition.result)?.label
-  const salesCategory = REQUISITION_SALES_CATEGORY_OPTIONS.find((item) => item.value === requisition.salesCategory)?.label
+  const urgency = REQUISITION_URGENCY_OPTIONS.find((item) => item.value === requisition?.urgency)?.label
+  const purchasingStatus = REQUISITION_PURCHASING_STATUS_OPTIONS.find((item) => item.value === requisition?.purchasingStatus)?.label
+  const result = REQUISITION_RESULT_OPTIONS.find((item) => item.value === requisition?.result)?.label
+  const salesCategory = REQUISITION_SALES_CATEGORY_OPTIONS.find((item) => item.value === requisition?.salesCategory)?.label
 
   return (
     <PageWrapper
