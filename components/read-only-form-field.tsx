@@ -13,7 +13,7 @@ export default function ReadOnlyFormField({ label, value, isLoading, className }
   return (
     <FormItem className={className}>
       <FormLabel className='space-x-1'>{label}</FormLabel>
-      <div className='h-10 w-full cursor-not-allowed rounded-md border border-input bg-muted px-3 py-[9.5px] text-sm ring-offset-background'>
+      <div className='min-h-10 w-full cursor-not-allowed rounded-md border border-input bg-muted px-3 py-[9.5px] text-sm ring-offset-background'>
         {!isLoading && value}
 
         {isLoading && (

@@ -36,11 +36,11 @@ export const SHIPMENT_SHIPPING_ORDER_STATUS_OPTIONS = [
 //* Zod Schema
 export const shipmentFormSchema = z.object({
   id: z.string().min(1, { message: "ID is required" }),
-  requisitionCode: z.number().min(1, { message: "Requisition is required" }),
+  requisitionCode: z.coerce.number().min(1, { message: "Requisition is required" }),
   poNumber: z.string().nullish(),
   prNumber: z.string().nullish(),
   soNumber: z.string().nullish(),
-  supplierQuoteCode: z.number().min(1, { message: "Supplier quote is required" }),
+  supplierQuoteCode: z.coerce.number().min(1, { message: "Supplier quote is required" }),
   qtyToShip: z.coerce.number().min(1, { message: "Quantity to ship is required" }),
   shipToLocation: z.string().nullish(),
   purchaserId: z.string().nullish(),

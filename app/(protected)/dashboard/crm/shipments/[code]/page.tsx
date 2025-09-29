@@ -10,11 +10,12 @@ import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Card } from "@/components/ui/card"
 import ShipmentForm from "../_components/shipment-form"
+import { getShipmentByCode } from "@/actions/shipment"
 
-export default function ShipmentPage({ params }: { params: { code: string } }) {
+export default async function ShipmentPage({ params }: { params: { code: string } }) {
   const { code } = params
 
-  const shipment = null as any
+  const shipment = await getShipmentByCode(parseInt(code))
 
   const getPageMetadata = () => {
     if (!shipment || !shipment?.id || code === "add")

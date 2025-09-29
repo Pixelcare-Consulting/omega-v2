@@ -388,9 +388,11 @@ export default function RequisitionForm({ requisition, users, customers, items }
   useEffect(() => {
     if (requisition && usersOptions.length > 0) {
       const selectedSalesPersons = requisition.salesPersons?.map((salesPerson) => salesPerson.userId) || []
+      const selectedSalesTeam = requisition.salesTeam?.map((salesTeam) => salesTeam.userId) || []
       const selectedOmegaBuyers = requisition.omegaBuyers?.map((omegaBuyer) => omegaBuyer.userId) || []
 
       form.setValue("salesPersons", selectedSalesPersons)
+      form.setValue("salesTeam", selectedSalesTeam)
       form.setValue("omegaBuyers", selectedOmegaBuyers)
     }
   }, [JSON.stringify(requisition), JSON.stringify(usersOptions)])
