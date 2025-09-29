@@ -5,6 +5,7 @@ import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { shipmentFormSchema } from "@/schema/shipment"
 import { paramsSchema } from "@/schema/common"
 import { Prisma } from "@prisma/client"
+import { RequestedItemsJSONData } from "./requisition"
 
 const SHIPMENT_INCLUDE = {
   requisition: {
@@ -25,9 +26,36 @@ const SHIPMENT_INCLUDE = {
 
 export async function getShipments() {
   try {
-    return await prisma.shipment.findMany({
+    const shipments = await prisma.shipment.findMany({
       where: { deletedAt: null, deletedBy: null },
       include: SHIPMENT_INCLUDE,
+    })
+
+    const shipmentsPrimaryItem = shipments
+      .map((shipment) => {
+        const reqItems = (shipment?.requisition?.requestedItems as RequestedItemsJSONData) || []
+        const primaryItem = reqItems?.[0]
+        return primaryItem?.code || null
+      })
+      .filter((code) => code !== null)
+
+    //* query items
+    const items = await prisma.item.findMany({ where: { ItemCode: { in: shipmentsPrimaryItem } } })
+
+    return shipments.map((shipment) => {
+      let mpn
+      let mfr
+
+      const reqItems = (shipment?.requisition?.requestedItems as RequestedItemsJSONData) || []
+      const primaryItem = reqItems?.[0]
+      const matchItem = items.find((item) => item.ItemCode === primaryItem?.code)
+
+      if (matchItem) {
+        mpn = matchItem.ItemCode || ""
+        mfr = matchItem.FirmName || ""
+      }
+
+      return { ...shipment, mpn, mfr }
     })
   } catch (error) {
     console.error(error)

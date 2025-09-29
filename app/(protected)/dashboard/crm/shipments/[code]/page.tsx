@@ -34,7 +34,7 @@ export default async function ShipmentPage({ params }: { params: { code: string 
           { label: "Home", href: "/" },
           { label: "Dashboard", href: "/dashboard" },
           { label: "CRM" },
-          { label: "Shipments", href: "/dashboard/logistics/shipments" },
+          { label: "Shipments", href: "/dashboard/crm/shipments" },
           { label: code !== "add" && shipment ? String(shipment.code) : "Add", isPage: true },
         ]}
       />
