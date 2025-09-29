@@ -286,6 +286,7 @@ export default function ShipmentForm({
   useEffect(() => {
     if (reqCode && requisitionsOptions.length > 0) {
       form.setValue("requisitionCode", reqCode)
+      getSupplierQuotesByReqCodeExec({ reqCode: reqCode })
     }
   }, [reqCode, JSON.stringify(requisitionsOptions)])
 
