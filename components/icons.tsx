@@ -163,7 +163,6 @@ export const Icons = {
   wallet: Wallet,
   truck: Truck,
   cirleDollar: DollarSign,
-
   squareActivity: FileBarChart2,
   store: Store,
   contact: UserCheck,

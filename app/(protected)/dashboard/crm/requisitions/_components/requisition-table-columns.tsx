@@ -57,9 +57,15 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       id: "customer",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Customer' />,
       cell: ({ row }) => {
-        const customer = row.original?.customer
-        if (!customer) return null
-        return <Badge variant='soft-slate'>{customer?.CardName || customer.CardCode}</Badge>
+        const customerCode = row.original?.customer?.CardCode
+
+        if (!customerCode) return null
+
+        return (
+          <Link className='text-blue-500 hover:underline' href={`/dashboard/master-data/customers/${customerCode}/view`}>
+            {customerCode}
+          </Link>
+        )
       },
     },
     {
@@ -334,7 +340,7 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
             <AlertModal
               isOpen={showConfirmation}
               title='Are you sure?'
-              description={`Are you sure you want to delete this requisition?`}
+              description={`Are you sure you want to delete this requisition #${code}?`}
               onConfirm={handleDelete}
               onConfirmText='Delete'
               onCancel={() => setShowConfirmation(false)}

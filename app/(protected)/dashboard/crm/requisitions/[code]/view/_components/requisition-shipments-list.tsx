@@ -12,19 +12,20 @@ import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
 import { DataTableFilter } from "@/components/data-table/data-table-filter"
 import DataImportExport from "@/components/data-table/data-import-export"
-import { getShipments } from "@/actions/shipment"
-import { getColumns } from "./shipment-table-column"
 import { FilterFields } from "@/components/data-table/data-table-filter"
 import { SHIPMENT_SHIP_TO_LOCATION_OPTIONS, SHIPMENT_SHIPPING_ORDER_STATUS_OPTIONS } from "@/schema/shipment"
 import { useDataTable } from "@/hooks/use-data-table"
+import { getRequisitionByCode } from "@/actions/requisition"
+import { getColumns } from "./requisition-shipments-table-column"
 
 type ShipmentListProps = {
-  shipments: Awaited<ReturnType<typeof getShipments>>
+  shipments: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>["shipments"][number][]
+  requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
 }
 
-export default function ShipmentList({ shipments }: ShipmentListProps) {
+export default function RequisitionShipmentsList({ requisition, shipments }: ShipmentListProps) {
   const router = useRouter()
-  const columns = useMemo(() => getColumns(), [])
+  const columns = useMemo(() => getColumns(requisition), [JSON.stringify(requisition)])
 
   const filterFields = useMemo((): FilterFields[] => {
     return [
@@ -85,7 +86,7 @@ export default function ShipmentList({ shipments }: ShipmentListProps) {
             className='w-full md:w-fit'
             onImport={(args) => handleImport(args)}
             onExport={(args) => handleExport({ ...args, data: shipments })}
-            code='shipments'
+            code={`requisition-${requisition.code}-shipments`}
           />
         </div>
       </div>

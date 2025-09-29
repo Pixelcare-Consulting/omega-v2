@@ -44,7 +44,7 @@ function DataTableViewOptionsComponent<TData>({ table, className }: DataTableVie
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                <span className='truncate'>{column.id}</span>
+                <span className='inline-block w-[100px] truncate'>{column.id}</span>
               </DropdownMenuCheckboxItem>
             )
           })}

@@ -48,6 +48,16 @@ export async function getRequisitionByCode(code: number) {
           omegaBuyers: { include: { user: { select: { name: true, email: true } } } },
           salesTeam: { include: { user: { select: { name: true, email: true } } } },
           customer: { select: { CardName: true, CardCode: true } },
+          shipments: {
+            include: {
+              supplierQuote: {
+                include: {
+                  supplier: { select: { CardName: true, CardCode: true, PymntGroup: true } },
+                },
+              },
+              purchaser: { select: { name: true, email: true } },
+            },
+          },
           supplierQuotes: {
             where: { deletedAt: null, deletedBy: null },
             include: {
@@ -67,9 +77,28 @@ export async function getRequisitionByCode(code: number) {
 
     if (!requisition) return null
 
-    const contact = requisition.contactId
-      ? await prisma.contact.findUnique({ where: { id: requisition.contactId }, select: { FirstName: true, LastName: true } })
-      : null
+    let mpn
+    let mfr
+
+    const requestedItems = (requisition.requestedItems as RequestedItemsJSONData) || []
+    const primaryItem = requestedItems?.[0]
+
+    const [contact, item] = await Promise.all([
+      requisition.contactId
+        ? await prisma.contact.findUnique({ where: { id: requisition.contactId }, select: { FirstName: true, LastName: true } })
+        : null,
+      primaryItem?.code
+        ? await prisma.item.findUnique({
+            where: { ItemCode: primaryItem.code },
+            select: { ItemCode: true, FirmName: true, FirmCode: true },
+          })
+        : null,
+    ])
+
+    if (item) {
+      mpn = item.ItemCode || ""
+      mfr = item.FirmName || ""
+    }
 
     return {
       ...requisition,
@@ -77,6 +106,8 @@ export async function getRequisitionByCode(code: number) {
       quantity: requisition.quantity?.toString(),
       customerStandardPrice: requisition.customerStandardPrice?.toString(),
       contact,
+      mpn,
+      mfr,
     }
   } catch (error) {
     console.error(error)

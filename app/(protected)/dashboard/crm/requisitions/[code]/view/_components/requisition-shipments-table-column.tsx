@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { toast } from "sonner"
 import { useRouter } from "nextjs-toploader/app"
@@ -8,20 +8,19 @@ import { dateFilter, dateSort } from "@/lib/data-table/data-table"
 import { useAction } from "next-safe-action/hooks"
 import { format } from "date-fns"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
-
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
-import { deleteShipment, getShipments } from "@/actions/shipment"
+import { deleteShipment } from "@/actions/shipment"
 import { Icons } from "@/components/icons"
 import { SHIPMENT_SHIP_TO_LOCATION_OPTIONS, SHIPMENT_SHIPPING_ORDER_STATUS_OPTIONS } from "@/schema/shipment"
 import { Badge } from "@/components/badge"
-import { RequestedItemsJSONData } from "@/actions/requisition"
-import { getItemByItemCodeClient } from "@/actions/master-item"
+import { getRequisitionByCode } from "@/actions/requisition"
 import { formatCurrency, formatNumber } from "@/lib/formatter"
 import { multiply } from "mathjs"
+import { useDialogStore } from "@/hooks/use-dialog"
 
-type ShipmentData = Awaited<ReturnType<typeof getShipments>>[number]
+type ShipmentData = NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>["shipments"][number]
 
-export function getColumns(): ColumnDef<ShipmentData>[] {
+export function getColumns(requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>): ColumnDef<ShipmentData>[] {
   return [
     {
       accessorKey: "updatedAt",
@@ -73,7 +72,7 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
     },
     {
       accessorFn: (row) => {
-        const poStatusLastUpdated = row?.requisition?.poStatusLastUpdated
+        const poStatusLastUpdated = requisition?.poStatusLastUpdated
         return poStatusLastUpdated
       },
       id: "req po status last updated",
@@ -83,27 +82,19 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
         </DataTableColumnHeader>
       ),
       cell: ({ row }) => {
-        const poStatusLastUpdated = row.original?.requisition?.poStatusLastUpdated
+        const poStatusLastUpdated = requisition?.poStatusLastUpdated
 
         if (!poStatusLastUpdated) return null
 
         return <div className='min-w-[100px]'>{format(poStatusLastUpdated, "MM-dd-yyyy")}</div>
       },
       filterFn: (row, columnId, filterValue, addMeta) => {
-        const date = row.original?.requisition?.poStatusLastUpdated
+        const date = requisition?.poStatusLastUpdated
 
         if (!date) return false
 
         const filterDateValue = new Date(filterValue)
         return dateFilter(date, filterDateValue)
-      },
-      sortingFn: (rowA, rowB, columnId) => {
-        const rowADate = rowA.original?.requisition?.poStatusLastUpdated
-        const rowBDate = rowB.original?.requisition?.poStatusLastUpdated
-
-        if (!rowADate || !rowBDate) return 1
-
-        return dateSort(rowADate, rowBDate)
       },
     },
     {
@@ -144,15 +135,15 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
     },
     {
       accessorFn: (row) => {
-        const customerName = row?.requisition?.customer?.CardName
+        const customerName = requisition?.customer?.CardName
         if (!customerName) return ""
         return customerName
       },
       id: "customer name",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Customer Name' />,
       cell: ({ row }) => {
-        const customerCode = row.original.requisition?.customer?.CardCode
-        const customerName = row.original.requisition?.customer?.CardName
+        const customerCode = requisition?.customer?.CardCode
+        const customerName = requisition?.customer?.CardName
 
         if (!customerName || !customerCode) return null
 
@@ -165,13 +156,13 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
     },
     {
       accessorFn: (row) => {
-        const custPoNum = row?.requisition?.custPoNum
+        const custPoNum = requisition?.custPoNum
         if (!custPoNum) return ""
         return custPoNum
       },
       id: "cust. po #",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Cust. PO #' />,
-      cell: ({ row }) => <div>{row.original?.requisition?.custPoNum || ""}</div>,
+      cell: ({ row }) => <div>{requisition?.custPoNum || ""}</div>,
     },
     {
       accessorFn: (row) => {
@@ -180,10 +171,10 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
         return supplierName
       },
       id: "supplier name",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Customer Name' />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Supplier Name' />,
       cell: ({ row }) => {
         const supplierCode = row.original.supplierQuote?.supplier?.CardCode
-        const supplierName = row.original.supplierQuote?.supplier?.CardCode
+        const supplierName = row.original.supplierQuote?.supplier?.CardName
 
         if (!supplierName || !supplierCode) return null
 
@@ -195,11 +186,11 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
       },
     },
     {
-      accessorFn: (row) => row?.requisition?.salesPersons?.map((person) => person?.user?.name || person?.user?.email).join(", ") || "",
+      accessorFn: (row) => requisition?.salesPersons?.map((person) => person?.user?.name || person?.user?.email).join(", ") || "",
       id: "req - salesperson",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Req - Salesperson' />,
       cell: ({ row }) => {
-        const salespersons = row.original?.requisition?.salesPersons || []
+        const salespersons = requisition?.salesPersons || []
 
         if (!salespersons || salespersons.length < 1) return null
 
@@ -235,7 +226,7 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
       id: "mpn",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
       cell: function ColumnCell({ row }) {
-        const mpn = row.original?.mpn
+        const mpn = requisition?.mpn
 
         if (!mpn) return null
 
@@ -250,7 +241,7 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
       id: "mfr",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MFR' />,
       cell: function ColumnCell({ row }) {
-        const mfr = row.original?.mfr
+        const mfr = requisition?.mfr
 
         if (!mfr) return null
 
@@ -342,7 +333,7 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
       id: "req - oppportunity value",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Req - Opportunity Value' />,
       cell: ({ row }) => {
-        const { quantity, customerStandardPrice } = row.original?.requisition
+        const { quantity, customerStandardPrice } = requisition
 
         const x = parseFloat(String(quantity))
         const y = parseFloat(String(customerStandardPrice))
@@ -420,6 +411,8 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
         const { executeAsync } = useAction(deleteShipment)
         const [showConfirmation, setShowConfirmation] = useState(false)
 
+        const { setIsOpen, setData } = useDialogStore(["setIsOpen", "setData"])
+
         const { id, code } = row.original
 
         async function handleDelete() {
@@ -448,6 +441,11 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
           })
         }
 
+        const handleEdit = () => {
+          setData(row.original)
+          setTimeout(() => setIsOpen(true), 1000)
+        }
+
         return (
           <>
             <div className='flex gap-2'>
@@ -459,10 +457,7 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
               </ActionTooltipProvider>
 
               <ActionTooltipProvider label='Edit Shipment'>
-                <Icons.pencil
-                  className='size-4 cursor-pointer transition-all hover:scale-125'
-                  onClick={() => router.push(`/dashboard/crm/shipments/${code}`)}
-                />
+                <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' onClick={handleEdit} />
               </ActionTooltipProvider>
 
               <ActionTooltipProvider label='Delete Shipment'>

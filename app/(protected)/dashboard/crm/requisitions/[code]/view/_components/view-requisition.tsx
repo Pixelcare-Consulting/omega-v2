@@ -22,6 +22,7 @@ import { getItems } from "@/actions/master-item"
 import { getBpMasters } from "@/actions/master-bp"
 import { getUsers } from "@/actions/user"
 import RequisitionSupplierQuotesTab from "./tabs/requisition-supplier-quotes-tab"
+import RequisitionShipmentsTab from "./tabs/requisition-shipments-tab"
 
 type ViewRequisitionProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
@@ -109,7 +110,8 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             <TabsTrigger value='1'>Summary</TabsTrigger>
             <TabsTrigger value='2'>Requested Items</TabsTrigger>
             <TabsTrigger value='3'>Supplier Quotes</TabsTrigger>
-            <TabsTrigger value='4'>Activities</TabsTrigger>
+            <TabsTrigger value='4'>Shipments</TabsTrigger>
+            <TabsTrigger value='5'>Activities</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -131,6 +133,10 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
           </TabsContent>
 
           <TabsContent value='4'>
+            <RequisitionShipmentsTab requisition={requisition} />
+          </TabsContent>
+
+          <TabsContent value='5'>
             <RequisitionActivitiesTab requisition={requisition} />
           </TabsContent>
         </Tabs>
