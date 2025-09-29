@@ -1,4 +1,4 @@
-"usse client"
+"use client"
 
 import { useEffect } from "react"
 import { format, isValid } from "date-fns"
