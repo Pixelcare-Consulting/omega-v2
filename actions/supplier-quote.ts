@@ -7,16 +7,39 @@ import { importSchema } from "@/schema/import-export"
 import { supplierQuoteFormSchema } from "@/schema/supplier-quote"
 import { Prisma } from "@prisma/client"
 import { parse } from "date-fns"
+import { z } from "zod"
+
+const SUPPLIER_QUOTE_INCLUDE = {
+  requisition: {
+    include: {
+      salesPersons: {
+        include: {
+          user: { select: { name: true, email: true } },
+        },
+      },
+    },
+  },
+  supplier: {
+    include: {
+      buyer: {
+        select: { name: true, email: true },
+      },
+    },
+  },
+  buyers: {
+    include: {
+      user: {
+        select: { name: true, email: true },
+      },
+    },
+  },
+} satisfies Prisma.SupplierQuoteInclude
 
 export async function getSupplierQuotes() {
   try {
     const result = await prisma.supplierQuote.findMany({
       where: { deletedAt: null, deletedBy: null },
-      include: {
-        requisition: { include: { salesPersons: { include: { user: { select: { name: true, email: true } } } } } },
-        supplier: true,
-        buyers: { include: { user: { select: { name: true, email: true } } } },
-      },
+      include: SUPPLIER_QUOTE_INCLUDE,
     })
 
     return result.map((quote) => ({
@@ -30,15 +53,36 @@ export async function getSupplierQuotes() {
   }
 }
 
+export async function getSupplierQuotesByReqCode(reqCode: number) {
+  try {
+    const result = await prisma.supplierQuote.findMany({
+      where: { requisitionCode: reqCode, deletedAt: null, deletedBy: null },
+      include: SUPPLIER_QUOTE_INCLUDE,
+    })
+
+    return result.map((quote) => ({
+      ...quote,
+      quotedQuantity: quote?.quotedQuantity?.toString(),
+      quotedPrice: quote?.quotedPrice?.toString(),
+    }))
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export const getSupplierQuotesByReqCodeClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ reqCode: z.number() }))
+  .action(async ({ parsedInput: data }) => {
+    return getSupplierQuotesByReqCode(data.reqCode)
+  })
+
 export async function getSupplierQuoteByCode(code: number) {
   try {
     const result = await prisma.supplierQuote.findUnique({
       where: { code: code },
-      include: {
-        requisition: { include: { salesPersons: { include: { user: { select: { name: true, email: true } } } } } },
-        supplier: { include: { buyer: { select: { name: true, email: true } } } },
-        buyers: { include: { user: { select: { name: true, email: true } } } },
-      },
+      include: SUPPLIER_QUOTE_INCLUDE,
     })
 
     if (!result) return null

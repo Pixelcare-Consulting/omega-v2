@@ -115,6 +115,12 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
               actions: "read",
               subjects: "p-csrm-sales-quotes",
             },
+            {
+              href: "/dashboard/crm/shipments",
+              label: "Shipments",
+              actions: "read",
+              subjects: "p-csrm-shipments",
+            },
           ],
         },
         {

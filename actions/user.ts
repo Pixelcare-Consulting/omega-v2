@@ -71,6 +71,10 @@ export async function getUsers() {
   }
 }
 
+export const getUsersClient = action.use(authenticationMiddleware).action(async () => {
+  return getUsers()
+})
+
 export const upsertUser = action
   .use(authenticationMiddleware)
   .schema(userFormSchema)

@@ -37,6 +37,7 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
   const poStatus = REQUISITION_PO_STATUS_OPTIONS.find((item) => item.value === requisition.poStatus)?.label
 
   const salesPersons = requisition.salesPersons?.map((person) => person?.user?.name || person?.user?.email).filter(Boolean) || []
+  const salesTeam = requisition.salesTeam?.map((person) => person?.user?.name || person?.user?.email).filter(Boolean) || []
   const omegaBuyers = requisition.omegaBuyers?.map((person) => person?.user?.name || person?.user?.email).filter(Boolean) || []
 
   return (
@@ -46,13 +47,11 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Date' value={format(requisition.date, "MM-dd-yyyy")} />
 
-        {urgency && (
-          <ReadOnlyField
-            className='col-span-12 md:col-span-6 lg:col-span-3'
-            title='Urgency'
-            value={<Badge variant='soft-amber'>{urgency}</Badge>}
-          />
-        )}
+        <ReadOnlyField
+          className='col-span-12 md:col-span-6 lg:col-span-3'
+          title='Urgency'
+          value={urgency ? <Badge variant='soft-amber'>{urgency}</Badge> : null}
+        />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'
@@ -60,16 +59,28 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
           value={<Badge variant='soft-slate'>{salesCategory}</Badge>}
         />
 
-        {purchasingStatus && (
-          <ReadOnlyField
-            className='col-span-12 md:col-span-6 lg:col-span-3'
-            title='Purchasing Status'
-            value={<Badge variant='soft-blue'>{purchasingStatus}</Badge>}
-          />
-        )}
+        <ReadOnlyField
+          className='col-span-12 md:col-span-6 lg:col-span-3'
+          title='Purchasing Status'
+          value={purchasingStatus ? <Badge variant='soft-blue'>{purchasingStatus}</Badge> : null}
+        />
 
         <ReadOnlyField
-          className='col-span-12 lg:col-span-6'
+          className='col-span-12 lg:col-span-4'
+          title='Omega Buyers'
+          value={
+            <div className='flex flex-wrap items-center gap-1.5'>
+              {omegaBuyers.map((person, i) => (
+                <Badge key={i} variant='soft-red'>
+                  {person}
+                </Badge>
+              ))}
+            </div>
+          }
+        />
+
+        <ReadOnlyField
+          className='col-span-12 md:col-span-6 lg:col-span-4'
           title='Sales Person'
           value={
             <div className='flex flex-wrap items-center gap-1.5'>
@@ -83,11 +94,11 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
         />
 
         <ReadOnlyField
-          className='col-span-12 lg:col-span-6'
-          title='Omega Buyers'
+          className='col-span-12 md:col-span-6 lg:col-span-4'
+          title='Sales Team'
           value={
             <div className='flex flex-wrap items-center gap-1.5'>
-              {omegaBuyers.map((person, i) => (
+              {salesTeam.map((person, i) => (
                 <Badge key={i} variant='soft-red'>
                   {person}
                 </Badge>
@@ -108,26 +119,16 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
           value={requisition.isActiveFollowUp ? <Badge variant='soft-green'>Yes</Badge> : <Badge variant='soft-red'>No</Badge>}
         />
 
-        {result && (
-          <ReadOnlyField
-            className='col-span-12 md:col-span-6 lg:col-span-3'
-            title='Result'
-            value={<Badge variant={requisition.result === "won" ? "soft-green" : "soft-red"}>{result}</Badge>}
-          />
-        )}
-
-        {reason && <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Reason' value={reason} />}
-
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Date Code' value={requisition.dateCode || ""} />
-
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'
-          title='Estimated Delivery Date'
-          value={requisition.estimatedDeliveryDate ? format(requisition.estimatedDeliveryDate, "MM-dd-yyyy") : ""}
+          title='Result'
+          value={result ? <Badge variant={requisition.result === "won" ? "soft-green" : "soft-red"}>{result}</Badge> : null}
         />
 
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Reason' value={reason ? reason : ""} />
+
         <ReadOnlyField
-          className='col-span-12'
+          className='col-span-12 md:col-span-6'
           title='REQ Review Result'
           value={
             <div className='flex flex-wrap items-center gap-1.5'>
@@ -138,6 +139,14 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
               ))}
             </div>
           }
+        />
+
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Date Code' value={requisition.dateCode || ""} />
+
+        <ReadOnlyField
+          className='col-span-12 md:col-span-6 lg:col-span-3'
+          title='Estimated Delivery Date'
+          value={requisition.estimatedDeliveryDate ? format(requisition.estimatedDeliveryDate, "MM-dd-yyyy") : ""}
         />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Cust. PO #' value={requisition.custPoNum ?? ""} />

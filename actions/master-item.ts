@@ -9,6 +9,7 @@ import { deleteItemMasterSchema, itemMasterFormSchema } from "@/schema/master-it
 import { Prisma } from "@prisma/client"
 import { format, isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
+import { z } from "zod"
 
 const sapCredentials = {
   BaseURL: process.env.SAP_BASE_URL || "",
@@ -42,6 +43,13 @@ export async function getItemsByItemCode(code: string) {
     return null
   }
 }
+
+export const getItemByItemCodeClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ code: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    return getItemsByItemCode(data.code)
+  })
 
 export async function getItemMasterGroups() {
   try {

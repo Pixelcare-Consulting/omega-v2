@@ -16,6 +16,7 @@ export async function getRequisitions() {
       where: { deletedAt: null, deletedBy: null },
       include: {
         salesPersons: { include: { user: { select: { name: true, email: true } } } },
+        salesTeam: { include: { user: { select: { name: true, email: true } } } },
         omegaBuyers: { include: { user: { select: { name: true, email: true } } } },
         customer: { select: { CardName: true, CardCode: true } },
         supplierQuotes: true,
@@ -34,14 +35,7 @@ export async function getRequisitions() {
 }
 
 export const getRequisitionsClient = action.use(authenticationMiddleware).action(async () => {
-  try {
-    return await prisma.requisition.findMany({
-      where: { deletedAt: null, deletedBy: null },
-    })
-  } catch (error) {
-    console.error(error)
-    return []
-  }
+  return getRequisitions()
 })
 
 export async function getRequisitionByCode(code: number) {
@@ -52,6 +46,7 @@ export async function getRequisitionByCode(code: number) {
         include: {
           salesPersons: { include: { user: { select: { name: true, email: true } } } },
           omegaBuyers: { include: { user: { select: { name: true, email: true } } } },
+          salesTeam: { include: { user: { select: { name: true, email: true } } } },
           customer: { select: { CardName: true, CardCode: true } },
           supplierQuotes: {
             where: { deletedAt: null, deletedBy: null },
@@ -93,7 +88,7 @@ export const upsertRequisition = action
   .use(authenticationMiddleware)
   .schema(requisitionFormSchema)
   .action(async ({ ctx, parsedInput }) => {
-    const { id, salesPersons, omegaBuyers, ...data } = parsedInput
+    const { id, salesPersons, salesTeam, omegaBuyers, ...data } = parsedInput
     const { userId } = ctx
     const requestedItems = data.requestedItems.map((item) => ({ code: item.code, isSupplierSuggested: item.isSupplierSuggested }))
 
@@ -109,12 +104,20 @@ export const upsertRequisition = action
           //* delete the existing requisition's salespersons
           prisma.requisitionSalesPerson.deleteMany({ where: { requisitionId: id } }),
 
+          //* delete the existing requisition's salesteam
+          prisma.requisitionSalesTeam.deleteMany({ where: { requisitionId: id } }),
+
           //* delete the existing requisition's omegabuyers
           prisma.requisitionOmegaBuyer.deleteMany({ where: { requisitionId: id } }),
 
           //* create new requisition salespersons
           prisma.requisitionSalesPerson.createMany({
             data: salesPersons?.map((salesPerson) => ({ requisitionId: id, userId: salesPerson })) || [],
+          }),
+
+          //* create new requisition salesteam
+          prisma.requisitionSalesTeam.createMany({
+            data: salesTeam?.map((salesTeam) => ({ requisitionId: id, userId: salesTeam })) || [],
           }),
 
           //* create new requisition omegabuyers
@@ -140,6 +143,9 @@ export const upsertRequisition = action
           updatedBy: userId,
           salesPersons: {
             create: salesPersons?.map((salesPerson) => ({ userId: salesPerson })) || [],
+          },
+          salesTeam: {
+            create: salesTeam?.map((salesTeam) => ({ userId: salesTeam })) || [],
           },
           omegaBuyers: {
             create: omegaBuyers?.map((omegaBuyer) => ({ userId: omegaBuyer })) || [],
@@ -244,7 +250,6 @@ export const requisitionCreateMany = action
 
         const quantity = parseFloat(row?.["Requested Quantity"])
         const customerStandardPrice = parseFloat(row?.["Cust. Standard Price"])
-        const customerStandardOpportunityValue = parseFloat(row?.["Cust. Standard Opportunity Value"])
         const reqItemCodes: string[] = row?.["Requested Items"]?.length > 0 ? row?.["Requested Items"]?.map((item: any) => item?.code)?.filter(Boolean) || [] : [] // prettier-ignore
 
         //* check required fields
@@ -255,10 +260,8 @@ export const requisitionCreateMany = action
           !row?.["Customer"] ||
           isNaN(quantity) ||
           isNaN(customerStandardPrice) ||
-          isNaN(customerStandardOpportunityValue) ||
           !quantity ||
-          !customerStandardPrice ||
-          !customerStandardOpportunityValue
+          !customerStandardPrice
         ) {
           errors.push("Missing required fields")
         }

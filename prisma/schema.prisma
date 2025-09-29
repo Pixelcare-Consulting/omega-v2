@@ -46,10 +46,13 @@ model User {
   deletedLeadActivities Activity[] @relation("user-deleted-activities")
 
   requisitionSalesPersons RequisitionSalesPerson[]
+  requisitionSalesTeam    RequisitionSalesTeam[]
   requisitionOmegaBuyers  RequisitionOmegaBuyer[]
 
   saleQuoteSalesReps SaleQuote[] @relation("user-sales-rep-sale-quote")
   saleQuoteApprovals SaleQuote[] @relation("user-approval-sale-quote")
+
+  shipmentPurchasers Shipment[] @relation()
 
   bpAssignedBuyers            BusinessPartner[]              @relation("user-assigned-buyers")
   bpAssignedSalesEmployees    BusinessPartner[]              @relation("user-sales-employee")
@@ -299,8 +302,10 @@ model Requisition {
   deletedBy String?
 
   salesPersons   RequisitionSalesPerson[]
+  salesTeam      RequisitionSalesTeam[]
   omegaBuyers    RequisitionOmegaBuyer[]
   supplierQuotes SupplierQuote[]
+  shipments      Shipment[]
   customer       BusinessPartner?         @relation(fields: [customerCode], references: [CardCode], onUpdate: Cascade, onDelete: Cascade)
 
   createdByUser User? @relation("user-created-requisitions", fields: [createdBy], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -311,6 +316,16 @@ model Requisition {
 }
 
 model RequisitionSalesPerson {
+  requisitionId String
+  userId        String
+
+  requisition Requisition @relation(fields: [requisitionId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@unique([requisitionId, userId])
+}
+
+model RequisitionSalesTeam {
   requisitionId String
   userId        String
 
@@ -353,6 +368,7 @@ model SupplierQuote {
   isFd                        Boolean   @default(false)
   isPreviousSourceOldStkOffer Boolean   @default(false)
   itemCode                    String
+  ltToSjc                     String?   @default("")
   ltToSjcNumber               String?   @default("")
   ltToSjcUom                  String?   @default("")
   dateCode                    String?   @default("")
@@ -374,8 +390,19 @@ model SupplierQuote {
   requisition Requisition          @relation(fields: [requisitionCode], references: [code], onUpdate: Cascade, onDelete: Cascade)
   supplier    BusinessPartner      @relation(fields: [supplierCode], references: [CardCode], onUpdate: Cascade, onDelete: Cascade)
   buyers      SupplierQuoteBuyer[]
+  shipments   Shipment[]
 
   @@unique([code, requisitionCode, supplierCode])
+}
+
+model SupplierQuoteBuyer {
+  supplierQuoteId String
+  userId          String
+
+  supplierQuote SupplierQuote @relation(fields: [supplierQuoteId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@unique([supplierQuoteId, userId])
 }
 
 model SaleQuote {
@@ -410,14 +437,34 @@ model SaleQuote {
   @@unique([code, customerCode])
 }
 
-model SupplierQuoteBuyer {
-  supplierQuoteId String
-  userId          String
+model Shipment {
+  id                 String    @id @default(uuid())
+  code               Int       @unique @default(autoincrement())
+  requisitionCode    Int
+  poNumber           String?   @default("")
+  prNumber           String?   @default("")
+  soNumber           String?   @default("")
+  supplierQuoteCode  Int
+  qtyToShip          Decimal?
+  shipToLocation     String?   @default("")
+  purchaserId        String?
+  shippingOderStatus String?   @default("")
+  datePoPlaced       DateTime?
+  dateShipped        DateTime?
+  orderUpdates       String?   @default("")
 
-  supplierQuote SupplierQuote @relation(fields: [supplierQuoteId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  user          User          @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  purchaser     User?         @relation(fields: [purchaserId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  requisition   Requisition   @relation(fields: [requisitionCode], references: [code], onDelete: Cascade, onUpdate: Cascade)
+  supplierQuote SupplierQuote @relation(fields: [supplierQuoteCode], references: [code], onDelete: Cascade, onUpdate: Cascade)
 
-  @@unique([supplierQuoteId, userId])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+
+  @@unique([code, requisitionCode, supplierQuoteCode])
 }
 
 model BusinessPartner {

@@ -182,6 +182,7 @@ export const supplierQuoteFormSchema = z.object({
   isFd: z.boolean(),
   isPreviousSourceOldStkOffer: z.boolean(),
   itemCode: z.string().min(1, { message: "Item is required" }),
+  ltToSjc: z.string().nullish(),
   ltToSjcNumber: z.string().nullish(),
   ltToSjcUom: z.string().nullish(),
   dateCode: z.string().max(6, { message: "Date code is too long; it should be a maximum of 6 characters" }).nullish(),

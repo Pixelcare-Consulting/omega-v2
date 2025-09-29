@@ -72,6 +72,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
         ...data,
         requestedItems: [],
         salesPersons: [],
+        salesTeam: [],
         omegaBuyers: [],
         quantity: quantity as any,
         customerStandardPrice: customerStandardPrice as any,
@@ -90,6 +91,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
         date: new Date(),
         urgency: "",
         salesPersons: [],
+        salesTeam: [],
         omegaBuyers: [],
         salesCategory: "",
         isPurchasingInitiated: false,
@@ -428,6 +430,43 @@ export default function RequisitionForm({ requisition, users, customers, items }
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField
+              data={REQUISITION_SALES_CATEGORY_OPTIONS}
+              control={form.control}
+              name='salesCategory'
+              label='Sales Category'
+              isRequired
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <ComboboxField
+              data={REQUISITION_PURCHASING_STATUS_OPTIONS}
+              control={form.control}
+              name='purchasingStatus'
+              label='Purchasing Status'
+              isRequired
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <MultiSelectField
+              data={usersOptions}
+              control={form.control}
+              name='omegaBuyers'
+              label='Omega Buyers'
+              renderItem={(item, selected) => {
+                return (
+                  <div className='flex flex-col justify-center'>
+                    <span>{item.label}</span>
+                    {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
+                  </div>
+                )
+              }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
             <MultiSelectField
               data={usersOptions}
               control={form.control}
@@ -444,22 +483,12 @@ export default function RequisitionForm({ requisition, users, customers, items }
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField
-              data={REQUISITION_SALES_CATEGORY_OPTIONS}
-              control={form.control}
-              name='salesCategory'
-              label='Sales Category'
-              isRequired
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
             <MultiSelectField
               data={usersOptions}
               control={form.control}
-              name='omegaBuyers'
-              label='Omega Buyers'
+              name='salesTeam'
+              label='Sales Team'
               renderItem={(item, selected) => {
                 return (
                   <div className='flex flex-col justify-center'>
@@ -492,21 +521,20 @@ export default function RequisitionForm({ requisition, users, customers, items }
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <ComboboxField
-              data={REQUISITION_PURCHASING_STATUS_OPTIONS}
-              control={form.control}
-              name='purchasingStatus'
-              label='Purchasing Status'
-              isRequired
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <ComboboxField data={REQUISITION_RESULT_OPTIONS} control={form.control} name='result' label='Result' />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <ComboboxField data={REQUISITION_REASON_OPTIONS} control={form.control} name='reason' label='Reason' />
+          </div>
+
+          <div className='col-span-12 md:col-span-6'>
+            <MultiSelectField
+              data={REQUISITION_REQ_REVIEW_RESULT_OPTIONS}
+              control={form.control}
+              name='reqReviewResult'
+              label='REQ Review Result'
+            />
           </div>
 
           <div className='col-span-12 md:col-span-6 lg:col-span-3'>
@@ -526,15 +554,6 @@ export default function RequisitionForm({ requisition, users, customers, items }
               extendedProps={{
                 calendarProps: { mode: "single", fromYear: 1800, toYear: new Date().getFullYear(), captionLayout: "dropdown-buttons" },
               }}
-            />
-          </div>
-
-          <div className='col-span-12'>
-            <MultiSelectField
-              data={REQUISITION_REQ_REVIEW_RESULT_OPTIONS}
-              control={form.control}
-              name='reqReviewResult'
-              label='REQ Review Result'
             />
           </div>
 

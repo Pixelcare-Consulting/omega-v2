@@ -111,6 +111,7 @@ export default function SupplierQuoteForm({
         isFd: false,
         isPreviousSourceOldStkOffer: false,
         itemCode: "",
+        ltToSjc: "",
         ltToSjcNumber: "",
         ltToSjcUom: "",
         dateCode: "",
@@ -368,7 +369,7 @@ export default function SupplierQuoteForm({
               label='Buyers'
               renderItem={(item, selected) => {
                 return (
-                  <div className='flex flex-col justify-center'>
+                  <div className={cn("flex flex-col justify-center", selected && "bg-accent")}>
                     <span>{item.label}</span>
                     {item.user?.email && <span className='text-xs text-muted-foreground'>{item.user?.email}</span>}
                   </div>
@@ -586,7 +587,16 @@ export default function SupplierQuoteForm({
             </FormItem>
           </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+            <InputField
+              control={form.control}
+              name='ltToSjc'
+              label='L/T To SJC'
+              extendedProps={{ inputProps: { placeholder: "Enter L/T to SJC" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <ComboboxField
               data={SUPPLIER_QUOTE_LT_TO_SJC_NUMBER_OPTIONS}
               control={form.control}
@@ -595,11 +605,11 @@ export default function SupplierQuoteForm({
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <ComboboxField data={SUPPLIER_QUOTE_LT_TO_SJC_UOM_OPTIONS} control={form.control} name='ltToSjcUom' label='LT to SJC (UOM)' />
           </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
             <DatePickerField
               control={form.control}
               name='estimatedDeliveryDate'

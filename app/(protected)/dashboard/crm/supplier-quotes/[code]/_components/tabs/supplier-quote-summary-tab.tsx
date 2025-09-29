@@ -228,11 +228,13 @@ export default function SupplierQuoteSummaryTab({ supplierQuote, items }: Suppli
           </>
         )}
 
-        <ReadOnlyField className='col-span-12 md:col-span-4' title='LT to SJC (Number)' value={ltToSjcNumber || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-3' title='L/T to SJC' value={supplierQuote.ltToSjc || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-4' title='LT to SJC (UOM)' value={ltToSjcUom || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-3' title='LT to SJC (Number)' value={ltToSjcNumber || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-4' title='Estimated Delivery Date' value={estimatedDeliveryDate || ""} />
+        <ReadOnlyField className='col-span-12 md:col-span-3' title='LT to SJC (UOM)' value={ltToSjcUom || ""} />
+
+        <ReadOnlyField className='col-span-12 md:col-span-3' title='Estimated Delivery Date' value={estimatedDeliveryDate || ""} />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Date Code' value={supplierQuote.dateCode || ""} />
 
