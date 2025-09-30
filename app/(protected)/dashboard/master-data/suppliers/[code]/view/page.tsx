@@ -5,7 +5,7 @@ import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import ViewSupplier from "./_components/view-supplier"
 import { getBpMasterByCardCode, getCountries } from "@/actions/master-bp"
-import { getItemMasterGroups } from "@/actions/master-item"
+import { getItemGroups } from "@/actions/master-item"
 import { getManufacturers } from "@/actions/manufacturer"
 
 export default async function ViewSupplierPage({ params }: { params: { code: string } }) {
@@ -13,7 +13,7 @@ export default async function ViewSupplierPage({ params }: { params: { code: str
 
   const [supplier, itemGroups, manufacturers, countries] = await Promise.all([
     !code ? null : await getBpMasterByCardCode(code),
-    getItemMasterGroups(),
+    getItemGroups(),
     getManufacturers(),
     getCountries(),
   ])

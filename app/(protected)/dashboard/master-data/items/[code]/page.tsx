@@ -5,7 +5,7 @@ import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import UnderDevelopment from "@/components/under-development"
-import { getItemMasterGroups, getItemsByItemCode } from "@/actions/master-item"
+import { getItemGroups, getItemsByItemCode } from "@/actions/master-item"
 import { getManufacturers } from "@/actions/manufacturer"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -19,7 +19,7 @@ export default async function ItemPage({ params }: { params: { code: string } })
 
   const [item, itemGroups, manufacturers] = await Promise.all([
     !code ? null : getItemsByItemCode(code),
-    getItemMasterGroups(),
+    getItemGroups(),
     getManufacturers(),
   ])
 

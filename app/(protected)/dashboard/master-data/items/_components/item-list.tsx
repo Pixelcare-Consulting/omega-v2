@@ -15,7 +15,7 @@ import { DataTableSearch } from "@/components/data-table/data-table-search"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
 import LoadingButton from "@/components/loading-button"
 import { Icons } from "@/components/icons"
-import { getItemMasterGroupsClient, getItems, itemMasterCreateMany } from "@/actions/master-item"
+import { getItemGroupsClient, getItems, itemMasterCreateMany } from "@/actions/master-item"
 import { SOURCES_OPTIONS, SYNC_STATUSES_OPTIONS } from "@/constant/common"
 import DataImportExport from "@/components/data-table/data-import-export"
 import { parseExcelFile, styleWorkSheet } from "@/lib/xlsx"
@@ -49,7 +49,7 @@ export default function ItemList({ items }: ItemListProps) {
     execute: getItemGroups,
     isPending: itemGroupsIsLoading,
     result: { data: itemGroups },
-  } = useAction(getItemMasterGroupsClient)
+  } = useAction(getItemGroupsClient)
 
   const {
     execute: getManufacturers,
@@ -63,7 +63,23 @@ export default function ItemList({ items }: ItemListProps) {
 
       try {
         //* constant values
-        const headers = ["Description", "Code", "Group", "Manufacturer"]
+        const headers = [
+          "Description",
+          "Code",
+          "Group",
+          "Manufacturer",
+          "Unit of Measure",
+          "Revenue Account",
+          "Default Warehouse",
+          "Country of Origin",
+          "Customs Group",
+          "VAT Liable",
+          "Purchase Item",
+          "Sales Item",
+          "Inventory Item",
+          "Manage Batch No.",
+        ]
+
         const batchSize = 5
 
         //* parse excel file

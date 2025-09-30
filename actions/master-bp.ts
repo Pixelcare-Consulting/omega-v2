@@ -55,6 +55,13 @@ export async function getBpMasters(cardType: string) {
   }
 }
 
+export const getBpMastersClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ cardType: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    return getBpMasters(data.cardType)
+  })
+
 export async function getBpMasterByCardCode(cardCode: string) {
   try {
     const [bpMaster, contacts, addresses, countries] = await Promise.all([
@@ -96,6 +103,13 @@ export async function getBpMasterByCardCode(cardCode: string) {
   }
 }
 
+export const getBpMasterByCardCodeClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ cardCode: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    return getBpMasterByCardCode(data.cardCode)
+  })
+
 export async function getBpMasterGroups() {
   try {
     return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/BusinessPartnerGroups`, undefined, {
@@ -129,6 +143,17 @@ export async function getPaymentTerms() {
   }
 }
 
+export const getPaymentTermsClient = action.use(authenticationMiddleware).action(async () => {
+  try {
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query4')/List`, undefined, {
+      Prefer: "odata.maxpagesize=999",
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+})
+
 export async function getCurrencies() {
   try {
     return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query5')/List`, undefined, {
@@ -139,6 +164,17 @@ export async function getCurrencies() {
     return []
   }
 }
+
+export const getCurrenciesClient = action.use(authenticationMiddleware).action(async () => {
+  try {
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query5')/List`, undefined, {
+      Prefer: "odata.maxpagesize=999",
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+})
 
 export async function getStates(countryCode: string) {
   try {
@@ -505,28 +541,53 @@ export const bpMasterCreateMany = action
   .action(async ({ parsedInput, ctx }) => {
     const { data, total, stats, isLastBatch, metaData } = parsedInput
     const { userId } = ctx
+
     const bpGroups = metaData?.bpGroups || []
+    const paymentTerms = metaData?.paymentTerms || []
+    const currencies = metaData?.currencies || []
+    const itemGroups = metaData?.itemGroups || []
+    const manufacturers = metaData?.manufacturers || []
+
     const cardType = metaData?.cardType
 
     const cardCodes = data?.map((row: any) => row?.["Code"]).filter(Boolean) || []
     const cacheKey = `bp-master-${cardType.toLowerCase()}`
 
+    const userIds =
+      data
+        ?.map((row: any) => {
+          const salesEmployee = row?.["Sales Employee"]
+          const bdrInsideSalesRep = row?.["BDR / Inside Sales Rep"]
+          const accountExecutive = row?.["Account Executive"]
+          const accountAssociate = row?.["Account Associate"]
+          const assignBuyery = row?.["Assigned Buyer"]
+
+          const rowIds: string[] = row?.["Excess Managers"]?.split(",")?.filter(Boolean) || []
+
+          return [...(rowIds?.length > 0 ? rowIds : []), salesEmployee, bdrInsideSalesRep, accountExecutive, accountAssociate, assignBuyery]
+            .map((item: any) => item.trim())
+            .filter(Boolean)
+        })
+        ?.flat() || []
+    const uniqueUserIds = [...new Set(userIds)]
+
     try {
       const bpBatch: Prisma.BusinessPartnerCreateManyInput[] = []
       const addressBatch: Prisma.AddressCreateManyInput[] = []
+      const excessManagersBatch: Prisma.BusinessPartnerExcessManagerCreateManyInput[] = []
 
-      //* get existing BP CardCodes
-      const existingBpMasterCodes = await prisma.businessPartner.findMany({
-        where: { CardCode: { in: cardCodes } },
-        select: { CardCode: true },
-      })
+      //* get existing BP CardCodes, get the latest numeric address id
+      const [existingBpMasterCodes, latestAddress, existingUsers] = await Promise.all([
+        prisma.businessPartner.findMany({
+          where: { CardCode: { in: cardCodes } },
+          select: { CardCode: true },
+        }),
+        prisma.$queryRaw<{ maxId: number }[]>`
+        SELECT MAX(CAST(SUBSTRING("id" FROM 2) AS INT)) AS "maxId" 
+        FROM "Address" WHERE "id" ~ '^A[0-9]+$'`,
+        prisma.user.findMany({ where: { id: { in: uniqueUserIds } }, select: { id: true } }),
+      ])
 
-      //* Get the latest numeric address id
-      const latestAddress = await prisma.$queryRaw<{ maxId: number }[]>`
-       SELECT MAX(CAST(SUBSTRING("id" FROM 2) AS INT)) AS "maxId"
-       FROM "Address"
-       WHERE "id" ~ '^A[0-9]+$'
-     `
       let addressCounter = latestAddress?.[0]?.maxId || 0
 
       for (let i = 0; i < data.length; i++) {
@@ -534,13 +595,15 @@ export const bpMasterCreateMany = action
         const row = data[i]
 
         const group = bpGroups.find((group: any) => group?.Code == row?.["Group"])
+        const terms = paymentTerms.find((term: any) => term?.GroupNum == row?.["Terms"])
+        const currency = currencies.find((currency: any) => currency?.CurrCode == row?.["Currency"])
 
         //* reshape address data
         const billingAddress: Prisma.AddressCreateInput = {
           id: "",
           CardCode: "",
           AddrType: "B",
-          Street: row?.["Billing - Street"] || "",
+          Street: row?.["Billing - Street 1"] || "",
           Address2: row?.["Billing - Street 2"] || "",
           Address3: row?.["Billing - Street 3"] || "",
           StreetNo: row?.["Billing - Street No"] || "",
@@ -561,7 +624,7 @@ export const bpMasterCreateMany = action
           id: "",
           CardCode: "",
           AddrType: "S",
-          Street: row?.["Shipping - Street"] || "",
+          Street: row?.["Shipping - Street 1"] || "",
           Address2: row?.["Shipping - Street 2"] || "",
           Address3: row?.["Shipping - Street 3"] || "",
           StreetNo: row?.["Shipping - Street No"] || "",
@@ -580,6 +643,8 @@ export const bpMasterCreateMany = action
 
         //* operations for customer
         if (cardType === "C") {
+          const excessManagers: string[] = row?.["Excess Managers"]?.split(",") || []
+
           //* check required fields
           if (!row?.["Company Name"] || !row?.["Group"] || !row?.["Type"] || !row?.["Status"]) {
             errors.push("Missing required fields")
@@ -588,6 +653,11 @@ export const bpMasterCreateMany = action
           //* check if customer code already exists
           if (existingBpMasterCodes.find((bp) => bp.CardCode === row?.["Code"])) {
             errors.push("Customer code already exists")
+          }
+
+          //* check if all excess managers exists, if one of them doesn't exist, skip the row
+          if (excessManagers.every((id) => existingUsers.find((u) => u.id === id))) {
+            errors.push("One or more excess managers not found")
           }
 
           //* if errors array is not empty, then update/push to stats.error
@@ -617,6 +687,20 @@ export const bpMasterCreateMany = action
             CardName: row?.["Company Name"] || "",
             GroupCode: group?.Code ?? 0,
             GroupName: group?.Name || "",
+            GroupNum: terms?.GroupNum,
+            PymntGroup: terms?.PymntGroup,
+            CurrName: currency?.CurrName,
+            Currency: currency?.CurrCode,
+            accountType: row?.["Account Type"],
+            industryType: row?.["Industry Type"],
+            Phone1: row?.["Phone"],
+            assignedSalesEmployee: existingUsers?.find((user) => user.id === row?.["Sales Employee"])?.id,
+            assignedBdrInsideSalesRep: existingUsers?.find((user) => user.id === row?.["BDR / Inside Sales Rep"])?.id,
+            assignedAccountExecutive: existingUsers?.find((user) => user.id === row?.["Account Executive"])?.id,
+            assignedAccountAssociate: existingUsers?.find((user) => user.id === row?.["Account Associate"])?.id,
+            isActive: row?.["Active"] === "Yes",
+            isCreditHold: row?.["Credit Hold"] === "Yes",
+            isWarehousingCustomer: row?.["Warehousing Customer"] === "Yes",
             type: row?.["Type"] || "",
             status: row?.["Status"] || "",
             CreateDate: format(new Date(), "yyyyMMdd"),
@@ -630,10 +714,14 @@ export const bpMasterCreateMany = action
           //* add to batch
           bpBatch.push(bpCustomerData)
           addressBatch.push(billingAddress, shippingAddress)
+          excessManagersBatch.push(...excessManagers.map((id) => ({ bpCode: customerCode, userId: id })))
         }
 
         //* operations for supplier
         if (cardType === "S") {
+          const commodityStrengths: string[] = row?.["Commodity Strengths"]?.split(",")?.filter(Boolean) || []
+          const mfrStrengths: string[] = row?.["MFR Strengths"]?.split(",")?.filter(Boolean) || []
+
           //* check required fields
           if (!row?.["Company Name"] || !row?.["Group"] || !row?.["Status"] || !row?.["Scope"]) {
             errors.push("Missing required fields")
@@ -642,6 +730,16 @@ export const bpMasterCreateMany = action
           //* check if customer code already exists
           if (existingBpMasterCodes.find((bp) => bp.CardCode === row?.["Code"])) {
             errors.push("Supplier code already exists")
+          }
+
+          //* check if all commodity strengths exists, if one of them doesn't exist, skip the row
+          if (!commodityStrengths.every((gid) => itemGroups.find((g: any) => g.Number == gid))) {
+            errors.push("One or more commodity strengths not found")
+          }
+
+          //* check if all mfr strengths exists, if one of them doesn't exist, skip the row
+          if (!mfrStrengths.every((mid) => manufacturers.find((m: any) => m.Code === mid))) {
+            errors.push("One or more mfr strengths not found")
           }
 
           //* if errors array is not empty, then update/push to stats.error
@@ -671,8 +769,24 @@ export const bpMasterCreateMany = action
             CardName: row?.["Company Name"] || "",
             GroupCode: group?.Code ?? 0,
             GroupName: group?.Name || "",
-            scope: row?.["Scope"] || "",
+            accountNo: row?.["Account #"] || "",
+            assignedBuyer: existingUsers?.find((user) => user.id === row?.["Assigned Buyer"])?.id,
+            Phone1: row?.["Phone"] || "",
+            website: row?.["Website"] || "",
+            CurrName: currency?.CurrName,
+            Currency: currency?.CurrCode,
+            commodityStrengths: commodityStrengths.filter((gid) => !isNaN(parseInt(gid))).map((gid) => parseInt(gid)),
+            mfrStrengths: mfrStrengths.filter((mid) => !isNaN(parseInt(mid))).map((mid) => parseInt(mid)),
+            avlStatus: row?.["AVL Status"] || "",
             status: row?.["Status"] || "",
+            scope: row?.["Scope"] || "",
+            isCompliantToAs: row?.["Compliant to AS"] === "Yes",
+            isCompliantToItar: row?.["Compliant to ITAR"] === "Yes",
+            GroupNum: terms?.GroupNum,
+            PymntGroup: terms?.PymntGroup,
+            warranyPeriod: row?.["Warranty Period"] || "",
+            omegaReviews: row?.["Omega Reviews"] || "",
+            qualificationNotes: row?.["Qualification Notes"] || "",
             CreateDate: format(new Date(), "yyyyMMdd"),
             UpdateDate: format(new Date(), "yyyyMMdd"),
             BillToDef: billingId,
@@ -695,6 +809,10 @@ export const bpMasterCreateMany = action
         }),
         prisma.businessPartner.createMany({
           data: bpBatch,
+          skipDuplicates: true,
+        }),
+        prisma.businessPartnerExcessManager.createMany({
+          data: excessManagersBatch,
           skipDuplicates: true,
         }),
       ])

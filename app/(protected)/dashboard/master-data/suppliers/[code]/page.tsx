@@ -13,7 +13,7 @@ import SupplierForm from "../_components/supplier-form"
 import UnderDevelopment from "@/components/under-development"
 import { Card } from "@/components/ui/card"
 import { getUsers } from "@/actions/user"
-import { getItemMasterGroups } from "@/actions/master-item"
+import { getItemGroups } from "@/actions/master-item"
 import { getManufacturers } from "@/actions/manufacturer"
 
 export default async function SupplierPage({ params }: { params: { code: string } }) {
@@ -25,7 +25,7 @@ export default async function SupplierPage({ params }: { params: { code: string 
     getPaymentTerms(),
     getCurrencies(),
     getCountries(),
-    getItemMasterGroups(),
+    getItemGroups(),
     getManufacturers(),
     getUsers(),
   ])

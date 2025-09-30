@@ -9,13 +9,13 @@ import { getSyncMetaByCode } from "@/actions/sync-meta"
 import SupplierListHeader from "./_components/supplier-list-header"
 import { Icons } from "@/components/icons"
 import { getManufacturers } from "@/actions/manufacturer"
-import { getItemMasterGroups } from "@/actions/master-item"
+import { getItemGroups } from "@/actions/master-item"
 
 export default async function SuppliersPage() {
   const [syncMeta, suppliers, itemGroups, manufacturers] = await Promise.all([
     getSyncMetaByCode("S"),
     getBpMasters("S"),
-    getItemMasterGroups(),
+    getItemGroups(),
     getManufacturers(),
   ])
 

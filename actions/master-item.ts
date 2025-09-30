@@ -51,7 +51,7 @@ export const getItemByItemCodeClient = action
     return getItemsByItemCode(data.code)
   })
 
-export async function getItemMasterGroups() {
+export async function getItemGroups() {
   try {
     return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/ItemGroups`, undefined, {
       Prefer: "odata.maxpagesize=999",
@@ -62,16 +62,25 @@ export async function getItemMasterGroups() {
   }
 }
 
-export const getItemMasterGroupsClient = action.use(authenticationMiddleware).action(async () => {
+export const getItemGroupsClient = action.use(authenticationMiddleware).action(async () => {
+  return getItemGroups()
+})
+
+export async function getItemGroupByCode(code: number) {
   try {
-    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/ItemGroups`, undefined, {
-      Prefer: "odata.maxpagesize=999",
-    })
+    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/ItemGroups(${code})`)
   } catch (error) {
     console.error(error)
-    return []
+    return null
   }
-})
+}
+
+export const getItemGroupByCodeClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ code: z.number() }))
+  .action(async ({ parsedInput: data }) => {
+    return getItemGroupByCode(data.code)
+  })
 
 export const upsertItemMaster = action
   .use(authenticationMiddleware)
