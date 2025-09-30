@@ -14,6 +14,7 @@ import { Icons } from "@/components/icons"
 import { Badge } from "@/components/badge"
 import { BP_MASTER_SUPPLIER_SCOPE_OPTIONS, BP_MASTER_SUPPLIER_STATUS_OPTIONS } from "@/schema/master-bp"
 import { dateFilter, dateSort } from "@/lib/data-table/data-table"
+import { formatNumber } from "@/lib/formatter"
 
 type ProductAvailabilityData = Awaited<ReturnType<typeof getProductAvailabilities>>[number]
 
@@ -157,6 +158,25 @@ export function getColumns(): ColumnDef<ProductAvailabilityData>[] {
         const rowADate = rowA.original.updatedAt
         const rowBDate = rowB.original.updatedAt
         return dateSort(rowADate, rowBDate)
+      },
+    },
+    {
+      id: "supplier percentage of answered back RFQ's",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Supplier - Percentage of Answered Back RFQ's" />,
+      cell: ({ row }) => null,
+    },
+    {
+      accessorFn: (row) => {
+        const salesQuotesCount = parseFloat(String(row?.supplier?.saleQuotes?.length ?? 0))
+        if (isNaN(salesQuotesCount)) return 0
+        return salesQuotesCount
+      },
+      id: "supplier - # of Sales Orders",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Supplier - # of Sales Orders' />,
+      cell: ({ row }) => {
+        const salesQuotesCount = parseFloat(String(row.original?.supplier?.saleQuotes?.length ?? 0))
+        if (isNaN(salesQuotesCount)) return null
+        return <div>{formatNumber({ amount: salesQuotesCount, maxDecimal: 2 })}</div>
       },
     },
     {

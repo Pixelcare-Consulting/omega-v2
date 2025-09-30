@@ -10,7 +10,7 @@ import { getItemGroupByCode } from "./master-item"
 
 const PRODUCT_AVAILABILITY_INCLUDE = {
   supplier: {
-    select: { CardCode: true, CardName: true, status: true, scope: true },
+    select: { CardCode: true, CardName: true, status: true, scope: true, saleQuotes: { select: { code: true } } },
   },
 } satisfies Prisma.ProductAvailabilityInclude
 
@@ -34,8 +34,8 @@ export async function getProductAvailabilities() {
     const [manufacturers, itemGroups] = await Promise.all([manufacturerPromises, itemGroupPromises])
 
     return productAvailabilities.map((pa) => {
-      const manufacturer = (manufacturers?.find((m) => m?.code == pa?.manufacturerCode)?.ManufacturerName || "" )as string
-      const itemGroup = (itemGroups?.find((g) => g?.number == pa?.itemGroupCode)?.GroupName || "") as string
+      const manufacturer = (manufacturers?.find((m) => m?.Code == pa?.manufacturerCode)?.ManufacturerName || "") as string
+      const itemGroup = (itemGroups?.find((g) => g?.Number == pa?.itemGroupCode)?.GroupName || "") as string
 
       return { ...pa, manufacturer, itemGroup }
     })
