@@ -16,7 +16,10 @@ const PRODUCT_AVAILABILITY_INCLUDE = {
 
 export async function getProductAvailabilities() {
   try {
-    const productAvailabilities = await prisma.productAvailability.findMany({ include: PRODUCT_AVAILABILITY_INCLUDE })
+    const productAvailabilities = await prisma.productAvailability.findMany({
+      where: { deletedAt: null, deletedBy: null },
+      include: PRODUCT_AVAILABILITY_INCLUDE,
+    })
 
     const manufacturerPromises = Promise.all([
       ...productAvailabilities
