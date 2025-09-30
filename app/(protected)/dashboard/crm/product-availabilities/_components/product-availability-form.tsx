@@ -42,8 +42,7 @@ export default function ProductAvailabilityForm({
   const { setIsOpen, setData } = useDialogStore(["setIsOpen", "setData"])
 
   const values = useMemo(() => {
-    if (productAvailability) {
-    }
+    if (productAvailability) return productAvailability
 
     if (code === "add" || !productAvailability) {
       return {
@@ -95,13 +94,19 @@ export default function ProductAvailabilityForm({
   }, [JSON.stringify(bpMasters), isBpMastersLoading])
 
   const itemGroupsOptions = useMemo(() => {
-    if (!itemGroups) return []
-    return itemGroups.map((group: any) => ({ label: group.GroupName, value: group.Number, group }))
+    if (!itemGroups || !itemGroups?.value) return []
+
+    const values = itemGroups?.value || []
+
+    return values.map((group: any) => ({ label: group.GroupName, value: group.Number, group }))
   }, [JSON.stringify(itemGroups), isItemGroupsLoading])
 
   const manufacturersOptions = useMemo(() => {
-    if (!manufacturers) return []
-    return manufacturers.map((manufacturer: any) => ({ label: manufacturer.ManufacturerName, value: manufacturer.Code, manufacturer }))
+    if (!manufacturers || !manufacturers?.value) return []
+
+    const values = manufacturers?.value || []
+
+    return values.map((manufacturer: any) => ({ label: manufacturer.ManufacturerName, value: manufacturer.Code, manufacturer }))
   }, [JSON.stringify(manufacturers), isManufacturersLoading])
 
   const onSubmit = async (formData: ProductAvailabilityForm) => {
@@ -228,7 +233,7 @@ export default function ProductAvailabilityForm({
           </div>
 
           <div className='col-span-12 md:col-span-6 md:mt-3 lg:col-span-3'>
-            <SwitchField control={form.control} layout='default' name='isSpecialPricing' label='Strong Brand' />
+            <SwitchField control={form.control} layout='default' name='isStrongBrand' label='Strong Brand' />
           </div>
 
           <div className='col-span-12'>
