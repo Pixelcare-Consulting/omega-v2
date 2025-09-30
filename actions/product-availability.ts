@@ -5,6 +5,8 @@ import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { productAvailabilityFormSchema } from "@/schema/product-availability"
 import { paramsSchema } from "@/schema/common"
 import { Prisma } from "@prisma/client"
+import { getManufacturerByCode } from "./manufacturer"
+import { getItemGroupByCode } from "./master-item"
 
 const PRODUCT_AVAILABILITY_INCLUDE = {
   supplier: {
@@ -14,7 +16,29 @@ const PRODUCT_AVAILABILITY_INCLUDE = {
 
 export async function getProductAvailabilities() {
   try {
-    return await prisma.productAvailability.findMany({ include: PRODUCT_AVAILABILITY_INCLUDE })
+    const productAvailabilities = await prisma.productAvailability.findMany({ include: PRODUCT_AVAILABILITY_INCLUDE })
+
+    const manufacturerPromises = Promise.all([
+      ...productAvailabilities
+        .map((pa) => (pa.manufacturerCode ? getManufacturerByCode(pa.manufacturerCode) : Promise.resolve(null)))
+        .filter(Boolean),
+    ])
+
+    const itemGroupPromises = Promise.all([
+      ...productAvailabilities
+        .map((pa) => (pa.itemGroupCode ? getItemGroupByCode(pa.itemGroupCode) : Promise.resolve(null)))
+        .filter(Boolean),
+    ])
+
+    //* fetch manufacturers and item groups
+    const [manufacturers, itemGroups] = await Promise.all([manufacturerPromises, itemGroupPromises])
+
+    return productAvailabilities.map((pa) => {
+      const manufacturer = (manufacturers?.find((m) => m?.code == pa?.manufacturerCode)?.ManufacturerName || "" )as string
+      const itemGroup = (itemGroups?.find((g) => g?.number == pa?.itemGroupCode)?.GroupName || "") as string
+
+      return { ...pa, manufacturer, itemGroup }
+    })
   } catch (error) {
     console.error(error)
     return []

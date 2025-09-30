@@ -5,6 +5,7 @@ import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Card } from "@/components/ui/card"
 import { getProductAvailabilities } from "@/actions/product-availability"
+import ProductAvailabilityList from "./_components/product-availability-list"
 
 export default async function ProductAvailabilitiesPage() {
   const productAvailabilities = await getProductAvailabilities()
@@ -30,7 +31,9 @@ export default async function ProductAvailabilitiesPage() {
             icon: Icons.plus,
           }}
         >
-          <Card className='rounded-lg p-6 shadow-md'></Card>
+          <Card className='rounded-lg p-6 shadow-md'>
+            <ProductAvailabilityList productAvailabilities={productAvailabilities} />
+          </Card>
         </PageWrapper>
       </ContentContainer>
     </ContentLayout>
