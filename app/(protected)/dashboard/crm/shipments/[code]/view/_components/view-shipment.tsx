@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { format } from "date-fns"
 
 import { getShipmentByCode } from "@/actions/shipment"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
@@ -10,7 +11,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/badge"
 import { getInitials } from "@/lib/utils"
 import { SHIPMENT_SHIPPING_ORDER_STATUS_OPTIONS } from "@/schema/shipment"
-import { format } from "date-fns"
 import ShipmentSummaryTab from "./tabs/shipment-summary-tab"
 
 type ViewShipmentProps = {
@@ -79,21 +79,21 @@ export default function ViewShipment({ shipment }: ViewShipmentProps) {
             </div>
           </div>
         </Card>
+
+        <Tabs defaultValue='1' className='w-full'>
+          <TabsList className='mb-2 h-fit flex-wrap'>
+            <TabsTrigger value='1'>Summary</TabsTrigger>
+            {/* //TODO: add "Tracking" tab when doing logistics features */}
+            {/* <TabsTrigger value='2'>Tracking</TabsTrigger> */}
+            {/* //TODO: add "Documents" tab when doing logistics features */}
+            {/* <TabsTrigger value='3'>Documents</TabsTrigger> */}
+          </TabsList>
+
+          <TabsContent value='1'>
+            <ShipmentSummaryTab shipment={shipment} />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <Tabs defaultValue='1' className='w-full'>
-        <TabsList className='mb-2 h-fit flex-wrap'>
-          <TabsTrigger value='1'>Summary</TabsTrigger>
-          {/* //TODO: add "Tracking" tab when doing logistics features */}
-          {/* <TabsTrigger value='2'>Tracking</TabsTrigger> */}
-          {/* //TODO: add "Documents" tab when doing logistics features */}
-          {/* <TabsTrigger value='3'>Documents</TabsTrigger> */}
-        </TabsList>
-
-        <TabsContent value='1'>
-          <ShipmentSummaryTab shipment={shipment} />
-        </TabsContent>
-      </Tabs>
     </PageWrapper>
   )
 }

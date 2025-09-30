@@ -211,7 +211,7 @@ export default function ProductAvailabilityForm({
               data={itemGroupsOptions}
               control={form.control}
               name='itemGroupCode'
-              label='Commondity'
+              label='Commodity'
               isLoading={isItemGroupsLoading}
             />
           </div>

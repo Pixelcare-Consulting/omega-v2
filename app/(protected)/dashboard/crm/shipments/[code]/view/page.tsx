@@ -5,7 +5,7 @@ import Breadcrumbs from "@/components/breadcrumbs"
 import { notFound } from "next/navigation"
 import ViewShipment from "./_components/view-shipment"
 
-export default async function ShipmentPage({ params }: { params: { code: string } }) {
+export default async function ViewShipmentPage({ params }: { params: { code: string } }) {
   const { code } = params
 
   const shipment = await getShipmentByCode(parseInt(code))
