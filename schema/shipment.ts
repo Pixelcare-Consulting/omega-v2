@@ -41,7 +41,7 @@ export const shipmentFormSchema = z.object({
   prNumber: z.string().nullish(),
   soNumber: z.string().nullish(),
   supplierQuoteCode: z.coerce.number().min(1, { message: "Supplier quote is required" }),
-  qtyToShip: z.coerce.number().min(1, { message: "Quantity to ship is required" }),
+  qtyToShip: z.coerce.number(),
   shipToLocation: z.string().nullish(),
   purchaserId: z.string().nullish(),
   shippingOderStatus: z.string().nullish(),

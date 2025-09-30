@@ -230,7 +230,7 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
       },
     },
     {
-      id: "mpn",
+      accessorKey: "mpn",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
       cell: function ColumnCell({ row }) {
         const mpn = row.original?.mpn
@@ -245,7 +245,7 @@ export function getColumns(): ColumnDef<ShipmentData>[] {
       },
     },
     {
-      id: "mfr",
+      accessorKey: "mfr",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MFR' />,
       cell: function ColumnCell({ row }) {
         const mfr = row.original?.mfr

@@ -223,7 +223,7 @@ export function getColumns(requisition: NonNullable<Awaited<ReturnType<typeof ge
       },
     },
     {
-      id: "mpn",
+      accessorKey: "mpn",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
       cell: function ColumnCell({ row }) {
         const mpn = requisition?.mpn
@@ -238,7 +238,7 @@ export function getColumns(requisition: NonNullable<Awaited<ReturnType<typeof ge
       },
     },
     {
-      id: "mfr",
+      accessorKey: "mfr",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MFR' />,
       cell: function ColumnCell({ row }) {
         const mfr = requisition?.mfr
