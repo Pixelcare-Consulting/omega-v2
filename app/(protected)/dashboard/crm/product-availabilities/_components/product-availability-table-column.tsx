@@ -166,18 +166,10 @@ export function getColumns(): ColumnDef<ProductAvailabilityData>[] {
       cell: ({ row }) => null,
     },
     {
-      accessorFn: (row) => {
-        const salesQuotesCount = parseFloat(String(row?.supplier?.saleQuotes?.length ?? 0))
-        if (isNaN(salesQuotesCount)) return 0
-        return salesQuotesCount
-      },
+      accessorFn: (row) => null,
       id: "supplier - # of Sales Orders",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Supplier - # of Sales Orders' />,
-      cell: ({ row }) => {
-        const salesQuotesCount = parseFloat(String(row.original?.supplier?.saleQuotes?.length ?? 0))
-        if (isNaN(salesQuotesCount)) return null
-        return <div>{formatNumber({ amount: salesQuotesCount, maxDecimal: 2 })}</div>
-      },
+      cell: ({ row }) => null,
     },
     {
       accessorKey: "actions",
