@@ -213,14 +213,14 @@ export function getColumns(): ColumnDef<ProductAvailabilityData>[] {
               <ActionTooltipProvider label='View Product Availability'>
                 <Icons.eye
                   className='size-4 cursor-pointer transition-all hover:scale-125'
-                  onClick={() => router.push(`/dashboard/crm/product availabilitys/${code}/view`)}
+                  onClick={() => router.push(`/dashboard/crm/product-availabilities/${code}/view`)}
                 />
               </ActionTooltipProvider>
 
               <ActionTooltipProvider label='Edit Product Availability'>
                 <Icons.pencil
                   className='size-4 cursor-pointer transition-all hover:scale-125'
-                  onClick={() => router.push(`/dashboard/crm/product availabilitys/${code}`)}
+                  onClick={() => router.push(`/dashboard/crm/product-availabilities/${code}`)}
                 />
               </ActionTooltipProvider>
 
