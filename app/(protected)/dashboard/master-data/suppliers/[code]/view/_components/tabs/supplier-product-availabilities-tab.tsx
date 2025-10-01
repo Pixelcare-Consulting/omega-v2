@@ -10,13 +10,15 @@ import ProductAvailabilityForm from "@/app/(protected)/dashboard/crm/product-ava
 import SupplierProductAvailabilityList from "../supplier-product-availabilities-list"
 import { useAction } from "next-safe-action/hooks"
 import { getProductAvailabilitiesBySupplierCodeClient } from "@/actions/product-availability"
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
 
 type SupplierProductAvailabilitiesTabProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
 }
 
 export default function SupplierProductAvailabilitiesTab({ supplier }: SupplierProductAvailabilitiesTabProps) {
+  const suppCode = supplier.CardCode
+
   const { isOpen, setIsOpen, data, setData } = useDialogStore(["isOpen", "setIsOpen", "data", "setData"])
 
   const {
@@ -26,8 +28,8 @@ export default function SupplierProductAvailabilitiesTab({ supplier }: SupplierP
   } = useAction(getProductAvailabilitiesBySupplierCodeClient)
 
   const callback = useCallback(() => {
-    execute({ supplierCode: supplier.CardCode })
-  }, [JSON.stringify(supplier)])
+    execute({ supplierCode: suppCode })
+  }, [suppCode])
 
   const Actions = () => {
     const handleActionClick = () => {
@@ -42,12 +44,17 @@ export default function SupplierProductAvailabilitiesTab({ supplier }: SupplierP
     )
   }
 
+  //* trigger fetch product availabilities
+  useEffect(() => {
+    if (suppCode) execute({ supplierCode: suppCode })
+  }, [suppCode])
+
   return (
     <Card className='rounded-lg p-6 shadow-md'>
       <div className='grid grid-cols-12 gap-x-3 gap-y-5'>
         <ReadOnlyFieldHeader
           className='col-span-12'
-          title='Product Availabilitys'
+          title='Product Availabilities'
           description="Requisition's related product availabilities"
           actions={<Actions />}
         />
@@ -72,7 +79,13 @@ export default function SupplierProductAvailabilitiesTab({ supplier }: SupplierP
           </DialogHeader>
 
           <Card className='p-3'>
-            <ProductAvailabilityForm isModal disableSupplierField productAvailability={data || null} suppCode={supplier.CardCode} />
+            <ProductAvailabilityForm
+              isModal
+              disableSupplierField
+              productAvailability={data || null}
+              suppCode={supplier.CardCode}
+              callback={callback}
+            />
           </Card>
         </DialogContent>
       </Dialog>
