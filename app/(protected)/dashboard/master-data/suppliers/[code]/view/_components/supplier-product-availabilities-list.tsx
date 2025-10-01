@@ -14,11 +14,7 @@ import { DataTableFilter } from "@/components/data-table/data-table-filter"
 import DataImportExport from "@/components/data-table/data-import-export"
 import { FilterFields } from "@/components/data-table/data-table-filter"
 import { useDataTable } from "@/hooks/use-data-table"
-import {
-  getProductAvailabilities,
-  getProductAvailabilitiesBySupplierCode,
-  getProductAvailabilitiesBySupplierCodeClient,
-} from "@/actions/product-availability"
+import { getProductAvailabilitiesBySupplierCode } from "@/actions/product-availability"
 import { getColumns } from "./supplier-product-availabilities-table-colum"
 
 type SupplierProductAvailabilityListProps = {

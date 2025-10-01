@@ -8,28 +8,19 @@ import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { getBpMasterByCardCode } from "@/actions/master-bp"
 import ProductAvailabilityForm from "@/app/(protected)/dashboard/crm/product-availabilities/_components/product-availability-form"
 import SupplierProductAvailabilityList from "../supplier-product-availabilities-list"
-import { useAction } from "next-safe-action/hooks"
-import { getProductAvailabilitiesBySupplierCodeClient } from "@/actions/product-availability"
-import { useCallback, useEffect } from "react"
+import { getProductAvailabilitiesBySupplierCode } from "@/actions/product-availability"
 
 type SupplierProductAvailabilitiesTabProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
+  productAvailabilities: {
+    data: Awaited<ReturnType<typeof getProductAvailabilitiesBySupplierCode>>
+    isLoading: boolean
+    callback: () => void
+  }
 }
 
-export default function SupplierProductAvailabilitiesTab({ supplier }: SupplierProductAvailabilitiesTabProps) {
-  const suppCode = supplier.CardCode
-
+export default function SupplierProductAvailabilitiesTab({ supplier, productAvailabilities }: SupplierProductAvailabilitiesTabProps) {
   const { isOpen, setIsOpen, data, setData } = useDialogStore(["isOpen", "setIsOpen", "data", "setData"])
-
-  const {
-    execute,
-    isExecuting,
-    result: { data: productAvailabilities },
-  } = useAction(getProductAvailabilitiesBySupplierCodeClient)
-
-  const callback = useCallback(() => {
-    execute({ supplierCode: suppCode })
-  }, [suppCode])
 
   const Actions = () => {
     const handleActionClick = () => {
@@ -44,11 +35,6 @@ export default function SupplierProductAvailabilitiesTab({ supplier }: SupplierP
     )
   }
 
-  //* trigger fetch product availabilities
-  useEffect(() => {
-    if (suppCode) execute({ supplierCode: suppCode })
-  }, [suppCode])
-
   return (
     <Card className='rounded-lg p-6 shadow-md'>
       <div className='grid grid-cols-12 gap-x-3 gap-y-5'>
@@ -62,9 +48,9 @@ export default function SupplierProductAvailabilitiesTab({ supplier }: SupplierP
         <div className='col-span-12'>
           <SupplierProductAvailabilityList
             suppCode={supplier.CardCode}
-            productAvailabilities={productAvailabilities || []}
-            isLoading={isExecuting}
-            callback={callback}
+            productAvailabilities={productAvailabilities.data}
+            isLoading={productAvailabilities.isLoading}
+            callback={productAvailabilities.callback}
           />
         </div>
       </div>
@@ -84,7 +70,7 @@ export default function SupplierProductAvailabilitiesTab({ supplier }: SupplierP
               disableSupplierField
               productAvailability={data || null}
               suppCode={supplier.CardCode}
-              callback={callback}
+              callback={productAvailabilities.callback}
             />
           </Card>
         </DialogContent>

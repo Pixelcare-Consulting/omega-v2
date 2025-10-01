@@ -1,4 +1,8 @@
+"use client"
+
 import Link from "next/link"
+import { useEffect } from "react"
+import { useAction } from "next-safe-action/hooks"
 
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Badge } from "@/components/badge"
@@ -13,6 +17,7 @@ import { getBpMasterByCardCode } from "@/actions/master-bp"
 import SupplierAddressesTab from "./tabs/supplier-addresses-tab"
 import SupplierContactsTab from "./tabs/supplier-contacts-tab"
 import SupplierProductAvailabilitiesTab from "./tabs/supplier-product-availabilities-tab"
+import { getProductAvailabilitiesBySupplierCodeClient } from "@/actions/product-availability"
 
 type ViewSupplierProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
@@ -22,6 +27,17 @@ type ViewSupplierProps = {
 }
 
 export default function ViewSupplier({ supplier, itemGroups, manufacturers, countries }: ViewSupplierProps) {
+  const {
+    execute: getProductAvailabilitiesBySupplierCodeExec,
+    isExecuting: IsProductAvailabilitiesLoading,
+    result: { data: productAvailabilities },
+  } = useAction(getProductAvailabilitiesBySupplierCodeClient)
+
+  //* trigger fetch product availabilities
+  useEffect(() => {
+    if (supplier?.CardCode) getProductAvailabilitiesBySupplierCodeExec({ supplierCode: supplier?.CardCode })
+  }, [JSON.stringify(supplier)])
+
   return (
     <PageWrapper
       title='Supplier Details'
@@ -99,7 +115,14 @@ export default function ViewSupplier({ supplier, itemGroups, manufacturers, coun
           </TabsContent>
 
           <TabsContent value='4'>
-            <SupplierProductAvailabilitiesTab supplier={supplier} />
+            <SupplierProductAvailabilitiesTab
+              supplier={supplier}
+              productAvailabilities={{
+                data: productAvailabilities || [],
+                isLoading: IsProductAvailabilitiesLoading,
+                callback: () => getProductAvailabilitiesBySupplierCodeExec({ supplierCode: supplier.CardCode }),
+              }}
+            />
           </TabsContent>
         </Tabs>
       </div>
