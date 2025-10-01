@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getCommonPinningStyles } from "@/lib/data-table/data-table"
 import { DataTablePagination } from "./data-table-pagination"
 import { Icons } from "../icons"
+import { Skeleton } from "../ui/skeleton"
 
 type DataTableProps<TData> = React.HTMLAttributes<HTMLDivElement> & {
   table: TanstackTable<TData>
@@ -40,13 +41,17 @@ export function DataTable<TData>({ table, children, isLoading, className, ...pro
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={table.getAllColumns().length} className='h-80 text-center'>
-                  <div className='flex items-center justify-center gap-1'>
-                    <Icons.spinner className='size-4 animate-spin text-muted-foreground' /> Loading...
-                  </div>
-                </TableCell>
-              </TableRow>
+              <>
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <TableRow key={i} className='hover:bg-transparent'>
+                    {Array.from({ length: table.getAllColumns().length - 1 }).map((_, j) => (
+                      <TableCell key={j}>
+                        <Skeleton className='h-6 w-full' />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </>
             ) : (
               <>
                 {table.getRowModel().rows?.length ? (

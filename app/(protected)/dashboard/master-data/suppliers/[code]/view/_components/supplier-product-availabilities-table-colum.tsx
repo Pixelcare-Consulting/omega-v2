@@ -18,7 +18,7 @@ import { useDialogStore } from "@/hooks/use-dialog"
 
 type ProductAvailabilityData = Awaited<ReturnType<typeof getProductAvailabilitiesBySupplierCode>>[number]
 
-export function getColumns(): ColumnDef<ProductAvailabilityData>[] {
+export function getColumns(callback?: () => void): ColumnDef<ProductAvailabilityData>[] {
   return [
     {
       accessorKey: "manufacturer",
@@ -148,7 +148,7 @@ export function getColumns(): ColumnDef<ProductAvailabilityData>[] {
 
               if (!result.error) {
                 setTimeout(() => {
-                  router.refresh()
+                  if (callback) callback()
                 }, 1500)
 
                 return result.message

@@ -1,7 +1,7 @@
 "use client"
 
 import { utils, writeFileXLSX } from "xlsx-js-style"
-import { useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 import { toast } from "sonner"
 import { useAction } from "next-safe-action/hooks"
 import { format } from "date-fns"
@@ -23,13 +23,16 @@ type SupplierProductAvailabilityListProps = {
 
 export default function SupplierProductAvailabilityList({ suppCode }: SupplierProductAvailabilityListProps) {
   const router = useRouter()
-  const columns = useMemo(() => getColumns(), [])
 
   const {
     execute,
     isExecuting,
     result: { data: productAvailabilities },
   } = useAction(getProductAvailabilitiesBySupplierCodeClient)
+
+  const onSuccessCallback = useCallback(() => {
+    if (suppCode) execute({ supplierCode: suppCode })
+  }, [suppCode])
 
   const filterFields = useMemo((): FilterFields[] => {
     return [
@@ -84,6 +87,8 @@ export default function SupplierProductAvailabilityList({ suppCode }: SupplierPr
       { label: "Date Modified", columnId: "date modified", type: "date" },
     ]
   }, [])
+
+  const columns = useMemo(() => getColumns(onSuccessCallback), [])
 
   const handleImport: (...args: any[]) => void = async (args) => {}
 
