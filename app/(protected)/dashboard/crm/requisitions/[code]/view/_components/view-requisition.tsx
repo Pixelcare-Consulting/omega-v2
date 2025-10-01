@@ -1,6 +1,10 @@
-import Link from "next/link"
+"use client"
 
-import { getRequisitionByCode, getRequisitions } from "@/actions/requisition"
+import Link from "next/link"
+import { useAction } from "next-safe-action/hooks"
+import { useEffect, useMemo } from "react"
+
+import { getRequisitionByCode, getRequisitions, RequestedItemsJSONData } from "@/actions/requisition"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -23,6 +27,11 @@ import { getBpMasters } from "@/actions/master-bp"
 import { getUsers } from "@/actions/user"
 import RequisitionSupplierQuotesTab from "./tabs/requisition-supplier-quotes-tab"
 import RequisitionShipmentsTab from "./tabs/requisition-shipments-tab"
+import {
+  getProductAvailabilitiesByManufacturerCodes,
+  getProductAvailabilitiesByManufacturerCodesClient,
+} from "@/actions/product-availability"
+import RequisitionProductAvailabilitiesTab from "./tabs/requisition-product-availabilities-tab"
 
 type ViewRequisitionProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
@@ -38,6 +47,46 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
   const purchasingStatus = REQUISITION_PURCHASING_STATUS_OPTIONS.find((item) => item.value === requisition?.purchasingStatus)?.label
   const result = REQUISITION_RESULT_OPTIONS.find((item) => item.value === requisition?.result)?.label
   const salesCategory = REQUISITION_SALES_CATEGORY_OPTIONS.find((item) => item.value === requisition?.salesCategory)?.label
+
+  const requestedItems = requisition?.requestedItems as RequestedItemsJSONData
+
+  // TODO: TEMP NEED OPTIMIZE
+  //* get full details of the items
+  const requestedItemsFullDetails = useMemo(() => {
+    const fullDetailsItems =
+      requestedItems?.map((reqItem) => {
+        const selectedItem = items.find((item) => reqItem.code === item.ItemCode)
+        if (selectedItem) {
+          return {
+            code: selectedItem.ItemCode,
+            name: selectedItem.ItemName,
+            mpn: selectedItem.ItemCode,
+            mfr: selectedItem.FirmName,
+            mfrCode: selectedItem.FirmCode,
+            source: selectedItem.source,
+            isSupplierSuggested: reqItem.isSupplierSuggested,
+          }
+        }
+        return null
+      }) || []
+
+    return fullDetailsItems.filter((item) => item !== null)
+  }, [JSON.stringify(items), JSON.stringify(requestedItems)])
+
+  const mfrCodes = useMemo(() => {
+    return requestedItemsFullDetails.map((item) => item?.mfrCode).filter((code) => code !== null) || []
+  }, [JSON.stringify(requestedItemsFullDetails)])
+
+  const {
+    execute: getProductAvailabilitiesByManufacturerCodesExec,
+    isExecuting: IsProductAvailabilitiesLoading,
+    result: { data: productAvailabilities },
+  } = useAction(getProductAvailabilitiesByManufacturerCodesClient)
+
+  //* trigger fetch product availabilities
+  useEffect(() => {
+    if (mfrCodes.length > 0) getProductAvailabilitiesByManufacturerCodesExec({ manufacturerCodes: mfrCodes })
+  }, [JSON.stringify(mfrCodes)])
 
   return (
     <PageWrapper
@@ -111,7 +160,8 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             <TabsTrigger value='2'>Requested Items</TabsTrigger>
             <TabsTrigger value='3'>Supplier Quotes</TabsTrigger>
             <TabsTrigger value='4'>Shipments</TabsTrigger>
-            <TabsTrigger value='5'>Activities</TabsTrigger>
+            <TabsTrigger value='5'>Product Availabilities</TabsTrigger>
+            <TabsTrigger value='6'>Activities</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -137,6 +187,16 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
           </TabsContent>
 
           <TabsContent value='5'>
+            <RequisitionProductAvailabilitiesTab
+              productAvailabilities={{
+                data: productAvailabilities || [],
+                isLoading: IsProductAvailabilitiesLoading,
+              }}
+              requisition={requisition}
+            />
+          </TabsContent>
+
+          <TabsContent value='6'>
             <RequisitionActivitiesTab requisition={requisition} />
           </TabsContent>
         </Tabs>

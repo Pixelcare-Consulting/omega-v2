@@ -99,6 +99,47 @@ export const getProductAvailabilitiesBySupplierCodeClient = action
     return getProductAvailabilitiesBySupplierCode(data.supplierCode)
   })
 
+export async function getProductAvailabilitiesByManufacturerCodes(manufacturerCodes: number[]) {
+  try {
+    const productAvailabilities = await prisma.productAvailability.findMany({
+      where: { manufacturerCode: { in: manufacturerCodes }, deletedAt: null, deletedBy: null },
+      include: PRODUCT_AVAILABILITY_INCLUDE,
+    })
+
+    const manufacturerPromises = Promise.all([
+      ...productAvailabilities
+        .map((pa) => (pa.manufacturerCode ? getManufacturerByCode(pa.manufacturerCode) : Promise.resolve(null)))
+        .filter(Boolean),
+    ])
+
+    const itemGroupPromises = Promise.all([
+      ...productAvailabilities
+        .map((pa) => (pa.itemGroupCode ? getItemGroupByCode(pa.itemGroupCode) : Promise.resolve(null)))
+        .filter(Boolean),
+    ])
+
+    //* fetch manufacturers and item groups
+    const [manufacturers, itemGroups] = await Promise.all([manufacturerPromises, itemGroupPromises])
+
+    return productAvailabilities.map((pa) => {
+      const manufacturer = (manufacturers?.find((m) => m?.Code == pa?.manufacturerCode)?.ManufacturerName || "") as string
+      const itemGroup = (itemGroups?.find((g) => g?.Number == pa?.itemGroupCode)?.GroupName || "") as string
+
+      return { ...pa, manufacturer, itemGroup }
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export const getProductAvailabilitiesByManufacturerCodesClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ manufacturerCodes: z.array(z.number()) }))
+  .action(async ({ parsedInput: data }) => {
+    return getProductAvailabilitiesByManufacturerCodes(data.manufacturerCodes)
+  })
+
 export const upsertProductAvailability = action
   .use(authenticationMiddleware)
   .schema(productAvailabilityFormSchema)
