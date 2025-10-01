@@ -29,6 +29,7 @@ type ProductAvailabilityFormProps = {
   disableSupplierField?: boolean
   productAvailability: Awaited<ReturnType<typeof getProductAvailabilityByCode>>
   suppCode?: string
+  callback?: () => void
 }
 
 export default function ProductAvailabilityForm({
@@ -36,6 +37,7 @@ export default function ProductAvailabilityForm({
   disableSupplierField,
   productAvailability,
   suppCode,
+  callback,
 }: ProductAvailabilityFormProps) {
   const router = useRouter()
   const { code } = useParams() as { code: string }
@@ -127,7 +129,7 @@ export default function ProductAvailabilityForm({
           setData(null)
 
           setTimeout(() => {
-            router.refresh()
+            if (callback) callback()
           }, 1500)
           return
         }

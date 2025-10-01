@@ -8,6 +8,9 @@ import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { getBpMasterByCardCode } from "@/actions/master-bp"
 import ProductAvailabilityForm from "@/app/(protected)/dashboard/crm/product-availabilities/_components/product-availability-form"
 import SupplierProductAvailabilityList from "../supplier-product-availabilities-list"
+import { useAction } from "next-safe-action/hooks"
+import { getProductAvailabilitiesBySupplierCodeClient } from "@/actions/product-availability"
+import { useCallback } from "react"
 
 type SupplierProductAvailabilitiesTabProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
@@ -15,6 +18,16 @@ type SupplierProductAvailabilitiesTabProps = {
 
 export default function SupplierProductAvailabilitiesTab({ supplier }: SupplierProductAvailabilitiesTabProps) {
   const { isOpen, setIsOpen, data, setData } = useDialogStore(["isOpen", "setIsOpen", "data", "setData"])
+
+  const {
+    execute,
+    isExecuting,
+    result: { data: productAvailabilities },
+  } = useAction(getProductAvailabilitiesBySupplierCodeClient)
+
+  const callback = useCallback(() => {
+    execute({ supplierCode: supplier.CardCode })
+  }, [JSON.stringify(supplier)])
 
   const Actions = () => {
     const handleActionClick = () => {
@@ -40,7 +53,12 @@ export default function SupplierProductAvailabilitiesTab({ supplier }: SupplierP
         />
 
         <div className='col-span-12'>
-          <SupplierProductAvailabilityList suppCode={supplier.CardCode} />
+          <SupplierProductAvailabilityList
+            suppCode={supplier.CardCode}
+            productAvailabilities={productAvailabilities || []}
+            isLoading={isExecuting}
+            callback={callback}
+          />
         </div>
       </div>
 

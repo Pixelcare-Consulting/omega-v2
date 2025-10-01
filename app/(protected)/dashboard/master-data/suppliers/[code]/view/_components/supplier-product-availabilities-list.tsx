@@ -14,25 +14,29 @@ import { DataTableFilter } from "@/components/data-table/data-table-filter"
 import DataImportExport from "@/components/data-table/data-import-export"
 import { FilterFields } from "@/components/data-table/data-table-filter"
 import { useDataTable } from "@/hooks/use-data-table"
-import { getProductAvailabilities, getProductAvailabilitiesBySupplierCodeClient } from "@/actions/product-availability"
+import {
+  getProductAvailabilities,
+  getProductAvailabilitiesBySupplierCode,
+  getProductAvailabilitiesBySupplierCodeClient,
+} from "@/actions/product-availability"
 import { getColumns } from "./supplier-product-availabilities-table-colum"
 
 type SupplierProductAvailabilityListProps = {
   suppCode: string
+  productAvailabilities: Awaited<ReturnType<typeof getProductAvailabilitiesBySupplierCode>>
+  isLoading: boolean
+  callback: () => void
 }
 
-export default function SupplierProductAvailabilityList({ suppCode }: SupplierProductAvailabilityListProps) {
+export default function SupplierProductAvailabilityList({
+  suppCode,
+  productAvailabilities,
+  isLoading,
+  callback,
+}: SupplierProductAvailabilityListProps) {
   const router = useRouter()
 
-  const {
-    execute,
-    isExecuting,
-    result: { data: productAvailabilities },
-  } = useAction(getProductAvailabilitiesBySupplierCodeClient)
-
-  const onSuccessCallback = useCallback(() => {
-    if (suppCode) execute({ supplierCode: suppCode })
-  }, [suppCode])
+  const columns = useMemo(() => getColumns(callback), [JSON.stringify(callback)])
 
   const filterFields = useMemo((): FilterFields[] => {
     return [
@@ -88,8 +92,6 @@ export default function SupplierProductAvailabilityList({ suppCode }: SupplierPr
     ]
   }, [])
 
-  const columns = useMemo(() => getColumns(onSuccessCallback), [])
-
   const handleImport: (...args: any[]) => void = async (args) => {}
 
   const handleExport: (...args: any[]) => void = async (args) => {}
@@ -103,13 +105,8 @@ export default function SupplierProductAvailabilityList({ suppCode }: SupplierPr
     },
   })
 
-  //* fetch product availabilities
-  useEffect(() => {
-    if (suppCode) execute({ supplierCode: suppCode })
-  }, [suppCode])
-
   return (
-    <DataTable table={table} isLoading={isExecuting}>
+    <DataTable table={table} isLoading={isLoading}>
       <div className='flex flex-col items-stretch justify-center gap-2 md:flex-row md:items-center md:justify-between'>
         <DataTableSearch table={table} className='' />
 
