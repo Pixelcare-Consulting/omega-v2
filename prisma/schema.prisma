@@ -540,8 +540,8 @@ model BusinessPartner {
   accountNo          String? @default("")
   assignedBuyer      String?
   website            String? @default("")
-  commodityStrengths Int[]   @default([])
-  mfrStrengths       Int[]   @default([])
+  commodityStrengths Int[]   @default([]) //TODO: NEEDS TO BE REMOVE BECAUSE WE ALREADY HAVE PRODUCT AVAILABILITY
+  mfrStrengths       Int[]   @default([]) //TODO: NEEDS TO BE REMOVE BECAUSE WE ALREADY HAVE PRODUCT AVAILABILITY
   avlStatus          String? @default("")
   scope              String  @default("")
   isCompliantToAs    Boolean @default(false)

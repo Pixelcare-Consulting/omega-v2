@@ -122,14 +122,7 @@ export async function getBpMasterGroups() {
 }
 
 export const getBpMasterGroupsClient = action.use(authenticationMiddleware).action(async () => {
-  try {
-    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/BusinessPartnerGroups`, undefined, {
-      Prefer: "odata.maxpagesize=999",
-    })
-  } catch (error) {
-    console.error(error)
-    return []
-  }
+  return getBpMasterGroups()
 })
 
 export async function getPaymentTerms() {
@@ -144,14 +137,7 @@ export async function getPaymentTerms() {
 }
 
 export const getPaymentTermsClient = action.use(authenticationMiddleware).action(async () => {
-  try {
-    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query4')/List`, undefined, {
-      Prefer: "odata.maxpagesize=999",
-    })
-  } catch (error) {
-    console.error(error)
-    return []
-  }
+  return getPaymentTerms()
 })
 
 export async function getCurrencies() {
@@ -166,14 +152,7 @@ export async function getCurrencies() {
 }
 
 export const getCurrenciesClient = action.use(authenticationMiddleware).action(async () => {
-  try {
-    return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query5')/List`, undefined, {
-      Prefer: "odata.maxpagesize=999",
-    })
-  } catch (error) {
-    console.error(error)
-    return []
-  }
+  return getCurrencies()
 })
 
 export async function getStates(countryCode: string) {
@@ -191,14 +170,7 @@ export const getStatesClient = action
   .use(authenticationMiddleware)
   .schema(z.object({ countryCode: z.string() }))
   .action(async ({ parsedInput: data }) => {
-    try {
-      return await callSapServiceLayerApi(`${sapCredentials.BaseURL}/b1s/v1/SQLQueries('query7')/List`, `Country='${data.countryCode}'`, {
-        Prefer: "odata.maxpagesize=999",
-      })
-    } catch (error) {
-      console.error(error)
-      return []
-    }
+    return getStates(data.countryCode)
   })
 
 export async function getCountries() {
@@ -211,6 +183,10 @@ export async function getCountries() {
     return []
   }
 }
+
+export const getCountriesClient = action.use(authenticationMiddleware).action(async () => {
+  return getCountries()
+})
 
 export const upsertBpMaster = action
   .use(authenticationMiddleware)

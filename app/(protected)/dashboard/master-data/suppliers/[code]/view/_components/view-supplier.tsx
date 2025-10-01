@@ -12,6 +12,7 @@ import SupplierSummaryTab from "./tabs/supplier-summary-tab"
 import { getBpMasterByCardCode } from "@/actions/master-bp"
 import SupplierAddressesTab from "./tabs/supplier-addresses-tab"
 import SupplierContactsTab from "./tabs/supplier-contacts-tab"
+import SupplierProductAvailabilitiesTab from "./tabs/supplier-product-availabilities-tab"
 
 type ViewSupplierProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
@@ -82,6 +83,7 @@ export default function ViewSupplier({ supplier, itemGroups, manufacturers, coun
             <TabsTrigger value='1'>Summary</TabsTrigger>
             <TabsTrigger value='2'>Addresses</TabsTrigger>
             <TabsTrigger value='3'>Contacts</TabsTrigger>
+            <TabsTrigger value='4'>Product Availabilities</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -94,6 +96,10 @@ export default function ViewSupplier({ supplier, itemGroups, manufacturers, coun
 
           <TabsContent value='3'>
             <SupplierContactsTab supplier={supplier} />
+          </TabsContent>
+
+          <TabsContent value='4'>
+            <SupplierProductAvailabilitiesTab supplier={supplier} />
           </TabsContent>
         </Tabs>
       </div>

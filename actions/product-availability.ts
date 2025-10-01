@@ -7,6 +7,7 @@ import { paramsSchema } from "@/schema/common"
 import { Prisma } from "@prisma/client"
 import { getManufacturerByCode } from "./manufacturer"
 import { getItemGroupByCode } from "./master-item"
+import { z } from "zod"
 
 const PRODUCT_AVAILABILITY_INCLUDE = {
   supplier: {
@@ -56,6 +57,47 @@ export async function getProductAvailabilityByCode(code: number) {
     return null
   }
 }
+
+export async function getProductAvailabilitiesBySupplierCode(supplierCode: string) {
+  try {
+    const productAvailabilities = await prisma.productAvailability.findMany({
+      where: { supplierCode, deletedAt: null, deletedBy: null },
+      include: PRODUCT_AVAILABILITY_INCLUDE,
+    })
+
+    const manufacturerPromises = Promise.all([
+      ...productAvailabilities
+        .map((pa) => (pa.manufacturerCode ? getManufacturerByCode(pa.manufacturerCode) : Promise.resolve(null)))
+        .filter(Boolean),
+    ])
+
+    const itemGroupPromises = Promise.all([
+      ...productAvailabilities
+        .map((pa) => (pa.itemGroupCode ? getItemGroupByCode(pa.itemGroupCode) : Promise.resolve(null)))
+        .filter(Boolean),
+    ])
+
+    //* fetch manufacturers and item groups
+    const [manufacturers, itemGroups] = await Promise.all([manufacturerPromises, itemGroupPromises])
+
+    return productAvailabilities.map((pa) => {
+      const manufacturer = (manufacturers?.find((m) => m?.Code == pa?.manufacturerCode)?.ManufacturerName || "") as string
+      const itemGroup = (itemGroups?.find((g) => g?.Number == pa?.itemGroupCode)?.GroupName || "") as string
+
+      return { ...pa, manufacturer, itemGroup }
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export const getProductAvailabilitiesBySupplierCodeClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ supplierCode: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    return getProductAvailabilitiesBySupplierCode(data.supplierCode)
+  })
 
 export const upsertProductAvailability = action
   .use(authenticationMiddleware)

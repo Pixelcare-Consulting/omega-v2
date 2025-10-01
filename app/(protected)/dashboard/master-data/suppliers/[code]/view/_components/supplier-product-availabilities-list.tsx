@@ -1,7 +1,7 @@
 "use client"
 
 import { utils, writeFileXLSX } from "xlsx-js-style"
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { toast } from "sonner"
 import { useAction } from "next-safe-action/hooks"
 import { format } from "date-fns"
@@ -14,23 +14,25 @@ import { DataTableFilter } from "@/components/data-table/data-table-filter"
 import DataImportExport from "@/components/data-table/data-import-export"
 import { FilterFields } from "@/components/data-table/data-table-filter"
 import { useDataTable } from "@/hooks/use-data-table"
-import { getProductAvailabilities } from "@/actions/product-availability"
-import { getColumns } from "./product-availability-table-column"
-import { BP_MASTER_SUPPLIER_SCOPE_OPTIONS, BP_MASTER_SUPPLIER_STATUS_OPTIONS } from "@/schema/master-bp"
+import { getProductAvailabilities, getProductAvailabilitiesBySupplierCodeClient } from "@/actions/product-availability"
+import { getColumns } from "./supplier-product-availabilities-table-colum"
 
-type ProductAvailabilityListProps = {
-  productAvailabilities: Awaited<ReturnType<typeof getProductAvailabilities>>
+type SupplierProductAvailabilityListProps = {
+  suppCode: string
 }
 
-export default function ProductAvailabilityList({ productAvailabilities }: ProductAvailabilityListProps) {
+export default function SupplierProductAvailabilityList({ suppCode }: SupplierProductAvailabilityListProps) {
   const router = useRouter()
   const columns = useMemo(() => getColumns(), [])
 
+  const {
+    execute,
+    isExecuting,
+    result: { data: productAvailabilities },
+  } = useAction(getProductAvailabilitiesBySupplierCodeClient)
+
   const filterFields = useMemo((): FilterFields[] => {
     return [
-      { label: "Supplier Name", columnId: "supplier name", type: "text" },
-      { label: "Supplier Scope", columnId: "supplier scope", type: "select", options: BP_MASTER_SUPPLIER_SCOPE_OPTIONS },
-      { label: "Supplier Status", columnId: "supplier status", type: "select", options: BP_MASTER_SUPPLIER_STATUS_OPTIONS },
       { label: "Manufacturer", columnId: "manufacturer", type: "text" },
       { label: "Commodity", columnId: "commodity", type: "text" },
       {
@@ -88,7 +90,7 @@ export default function ProductAvailabilityList({ productAvailabilities }: Produ
   const handleExport: (...args: any[]) => void = async (args) => {}
 
   const { table, columnFilters, columnVisibility } = useDataTable({
-    data: productAvailabilities,
+    data: productAvailabilities || [],
     columns: columns,
     initialState: {
       columnPinning: { right: ["actions"] },
@@ -96,8 +98,13 @@ export default function ProductAvailabilityList({ productAvailabilities }: Produ
     },
   })
 
+  //* fetch product availabilities
+  useEffect(() => {
+    if (suppCode) execute({ supplierCode: suppCode })
+  }, [suppCode])
+
   return (
-    <DataTable table={table}>
+    <DataTable table={table} isLoading={isExecuting}>
       <div className='flex flex-col items-stretch justify-center gap-2 md:flex-row md:items-center md:justify-between'>
         <DataTableSearch table={table} className='' />
 
@@ -109,7 +116,7 @@ export default function ProductAvailabilityList({ productAvailabilities }: Produ
             className='w-full md:w-fit'
             onImport={(args) => handleImport(args)}
             onExport={(args) => handleExport({ ...args, data: productAvailabilities })}
-            code='product-availabilities'
+            code={`supplier-${suppCode}-product-availabilities`}
           />
         </div>
       </div>
