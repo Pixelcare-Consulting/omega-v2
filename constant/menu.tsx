@@ -123,7 +123,7 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
             },
             {
               href: "/dashboard/crm/product-availabilities",
-              label: "Product Availabilities",
+              label: "Product Availability",
               actions: "read",
               subjects: "p-csrm-product-availabilities",
             },

@@ -13,13 +13,13 @@ export default async function ViewProductAvailabilityPage({ params }: { params: 
   if (!productAvailability) notFound()
 
   return (
-    <ContentLayout title='Product Availabilities'>
+    <ContentLayout title='Product Availability'>
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
           { label: "Dashboard", href: "/dashboard" },
           { label: "CRM" },
-          { label: "Product Availabilities", href: "/dashboard/crm/product-availabilities" },
+          { label: "Product Availability", href: "/dashboard/crm/product-availabilities" },
           { label: String(productAvailability.code) },
           { label: "View", isPage: true },
         ]}

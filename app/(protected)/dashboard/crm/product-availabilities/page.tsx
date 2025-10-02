@@ -11,20 +11,20 @@ export default async function ProductAvailabilitiesPage() {
   const productAvailabilities = await getProductAvailabilities()
 
   return (
-    <ContentLayout title='Product Availabilities'>
+    <ContentLayout title='Product Availability'>
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
           { label: "Dashboard", href: "/dashboard" },
           { label: "CRM" },
-          { label: "Product Availabilities", isPage: true },
+          { label: "Product Availability", isPage: true },
         ]}
       />
 
       <ContentContainer>
         <PageWrapper
-          title='Product Availabilities'
-          description='Manage and track your product availabilities effectively'
+          title='Product Availability'
+          description='Manage and track your Product Availability effectively'
           defaultAction={{
             label: "Add Product Availability",
             href: "/dashboard/crm/product-availabilities/add",

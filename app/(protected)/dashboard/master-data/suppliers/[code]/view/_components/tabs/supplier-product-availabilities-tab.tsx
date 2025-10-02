@@ -40,8 +40,8 @@ export default function SupplierProductAvailabilitiesTab({ supplier, productAvai
       <div className='grid grid-cols-12 gap-x-3 gap-y-5'>
         <ReadOnlyFieldHeader
           className='col-span-12'
-          title='Product Availabilities'
-          description="Requisition's related product availabilities"
+          title='Product Availability'
+          description="Requisition's related product availability"
           actions={<Actions />}
         />
 
