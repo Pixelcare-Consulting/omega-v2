@@ -94,8 +94,8 @@ export function getColumns(customerExcessId: string, lineItems: LineItemForm[]):
 
         const index = row.index
 
-        const handleEdit = () => {
-          setData(row.original)
+        const handleEdit = (index: number) => {
+          setData({ ...row.original, index })
           setTimeout(() => setIsOpen(true), 1000)
         }
 
@@ -130,7 +130,7 @@ export function getColumns(customerExcessId: string, lineItems: LineItemForm[]):
         return (
           <div className='flex w-[100px] gap-2'>
             <ActionTooltipProvider label='Edit Line Item'>
-              <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' onClick={handleEdit} />
+              <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' onClick={() => handleEdit(index)} />
             </ActionTooltipProvider>
 
             {isAllowedToDelete && (

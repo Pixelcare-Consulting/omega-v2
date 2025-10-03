@@ -18,7 +18,10 @@ export default function CustomerExcessLineItemList({ customerExcessId, lineItems
   const { table } = useDataTable({
     data: lineItems,
     columns: columns,
-    initialState: { pagination: { pageIndex: 0, pageSize: 5 } },
+    initialState: {
+      columnPinning: { right: ["actions"] },
+      pagination: { pageIndex: 0, pageSize: 5 },
+    },
   })
 
   return (
