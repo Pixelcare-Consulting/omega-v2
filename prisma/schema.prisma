@@ -54,6 +54,8 @@ model User {
 
   shipmentPurchasers Shipment[] @relation()
 
+  customerExcessListOwners CustomerExcess[] @relation("user-customer-excess-list-owner")
+
   bpAssignedBuyers            BusinessPartner[]              @relation("user-assigned-buyers")
   bpAssignedSalesEmployees    BusinessPartner[]              @relation("user-sales-employee")
   bpAssignedBdrInsideSalesRep BusinessPartner[]              @relation("user-bdr-inside-sales-rep")
@@ -492,6 +494,28 @@ model ProductAvailability {
   @@unique([code, supplierCode])
 }
 
+model CustomerExcess {
+  id           String   @id @default(uuid())
+  code         Int      @unique @default(autoincrement())
+  listDate     DateTime
+  customerCode String
+  fileName     String   @unique //* file name unique, no space allowed, convert space to dash (-) 
+  listOwnerId  String?
+  lineItems    Json?    @default("[]")
+
+  customer  BusinessPartner @relation(fields: [customerCode], references: [CardCode], onUpdate: Cascade, onDelete: Cascade)
+  listOwner User?           @relation(name: "user-customer-excess-list-owner", fields: [listOwnerId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+
+  @@unique([code, customerCode])
+}
+
 model BusinessPartner {
   id String @id @default(uuid())
 
@@ -561,6 +585,7 @@ model BusinessPartner {
   supplierQuotes        SupplierQuote[]
   saleQuotes            SaleQuote[]
   productAvailabilities ProductAvailability[]
+  customerExcesses      CustomerExcess[]
 
   buyer             User? @relation(name: "user-assigned-buyers", fields: [assignedBuyer], references: [id], onDelete: Cascade, onUpdate: Cascade)
   salesEmployee     User? @relation(name: "user-sales-employee", fields: [assignedSalesEmployee], references: [id], onDelete: Cascade, onUpdate: Cascade)

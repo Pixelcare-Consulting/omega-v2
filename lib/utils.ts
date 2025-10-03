@@ -34,3 +34,15 @@ export function copyText(text: string) {
     () => console.log("Failed to copy!")
   )
 }
+
+export function toKebabCase(text: string, toLowerCase = false) {
+  let result = text
+
+  if (!text) return ""
+
+  if (toLowerCase) result = result.toLowerCase()
+
+  return result
+    .replace(/[^a-zA-Z0-9-]+/g, "-") //* Replace any character that is not a-z, A-Z, 0-9, or dash with dash
+    .replace(/-+/g, "-") //* Collapse multiple dashes
+}
