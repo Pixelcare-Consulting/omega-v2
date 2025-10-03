@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/db"
 import { action, authenticationMiddleware } from "@/lib/safe-action"
 import { paramsSchema } from "@/schema/common"
-import { saleQuoteFormSchema, updateLineItemForm } from "@/schema/sale-quote"
+import { saleQuoteFormSchema, updateLineItemFormSchema } from "@/schema/sale-quote"
 import { getSupplierQuoteByCode } from "./supplier-quote"
 import { getBpMasterByCardCode } from "./master-bp"
 import { Contact, Prisma } from "@prisma/client"
@@ -150,11 +150,10 @@ export const deleteSaleQuote = action
 
 export const updateLineItems = action
   .use(authenticationMiddleware)
-  .schema(updateLineItemForm)
+  .schema(updateLineItemFormSchema)
   .action(async ({ ctx, parsedInput: data }) => {
     try {
       const { userId } = ctx
-      const saleQuote = await prisma.saleQuote.findUnique({ where: { id: data.saleQuoteId } })
       const lineItems = data.lineItems.map((item) => ({
         requisitionCode: item.requisitionCode,
         supplierQuoteCode: item.supplierQuoteCode,
@@ -164,11 +163,15 @@ export const updateLineItems = action
         details: item.details,
       }))
 
-      if (!saleQuote) return { error: true, status: 404, message: "Sale quote not found!", action: "UPDATE_LINE_ITEMS" }
+      const existingSalesQuote = await prisma.saleQuote.findUnique({ where: { id: data.saleQuoteId } })
 
-      await prisma.saleQuote.update({ where: { id: saleQuote.id }, data: { lineItems, updatedBy: userId } })
+      if (!existingSalesQuote) {
+        return { error: true, status: 404, message: "Sale quote not found!", action: "UPDATE_SALES_QUOTE_LINE_ITEMS" }
+      }
 
-      return { status: 200, message: `Line item ${data.action}d successfully!`, action: "UPDATE_LINE_ITEMS" }
+      await prisma.saleQuote.update({ where: { id: existingSalesQuote.id }, data: { lineItems, updatedBy: userId } })
+
+      return { status: 200, message: `Line item ${data.action}d successfully!`, action: "UPDATE_SALES_QUOTE_LINE_ITEMS" }
     } catch (error) {
       console.error(error)
 
@@ -176,7 +179,7 @@ export const updateLineItems = action
         error: true,
         status: 500,
         message: error instanceof Error ? error.message : "Something went wrong!",
-        action: "UPDATE_LINE_ITEMS",
+        action: "UPDATE_SALES_QUOTE_LINE_ITEMS",
       }
     }
   })

@@ -6,7 +6,7 @@ import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
 import { getSaleQuoteByCode } from "@/actions/sale-quote"
 import { getRequisitions } from "@/actions/requisition"
-import ViewSaleQuote from "../_components/view-sale-quote"
+import ViewSaleQuote from "./_components/view-sale-quote"
 import { getPaymentTerms } from "@/actions/master-bp"
 
 export default async function ViewSaleQuotePage({ params }: { params: { code: string } }) {

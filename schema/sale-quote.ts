@@ -53,7 +53,7 @@ export const saleQuoteFormSchema = z.object({
   approvalDate: z.date({ message: "Approval date is required" }),
 })
 
-export const updateLineItemForm = z.object({
+export const updateLineItemFormSchema = z.object({
   action: z.enum(["create", "update", "delete"]),
   saleQuoteId: z.string().min(1, { message: "Sale quote ID is required" }),
   lineItems: lineItemsFormSchema,
