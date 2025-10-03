@@ -41,10 +41,10 @@ export function getColumns(): ColumnDef<CustomerExcessData>[] {
       id: "File Name",
       header: ({ column }) => <DataTableColumnHeader column={column} title='File Name' />,
       cell: ({ row }) => {
-        const fileName = row.original.fileName
+        const { code, fileName } = row.original
 
         return (
-          <Link className='text-blue-500 hover:underline' href={`/dashboard/crm/customer-excesses/file-name/${fileName}`}>
+          <Link className='text-blue-500 hover:underline' href={`/dashboard/crm/customer-excesses/${code}/file-name/${fileName}`}>
             {fileName}
           </Link>
         )
