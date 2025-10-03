@@ -26,17 +26,17 @@ export function getColumns(customerExcessId: string, lineItems: LineItemForm[]):
     {
       accessorKey: "cpn",
       header: ({ column }) => <DataTableColumnHeader column={column} title='CPN' />,
-      cell: ({ row }) => <div>{row.original?.cpn || ""}</div>,
+      cell: ({ row }) => <div className='min-w-[150px]'>{row.original?.cpn || ""}</div>,
     },
     {
       accessorKey: "mpn",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
-      cell: ({ row }) => <div>{row.original?.mpn || ""}</div>,
+      cell: ({ row }) => <div className='min-w-[150px]'>{row.original?.mpn || ""}</div>,
     },
     {
       accessorKey: "mfr",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MFR' />,
-      cell: ({ row }) => <div>{row.original?.mfr || ""}</div>,
+      cell: ({ row }) => <div className='min-w-[150px]'>{row.original?.mfr || ""}</div>,
     },
     {
       accessorKey: "qtyOnHand",
