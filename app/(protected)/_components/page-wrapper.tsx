@@ -1,5 +1,5 @@
 import { Icon } from "@/components/icons"
-import { buttonVariants } from "@/components/ui/button"
+import { ButtonProps, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
@@ -11,6 +11,7 @@ type PageWrapper = {
     label: string
     href: string
     icon?: Icon
+    variant?: ButtonProps["variant"]
   }
   actions?: React.ReactNode
 }
@@ -28,7 +29,7 @@ export default function PageWrapper({ title, description, children, defaultActio
 
         <div>
           {defaultAction && (
-            <Link className={cn(buttonVariants({ variant: "default" }))} href={defaultAction.href}>
+            <Link className={cn(buttonVariants({ variant: defaultAction.variant || "default" }))} href={defaultAction.href}>
               {DefaultActionIcon && <DefaultActionIcon className='mr-2 size-4' />} {defaultAction.label}
             </Link>
           )}

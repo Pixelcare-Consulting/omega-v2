@@ -35,6 +35,7 @@ export default async function CustomerExcessLineItemsPage({ params }: { params: 
           defaultAction={{
             label: "Back",
             href: "/dashboard/crm/customer-excesses",
+            variant: "outline-primary",
           }}
         >
           <Card className='rounded-lg p-6 shadow-md'>
