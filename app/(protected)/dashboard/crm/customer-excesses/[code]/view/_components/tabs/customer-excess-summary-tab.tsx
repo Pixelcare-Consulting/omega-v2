@@ -18,16 +18,16 @@ export default function CustomerExcessSummaryTab({ customerExcess }: CustomerExc
       <div className='grid grid-cols-12 gap-5'>
         <ReadOnlyFieldHeader className='col-span-12' title='Summary' description='Customer excess summary details' />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='List Date' value={listDate} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='List Date' value={listDate} />
 
         <ReadOnlyField
-          className='col-span-12 md:col-span-6 lg:col-span-4'
+          className='col-span-12 md:col-span-6 lg:col-span-3'
           title='Customer'
           value={customerExcess.customer?.CardName || ""}
         />
 
         <ReadOnlyField
-          className='col-span-12 md:col-span-6 lg:col-span-4'
+          className='col-span-12 md:col-span-6 lg:col-span-3'
           title='List Owner'
           value={customerExcess?.listOwner?.name || customerExcess?.listOwner?.email || ""}
         />

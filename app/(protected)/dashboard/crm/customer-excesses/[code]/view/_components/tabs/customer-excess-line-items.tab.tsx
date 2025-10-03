@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card"
 import { useDialogStore } from "@/hooks/use-dialog"
 import { Dialog, DialogTitle, DialogContent, DialogDescription, DialogHeader } from "@/components/ui/dialog"
 import LineItemForm from "../line-item-form"
+import CustomerExcessLineItemList from "../customer-excess-line-item-list"
 
 type CustomerExcessLineItemsTabProps = {
   customerExcess: NonNullable<Awaited<ReturnType<typeof getCustomerExcessByCode>>>
@@ -40,7 +41,9 @@ export default function CustomerExcessLineItemsTab({ customerExcess }: CustomerE
           actions={<Actions />}
         />
 
-        <div className='col-span-12'></div>
+        <div className='col-span-12'>
+          <CustomerExcessLineItemList customerExcessId={customerExcess.id} lineItems={lineItems} />
+        </div>
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

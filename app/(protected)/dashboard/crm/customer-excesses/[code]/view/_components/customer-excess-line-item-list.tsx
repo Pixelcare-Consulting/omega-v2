@@ -1,23 +1,23 @@
 "use client"
 
-import { LineItemForm } from "@/schema/sale-quote"
 import { useMemo } from "react"
-import { getColumns } from "./sale-quote-line-items-column"
+import { getColumns } from "./customer-excess-line-item-table-column"
 import { useDataTable } from "@/hooks/use-data-table"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSearch } from "@/components/data-table/data-table-search"
+import { LineItemsJSONData } from "@/actions/customer-excess"
 
-type SaleQuoteLineItemListProps = {
-  saleQuoteId: string
-  lineItems: LineItemForm[]
+type CustomerExcessLineItemListProps = {
+  customerExcessId: string
+  lineItems: LineItemsJSONData
 }
 
-export default function SaleQuoteLineItemList({ saleQuoteId, lineItems }: SaleQuoteLineItemListProps) {
-  const columns = useMemo(() => getColumns(saleQuoteId, lineItems), [saleQuoteId, JSON.stringify(lineItems)])
+export default function CustomerExcessLineItemList({ customerExcessId, lineItems }: CustomerExcessLineItemListProps) {
+  const columns = useMemo(() => getColumns(customerExcessId, lineItems), [customerExcessId, JSON.stringify(lineItems)])
 
   const { table } = useDataTable({
     data: lineItems,
-    columns,
+    columns: columns,
     initialState: { pagination: { pageIndex: 0, pageSize: 5 } },
   })
 

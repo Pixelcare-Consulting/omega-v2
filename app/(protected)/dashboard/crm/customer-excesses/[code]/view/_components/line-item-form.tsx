@@ -88,72 +88,70 @@ function LineItemForm({ customerExcessId, lineItems }: LineItemFormProps) {
   return (
     <Form {...form}>
       <form className='grid grid-cols-12 gap-4' onSubmit={form.handleSubmit(onSubmit)}>
-        <div className='grid grid-cols-12 gap-4'>
-          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-            <InputField control={form.control} name='cpn' label='CPN' extendedProps={{ inputProps: { placeholder: "Enter CPN" } }} />
-          </div>
+        <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+          <InputField control={form.control} name='cpn' label='CPN' extendedProps={{ inputProps: { placeholder: "Enter CPN" } }} />
+        </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-            <InputField control={form.control} name='mpn' label='MPN' extendedProps={{ inputProps: { placeholder: "Enter MPN" } }} />
-          </div>
+        <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+          <InputField control={form.control} name='mpn' label='MPN' extendedProps={{ inputProps: { placeholder: "Enter MPN" } }} />
+        </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-            <InputField control={form.control} name='mfr' label='MFR' extendedProps={{ inputProps: { placeholder: "Enter MFR" } }} />
-          </div>
+        <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+          <InputField control={form.control} name='mfr' label='MFR' extendedProps={{ inputProps: { placeholder: "Enter MFR" } }} />
+        </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='qtyOnHand'
-              label='QTY On Hand'
-              extendedProps={{ inputProps: { placeholder: "Enter qty on hand", type: "number" } }}
-            />
-          </div>
+        <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+          <InputField
+            control={form.control}
+            name='qtyOnHand'
+            label='QTY On Hand'
+            extendedProps={{ inputProps: { placeholder: "Enter qty on hand", type: "number" } }}
+          />
+        </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='qtyOrdered'
-              label='QTY Ordered'
-              extendedProps={{ inputProps: { placeholder: "Enter qty ordered", type: "number" } }}
-            />
-          </div>
+        <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+          <InputField
+            control={form.control}
+            name='qtyOrdered'
+            label='QTY Ordered'
+            extendedProps={{ inputProps: { placeholder: "Enter qty ordered", type: "number" } }}
+          />
+        </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='unitPrice'
-              label='Unit Price'
-              extendedProps={{ inputProps: { placeholder: "Enter unit price", type: "number" } }}
-            />
-          </div>
+        <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+          <InputField
+            control={form.control}
+            name='unitPrice'
+            label='Unit Price'
+            extendedProps={{ inputProps: { placeholder: "Enter unit price", type: "number" } }}
+          />
+        </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={form.control}
-              name='dateCode'
-              label='Date Code'
-              extendedProps={{ inputProps: { placeholder: "Enter date code" } }}
-            />
-          </div>
+        <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+          <InputField
+            control={form.control}
+            name='dateCode'
+            label='Date Code'
+            extendedProps={{ inputProps: { placeholder: "Enter date code" } }}
+          />
+        </div>
 
-          <div className='col-span-12'>
-            <TextAreaField
-              control={form.control}
-              name='notes'
-              label='Notes'
-              extendedProps={{ textAreaProps: { placeholder: "Enter notes", rows: 10 } }}
-            />
-          </div>
+        <div className='col-span-12'>
+          <TextAreaField
+            control={form.control}
+            name='notes'
+            label='Notes'
+            extendedProps={{ textAreaProps: { placeholder: "Enter notes", rows: 10 } }}
+          />
+        </div>
 
-          <div className='col-span-12 flex items-center justify-end gap-2'>
-            <Button variant='secondary' type='button' onClick={handleClose}>
-              Cancel
-            </Button>
-            <LoadingButton isLoading={isExecuting} type='submit'>
-              Save
-            </LoadingButton>
-          </div>
+        <div className='col-span-12 flex items-center justify-end gap-2'>
+          <Button variant='secondary' type='button' onClick={handleClose}>
+            Cancel
+          </Button>
+          <LoadingButton isLoading={isExecuting} type='submit'>
+            Save
+          </LoadingButton>
         </div>
       </form>
     </Form>

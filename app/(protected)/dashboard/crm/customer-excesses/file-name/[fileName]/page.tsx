@@ -32,6 +32,10 @@ export default async function CustomerExcessLineItemsPage({ params }: { params: 
         <PageWrapper
           title={`Customer Excess - ${fileName}`}
           description={`View the line items for this customer excess with file name - ${fileName}`}
+          defaultAction={{
+            label: "Back",
+            href: "/dashboard/crm/customer-excesses",
+          }}
         >
           <Card className='rounded-lg p-6 shadow-md'>
             <CustomerExcessLineItemList fileName={fileName} lineItems={lineItems} />

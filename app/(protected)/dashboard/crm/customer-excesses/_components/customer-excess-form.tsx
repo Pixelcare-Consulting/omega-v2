@@ -11,7 +11,7 @@ import { useSession } from "next-auth/react"
 import { useDataTable } from "@/hooks/use-data-table"
 import { ColumnDef } from "@tanstack/react-table"
 
-import { getCustomerExcessByCode, upsertCustomerExcess } from "@/actions/customer-excess"
+import { getCustomerExcessByCode, LineItemsJSONData, upsertCustomerExcess } from "@/actions/customer-excess"
 import { useDialogStore } from "@/hooks/use-dialog"
 import { type CustomerExcessForm, customerExcessFormSchema, LineItemForm } from "@/schema/customer-excess"
 import { getBpMastersClient } from "@/actions/master-bp"
@@ -266,6 +266,12 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
       </Button>
     )
   }
+
+  //* set line items if customer excess exist
+  useEffect(() => {
+    const currentLineItems = (customerExcess?.lineItems || []) as LineItemsJSONData
+    if (customerExcess && currentLineItems.length > 0) form.setValue("lineItems", currentLineItems)
+  }, [JSON.stringify(customerExcess)])
 
   //* set listOwnerId based on user session
   useEffect(() => {

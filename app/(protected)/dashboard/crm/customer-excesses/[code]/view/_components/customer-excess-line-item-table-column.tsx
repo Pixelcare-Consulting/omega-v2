@@ -1,0 +1,158 @@
+import { ColumnDef } from "@tanstack/react-table"
+import Link from "next/link"
+import { dateFilter, dateSort } from "@/lib/data-table/data-table"
+import { format } from "date-fns"
+
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
+import {
+  getCustomerExcessByCode,
+  getCustomerExcessLineItemsByFileName,
+  LineItemsJSONData,
+  updateLineItems,
+} from "@/actions/customer-excess"
+import { Icons } from "@/components/icons"
+import { formatCurrency, formatNumber } from "@/lib/formatter"
+import { useRouter } from "nextjs-toploader/app"
+import { useAction } from "next-safe-action/hooks"
+import { useState } from "react"
+import { useDialogStore } from "@/hooks/use-dialog"
+import { toast } from "sonner"
+import { LineItemForm } from "@/schema/customer-excess"
+import ActionTooltipProvider from "@/components/provider/tooltip-provider"
+import AlertModal from "@/components/alert-modal"
+
+export function getColumns(customerExcessId: string, lineItems: LineItemForm[]): ColumnDef<LineItemsJSONData[number]>[] {
+  return [
+    {
+      accessorKey: "cpn",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='CPN' />,
+      cell: ({ row }) => <div>{row.original?.cpn || ""}</div>,
+    },
+    {
+      accessorKey: "mpn",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
+      cell: ({ row }) => <div>{row.original?.mpn || ""}</div>,
+    },
+    {
+      accessorKey: "mfr",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='MFR' />,
+      cell: ({ row }) => <div>{row.original?.mfr || ""}</div>,
+    },
+    {
+      accessorKey: "qtyOnHand",
+      id: "qty on hand",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='QTY On Hand' />,
+      cell: ({ row }) => {
+        const qtyOnHand = parseFloat(String(row.original?.qtyOnHand))
+        if (isNaN(qtyOnHand)) return ""
+        return <div>{formatNumber({ amount: qtyOnHand })}</div>
+      },
+    },
+    {
+      accessorKey: "qtyOrdered",
+      id: "qty ordered",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='QTY Ordered' />,
+      cell: ({ row }) => {
+        const qtyOrdered = parseFloat(String(row.original?.qtyOrdered))
+        if (isNaN(qtyOrdered)) return ""
+        return <div>{formatNumber({ amount: qtyOrdered })}</div>
+      },
+    },
+    {
+      accessorKey: "unitPrice",
+      id: "unit price",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Unit Price' />,
+      cell: ({ row }) => {
+        const unitPrice = parseFloat(String(row.original?.unitPrice))
+        if (isNaN(unitPrice)) return ""
+        return <div>{formatCurrency({ amount: unitPrice, maxDecimal: 2 })}</div>
+      },
+    },
+    {
+      accessorKey: "dateCode",
+      id: "date code",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Date Code' />,
+      cell: ({ row }) => <div>{row.original?.dateCode || ""}</div>,
+    },
+    {
+      accessorKey: "notes",
+      id: "notes",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Notes' />,
+      cell: ({ row }) => <div className='min-w-[200px] whitespace-pre-line'>{row.original?.notes || ""}</div>,
+    },
+    {
+      accessorKey: "actions",
+      id: "actions",
+      header: "Actions",
+      cell: function ActionCell({ row, table }) {
+        const router = useRouter()
+        const { executeAsync } = useAction(updateLineItems)
+        const [showConfirmation, setShowConfirmation] = useState(false)
+
+        const { setIsOpen, setData } = useDialogStore(["setIsOpen", "setData"])
+        const isAllowedToDelete = !lineItems || lineItems.length > 1
+
+        const index = row.index
+
+        const handleEdit = () => {
+          setData(row.original)
+          setTimeout(() => setIsOpen(true), 1000)
+        }
+
+        const handleRemoveItem = (customerExcessId: string, index: number, lineItems: LineItemForm[]) => {
+          setShowConfirmation(false)
+
+          const filteredLineItems = lineItems.filter((_, i) => i !== index)
+
+          toast.promise(executeAsync({ action: "delete", customerExcessId, lineItems: filteredLineItems }), {
+            loading: "Deleting line item...",
+            success: (response) => {
+              const result = response?.data
+
+              if (!response || !result) throw { message: "Failed to delete line item!", unExpectedError: true }
+
+              if (!result.error) {
+                setTimeout(() => {
+                  router.refresh()
+                }, 1500)
+
+                return result.message
+              }
+
+              throw { message: result.message, expectedError: true }
+            },
+            error: (err: Error & { expectedError: boolean }) => {
+              return err?.expectedError ? err.message : "Something went wrong! Please try again later."
+            },
+          })
+        }
+
+        return (
+          <div className='flex w-[100px] gap-2'>
+            <ActionTooltipProvider label='Edit Line Item'>
+              <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' onClick={handleEdit} />
+            </ActionTooltipProvider>
+
+            {isAllowedToDelete && (
+              <ActionTooltipProvider label='Remove Line Item'>
+                <Icons.trash
+                  className='size-4 cursor-pointer text-red-600 transition-all hover:scale-125'
+                  onClick={() => setShowConfirmation(true)}
+                />
+              </ActionTooltipProvider>
+            )}
+
+            <AlertModal
+              isOpen={showConfirmation}
+              title='Are you sure?'
+              description={`Are you sure you want to delete this line item?`}
+              onConfirm={() => handleRemoveItem(customerExcessId, index, lineItems)}
+              onConfirmText='Delete'
+              onCancel={() => setShowConfirmation(false)}
+            />
+          </div>
+        )
+      },
+    },
+  ]
+}
