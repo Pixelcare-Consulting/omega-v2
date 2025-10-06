@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
@@ -18,6 +20,9 @@ import {
 } from "@/schema/master-bp"
 import CustomerAddressesTab from "./tabs/customer-addresses-tab"
 import CustomerContactsTab from "./tabs/customer-contacts-tab"
+import { useAction } from "next-safe-action/hooks"
+import { getCustomerExcessesByCustomerCodeClient } from "@/actions/customer-excess"
+import CustomerExcessListTab from "./tabs/customer-excess-list-tab"
 
 type ViewCustomerProps = {
   customer: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
@@ -25,6 +30,12 @@ type ViewCustomerProps = {
 }
 
 export default function ViewCustomer({ customer, countries }: ViewCustomerProps) {
+  const {
+    execute: getCustomerExcessesByCustomerCodeExec,
+    isExecuting: IsCustomerExcessesLoading,
+    result: { data: customerExcesses },
+  } = useAction(getCustomerExcessesByCustomerCodeClient)
+
   const accountType = BP_MASTER_CUSTOMER_ACCOUNT_TYPE_OPTIONS.find((item) => item.value === customer.accountType)?.label
   const type = BP_MASTER_CUSTOMER_TYPE_OPTIONS.find((item) => item.value === customer.type)?.label
   const status = BP_MASTER_CUSTOMER_STATUS_OPTIONS.find((item) => item.value === customer.status)?.label
@@ -96,6 +107,7 @@ export default function ViewCustomer({ customer, countries }: ViewCustomerProps)
             <TabsTrigger value='1'>Summary</TabsTrigger>
             <TabsTrigger value='2'>Addresses</TabsTrigger>
             <TabsTrigger value='3'>Contacts</TabsTrigger>
+            <TabsTrigger value='3'>Excess List</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -108,6 +120,17 @@ export default function ViewCustomer({ customer, countries }: ViewCustomerProps)
 
           <TabsContent value='3'>
             <CustomerContactsTab customer={customer} />
+          </TabsContent>
+
+          <TabsContent value='4'>
+            <CustomerExcessListTab
+              customer={customer}
+              excesses={{
+                data: customerExcesses || [],
+                isLoading: IsCustomerExcessesLoading,
+                callback: () => getCustomerExcessesByCustomerCodeExec({ customerCode: customer.CardCode }),
+              }}
+            />
           </TabsContent>
         </Tabs>
       </div>

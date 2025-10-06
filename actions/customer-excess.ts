@@ -7,6 +7,7 @@ import { paramsSchema } from "@/schema/common"
 import { Prisma } from "@prisma/client"
 import { importSchema } from "@/schema/import-export"
 import { isValid, parse } from "date-fns"
+import { z } from "zod"
 
 const CUSTOMER_EXCESS_INCLUDE = {
   customer: { select: { CardCode: true, CardName: true } },
@@ -65,6 +66,25 @@ export async function getCustomerExcessLineItemsByFileName(fileName: string) {
     return []
   }
 }
+
+export async function getCustomerExcessesByCustomerCode(customerCode: string) {
+  try {
+    return await prisma.customerExcess.findMany({
+      where: { customerCode, deletedAt: null, deletedBy: null },
+      include: CUSTOMER_EXCESS_INCLUDE,
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export const getCustomerExcessesByCustomerCodeClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ customerCode: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    return await getCustomerExcessesByCustomerCode(data.customerCode)
+  })
 
 export const upsertCustomerExcess = action
   .use(authenticationMiddleware)
