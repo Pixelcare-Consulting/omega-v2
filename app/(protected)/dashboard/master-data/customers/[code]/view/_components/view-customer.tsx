@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect } from "react"
+import { useAction } from "next-safe-action/hooks"
 
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Badge } from "@/components/badge"
@@ -9,7 +11,6 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import UnderDevelopment from "@/components/under-development"
 import { getInitials } from "@/lib/utils"
 import CustomerSummaryTab from "./tabs/customer-summary-tab"
 import { getBpMasterByCardCode } from "@/actions/master-bp"
@@ -20,7 +21,6 @@ import {
 } from "@/schema/master-bp"
 import CustomerAddressesTab from "./tabs/customer-addresses-tab"
 import CustomerContactsTab from "./tabs/customer-contacts-tab"
-import { useAction } from "next-safe-action/hooks"
 import { getCustomerExcessesByCustomerCodeClient } from "@/actions/customer-excess"
 import CustomerExcessListTab from "./tabs/customer-excess-list-tab"
 
@@ -39,6 +39,11 @@ export default function ViewCustomer({ customer, countries }: ViewCustomerProps)
   const accountType = BP_MASTER_CUSTOMER_ACCOUNT_TYPE_OPTIONS.find((item) => item.value === customer.accountType)?.label
   const type = BP_MASTER_CUSTOMER_TYPE_OPTIONS.find((item) => item.value === customer.type)?.label
   const status = BP_MASTER_CUSTOMER_STATUS_OPTIONS.find((item) => item.value === customer.status)?.label
+
+  //* trigger fetch customer excess
+  useEffect(() => {
+    if (customer?.CardCode) getCustomerExcessesByCustomerCodeExec({ customerCode: customer?.CardCode })
+  }, [JSON.stringify(customer)])
 
   return (
     <PageWrapper

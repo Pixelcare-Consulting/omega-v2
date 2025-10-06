@@ -47,7 +47,14 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
   const router = useRouter()
   const { code } = useParams() as { code: string }
   const { data: session } = useSession()
-  const { isOpen, setIsOpen, data: lineItemData, setData } = useDialogStore(["isOpen", "setIsOpen", "data", "setData"])
+  const {
+    modalId,
+    setModalId,
+    isOpen,
+    setIsOpen,
+    data: lineItemData,
+    setData,
+  } = useDialogStore(["modalId", "setModalId", "isOpen", "setIsOpen", "data", "setData"])
 
   const isCreate = code === "add" || !customerExcess
 
@@ -162,7 +169,10 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
 
           const handleEdit = (index: number) => {
             setData({ ...row.original, index })
-            setTimeout(() => setIsOpen(true), 500)
+            setTimeout(() => {
+              setModalId("customer-excess-form-customer-excess-line-item")
+              setIsOpen(true)
+            }, 500)
           }
 
           return (
@@ -221,6 +231,7 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
 
       if (result?.data && result?.data?.customerExcess && "code" in result?.data?.customerExcess) {
         if (isModal) {
+          setModalId(null)
           setIsOpen(false)
           setData(null)
 
@@ -242,6 +253,7 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
 
   const handleCancel = () => {
     if (isModal) {
+      setModalId(null)
       setIsOpen(false)
       return
     }
@@ -256,6 +268,7 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
 
   const LineItemAction = () => {
     const handleActionClick = () => {
+      setModalId("customer-excess-form-customer-excess-line-item")
       setIsOpen(true)
       setData(null)
     }
@@ -377,7 +390,18 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
               </div>
             </DataTable>
 
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <Dialog
+              open={modalId === "customer-excess-form-customer-excess-line-item" && isOpen}
+              onOpenChange={(value) => {
+                if (value) {
+                  setIsOpen(value)
+                  return
+                }
+
+                setModalId(null)
+                setIsOpen(value)
+              }}
+            >
               <DialogContent className='max-h-[85vh] overflow-auto sm:max-w-5xl'>
                 <DialogHeader>
                   <DialogTitle>Add line item for this sales quotation</DialogTitle>

@@ -12,6 +12,7 @@ import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { deleteCustomerExcess, getCustomerExcessesByCustomerCode, LineItemsJSONData } from "@/actions/customer-excess"
 import { Icons } from "@/components/icons"
+import { useDialogStore } from "@/hooks/use-dialog"
 
 type CustomerExcessData = Awaited<ReturnType<typeof getCustomerExcessesByCustomerCode>>[number]
 
@@ -102,6 +103,8 @@ export function getColumns(callback?: () => void): ColumnDef<CustomerExcessData>
         const { executeAsync } = useAction(deleteCustomerExcess)
         const [showConfirmation, setShowConfirmation] = useState(false)
 
+        const { setModalId, setIsOpen, setData } = useDialogStore(["setModalId", "setIsOpen", "setData"])
+
         const { id, code } = row.original
 
         async function handleDelete() {
@@ -130,6 +133,12 @@ export function getColumns(callback?: () => void): ColumnDef<CustomerExcessData>
           })
         }
 
+        const handleEdit = () => {
+          setModalId("view-customer-excess")
+          setData(row.original)
+          setTimeout(() => setIsOpen(true), 1000)
+        }
+
         return (
           <>
             <div className='flex gap-2'>
@@ -141,10 +150,7 @@ export function getColumns(callback?: () => void): ColumnDef<CustomerExcessData>
               </ActionTooltipProvider>
 
               <ActionTooltipProvider label='Edit Customer Excess'>
-                <Icons.pencil
-                  className='size-4 cursor-pointer transition-all hover:scale-125'
-                  onClick={() => router.push(`/dashboard/crm/customer-excesses/${code}`)}
-                />
+                <Icons.pencil className='size-4 cursor-pointer transition-all hover:scale-125' onClick={handleEdit} />
               </ActionTooltipProvider>
 
               <ActionTooltipProvider label='Delete Customer Excess'>

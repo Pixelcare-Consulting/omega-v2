@@ -2,6 +2,8 @@ import { createStoreWithSelectors } from "@/lib/zustand"
 import { createWithEqualityFn } from "zustand/traditional"
 
 type DialogStore = {
+  modalId: string | null
+  setModalId: (modalId: string | null) => void
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
   title: string
@@ -13,6 +15,8 @@ type DialogStore = {
 }
 
 const dialogStore = createWithEqualityFn<DialogStore>((set) => ({
+  modalId: null,
+  setModalId: (modalId: string | null) => set({ modalId }),
   title: "",
   setTitle: (title: string) => set({ title }),
   description: "",
