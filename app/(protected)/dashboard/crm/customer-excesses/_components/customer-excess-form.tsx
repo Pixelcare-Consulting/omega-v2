@@ -34,6 +34,7 @@ import CustomerExcessLineItemForm from "./customer-excess-line-item-form"
 import InputField from "@/components/form/input-field"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import { Icons } from "@/components/icons"
+import { useDialogStore } from "@/hooks/use-dialog"
 
 type CustomerExcessFormProps = {
   isModal?: boolean
@@ -47,7 +48,9 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
   const router = useRouter()
   const { code } = useParams() as { code: string }
   const { data: session } = useSession()
-  const { isOpen, setIsOpen, data: lineItemData, setData } = useLineItemDialogStore(["isOpen", "setIsOpen", "data", "setData"])
+
+  const mainDialog = useDialogStore(["setIsOpen", "setData"])
+  const lineItemDialog = useLineItemDialogStore(["isOpen", "setIsOpen", "data", "setData"])
 
   const isCreate = code === "add" || !customerExcess
 
@@ -161,9 +164,9 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
           }
 
           const handleEdit = (index: number) => {
-            setData({ ...row.original, index })
+            lineItemDialog.setData({ ...row.original, index })
             setTimeout(() => {
-              setIsOpen(true)
+              lineItemDialog.setIsOpen(true)
             }, 500)
           }
 
@@ -223,8 +226,8 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
 
       if (result?.data && result?.data?.customerExcess && "code" in result?.data?.customerExcess) {
         if (isModal) {
-          setIsOpen(false)
-          setData(null)
+          mainDialog.setData(null)
+          mainDialog.setIsOpen(false)
 
           setTimeout(() => {
             if (callback) callback()
@@ -244,7 +247,7 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
 
   const handleCancel = () => {
     if (isModal) {
-      setIsOpen(false)
+      mainDialog.setIsOpen(false)
       return
     }
 
@@ -258,8 +261,8 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
 
   const LineItemAction = () => {
     const handleActionClick = () => {
-      setIsOpen(true)
-      setData(null)
+      lineItemDialog.setIsOpen(true)
+      lineItemDialog.setData(null)
     }
 
     return (
@@ -379,12 +382,12 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
               </div>
             </DataTable>
 
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <Dialog open={lineItemDialog.isOpen} onOpenChange={lineItemDialog.setIsOpen}>
               <DialogContent className='max-h-[85vh] overflow-auto sm:max-w-5xl'>
                 <DialogHeader>
                   <DialogTitle>Add line item for this sales quotation</DialogTitle>
                   <DialogDescription>
-                    Fill in the form to {lineItemData ? "edit" : "add a new"} line item for this sale quote.
+                    Fill in the form to {lineItemDialog.data ? "edit" : "add a new"} line item for this sale quote.
                   </DialogDescription>
                 </DialogHeader>
 
