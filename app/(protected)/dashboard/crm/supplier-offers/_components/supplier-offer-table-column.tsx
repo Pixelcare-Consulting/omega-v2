@@ -42,7 +42,6 @@ export function getColumns(): ColumnDef<SupplierOfferData>[] {
       header: ({ column }) => <DataTableColumnHeader column={column} title='File Name' />,
       cell: ({ row }) => {
         const { code, fileName } = row.original
-
         return (
           <Link className='text-blue-500 hover:underline' href={`/dashboard/crm/supplier-offers/${code}/file-name/${fileName}`}>
             {fileName}
