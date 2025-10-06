@@ -398,6 +398,11 @@ export default function CustomerExcessForm({ isModal, disableCustomerField, cust
                   return
                 }
 
+                if (isModal) {
+                  setModalId("view-customer-excess")
+                  return
+                }
+
                 setModalId(null)
                 setIsOpen(value)
               }}

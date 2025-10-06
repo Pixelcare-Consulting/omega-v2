@@ -59,7 +59,7 @@ export default function CustomerExcessListTab({ customer, excesses }: CustomerEx
       </div>
 
       <Dialog
-        open={modalId === "view-customer-excess" && isOpen}
+        open={(modalId === "view-customer-excess" || modalId === "customer-excess-form-customer-excess-line-item") && isOpen}
         onOpenChange={(value) => {
           if (value) {
             setIsOpen(value)

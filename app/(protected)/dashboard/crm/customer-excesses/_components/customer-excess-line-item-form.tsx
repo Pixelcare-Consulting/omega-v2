@@ -16,7 +16,7 @@ import { FormDebug } from "@/components/form/form-debug"
 export default function CustomerExcessLineItemForm() {
   const form = useFormContext<CustomerExcessForm>()
 
-  const { data: lineItem, setIsOpen, setData } = useDialogStore(["setIsOpen", "data", "setData"])
+  const { setModalId, data: lineItem, setIsOpen, setData } = useDialogStore(["setModalId", "setIsOpen", "data", "setData"])
 
   const values = useMemo(() => {
     if (lineItem) return lineItem
@@ -42,6 +42,7 @@ export default function CustomerExcessLineItemForm() {
   const lineItems = useWatch({ control: form.control, name: "lineItems" })
 
   const handleClose = () => {
+    setModalId("view-customer-excess")
     setIsOpen(false)
     setData(null)
   }
@@ -65,6 +66,7 @@ export default function CustomerExcessLineItemForm() {
     lineItemForm.reset()
     form.clearErrors("lineItems")
     setIsOpen(false)
+    setModalId("view-customer-excess")
   }, [JSON.stringify(lineItems), JSON.stringify(lineItem)])
 
   return (
