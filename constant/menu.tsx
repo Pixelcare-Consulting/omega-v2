@@ -133,12 +133,12 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
               actions: "read",
               subjects: "p-csrm-customer-excesses",
             },
-            // {
-            //   href: "/dashboard/crm/supplier-offers",
-            //   label: "Supplier Offers",
-            //   actions: "read",
-            //   subjects: "p-csrm-supplier-offers",
-            // },
+            {
+              href: "/dashboard/crm/supplier-offers",
+              label: "Supplier Offers",
+              actions: "read",
+              subjects: "p-csrm-supplier-offers",
+            },
           ],
         },
         {

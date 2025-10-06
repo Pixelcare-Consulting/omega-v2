@@ -54,7 +54,8 @@ model User {
 
   shipmentPurchasers Shipment[] @relation()
 
-  customerExcessListOwners CustomerExcess[] @relation("user-customer-excess-list-owner")
+  customerExcessListOwners CustomerExcess[]
+  supplierOfferListOwners  SupplierOffer[]
 
   bpAssignedBuyers            BusinessPartner[]              @relation("user-assigned-buyers")
   bpAssignedSalesEmployees    BusinessPartner[]              @relation("user-sales-employee")
@@ -504,7 +505,7 @@ model CustomerExcess {
   lineItems    Json?    @default("[]")
 
   customer  BusinessPartner @relation(fields: [customerCode], references: [CardCode], onUpdate: Cascade, onDelete: Cascade)
-  listOwner User?           @relation(name: "user-customer-excess-list-owner", fields: [listOwnerId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  listOwner User?           @relation(fields: [listOwnerId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
@@ -514,6 +515,28 @@ model CustomerExcess {
   deletedBy String?
 
   @@unique([code, customerCode])
+}
+
+model SupplierOffer {
+  id           String   @id @default(uuid())
+  code         Int      @unique @default(autoincrement())
+  listDate     DateTime
+  supplierCode String
+  fileName     String   @unique //* file name unique, no space allowed, convert space to dash (-) 
+  listOwnerId  String?
+  lineItems    Json?    @default("[]")
+
+  supplier  BusinessPartner @relation(fields: [supplierCode], references: [CardCode], onUpdate: Cascade, onDelete: Cascade)
+  listOwner User?           @relation(fields: [listOwnerId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+
+  @@unique([code, supplierCode])
 }
 
 model BusinessPartner {
@@ -586,6 +609,7 @@ model BusinessPartner {
   saleQuotes            SaleQuote[]
   productAvailabilities ProductAvailability[]
   customerExcesses      CustomerExcess[]
+  supplierOffers        SupplierOffer[]
 
   buyer             User? @relation(name: "user-assigned-buyers", fields: [assignedBuyer], references: [id], onDelete: Cascade, onUpdate: Cascade)
   salesEmployee     User? @relation(name: "user-sales-employee", fields: [assignedSalesEmployee], references: [id], onDelete: Cascade, onUpdate: Cascade)
