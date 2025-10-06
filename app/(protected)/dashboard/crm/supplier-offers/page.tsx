@@ -11,7 +11,7 @@ export default async function SupplierOffersPage() {
   const supplierOffers = await getSupplierOffers()
 
   return (
-    <ContentLayout title='Supplier Offer'>
+    <ContentLayout title='Supplier Offers'>
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
@@ -23,11 +23,11 @@ export default async function SupplierOffersPage() {
 
       <ContentContainer>
         <PageWrapper
-          title='Supplier Offer'
-          description='Manage and track your supplier offer effectively'
+          title='Supplier Offers'
+          description='Manage and track your supplier offers effectively'
           defaultAction={{
             label: "Add Supplier Offer",
-            href: "/dashboard/crm/supplier-offeres/add",
+            href: "/dashboard/crm/supplier-offers/add",
             icon: Icons.plus,
           }}
         >

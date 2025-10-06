@@ -101,10 +101,6 @@ export default function SupplierOfferForm({ isModal, disableSupplierField, suppl
   const columns = useMemo((): ColumnDef<LineItemForm>[] => {
     return [
       {
-        accessorKey: "cpn",
-        header: "CPN",
-      },
-      {
         accessorKey: "mpn",
         header: "MPN",
       },
@@ -113,21 +109,12 @@ export default function SupplierOfferForm({ isModal, disableSupplierField, suppl
         header: "MFR",
       },
       {
-        accessorKey: "qtyOnHand",
-        header: "QTY On Hand",
+        accessorKey: "qty",
+        header: "Qty",
         cell: ({ row }) => {
-          const qtyOnHand = parseFloat(String(row.original?.qtyOnHand))
-          if (isNaN(qtyOnHand)) return ""
-          return <div>{formatNumber({ amount: qtyOnHand })}</div>
-        },
-      },
-      {
-        accessorKey: "qtyOrdered",
-        header: "QTY Ordered",
-        cell: ({ row }) => {
-          const qtyOrdered = parseFloat(String(row.original?.qtyOrdered))
-          if (isNaN(qtyOrdered)) return ""
-          return <div>{formatNumber({ amount: qtyOrdered })}</div>
+          const qty = parseFloat(String(row.original?.qty))
+          if (isNaN(qty)) return ""
+          return <div>{formatNumber({ amount: qty })}</div>
         },
       },
       {

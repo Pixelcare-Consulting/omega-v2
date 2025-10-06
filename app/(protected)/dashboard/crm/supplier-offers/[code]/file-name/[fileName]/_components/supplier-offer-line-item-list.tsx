@@ -30,7 +30,6 @@ export default function SupplierOfferLineItemList({ fileName, lineItems }: Suppl
     return [
       { label: "List Date", columnId: "list date", type: "date" },
       { label: "Supplier Name", columnId: "supplier name", type: "text" },
-      { label: "CPN", columnId: "cpn", type: "text" },
       { label: "MPN", columnId: "mpn", type: "text" },
       { label: "MFR", columnId: "mfr", type: "text" },
       { label: "Date Code", columnId: "date code", type: "text" },

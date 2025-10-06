@@ -2,11 +2,9 @@ import { z } from "zod"
 
 //* Zod schema
 export const lineItemFormSchema = z.object({
-  cpn: z.string().nullish(),
   mpn: z.string().nullish(),
   mfr: z.string().nullish(),
-  qtyOnHand: z.coerce.number().nullish(),
-  qtyOrdered: z.coerce.number().nullish(),
+  qty: z.coerce.number().nullish(),
   unitPrice: z.coerce.number().nullish(),
   dateCode: z.string().nullish(),
   notes: z.string().nullish(),
@@ -19,14 +17,6 @@ export const supplierOfferFormSchema = z.object({
   listDate: z.date({ message: "List date is required" }),
   supplierCode: z.string().min(1, { message: "Supplier is required" }),
   fileName: z.string().min(1, { message: "File name is required" }),
-  cpn: z.string().nullish(),
-  mpn: z.string().nullish(),
-  mfr: z.string().nullish(),
-  qtyOnHand: z.coerce.number().nullish(),
-  qtyOrdered: z.coerce.number().nullish(),
-  unitPrice: z.coerce.number().nullish(),
-  dateCode: z.string().nullish(),
-  notes: z.string().nullish(),
   listOwnerId: z.string().nullish(),
   lineItems: lineItemsFormSchema,
 })

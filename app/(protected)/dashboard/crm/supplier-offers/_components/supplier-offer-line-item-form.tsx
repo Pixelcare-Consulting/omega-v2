@@ -22,11 +22,9 @@ export default function SupplierOfferLineItemForm() {
     if (lineItem) return lineItem
 
     return {
-      cpn: "",
       mpn: "",
       mfr: "",
-      qtyOnHand: 0,
-      qtyOrdered: 0,
+      qty: 0,
       unitPrice: 0,
       dateCode: "",
       notes: "",
@@ -73,16 +71,7 @@ export default function SupplierOfferLineItemForm() {
 
       <Form {...lineItemForm}>
         <div className='grid grid-cols-12 gap-4'>
-          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
-            <InputField
-              control={lineItemForm.control}
-              name='cpn'
-              label='CPN'
-              extendedProps={{ inputProps: { placeholder: "Enter CPN" } }}
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6'>
             <InputField
               control={lineItemForm.control}
               name='mpn'
@@ -91,7 +80,7 @@ export default function SupplierOfferLineItemForm() {
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+          <div className='col-span-12 md:col-span-6'>
             <InputField
               control={lineItemForm.control}
               name='mfr'
@@ -100,25 +89,16 @@ export default function SupplierOfferLineItemForm() {
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
             <InputField
               control={lineItemForm.control}
-              name='qtyOnHand'
-              label='QTY On Hand'
-              extendedProps={{ inputProps: { placeholder: "Enter qty on hand", type: "number" } }}
+              name='qty'
+              label='Qty'
+              extendedProps={{ inputProps: { placeholder: "Enter qty", type: "number" } }}
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
-            <InputField
-              control={lineItemForm.control}
-              name='qtyOrdered'
-              label='QTY Ordered'
-              extendedProps={{ inputProps: { placeholder: "Enter qty ordered", type: "number" } }}
-            />
-          </div>
-
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
             <InputField
               control={lineItemForm.control}
               name='unitPrice'
@@ -127,7 +107,7 @@ export default function SupplierOfferLineItemForm() {
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6 lg:col-span-3'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
             <InputField
               control={lineItemForm.control}
               name='dateCode'

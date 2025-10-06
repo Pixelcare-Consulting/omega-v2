@@ -19,11 +19,6 @@ import AlertModal from "@/components/alert-modal"
 export function getColumns(supplierOfferId: string, lineItems: LineItemForm[]): ColumnDef<LineItemsJSONData[number]>[] {
   return [
     {
-      accessorKey: "cpn",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='CPN' />,
-      cell: ({ row }) => <div className='min-w-[150px]'>{row.original?.cpn || ""}</div>,
-    },
-    {
       accessorKey: "mpn",
       header: ({ column }) => <DataTableColumnHeader column={column} title='MPN' />,
       cell: ({ row }) => <div className='min-w-[150px]'>{row.original?.mpn || ""}</div>,
@@ -34,23 +29,13 @@ export function getColumns(supplierOfferId: string, lineItems: LineItemForm[]): 
       cell: ({ row }) => <div className='min-w-[150px]'>{row.original?.mfr || ""}</div>,
     },
     {
-      accessorKey: "qtyOnHand",
-      id: "qty on hand",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='QTY On Hand' />,
+      accessorKey: "qty",
+      id: "qty",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Qty' />,
       cell: ({ row }) => {
-        const qtyOnHand = parseFloat(String(row.original?.qtyOnHand))
-        if (isNaN(qtyOnHand)) return ""
-        return <div>{formatNumber({ amount: qtyOnHand })}</div>
-      },
-    },
-    {
-      accessorKey: "qtyOrdered",
-      id: "qty ordered",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='QTY Ordered' />,
-      cell: ({ row }) => {
-        const qtyOrdered = parseFloat(String(row.original?.qtyOrdered))
-        if (isNaN(qtyOrdered)) return ""
-        return <div>{formatNumber({ amount: qtyOrdered })}</div>
+        const qty = parseFloat(String(row.original?.qty))
+        if (isNaN(qty)) return ""
+        return <div>{formatNumber({ amount: qty })}</div>
       },
     },
     {

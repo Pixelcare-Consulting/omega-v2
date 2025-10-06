@@ -14,11 +14,9 @@ const SUPPLIER_OFFER_INCLUDE = {
 } satisfies Prisma.SupplierOfferInclude
 
 export type LineItemsJSONData = {
-  cpn?: string | null
   mpn?: string | null
   mfr?: string | null
-  qtyOnHand?: number | null
-  qtyOrdered?: number | null
+  qty?: number | null
   unitPrice?: number | null
   dateCode?: string | null
   notes?: string | null
@@ -197,16 +195,10 @@ export const supplierOfferCreateMany = action
 
         const lineItems = row?.["Line Items"]?.filter(Boolean) || []
 
-        const isEveryItemQtyOnHandValid = lineItems.every((item: any) => {
-          const qtyOnHand = parseFloat(item?.["Qty On Hand"])
-          if (!item?.["Qty On Hand"]) return true
-          return item?.["Qty On Hand"] && !isNaN(qtyOnHand)
-        })
-
-        const isEveryItemQtyOrderedValid = lineItems.every((item: any) => {
-          const qtyOrdered = parseFloat(item?.["Qty Ordered"])
-          if (!item?.["Qty Ordered"]) return true
-          return item?.["Qty Ordered"] && !isNaN(qtyOrdered)
+        const isEveryItemQtyValid = lineItems.every((item: any) => {
+          const qtyOnHand = parseFloat(item?.["Qty"])
+          if (!item?.["Qty"]) return true
+          return item?.["Qty"] && !isNaN(qtyOnHand)
         })
 
         const isEveryItemUnitPriceValid = lineItems.every((item: any) => {
@@ -235,14 +227,9 @@ export const supplierOfferCreateMany = action
           errors.push("List date is invalid")
         }
 
-        //* if all qty on hand of each line item is valid
-        if (!isEveryItemQtyOnHandValid) {
-          errors.push("One or more line items have invalid qty on hand")
-        }
-
-        //* if qty ordered exist, check if qty ordered is valid
-        if (!isEveryItemQtyOrderedValid) {
-          errors.push("One or more line items have invalid qty ordered")
+        //* if all qty of each line item is valid
+        if (!isEveryItemQtyValid) {
+          errors.push("One or more line items have invalid qty")
         }
 
         //* if unit price exist, check if unit price is valid
@@ -290,7 +277,7 @@ export const supplierOfferCreateMany = action
       return {
         status: 200,
         message: `${updatedStats.completed} supplier offers created successfully!`,
-        action: "BATCH_WSUPPLIER_OFFER",
+        action: "BATCH_WRITE_SUPPLIER_OFFER",
         stats: updatedStats,
       }
     } catch (error) {
@@ -302,7 +289,7 @@ export const supplierOfferCreateMany = action
         error: true,
         status: 500,
         message: error instanceof Error ? error.message : "Batch write error!",
-        action: "BATCH_WSUPPLIER_OFFER",
+        action: "BATCH_WRITE_SUPPLIER_OFFER",
         stats,
       }
     }
