@@ -27,7 +27,7 @@ export default function SupplierOfferList({ supplierOffers }: SupplierOfferListP
 
   const filterFields = useMemo((): FilterFields[] => {
     return [
-      { label: "File Name", columnId: "file Name", type: "text" },
+      { label: "File Name", columnId: "file name", type: "text" },
       { label: "List Date", columnId: "list date", type: "date" },
       { label: "Supplier Name", columnId: "supplier name", type: "text" },
       { label: "List Owner", columnId: "list owner", type: "text" },

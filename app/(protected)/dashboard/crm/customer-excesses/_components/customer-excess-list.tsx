@@ -27,7 +27,7 @@ export default function CustomerExcessList({ customerExcesses }: CustomerExcessL
 
   const filterFields = useMemo((): FilterFields[] => {
     return [
-      { label: "File Name", columnId: "file Name", type: "text" },
+      { label: "File Name", columnId: "file name", type: "text" },
       { label: "List Date", columnId: "list date", type: "date" },
       { label: "Customer Name", columnId: "customer name", type: "text" },
       { label: "List Owner", columnId: "list owner", type: "text" },

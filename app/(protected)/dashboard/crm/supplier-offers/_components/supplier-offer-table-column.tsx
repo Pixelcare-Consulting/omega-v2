@@ -38,7 +38,7 @@ export function getColumns(): ColumnDef<SupplierOfferData>[] {
     },
     {
       accessorKey: "fileName",
-      id: "File Name",
+      id: "fine name",
       header: ({ column }) => <DataTableColumnHeader column={column} title='File Name' />,
       cell: ({ row }) => {
         const { code, fileName } = row.original
