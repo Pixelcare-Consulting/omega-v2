@@ -107,7 +107,7 @@ export default function ViewCustomer({ customer, countries }: ViewCustomerProps)
             <TabsTrigger value='1'>Summary</TabsTrigger>
             <TabsTrigger value='2'>Addresses</TabsTrigger>
             <TabsTrigger value='3'>Contacts</TabsTrigger>
-            <TabsTrigger value='3'>Excess List</TabsTrigger>
+            <TabsTrigger value='4'>Excess List</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>

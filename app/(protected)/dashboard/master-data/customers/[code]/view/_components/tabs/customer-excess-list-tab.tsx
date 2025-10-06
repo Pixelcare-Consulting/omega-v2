@@ -8,6 +8,7 @@ import ReadOnlyFieldHeader from "@/components/read-only-field-header"
 import { getCustomerExcessesByCustomerCode } from "@/actions/customer-excess"
 import { getBpMasterByCardCode } from "@/actions/master-bp"
 import CustomerExcessForm from "@/app/(protected)/dashboard/crm/customer-excesses/_components/customer-excess-form"
+import CustomerExcessList from "../customer-excess-list"
 
 type CustomerExcessListTabProps = {
   customer: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
@@ -39,7 +40,14 @@ export default function CustomerExcessListTab({ customer, excesses }: CustomerEx
       <div className='grid grid-cols-12 gap-x-3 gap-y-5'>
         <ReadOnlyFieldHeader className='col-span-12' title='Excess List' description="Customer's related excess" actions={<Actions />} />
 
-        <div className='col-span-12'></div>
+        <div className='col-span-12'>
+          <CustomerExcessList
+            custCode={customer.CardCode}
+            customerExcesses={excesses.data}
+            isLoading={excesses.isLoading}
+            callback={() => excesses.callback()}
+          />
+        </div>
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
