@@ -4,7 +4,6 @@ import { useForm, useFormContext, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
 import { SupplierOfferForm, lineItemFormSchema } from "@/schema/supplier-offer"
-import { useDialogStore } from "@/hooks/use-dialog"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useCallback, useMemo } from "react"
 import { Form } from "@/components/ui/form"
@@ -12,11 +11,12 @@ import InputField from "@/components/form/input-field"
 import TextAreaField from "@/components/form/textarea-field"
 import { Button } from "@/components/ui/button"
 import { FormDebug } from "@/components/form/form-debug"
+import { useLineItemDialogStore } from "@/hooks/use-line-item-dialog"
 
 export default function SupplierOfferLineItemForm() {
   const form = useFormContext<SupplierOfferForm>()
 
-  const { data: lineItem, setIsOpen, setData } = useDialogStore(["setIsOpen", "data", "setData"])
+  const { data: lineItem, setIsOpen, setData } = useLineItemDialogStore(["setIsOpen", "data", "setData"])
 
   const values = useMemo(() => {
     if (lineItem) return lineItem

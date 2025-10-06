@@ -18,6 +18,8 @@ import SupplierAddressesTab from "./tabs/supplier-addresses-tab"
 import SupplierContactsTab from "./tabs/supplier-contacts-tab"
 import SupplierProductAvailabilitiesTab from "./tabs/supplier-product-availabilities-tab"
 import { getProductAvailabilitiesBySupplierCodeClient } from "@/actions/product-availability"
+import { getSupplierOffersBySupplierCodeClient } from "@/actions/supplier-offer"
+import SupplierOffersTab from "./tabs/supplier-offers-tab"
 
 type ViewSupplierProps = {
   supplier: NonNullable<Awaited<ReturnType<typeof getBpMasterByCardCode>>>
@@ -33,9 +35,18 @@ export default function ViewSupplier({ supplier, itemGroups, manufacturers, coun
     result: { data: productAvailabilities },
   } = useAction(getProductAvailabilitiesBySupplierCodeClient)
 
-  //* trigger fetch product availabilities
+  const {
+    execute: getSupplierOffersBySupplierCodeExec,
+    isExecuting: IsSupplierOffersLoading,
+    result: { data: supplierOffers },
+  } = useAction(getSupplierOffersBySupplierCodeClient)
+
+  //* trigger fetch product availabilities, supplier offers
   useEffect(() => {
-    if (supplier?.CardCode) getProductAvailabilitiesBySupplierCodeExec({ supplierCode: supplier?.CardCode })
+    if (supplier?.CardCode) {
+      getProductAvailabilitiesBySupplierCodeExec({ supplierCode: supplier?.CardCode })
+      getSupplierOffersBySupplierCodeExec({ supplierCode: supplier?.CardCode })
+    }
   }, [JSON.stringify(supplier)])
 
   return (
@@ -100,6 +111,7 @@ export default function ViewSupplier({ supplier, itemGroups, manufacturers, coun
             <TabsTrigger value='2'>Addresses</TabsTrigger>
             <TabsTrigger value='3'>Contacts</TabsTrigger>
             <TabsTrigger value='4'>Product Availabilities</TabsTrigger>
+            <TabsTrigger value='5'>Supplier Offers</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -121,6 +133,17 @@ export default function ViewSupplier({ supplier, itemGroups, manufacturers, coun
                 data: productAvailabilities || [],
                 isLoading: IsProductAvailabilitiesLoading,
                 callback: () => getProductAvailabilitiesBySupplierCodeExec({ supplierCode: supplier.CardCode }),
+              }}
+            />
+          </TabsContent>
+
+          <TabsContent value='5'>
+            <SupplierOffersTab
+              supplier={supplier}
+              offers={{
+                data: supplierOffers || [],
+                isLoading: IsSupplierOffersLoading,
+                callback: () => getSupplierOffersBySupplierCodeExec({ supplierCode: supplier.CardCode }),
               }}
             />
           </TabsContent>

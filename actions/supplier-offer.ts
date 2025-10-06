@@ -7,6 +7,7 @@ import { paramsSchema } from "@/schema/common"
 import { Prisma } from "@prisma/client"
 import { importSchema } from "@/schema/import-export"
 import { isValid, parse } from "date-fns"
+import { z } from "zod"
 
 const SUPPLIER_OFFER_INCLUDE = {
   supplier: { select: { CardCode: true, CardName: true } },
@@ -63,6 +64,25 @@ export async function getSupplierOfferLineItemsByFileName(fileName: string) {
     return []
   }
 }
+
+export async function getSupplierOffersBySupplierCode(supplierCode: string) {
+  try {
+    return await prisma.supplierOffer.findMany({
+      where: { supplierCode, deletedAt: null, deletedBy: null },
+      include: SUPPLIER_OFFER_INCLUDE,
+    })
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export const getSupplierOffersBySupplierCodeClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ supplierCode: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    return await getSupplierOffersBySupplierCode(data.supplierCode)
+  })
 
 export const upsertSupplierOffer = action
   .use(authenticationMiddleware)
