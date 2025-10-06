@@ -1,7 +1,7 @@
 import { createStoreWithSelectors } from "@/lib/zustand"
 import { createWithEqualityFn } from "zustand/traditional"
 
-type DialogStore = {
+type LineItemDialogStore = {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
   title: string
@@ -12,7 +12,7 @@ type DialogStore = {
   setData: (data: null | Record<string, any>) => void
 }
 
-const dialogStore = createWithEqualityFn<DialogStore>((set) => ({
+const lineItemDialogStore = createWithEqualityFn<LineItemDialogStore>((set) => ({
   title: "",
   setTitle: (title: string) => set({ title }),
   description: "",
@@ -23,4 +23,4 @@ const dialogStore = createWithEqualityFn<DialogStore>((set) => ({
   setData: (data: null | Record<string, any>) => set({ data }),
 }))
 
-export const useDialogStore = createStoreWithSelectors(dialogStore)
+export const useLineItemDialogStore = createStoreWithSelectors(lineItemDialogStore)

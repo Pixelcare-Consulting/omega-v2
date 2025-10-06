@@ -103,7 +103,7 @@ export function getColumns(callback?: () => void): ColumnDef<CustomerExcessData>
         const { executeAsync } = useAction(deleteCustomerExcess)
         const [showConfirmation, setShowConfirmation] = useState(false)
 
-        const { setModalId, setIsOpen, setData } = useDialogStore(["setModalId", "setIsOpen", "setData"])
+        const { setIsOpen, setData } = useDialogStore(["setIsOpen", "setData"])
 
         const { id, code } = row.original
 
@@ -134,7 +134,6 @@ export function getColumns(callback?: () => void): ColumnDef<CustomerExcessData>
         }
 
         const handleEdit = () => {
-          setModalId("view-customer-excess")
           setData(row.original)
           setTimeout(() => setIsOpen(true), 1000)
         }

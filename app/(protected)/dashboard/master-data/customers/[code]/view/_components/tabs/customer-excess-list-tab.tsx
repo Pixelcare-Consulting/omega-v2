@@ -20,18 +20,10 @@ type CustomerExcessListTabProps = {
 }
 
 export default function CustomerExcessListTab({ customer, excesses }: CustomerExcessListTabProps) {
-  const { modalId, setModalId, isOpen, setIsOpen, data, setData } = useDialogStore([
-    "modalId",
-    "setModalId",
-    "isOpen",
-    "setIsOpen",
-    "data",
-    "setData",
-  ])
+  const { isOpen, setIsOpen, data, setData } = useDialogStore(["isOpen", "setIsOpen", "data", "setData"])
 
   const Actions = () => {
     const handleActionClick = () => {
-      setModalId("view-customer-excess")
       setIsOpen(true)
       setData(null)
     }
@@ -58,18 +50,7 @@ export default function CustomerExcessListTab({ customer, excesses }: CustomerEx
         </div>
       </div>
 
-      <Dialog
-        open={(modalId === "view-customer-excess" || modalId === "customer-excess-form-customer-excess-line-item") && isOpen}
-        onOpenChange={(value) => {
-          if (value) {
-            setIsOpen(value)
-            return
-          }
-
-          setModalId(null)
-          setIsOpen(value)
-        }}
-      >
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className='max-h-[85vh] overflow-auto sm:max-w-5xl'>
           <DialogHeader>
             <DialogTitle>Add customer excess for customer #{customer.CardCode}</DialogTitle>

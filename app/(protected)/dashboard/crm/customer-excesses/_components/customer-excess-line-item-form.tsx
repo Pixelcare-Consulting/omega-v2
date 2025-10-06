@@ -4,7 +4,7 @@ import { useForm, useFormContext, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
 import { CustomerExcessForm, lineItemFormSchema } from "@/schema/customer-excess"
-import { useDialogStore } from "@/hooks/use-dialog"
+import { useLineItemDialogStore } from "@/hooks/use-line-item-dialog"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useCallback, useMemo } from "react"
 import { Form } from "@/components/ui/form"
@@ -16,7 +16,7 @@ import { FormDebug } from "@/components/form/form-debug"
 export default function CustomerExcessLineItemForm() {
   const form = useFormContext<CustomerExcessForm>()
 
-  const { setModalId, data: lineItem, setIsOpen, setData } = useDialogStore(["setModalId", "setIsOpen", "data", "setData"])
+  const { data: lineItem, setIsOpen, setData } = useLineItemDialogStore(["setIsOpen", "data", "setData"])
 
   const values = useMemo(() => {
     if (lineItem) return lineItem
@@ -42,7 +42,6 @@ export default function CustomerExcessLineItemForm() {
   const lineItems = useWatch({ control: form.control, name: "lineItems" })
 
   const handleClose = () => {
-    setModalId("view-customer-excess")
     setIsOpen(false)
     setData(null)
   }
@@ -66,7 +65,6 @@ export default function CustomerExcessLineItemForm() {
     lineItemForm.reset()
     form.clearErrors("lineItems")
     setIsOpen(false)
-    setModalId("view-customer-excess")
   }, [JSON.stringify(lineItems), JSON.stringify(lineItem)])
 
   return (
