@@ -109,7 +109,7 @@ export function getColumns(): ColumnDef<CustomerExcessData>[] {
       accessorKey: "notes",
       id: "notes",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Notes' />,
-      cell: ({ row }) => <div className='min-w-[200px] whitespace-pre-line'>{row.original?.notes || ""}</div>,
+      cell: ({ row }) => <div className='min-w-[100px] whitespace-pre-line'>{row.original?.notes || ""}</div>,
     },
     {
       accessorFn: (row) => {

@@ -32,6 +32,8 @@ import {
   getProductAvailabilitiesByManufacturerCodesClient,
 } from "@/actions/product-availability"
 import RequisitionProductAvailabilitiesTab from "./tabs/requisition-product-availabilities-tab"
+import { getCustomerExcessLineItemsByPartialMpnClient } from "@/actions/customer-excess"
+import RequisitionCustomerExcessTab from "./tabs/requisition-customer-excess-tab"
 
 type ViewRequisitionProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
@@ -83,10 +85,21 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
     result: { data: productAvailabilities },
   } = useAction(getProductAvailabilitiesByManufacturerCodesClient)
 
+  const {
+    execute: getCustomerExcessLineItemsByPartialMpnExec,
+    isExecuting: IsCustomerExcessLineItemsLoading,
+    result: { data: customerExcessLineItems },
+  } = useAction(getCustomerExcessLineItemsByPartialMpnClient)
+
   //* trigger fetch product availabilities
   useEffect(() => {
     if (mfrCodes.length > 0) getProductAvailabilitiesByManufacturerCodesExec({ manufacturerCodes: mfrCodes })
   }, [JSON.stringify(mfrCodes)])
+
+  //* trigger fetch customer excess line items
+  useEffect(() => {
+    if (requisition?.partialMpn) getCustomerExcessLineItemsByPartialMpnExec({ partialMpn: requisition.partialMpn })
+  }, [JSON.stringify(requisition)])
 
   return (
     <PageWrapper
@@ -161,7 +174,8 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             <TabsTrigger value='3'>Supplier Quotes</TabsTrigger>
             <TabsTrigger value='4'>Shipments</TabsTrigger>
             <TabsTrigger value='5'>Product Availabilities</TabsTrigger>
-            <TabsTrigger value='6'>Activities</TabsTrigger>
+            <TabsTrigger value='6'>Customer Excess</TabsTrigger>
+            <TabsTrigger value='7'>Activities</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -197,6 +211,15 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
           </TabsContent>
 
           <TabsContent value='6'>
+            <RequisitionCustomerExcessTab
+              customerExcessLineItems={{
+                data: customerExcessLineItems || [],
+                isLoading: IsCustomerExcessLineItemsLoading,
+              }}
+            />
+          </TabsContent>
+
+          <TabsContent value='7'>
             <RequisitionActivitiesTab requisition={requisition} />
           </TabsContent>
         </Tabs>

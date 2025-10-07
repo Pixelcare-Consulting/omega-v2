@@ -67,6 +67,44 @@ export async function getCustomerExcessLineItemsByFileName(fileName: string) {
   }
 }
 
+export async function getCustomerExcessLineItemsByPartialMpn(partialMpn: string) {
+  if (!partialMpn) return []
+
+  try {
+    const customerExcesses = await prisma.customerExcess.findMany({
+      where: { deletedAt: null, deletedBy: null },
+      include: CUSTOMER_EXCESS_INCLUDE,
+    })
+
+    return customerExcesses
+      .map((ce) => {
+        const li = (ce.lineItems || []) as LineItemsJSONData
+
+        if (li.length < 1) return []
+
+        return li
+          .filter((item) => item?.mpn === partialMpn)
+          .map((item) => ({
+            ...item,
+            fileName: ce.fileName,
+            listDate: ce.listDate,
+            customer: ce.customer,
+            listOwner: ce.listOwner,
+          }))
+      })
+      .flat()
+  } catch (error) {
+    return []
+  }
+}
+
+export const getCustomerExcessLineItemsByPartialMpnClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ partialMpn: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    return await getCustomerExcessLineItemsByPartialMpn(data.partialMpn)
+  })
+
 export async function getCustomerExcessesByCustomerCode(customerCode: string) {
   try {
     return await prisma.customerExcess.findMany({

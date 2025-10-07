@@ -4,13 +4,13 @@ import { dateFilter, dateSort } from "@/lib/data-table/data-table"
 import { format } from "date-fns"
 
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
-import { getSupplierOfferLineItemsByFileName } from "@/actions/supplier-offer"
+import { getCustomerExcessLineItemsByPartialMpn } from "@/actions/customer-excess"
 import { Icons } from "@/components/icons"
 import { formatCurrency, formatNumber } from "@/lib/formatter"
 
-type SupplierOfferData = Awaited<ReturnType<typeof getSupplierOfferLineItemsByFileName>>[number]
+type CustomerExcessLineItemData = NonNullable<Awaited<ReturnType<typeof getCustomerExcessLineItemsByPartialMpn>>>[number]
 
-export function getColumns(): ColumnDef<SupplierOfferData>[] {
+export function getColumns(): ColumnDef<CustomerExcessLineItemData>[] {
   return [
     {
       accessorKey: "listDate",
@@ -33,24 +33,30 @@ export function getColumns(): ColumnDef<SupplierOfferData>[] {
     },
     {
       accessorFn: (row) => {
-        const supplierName = row?.supplier?.CardName
-        if (!supplierName) return ""
-        return supplierName
+        const customerName = row?.customer?.CardName
+        if (!customerName) return ""
+        return customerName
       },
-      id: "supplier name",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Supplier Name' />,
+      id: "customer name",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='Customer Name' />,
       cell: ({ row }) => {
-        const supplierCode = row.original?.supplier?.CardCode
-        const supplierName = row.original?.supplier?.CardName
+        const customerCode = row.original?.customer?.CardCode
+        const customerName = row.original?.customer?.CardName
 
-        if (!supplierName || !supplierCode) return null
+        if (!customerName || !customerCode) return null
 
         return (
-          <Link className='text-blue-500 hover:underline' href={`/dashboard/master-data/suppliers/${supplierCode}/view`}>
-            {supplierName}
+          <Link className='text-blue-500 hover:underline' href={`/dashboard/master-data/customers/${customerCode}/view`}>
+            {customerName}
           </Link>
         )
       },
+    },
+
+    {
+      accessorKey: "cpn",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='CPN' />,
+      cell: ({ row }) => <div className='min-w-[150px]'>{row.original?.cpn || ""}</div>,
     },
     {
       accessorKey: "mpn",
@@ -64,13 +70,23 @@ export function getColumns(): ColumnDef<SupplierOfferData>[] {
       cell: ({ row }) => <div className='min-w-[150px]'>{row.original?.mfr || ""}</div>,
     },
     {
-      accessorKey: "qty",
-      id: "Qty",
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Qty' />,
+      accessorKey: "qtyOnHand",
+      id: "qty on hand",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='QTY On Hand' />,
       cell: ({ row }) => {
-        const qty = parseFloat(String(row.original?.qty))
-        if (isNaN(qty)) return ""
-        return <div>{formatNumber({ amount: qty })}</div>
+        const qtyOnHand = parseFloat(String(row.original?.qtyOnHand))
+        if (isNaN(qtyOnHand)) return ""
+        return <div>{formatNumber({ amount: qtyOnHand })}</div>
+      },
+    },
+    {
+      accessorKey: "qtyOrdered",
+      id: "qty ordered",
+      header: ({ column }) => <DataTableColumnHeader column={column} title='QTY Ordered' />,
+      cell: ({ row }) => {
+        const qtyOrdered = parseFloat(String(row.original?.qtyOrdered))
+        if (isNaN(qtyOrdered)) return ""
+        return <div>{formatNumber({ amount: qtyOrdered })}</div>
       },
     },
     {

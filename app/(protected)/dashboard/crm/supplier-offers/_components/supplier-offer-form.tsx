@@ -136,7 +136,7 @@ export default function SupplierOfferForm({ isModal, disableSupplierField, suppl
       {
         accessorKey: "notes",
         header: "Notes",
-        cell: ({ row }) => <div className='min-w-[200px] whitespace-pre-line'>{row.original?.notes || ""}</div>,
+        cell: ({ row }) => <div className='min-w-[100px] whitespace-pre-line'>{row.original?.notes || ""}</div>,
       },
       {
         accessorKey: "action",
