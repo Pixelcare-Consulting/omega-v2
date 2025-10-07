@@ -7,7 +7,7 @@ import { dateFilter, dateSort } from "@/lib/data-table/data-table"
 import { REQUISITION_PURCHASING_STATUS_OPTIONS, REQUISITION_REASON_OPTIONS, REQUISITION_RESULT_OPTIONS } from "@/schema/requisition"
 import { Badge } from "@/components/badge"
 import Link from "next/link"
-import { formatNumber } from "@/lib/formatter"
+import { formatCurrency, formatNumber } from "@/lib/formatter"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import { Icons } from "@/components/icons"
 import { useRouter } from "nextjs-toploader/app"
@@ -68,7 +68,7 @@ export function getColumns(partialMpn: string): ColumnDef<RequisitionHistoryData
       accessorKey: "reason",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Reason' />,
       cell: ({ row }) => {
-        const reason = row.original?.result
+        const reason = row.original?.reason
         const option = REQUISITION_REASON_OPTIONS.find((item) => item.value === reason)
         if (!reason || !option) return null
         return <Badge variant='soft-slate'>{option.label}</Badge>
@@ -80,12 +80,13 @@ export function getColumns(partialMpn: string): ColumnDef<RequisitionHistoryData
       header: ({ column }) => <DataTableColumnHeader column={column} title='Customer' />,
       cell: ({ row }) => {
         const customerCode = row.original?.customer?.CardCode
+        const customerName = row.original?.customer?.CardName
 
         if (!customerCode) return null
 
         return (
           <Link className='text-blue-500 hover:underline' href={`/dashboard/master-data/customers/${customerCode}/view`}>
-            {customerCode}
+            {customerName}
           </Link>
         )
       },
@@ -202,7 +203,7 @@ export function getColumns(partialMpn: string): ColumnDef<RequisitionHistoryData
       cell: ({ row }) => {
         const customerStandardPrice = parseFloat(String(row.original?.customerStandardPrice))
         if (!customerStandardPrice || isNaN(customerStandardPrice)) return null
-        return <div>{formatNumber({ amount: customerStandardPrice, maxDecimal: 2 })}</div>
+        return <div>{formatCurrency({ amount: customerStandardPrice, minDecimal: 3, maxDecimal: 3 })}</div>
       },
     },
     {
