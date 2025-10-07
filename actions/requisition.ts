@@ -116,12 +116,12 @@ export async function getRequisitionByCode(code: number) {
   }
 }
 
-export async function getRequisitionsByPartialMpn(partialMpn: string) {
+export async function getRequisitionsByPartialMpn(partialMpn: string, reqCode: number) {
   if (!partialMpn) return []
 
   try {
     const result = await prisma.requisition.findMany({
-      where: { partialMpn, deletedAt: null, deletedBy: null },
+      where: { partialMpn, deletedAt: null, deletedBy: null, code: { not: reqCode } },
       include: {
         salesPersons: {
           include: {
@@ -169,9 +169,9 @@ export async function getRequisitionsByPartialMpn(partialMpn: string) {
 
 export const getRequisitionsByPartialMpnClient = action
   .use(authenticationMiddleware)
-  .schema(z.object({ partialMpn: z.string() }))
+  .schema(z.object({ partialMpn: z.string(), reqCode: z.number() }))
   .action(async ({ parsedInput: data }) => {
-    return getRequisitionsByPartialMpn(data.partialMpn)
+    return getRequisitionsByPartialMpn(data.partialMpn, data.reqCode)
   })
 
 export const upsertRequisition = action

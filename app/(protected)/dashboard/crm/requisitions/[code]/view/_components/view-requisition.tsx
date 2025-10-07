@@ -125,7 +125,7 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
       //* trigger fetch customer excess & supplier offers line items, supplier quote & requisition history
       getCustomerExcessLineItemsByPartialMpnExec({ partialMpn: requisition.partialMpn })
       getSupplierOfferLineItemsByPartialMpnExec({ partialMpn: requisition.partialMpn })
-      getRequisitionsByPartialMpnExec({ partialMpn: requisition.partialMpn })
+      getRequisitionsByPartialMpnExec({ partialMpn: requisition.partialMpn, reqCode: requisition.code })
       getSupplierQuotesByPartialMpnExec({ partialMpn: requisition.partialMpn })
     }
   }, [JSON.stringify(requisition)])

@@ -167,9 +167,9 @@ export function getColumns(): ColumnDef<RequisitionHistoryData>[] {
           .map((rqi) => rqi.code)
 
         return (
-          <div className='flex min-w-[200px] flex-col justify-center text-xs text-muted-foreground'>
+          <div className='flex min-w-[200px] flex-col justify-center gap-1 text-xs text-muted-foreground'>
             {matchedMpns.map((mpn, i) => (
-              <Badge key={`${mpn}-${i}`} variant={i === 0 ? "soft-sky" : "soft-amber"}>
+              <Badge className='w-fit' key={`${mpn}-${i}`} variant={i === 0 ? "soft-sky" : "soft-amber"}>
                 {mpn}
               </Badge>
             ))}
