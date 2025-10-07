@@ -136,6 +136,7 @@ export const requisitionFormSchema = z.object({
   custPoDockDate: z.coerce.date().nullish(),
   poStatus: z.string().nullish(),
   poStatusLastUpdated: z.coerce.date().nullish(),
+  partialMpn: z.string().nullish(),
   sapQuoteNumber: z.string().nullish(),
   quotedMpn: z.string().nullish(),
   quotedQuantity: z.coerce.number().nullish(),

@@ -292,8 +292,9 @@ model Requisition {
   custPoDockDate        DateTime?
   poStatus              String?   @default("")
   poStatusLastUpdated   DateTime?
-  sapQuoteNumber        String?
-  quotedMpn             String?
+  partialMpn            String?   @default("")
+  sapQuoteNumber        String?   @default("")
+  quotedMpn             String?   @default("")
   quotedQuantity        Decimal?
   quotedPrice           Decimal?
 

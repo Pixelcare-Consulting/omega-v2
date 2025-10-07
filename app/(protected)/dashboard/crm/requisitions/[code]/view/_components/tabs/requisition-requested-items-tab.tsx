@@ -188,12 +188,12 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
           actions={<Actions />}
         />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Customer PN' value={requisition.customerPn} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Customer PN' value={requisition?.customerPn || ""} />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-3'
           title='Requested Quantity'
-          value={(requisition.quantity as any) ?? 0}
+          value={(requisition?.quantity as any) ?? 0}
         />
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Customer Standard Price' value={customerStandardPrice} />
@@ -204,9 +204,11 @@ export default function RequisitionRequestedItemsTab({ requisition, items }: Req
           value={custStandardOpportunityValue}
         />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6' title='SAP Quote #' value={requisition.sapQuoteNumber} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Partial MPN' value={requisition?.partialMpn || ""} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6' title='Quoted MPN' value={requisition.quotedMpn} />
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='SAP Quote #' value={requisition?.sapQuoteNumber || ""} />
+
+        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-4' title='Quoted MPN' value={requisition?.quotedMpn || ""} />
 
         <ReadOnlyField
           className='col-span-12 md:col-span-6 lg:col-span-4'

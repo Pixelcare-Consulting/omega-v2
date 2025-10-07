@@ -108,6 +108,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
         custPoDockDate: null,
         poStatus: "",
         poStatusLastUpdated: null,
+        partialMpn: "",
         sapQuoteNumber: "",
         quotedMpn: "",
         quotedQuantity: null,
@@ -703,7 +704,16 @@ export default function RequisitionForm({ requisition, users, customers, items }
             </FormItem>
           </div>
 
-          <div className='col-span-12 md:col-span-6'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
+            <InputField
+              control={form.control}
+              name='partialMpn'
+              label='Partial MPN'
+              extendedProps={{ inputProps: { placeholder: "Enter partial MPN" } }}
+            />
+          </div>
+
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
             <InputField
               control={form.control}
               name='sapQuoteNumber'
@@ -712,7 +722,7 @@ export default function RequisitionForm({ requisition, users, customers, items }
             />
           </div>
 
-          <div className='col-span-12 md:col-span-6'>
+          <div className='col-span-12 md:col-span-6 lg:col-span-4'>
             <InputField
               control={form.control}
               name='quotedMpn'
