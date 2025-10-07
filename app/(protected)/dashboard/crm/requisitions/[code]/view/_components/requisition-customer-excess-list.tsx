@@ -13,7 +13,7 @@ type CustomerExcessListProps = {
   isLoading: boolean
 }
 
-export default function RequisitionCustomerExcessLineItemList({ customerExcessLineItems }: CustomerExcessListProps) {
+export default function RequisitionCustomerExcessLineItemList({ customerExcessLineItems, isLoading }: CustomerExcessListProps) {
   const columns = useMemo(() => getColumns(), [])
 
   const { table } = useDataTable({
@@ -26,7 +26,7 @@ export default function RequisitionCustomerExcessLineItemList({ customerExcessLi
   })
 
   return (
-    <DataTable table={table}>
+    <DataTable table={table} isLoading={isLoading}>
       <div className='flex flex-col items-stretch justify-center gap-2 md:flex-row md:items-center md:justify-between'>
         <DataTableSearch table={table} className='' />
       </div>

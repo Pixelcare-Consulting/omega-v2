@@ -13,7 +13,7 @@ type SupplierOfferListProps = {
   isLoading: boolean
 }
 
-export default function RequisitionSupplierOfferLineItemList({ supplierOfferLineItems }: SupplierOfferListProps) {
+export default function RequisitionSupplierOfferLineItemList({ supplierOfferLineItems, isLoading }: SupplierOfferListProps) {
   const columns = useMemo(() => getColumns(), [])
 
   const { table } = useDataTable({
@@ -26,7 +26,7 @@ export default function RequisitionSupplierOfferLineItemList({ supplierOfferLine
   })
 
   return (
-    <DataTable table={table}>
+    <DataTable table={table} isLoading={isLoading}>
       <div className='flex flex-col items-stretch justify-center gap-2 md:flex-row md:items-center md:justify-between'>
         <DataTableSearch table={table} className='' />
       </div>
