@@ -65,6 +65,47 @@ export async function getSupplierOfferLineItemsByFileName(fileName: string) {
   }
 }
 
+export async function getSupplierOfferLineItemsByPartialMpn(partialMpn: string) {
+  if (!partialMpn) return []
+
+  try {
+    const supplierOffers = await prisma.supplierOffer.findMany({
+      where: { deletedAt: null, deletedBy: null },
+      include: SUPPLIER_OFFER_INCLUDE,
+    })
+
+    return supplierOffers
+      .map((ce) => {
+        const li = (ce.lineItems || []) as LineItemsJSONData
+
+        if (li.length < 1) return []
+
+        return li
+          .filter((item) => {
+            const baseText = item?.mpn || ""
+            return baseText.startsWith(partialMpn)
+          })
+          .map((item) => ({
+            ...item,
+            fileName: ce.fileName,
+            listDate: ce.listDate,
+            supplier: ce.supplier,
+            listOwner: ce.listOwner,
+          }))
+      })
+      .flat()
+  } catch (error) {
+    return []
+  }
+}
+
+export const getSupplierOfferLineItemsByPartialMpnClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ partialMpn: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    return await getSupplierOfferLineItemsByPartialMpn(data.partialMpn)
+  })
+
 export async function getSupplierOffersBySupplierCode(supplierCode: string) {
   try {
     return await prisma.supplierOffer.findMany({
