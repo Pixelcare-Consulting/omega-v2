@@ -10,6 +10,8 @@ import { formatCurrency, formatNumber } from "@/lib/formatter"
 import { getSupplierQuotesByPartialMpn } from "@/actions/supplier-quote"
 import { Badge } from "@/components/badge"
 import { SUPPLIER_QUOTE_RESULT_OPTIONS, SUPPLIER_QUOTE_ROHS_OPTIONS, SUPPLIER_QUOTE_STATUS_OPTIONS } from "@/schema/supplier-quote"
+import ActionTooltipProvider from "@/components/provider/tooltip-provider"
+import { useRouter } from "next/navigation"
 
 type SupplierQuotesData = Awaited<ReturnType<typeof getSupplierQuotesByPartialMpn>>[number]
 
@@ -160,6 +162,36 @@ export function getColumns(): ColumnDef<SupplierQuotesData>[] {
       id: "tp profit margin",
       header: ({ column }) => <DataTableColumnHeader column={column} title='TP Profit Margin' />,
       cell: () => null,
+    },
+    {
+      accessorKey: "actions",
+      header: "Actions",
+      size: 80,
+      cell: function ActionCell({ row }) {
+        const router = useRouter()
+
+        const { code } = row.original
+
+        return (
+          <>
+            <div className='flex gap-2'>
+              <ActionTooltipProvider label='View Supplier Quote'>
+                <Icons.eye
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/crm/supplier-quotes/${code}/view`)}
+                />
+              </ActionTooltipProvider>
+
+              <ActionTooltipProvider label='Edit Supplier Quote'>
+                <Icons.pencil
+                  className='size-4 cursor-pointer transition-all hover:scale-125'
+                  onClick={() => router.push(`/dashboard/crm/supplier-quotes/${code}`)}
+                />
+              </ActionTooltipProvider>
+            </div>
+          </>
+        )
+      },
     },
   ]
 }
