@@ -25,7 +25,7 @@ export function getColumns(reqId: string, requestedItems: RequestedItemForm[]): 
       cell: ({ row }) => {
         const mpn = row.original?.mpn
         const source = row.original?.source
-        if (!mpn || source === "portal") return null
+        if (!mpn) return null
         return <Badge variant='soft-slate'>{mpn}</Badge>
       },
     },
