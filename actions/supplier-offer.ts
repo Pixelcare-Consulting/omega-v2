@@ -83,7 +83,11 @@ export async function getSupplierOfferLineItemsByPartialMpn(partialMpn: string) 
         return li
           .filter((item) => {
             const baseText = item?.mpn || ""
-            return baseText.startsWith(partialMpn)
+
+            const x = String(baseText).toLowerCase()
+            const y = String(partialMpn).toLowerCase()
+
+            return x.startsWith(y)
           })
           .map((item) => ({
             ...item,

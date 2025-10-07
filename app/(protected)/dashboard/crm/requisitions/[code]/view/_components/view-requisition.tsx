@@ -36,6 +36,9 @@ import { getCustomerExcessLineItemsByPartialMpnClient } from "@/actions/customer
 import RequisitionCustomerExcessTab from "./tabs/requisition-customer-excess-tab"
 import { getSupplierOfferLineItemsByPartialMpnClient } from "@/actions/supplier-offer"
 import RequisitionSupplierOffersTab from "./tabs/requisition-supplier-offers-tab"
+import { getSupplierQuotesByPartialMpnClient } from "@/actions/supplier-quote"
+import RequisitionSupplierQuoteHistoryList from "./requisition-supplier-history-list"
+import RequisitionSupplierQuoteHistoryTab from "./tabs/requisition-supplier-history-tab"
 
 type ViewRequisitionProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
@@ -99,6 +102,12 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
     result: { data: supplierOfferLineItems },
   } = useAction(getSupplierOfferLineItemsByPartialMpnClient)
 
+  const {
+    execute: getSupplierQuotesByPartialMpnExec,
+    isExecuting: IsSupplierQuotesLoading,
+    result: { data: supplierQuotes },
+  } = useAction(getSupplierQuotesByPartialMpnClient)
+
   //* trigger fetch product availabilities
   useEffect(() => {
     if (mfrCodes.length > 0) getProductAvailabilitiesByManufacturerCodesExec({ manufacturerCodes: mfrCodes })
@@ -106,9 +115,10 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
 
   useEffect(() => {
     if (requisition?.partialMpn) {
-      //* trigger fetch customer excess & supplier offers line items
+      //* trigger fetch customer excess & supplier offers line items, supplier quote history
       getCustomerExcessLineItemsByPartialMpnExec({ partialMpn: requisition.partialMpn })
       getSupplierOfferLineItemsByPartialMpnExec({ partialMpn: requisition.partialMpn })
+      getSupplierQuotesByPartialMpnExec({ partialMpn: requisition.partialMpn })
     }
   }, [JSON.stringify(requisition)])
 
@@ -184,10 +194,12 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             <TabsTrigger value='2'>Requested Items</TabsTrigger>
             <TabsTrigger value='3'>Supplier Quotes</TabsTrigger>
             <TabsTrigger value='4'>Shipments</TabsTrigger>
-            <TabsTrigger value='5'>Product Availabilities</TabsTrigger>
-            <TabsTrigger value='6'>Customer Excess</TabsTrigger>
-            <TabsTrigger value='7'>Supplier Offers</TabsTrigger>
-            <TabsTrigger value='8'>Activities</TabsTrigger>
+            <TabsTrigger value='5'>Requisition History</TabsTrigger>
+            <TabsTrigger value='6'>Supplier Quote History</TabsTrigger>
+            <TabsTrigger value='7'>Product Availabilities</TabsTrigger>
+            <TabsTrigger value='8'>Customer Excess</TabsTrigger>
+            <TabsTrigger value='9'>Supplier Offers</TabsTrigger>
+            <TabsTrigger value='10'>Activities</TabsTrigger>
           </TabsList>
 
           <TabsContent value='1'>
@@ -212,7 +224,18 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             <RequisitionShipmentsTab requisition={requisition} />
           </TabsContent>
 
-          <TabsContent value='5'>
+          <TabsContent value='5'></TabsContent>
+
+          <TabsContent value='6'>
+            <RequisitionSupplierQuoteHistoryTab
+              supplierQuotes={{
+                data: supplierQuotes || [],
+                isLoading: IsSupplierQuotesLoading,
+              }}
+            />
+          </TabsContent>
+
+          <TabsContent value='7'>
             <RequisitionProductAvailabilitiesTab
               productAvailabilities={{
                 data: productAvailabilities || [],
@@ -222,7 +245,7 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             />
           </TabsContent>
 
-          <TabsContent value='6'>
+          <TabsContent value='8'>
             <RequisitionCustomerExcessTab
               customerExcessLineItems={{
                 data: customerExcessLineItems || [],
@@ -231,7 +254,7 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             />
           </TabsContent>
 
-          <TabsContent value='7'>
+          <TabsContent value='9'>
             <RequisitionSupplierOffersTab
               supplierOffersLineItems={{
                 data: supplierOfferLineItems || [],
@@ -240,7 +263,7 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             />
           </TabsContent>
 
-          <TabsContent value='8'>
+          <TabsContent value='10'>
             <RequisitionActivitiesTab requisition={requisition} />
           </TabsContent>
         </Tabs>

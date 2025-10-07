@@ -395,6 +395,7 @@ model SupplierQuote {
   supplier    BusinessPartner      @relation(fields: [supplierCode], references: [CardCode], onUpdate: Cascade, onDelete: Cascade)
   buyers      SupplierQuoteBuyer[]
   shipments   Shipment[]
+  item        Item                 @relation(fields: [itemCode], references: [ItemCode], onUpdate: Cascade, onDelete: Cascade)
 
   @@unique([code, requisitionCode, supplierCode])
 }
@@ -659,6 +660,8 @@ model Item {
   createdBy String?
   updatedBy String?
   deletedBy String?
+
+  supplierQuotes SupplierQuote[]
 }
 
 model Address {

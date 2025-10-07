@@ -98,6 +98,45 @@ export async function getSupplierQuoteByCode(code: number) {
   }
 }
 
+export async function getSupplierQuotesByPartialMpn(partialMpn: string) {
+  if (!partialMpn) return []
+
+  try {
+    const result = await prisma.supplierQuote.findMany({
+      where: {
+        item: {
+          ItemCode: {
+            startsWith: partialMpn,
+            mode: "insensitive",
+          },
+        },
+        deletedAt: null,
+        deletedBy: null,
+      },
+      include: {
+        supplier: { select: { CardCode: true, CardName: true } },
+        item: { select: { ItemCode: true, ItemName: true, FirmCode: true, FirmName: true } },
+      },
+    })
+
+    return result.map((item) => ({
+      ...item,
+      quotedQuantity: item?.quotedQuantity?.toString(),
+      quotedPrice: item?.quotedPrice?.toString(),
+    }))
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export const getSupplierQuotesByPartialMpnClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ partialMpn: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    return await getSupplierQuotesByPartialMpn(data.partialMpn)
+  })
+
 export const upsertSupplierQuote = action
   .use(authenticationMiddleware)
   .schema(supplierQuoteFormSchema)
