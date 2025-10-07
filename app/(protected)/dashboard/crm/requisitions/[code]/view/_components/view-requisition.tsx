@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useAction } from "next-safe-action/hooks"
 import { useEffect, useMemo } from "react"
 
-import { getRequisitionByCode, getRequisitions, RequestedItemsJSONData } from "@/actions/requisition"
+import { getRequisitionByCode, getRequisitions, getRequisitionsByPartialMpnClient, RequestedItemsJSONData } from "@/actions/requisition"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -39,6 +39,7 @@ import RequisitionSupplierOffersTab from "./tabs/requisition-supplier-offers-tab
 import { getSupplierQuotesByPartialMpnClient } from "@/actions/supplier-quote"
 import RequisitionSupplierQuoteHistoryList from "./requisition-supplier-history-list"
 import RequisitionSupplierQuoteHistoryTab from "./tabs/requisition-supplier-history-tab"
+import RequisitionHistoryTab from "./tabs/requisition-history-tab"
 
 type ViewRequisitionProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
@@ -108,6 +109,12 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
     result: { data: supplierQuotes },
   } = useAction(getSupplierQuotesByPartialMpnClient)
 
+  const {
+    execute: getRequisitionsByPartialMpnExec,
+    isExecuting: IsRequisitionsHistoryLoading,
+    result: { data: requisitionsHistory },
+  } = useAction(getRequisitionsByPartialMpnClient)
+
   //* trigger fetch product availabilities
   useEffect(() => {
     if (mfrCodes.length > 0) getProductAvailabilitiesByManufacturerCodesExec({ manufacturerCodes: mfrCodes })
@@ -115,9 +122,10 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
 
   useEffect(() => {
     if (requisition?.partialMpn) {
-      //* trigger fetch customer excess & supplier offers line items, supplier quote history
+      //* trigger fetch customer excess & supplier offers line items, supplier quote & requisition history
       getCustomerExcessLineItemsByPartialMpnExec({ partialMpn: requisition.partialMpn })
       getSupplierOfferLineItemsByPartialMpnExec({ partialMpn: requisition.partialMpn })
+      getRequisitionsByPartialMpnExec({ partialMpn: requisition.partialMpn })
       getSupplierQuotesByPartialMpnExec({ partialMpn: requisition.partialMpn })
     }
   }, [JSON.stringify(requisition)])
@@ -224,7 +232,14 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             <RequisitionShipmentsTab requisition={requisition} />
           </TabsContent>
 
-          <TabsContent value='5'></TabsContent>
+          <TabsContent value='5'>
+            <RequisitionHistoryTab
+              requisitionsHistory={{
+                data: requisitionsHistory || [],
+                isLoading: IsRequisitionsHistoryLoading,
+              }}
+            />
+          </TabsContent>
 
           <TabsContent value='6'>
             <RequisitionSupplierQuoteHistoryTab

@@ -7,6 +7,7 @@ import { importSchema } from "@/schema/import-export"
 import { requisitionFormSchema, updateRequisitionReqItemsSchema } from "@/schema/requisition"
 import { Prisma } from "@prisma/client"
 import { parse } from "date-fns"
+import { z } from "zod"
 
 export type RequestedItemsJSONData = { code: string; isSupplierSuggested: boolean }[] | null
 
@@ -114,6 +115,64 @@ export async function getRequisitionByCode(code: number) {
     return null
   }
 }
+
+export async function getRequisitionsByPartialMpn(partialMpn: string) {
+  if (!partialMpn) return []
+
+  try {
+    const result = await prisma.requisition.findMany({
+      where: { partialMpn, deletedAt: null, deletedBy: null },
+      include: {
+        salesPersons: {
+          include: {
+            user: { select: { name: true, email: true } },
+          },
+        },
+        customer: {
+          select: {
+            CardCode: true,
+            CardName: true,
+            assignedExcessManagers: {
+              select: {
+                user: { select: { name: true, email: true } },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    //* get requisitions that have some of its requested items has MPN / code that starts with the partial MPN
+    return result
+      .filter((rq) => {
+        const requestedItems = (rq.requestedItems as RequestedItemsJSONData) || []
+
+        return requestedItems.some((item) => {
+          const basedText = item.code
+
+          const x = String(basedText).toLowerCase()
+          const y = String(partialMpn).toLowerCase()
+
+          return x.startsWith(y)
+        })
+      })
+      .map((rq) => ({
+        ...rq,
+        quantity: rq?.quantity?.toString(),
+        customerStandardPrice: rq?.customerStandardPrice?.toString(),
+      }))
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export const getRequisitionsByPartialMpnClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ partialMpn: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    return getRequisitionsByPartialMpn(data.partialMpn)
+  })
 
 export const upsertRequisition = action
   .use(authenticationMiddleware)

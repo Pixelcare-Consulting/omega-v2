@@ -22,6 +22,7 @@ import AlertModal from "@/components/alert-modal"
 import { useAction } from "next-safe-action/hooks"
 import { getItems } from "@/actions/master-item"
 import { dateFilter, dateSort } from "@/lib/data-table/data-table"
+import { formatNumber } from "@/lib/formatter"
 
 type RequisitionData = Awaited<ReturnType<typeof getRequisitions>>[number]
 
@@ -226,9 +227,9 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
         </DataTableColumnHeader>
       ),
       cell: ({ row }) => {
-        const quantity = row.original.quantity
-        if (!quantity) return null
-        return <Badge variant='soft-slate'>{quantity}</Badge>
+        const quantity = parseFloat(String(row.original?.quantity))
+        if (!quantity || isNaN(quantity)) return null
+        return <div>{formatNumber({ amount: quantity, maxDecimal: 2 })}</div>
       },
     },
     {
