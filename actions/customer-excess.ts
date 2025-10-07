@@ -83,7 +83,10 @@ export async function getCustomerExcessLineItemsByPartialMpn(partialMpn: string)
         if (li.length < 1) return []
 
         return li
-          .filter((item) => item?.mpn === partialMpn)
+          .filter((item) => {
+            const baseText = item?.mpn || ""
+            return baseText.startsWith(partialMpn)
+          })
           .map((item) => ({
             ...item,
             fileName: ce.fileName,

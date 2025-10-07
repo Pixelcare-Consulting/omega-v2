@@ -28,6 +28,8 @@ type FormatNumber = {
 export function formatNumber({ amount, isAutoNotation = false, minDecimal = 0, maxDecimal = 2 }: FormatNumber) {
   const numberFormatter = new Intl.NumberFormat("en-US", {
     notation: isAutoNotation ? (amount > 999_999 ? "compact" : "standard") : "standard",
+    minimumFractionDigits: minDecimal,
+    maximumFractionDigits: maxDecimal,
   })
 
   return numberFormatter.format(amount)
