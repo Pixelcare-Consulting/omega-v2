@@ -206,9 +206,12 @@ export default function SupplierQuoteForm({
 
     const reqItems = (requisition.requestedItems as RequestedItemsJSONData) || []
 
-    return items
-      .filter((item) => reqItems.find((reqItem) => reqItem.code === item.ItemCode))
-      .map((item) => ({ ...item, reqItem: reqItems.find((reqItem) => reqItem.code === item.ItemCode) }))
+    return reqItems
+      .map((reqItem) => {
+        const matchedItem = items.find((item) => reqItem.code === item.ItemCode)
+        return matchedItem ? { ...matchedItem, reqItem } : null
+      })
+      .filter((item) => item !== null)
       .map((item) => ({ label: item?.ItemName || item.ItemCode, value: item.ItemCode, item }))
   }, [JSON.stringify(items), JSON.stringify(requisition)])
 
