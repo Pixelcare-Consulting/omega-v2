@@ -44,7 +44,7 @@ export function DataTable<TData>({ table, children, isLoading, className, ...pro
               <>
                 {Array.from({ length: 10 }).map((_, i) => (
                   <TableRow key={i} className='hover:bg-transparent'>
-                    {Array.from({ length: table.getAllColumns().length - 1 }).map((_, j) => (
+                    {Array.from({ length: table.getAllColumns().length }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className='h-6 w-full' />
                       </TableCell>
