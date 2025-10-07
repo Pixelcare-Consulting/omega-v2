@@ -234,6 +234,7 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
 
           <TabsContent value='5'>
             <RequisitionHistoryTab
+              partialMpn={requisition?.partialMpn || ""}
               requisitionsHistory={{
                 data: requisitionsHistory || [],
                 isLoading: IsRequisitionsHistoryLoading,

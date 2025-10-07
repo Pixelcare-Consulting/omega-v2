@@ -10,12 +10,13 @@ import { getColumns } from "./requisition-history-table-column"
 import { getRequisitionsByPartialMpn } from "@/actions/requisition"
 
 type RequisitionHistoryListProps = {
+  partialMpn: string
   requisitionHistory: Awaited<ReturnType<typeof getRequisitionsByPartialMpn>>
   isLoading: boolean
 }
 
-export default function RequisitionHistoryList({ requisitionHistory, isLoading }: RequisitionHistoryListProps) {
-  const columns = useMemo(() => getColumns(), [])
+export default function RequisitionHistoryList({ partialMpn, requisitionHistory, isLoading }: RequisitionHistoryListProps) {
+  const columns = useMemo(() => getColumns(partialMpn), [partialMpn])
 
   const { table } = useDataTable({
     data: requisitionHistory,

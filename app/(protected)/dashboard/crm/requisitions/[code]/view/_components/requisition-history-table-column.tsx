@@ -14,7 +14,7 @@ import { useRouter } from "nextjs-toploader/app"
 
 type RequisitionHistoryData = Awaited<ReturnType<typeof getRequisitionsByPartialMpn>>[number]
 
-export function getColumns(): ColumnDef<RequisitionHistoryData>[] {
+export function getColumns(partialMpn: string): ColumnDef<RequisitionHistoryData>[] {
   return [
     {
       accessorKey: "date",
@@ -141,7 +141,7 @@ export function getColumns(): ColumnDef<RequisitionHistoryData>[] {
             const basedText = rqi.code
 
             const x = String(basedText).toLowerCase()
-            const y = String(row?.partialMpn).toLowerCase()
+            const y = String(partialMpn).toLowerCase()
 
             return x.startsWith(y)
           })
@@ -160,7 +160,7 @@ export function getColumns(): ColumnDef<RequisitionHistoryData>[] {
             const basedText = rqi.code
 
             const x = String(basedText).toLowerCase()
-            const y = String(row?.original?.partialMpn).toLowerCase()
+            const y = String(partialMpn).toLowerCase()
 
             return x.startsWith(y)
           })
