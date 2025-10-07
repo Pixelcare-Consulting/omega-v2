@@ -121,7 +121,7 @@ export async function getRequisitionsByPartialMpn(partialMpn: string, reqCode: n
 
   try {
     const result = await prisma.requisition.findMany({
-      where: { partialMpn, deletedAt: null, deletedBy: null, code: { not: reqCode } },
+      where: { deletedAt: null, deletedBy: null, code: { not: reqCode } },
       include: {
         salesPersons: {
           include: {
