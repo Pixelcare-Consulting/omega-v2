@@ -35,6 +35,12 @@ export default function ViewItem({ item }: ViewItemProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem asChild>
+                <Link href={`/dashboard/master-data/items/add`}>
+                  <Icons.plus className='mr-2 size-4' /> Add
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/master-data/items/${item.ItemCode}`}>
                   <Icons.pencil className='mr-2 size-4' /> Edit
                 </Link>

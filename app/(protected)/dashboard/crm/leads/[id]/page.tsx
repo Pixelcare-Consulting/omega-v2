@@ -59,6 +59,12 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end'>
                     <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/crm/leads/add`}>
+                        <Icons.plus className='mr-2 size-4' /> Add
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
                       <Link href={`/dashboard/crm/leads/${lead.id}/view`}>
                         <Icons.eye className='mr-2 size-4' /> View
                       </Link>

@@ -35,6 +35,12 @@ export default function ViewProductAvailability({ productAvailability }: ViewPro
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem asChild>
+                <Link href={`/dashboard/crm/product-availabilities/add`}>
+                  <Icons.plus className='mr-2 size-4' /> Add
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/product-availabilities/${productAvailability.code}`}>
                   <Icons.pencil className='mr-2 size-4' /> Edit
                 </Link>

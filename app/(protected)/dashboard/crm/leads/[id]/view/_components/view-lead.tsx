@@ -102,6 +102,12 @@ export default function ViewLead({ lead }: ViewLeadProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem asChild disabled={isLoading}>
+                <Link href={`/dashboard/crm/leads/add`}>
+                  {isLoading ? <Icons.spinner className='mr-2 size-4 animate-spin' /> : <Icons.plus className='mr-2 size-4' />} Add
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild disabled={isLoading}>
                 <Link href={`/dashboard/crm/leads/${lead.id}`}>
                   {isLoading ? <Icons.spinner className='mr-2 size-4 animate-spin' /> : <Icons.pencil className='mr-2 size-4' />} Edit
                 </Link>

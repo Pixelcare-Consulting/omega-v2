@@ -58,6 +58,12 @@ export default async function ActivityPage({ params }: { params: { id: string; a
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end'>
                     <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/crm/activities/add`}>
+                        <Icons.plus className='mr-2 size-4' /> Add
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
                       <Link href={`/dashboard/crm/activities/${activity.id}/view`}>
                         <Icons.eye className='mr-2 size-4' /> View
                       </Link>

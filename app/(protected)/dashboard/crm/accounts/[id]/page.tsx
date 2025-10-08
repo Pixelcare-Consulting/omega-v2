@@ -55,6 +55,12 @@ export default async function AccountPage({ params }: { params: { id: string } }
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end'>
                     <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/crm/accounts/add`}>
+                        <Icons.plus className='mr-2 size-4' /> Add
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
                       <Link href={`/dashboard/crm/accounts/${account.id}/view`}>
                         <Icons.eye className='mr-2 size-4' /> View
                       </Link>

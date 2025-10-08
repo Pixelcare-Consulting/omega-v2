@@ -45,6 +45,12 @@ export default function ViewSaleQuote({ saleQuote, items, requisitions, paymentT
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem asChild>
+                <Link href={`/dashboard/crm/sale-quotes/add`}>
+                  <Icons.plus className='mr-2 size-4' /> Add
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/sale-quotes/${saleQuote.code}`}>
                   <Icons.pencil className='mr-2 size-4' /> Edit
                 </Link>

@@ -55,6 +55,12 @@ export default function ViewActivity({ activity }: ViewActivityProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem asChild>
+                <Link href={`/dashboard/crm/activities/add`}>
+                  <Icons.plus className='mr-2 size-4' /> Add
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/activities/${activity.id}`}>
                   <Icons.pencil className='mr-2 size-4' />
                   Edit

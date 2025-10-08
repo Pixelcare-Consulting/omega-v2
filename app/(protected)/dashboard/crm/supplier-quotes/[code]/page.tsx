@@ -68,6 +68,12 @@ export default async function SupplierQuotePage({ params }: { params: { code: st
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end'>
                     <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/crm/supplier-quotes/add`}>
+                        <Icons.plus className='mr-2 size-4' /> Add
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
                       <Link href={`/dashboard/crm/supplier-quotes/${supplierQuote.code}/view`}>
                         <Icons.eye className='mr-2 size-4' /> View
                       </Link>

@@ -67,6 +67,12 @@ export default function ViewSupplier({ supplier, itemGroups, manufacturers, coun
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem asChild>
+                <Link href={`/dashboard/master-data/suppliers/add`}>
+                  <Icons.plus className='mr-2 size-4' /> Add
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/master-data/suppliers/${supplier.CardCode}`}>
                   <Icons.pencil className='mr-2 size-4' /> Edit
                 </Link>

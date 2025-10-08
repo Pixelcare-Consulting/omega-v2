@@ -70,6 +70,12 @@ export default async function SaleQuotePage({ params }: { params: { code: string
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end'>
                     <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/crm/sale-quotes/add`}>
+                        <Icons.plus className='mr-2 size-4' /> Add
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
                       <Link href={`/dashboard/crm/sale-quotes/${saleQuote.code}/view`}>
                         <Icons.eye className='mr-2 size-4' /> View
                       </Link>

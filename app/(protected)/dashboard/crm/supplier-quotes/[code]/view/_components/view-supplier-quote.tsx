@@ -50,6 +50,12 @@ export default function ViewSupplierQuote({ supplierQuote, items }: ViewSupplier
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem asChild>
+                <Link href={`/dashboard/crm/supplier-quotes/add`}>
+                  <Icons.plus className='mr-2 size-4' /> Add
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/supplier-quotes/${supplierQuote.code}`}>
                   <Icons.pencil className='mr-2 size-4' /> Edit
                 </Link>

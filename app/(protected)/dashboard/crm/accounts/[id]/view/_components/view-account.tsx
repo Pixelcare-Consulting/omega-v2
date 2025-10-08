@@ -42,6 +42,12 @@ export default function ViewAccount({ account, accounts, countries }: ViewAccoun
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem asChild>
+                <Link href={`/dashboard/crm/accounts/add`}>
+                  <Icons.plus className='mr-2 size-4' /> Add
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
                 <Link href={`/dashboard/crm/accounts/${account.id}`}>
                   <Icons.pencil className='mr-2 size-4' /> Edit
                 </Link>
