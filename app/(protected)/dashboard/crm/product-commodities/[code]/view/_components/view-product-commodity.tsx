@@ -7,23 +7,23 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Icons } from "@/components/icons"
 import { Card } from "@/components/ui/card"
 import { getInitials } from "@/lib/utils"
-import { getProductBrandByCode } from "@/actions/product-brand"
-import ProductBrandSummaryTab from "./tabs/product-brand-summary-tab"
+import { getProductCommodityByCode } from "@/actions/product-commodity"
+import ProductCommoditySummaryTab from "./tabs/product-commodity-summary-tab"
 
-type ViewProductBrandProps = {
-  productBrand: NonNullable<Awaited<ReturnType<typeof getProductBrandByCode>>>
+type ViewProductCommodityProps = {
+  productCommodity: NonNullable<Awaited<ReturnType<typeof getProductCommodityByCode>>>
 }
 
-export default function ViewProductBrand({ productBrand }: ViewProductBrandProps) {
-  const productBrandName = productBrand.name
+export default function ViewProductCommodity({ productCommodity }: ViewProductCommodityProps) {
+  const productCommodityName = productCommodity.name
 
   return (
     <PageWrapper
-      title='Product Brand Details'
-      description='View the comprehensive details of this product brand.'
+      title='Product Commodity Details'
+      description='View the comprehensive details of this product commodity.'
       actions={
         <div className='flex items-center gap-2'>
-          <Link className={buttonVariants({ variant: "outline-primary" })} href={`/dashboard/crm/product-brands`}>
+          <Link className={buttonVariants({ variant: "outline-primary" })} href={`/dashboard/crm/product-commodities`}>
             Back
           </Link>
 
@@ -35,13 +35,13 @@ export default function ViewProductBrand({ productBrand }: ViewProductBrandProps
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/crm/product-brands/add`}>
+                <Link href={`/dashboard/crm/product-commodities/add`}>
                   <Icons.plus className='mr-2 size-4' /> Add
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/crm/product-brands/${productBrand.code}`}>
+                <Link href={`/dashboard/crm/product-commodities/${productCommodity.code}`}>
                   <Icons.pencil className='mr-2 size-4' /> Edit
                 </Link>
               </DropdownMenuItem>
@@ -53,14 +53,14 @@ export default function ViewProductBrand({ productBrand }: ViewProductBrandProps
       <div className='flex flex-col gap-4'>
         <Card className='flex items-center gap-3 rounded-lg p-6 shadow-md'>
           <div className='flex size-12 flex-shrink-0 items-center justify-center rounded-full bg-muted font-bold'>
-            {getInitials(productBrandName || "")}
+            {getInitials(productCommodityName || "")}
           </div>
 
           <div className='flex flex-col gap-y-2 md:gap-0'>
-            <h1 className='mb-0 text-sm font-semibold'>{productBrandName}</h1>
+            <h1 className='mb-0 text-sm font-semibold'>{productCommodityName}</h1>
 
             <div className='flex flex-wrap items-center gap-2'>
-              <p className='text-sm text-muted-foreground'>#{productBrand.code}</p>
+              <p className='text-sm text-muted-foreground'>#{productCommodity.code}</p>
             </div>
           </div>
         </Card>
@@ -71,7 +71,7 @@ export default function ViewProductBrand({ productBrand }: ViewProductBrandProps
           </TabsList>
 
           <TabsContent value='1'>
-            <ProductBrandSummaryTab productBrand={productBrand} />
+            <ProductCommoditySummaryTab productCommodity={productCommodity} />
           </TabsContent>
         </Tabs>
       </div>
