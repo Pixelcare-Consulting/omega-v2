@@ -4,35 +4,35 @@ import Breadcrumbs from "@/components/breadcrumbs"
 import { Icons } from "@/components/icons"
 import PageWrapper from "@/app/(protected)/_components/page-wrapper"
 import { Card } from "@/components/ui/card"
-import { getProductAvailabilities } from "@/actions/product-availability"
-import ProductAvailabilityList from "./_components/product-availability-list"
+import { getProductBrands } from "@/actions/product-brand"
+import ProductBrandList from "./_components/product-brand-list"
 
-export default async function ProductAvailabilitiesPage() {
-  const productAvailabilities = await getProductAvailabilities()
+export default async function ProductBrandsPage() {
+  const productBrands = await getProductBrands()
 
   return (
-    <ContentLayout title='Product Availability'>
+    <ContentLayout title='Product Brands'>
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
           { label: "Dashboard", href: "/dashboard" },
           { label: "CRM" },
-          { label: "Product Availability", isPage: true },
+          { label: "Product Brands", isPage: true },
         ]}
       />
 
       <ContentContainer>
         <PageWrapper
-          title='Product Availability'
-          description='Manage and track your product availability effectively'
+          title='Product Brands'
+          description='Manage and track your product brand effectively'
           defaultAction={{
-            label: "Add Product Availability",
-            href: "/dashboard/crm/product-availabilities/add",
+            label: "Add Product Brand",
+            href: "/dashboard/crm/product-brands/add",
             icon: Icons.plus,
           }}
         >
           <Card className='rounded-lg p-6 shadow-md'>
-            <ProductAvailabilityList productAvailabilities={productAvailabilities} />
+            <ProductBrandList productBrands={productBrands} />
           </Card>
         </PageWrapper>
       </ContentContainer>

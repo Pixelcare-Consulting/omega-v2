@@ -5,7 +5,7 @@ import { getSupplierQuoteByCode } from "@/actions/supplier-quote"
 import { ContentLayout } from "@/app/(protected)/_components/content-layout"
 import Breadcrumbs from "@/components/breadcrumbs"
 import ContentContainer from "@/app/(protected)/_components/content-container"
-import ViewSupplierQuote from "../_components/view-supplier-quote"
+import ViewSupplierQuote from "./_components/view-supplier-quote"
 
 export default async function ViewSupplierQuotePage({ params }: { params: { code: string } }) {
   const { code } = params

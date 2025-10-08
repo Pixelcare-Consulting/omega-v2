@@ -122,6 +122,18 @@ export function getMenuList(role: string | null | undefined): MenuGroup[] {
               subjects: "p-csrm-shipments",
             },
             {
+              href: "/dashboard/crm/product-brands",
+              label: "Product Brands",
+              actions: "read",
+              subjects: "p-csrm-product-brands",
+            },
+            {
+              href: "/dashboard/crm/product-commodities",
+              label: "Product Commodities",
+              actions: "read",
+              subjects: "p-csrm-product-commodities",
+            },
+            {
               href: "/dashboard/crm/product-availabilities",
               label: "Product Availability",
               actions: "read",
