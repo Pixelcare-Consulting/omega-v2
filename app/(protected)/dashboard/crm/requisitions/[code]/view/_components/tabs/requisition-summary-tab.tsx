@@ -50,7 +50,7 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
 
   const customerPoHitRatePercentage = useMemo((): string => {
     const value = customerPOHitRate ?? 0
-    return mathFormat(value * 100, { notation: "fixed", precision: 2 })
+    return `${mathFormat(value * 100, { notation: "fixed", precision: 2 })}%`
   }, [customerPOHitRate, isCustomerPOHitRateLoading])
 
   useEffect(() => {
