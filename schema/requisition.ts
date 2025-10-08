@@ -33,7 +33,7 @@ export const REQUISITION_REASON_OPTIONS = [
   { label: "Not Quoted", value: "not-quoted" },
   { label: "Quoted - Waiting", value: "quoted-waiting" },
   { label: "Need to Re-Quote", value: "need-to-re-quote" },
-  { label: "PO Won", value: "PO Won" },
+  { label: "PO Won", value: "po-won" },
   { label: "No Bid - Value", value: "no-bid-value" },
   { label: "No Bid - NAM", value: "no-bid-nam" },
   { label: "No PO - D/C", value: "no-po-d-c" },

@@ -87,31 +87,31 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
 
   const {
     execute: getProductAvailabilitiesByManufacturerCodesExec,
-    isExecuting: IsProductAvailabilitiesLoading,
+    isExecuting: isProductAvailabilitiesLoading,
     result: { data: productAvailabilities },
   } = useAction(getProductAvailabilitiesByManufacturerCodesClient)
 
   const {
     execute: getCustomerExcessLineItemsByPartialMpnExec,
-    isExecuting: IsCustomerExcessLineItemsLoading,
+    isExecuting: isCustomerExcessLineItemsLoading,
     result: { data: customerExcessLineItems },
   } = useAction(getCustomerExcessLineItemsByPartialMpnClient)
 
   const {
     execute: getSupplierOfferLineItemsByPartialMpnExec,
-    isExecuting: IsSupplierOfferLineItemsLoading,
+    isExecuting: isSupplierOfferLineItemsLoading,
     result: { data: supplierOfferLineItems },
   } = useAction(getSupplierOfferLineItemsByPartialMpnClient)
 
   const {
     execute: getSupplierQuotesByPartialMpnExec,
-    isExecuting: IsSupplierQuotesLoading,
+    isExecuting: isSupplierQuotesLoading,
     result: { data: supplierQuotes },
   } = useAction(getSupplierQuotesByPartialMpnClient)
 
   const {
     execute: getRequisitionsByPartialMpnExec,
-    isExecuting: IsRequisitionsHistoryLoading,
+    isExecuting: isRequisitionsHistoryLoading,
     result: { data: requisitionsHistory },
   } = useAction(getRequisitionsByPartialMpnClient)
 
@@ -237,7 +237,7 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
               partialMpn={requisition?.partialMpn || ""}
               requisitionsHistory={{
                 data: requisitionsHistory || [],
-                isLoading: IsRequisitionsHistoryLoading,
+                isLoading: isRequisitionsHistoryLoading,
               }}
             />
           </TabsContent>
@@ -246,7 +246,7 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             <RequisitionSupplierQuoteHistoryTab
               supplierQuotes={{
                 data: supplierQuotes || [],
-                isLoading: IsSupplierQuotesLoading,
+                isLoading: isSupplierQuotesLoading,
               }}
             />
           </TabsContent>
@@ -255,7 +255,7 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             <RequisitionProductAvailabilitiesTab
               productAvailabilities={{
                 data: productAvailabilities || [],
-                isLoading: IsProductAvailabilitiesLoading,
+                isLoading: isProductAvailabilitiesLoading,
               }}
               requisition={requisition}
             />
@@ -265,7 +265,7 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             <RequisitionCustomerExcessTab
               customerExcessLineItems={{
                 data: customerExcessLineItems || [],
-                isLoading: IsCustomerExcessLineItemsLoading,
+                isLoading: isCustomerExcessLineItemsLoading,
               }}
             />
           </TabsContent>
@@ -274,7 +274,7 @@ export default function ViewRequisition({ requisition, requisitions, suppliers, 
             <RequisitionSupplierOffersTab
               supplierOffersLineItems={{
                 data: supplierOfferLineItems || [],
-                isLoading: IsSupplierOfferLineItemsLoading,
+                isLoading: isSupplierOfferLineItemsLoading,
               }}
             />
           </TabsContent>

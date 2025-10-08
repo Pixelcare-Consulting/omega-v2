@@ -19,6 +19,7 @@ import { format, isAfter, parse } from "date-fns"
 import { revalidateTag, unstable_cache } from "next/cache"
 import { z } from "zod"
 import { v4 as uuidv4 } from "uuid"
+import { divide } from "mathjs"
 
 const sapCredentials = {
   BaseURL: process.env.SAP_BASE_URL || "",
@@ -187,6 +188,40 @@ export async function getCountries() {
 export const getCountriesClient = action.use(authenticationMiddleware).action(async () => {
   return getCountries()
 })
+
+export async function getCustomerPOHitRate(customerCode: string) {
+  if (!customerCode) return 0
+
+  try {
+    const [customerReqsWithSupplierQuotes, wonReqs] = await Promise.all([
+      //* count customer requisitions with supplier quotes
+      prisma.requisition.count({
+        where: {
+          customerCode,
+          supplierQuotes: { some: {} },
+          deletedAt: null,
+          deletedBy: null,
+        },
+      }),
+      //* count requisition that have result = 'won' and reason = "po-won"
+      prisma.requisition.count({ where: { result: "won", reason: "po-won", deletedAt: null, deletedBy: null } }),
+    ])
+
+    const hitRate = wonReqs > 0 ? divide(customerReqsWithSupplierQuotes, wonReqs) : 0
+
+    return hitRate
+  } catch (error) {
+    console.error(error)
+    return 0
+  }
+}
+
+export const getCustomerPOHitRateClient = action
+  .use(authenticationMiddleware)
+  .schema(z.object({ customerCode: z.string() }))
+  .action(async ({ parsedInput: data }) => {
+    return getCustomerPOHitRate(data.customerCode)
+  })
 
 export const upsertBpMaster = action
   .use(authenticationMiddleware)

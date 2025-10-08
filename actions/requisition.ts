@@ -8,6 +8,7 @@ import { requisitionFormSchema, updateRequisitionReqItemsSchema } from "@/schema
 import { Prisma } from "@prisma/client"
 import { parse } from "date-fns"
 import { z } from "zod"
+import { getCustomerPOHitRate } from "./master-bp"
 
 export type RequestedItemsJSONData = { code: string; isSupplierSuggested: boolean }[] | null
 
@@ -20,14 +21,18 @@ export async function getRequisitions() {
         salesTeam: { include: { user: { select: { name: true, email: true } } } },
         omegaBuyers: { include: { user: { select: { name: true, email: true } } } },
         customer: { select: { CardName: true, CardCode: true } },
-        supplierQuotes: true,
+        supplierQuotes: true, //* need to be optmize (recommend to remove instead fetch at client)
       },
     })
 
-    return result.map((req) => ({
+    //* get customer po hit rate
+    const custPoHitRates = await Promise.all(result.map((req) => getCustomerPOHitRate(req.customerCode)))
+
+    return result.map((req, i) => ({
       ...req,
       quantity: req.quantity?.toString(),
       customerStandardPrice: req?.customerStandardPrice?.toString(),
+      customerPoHitRate: custPoHitRates[i], //* need to be optimize
     }))
   } catch (error) {
     console.error(error)
@@ -106,9 +111,9 @@ export async function getRequisitionByCode(code: number) {
       activities,
       quantity: requisition.quantity?.toString(),
       customerStandardPrice: requisition.customerStandardPrice?.toString(),
-      contact,
-      mpn,
-      mfr,
+      contact, //* need to be optimize (recommend to remove instead fetch at client)
+      mpn, //* need to be optimize (recommend to remove instead fetch at client)
+      mfr, //* need to be optimize (recommend to remove instead fetch at client)
     }
   } catch (error) {
     console.error(error)

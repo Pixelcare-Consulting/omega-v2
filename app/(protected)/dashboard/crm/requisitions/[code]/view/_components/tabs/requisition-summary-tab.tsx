@@ -1,5 +1,6 @@
 "use client"
 
+import { getCustomerPOHitRateClient } from "@/actions/master-bp"
 import { getRequisitionByCode } from "@/actions/requisition"
 import { Badge } from "@/components/badge"
 import ReadOnlyField from "@/components/read-only-field"
@@ -15,8 +16,9 @@ import {
   REQUISITION_URGENCY_OPTIONS,
 } from "@/schema/requisition"
 import { format } from "date-fns"
+import { format as mathFormat } from "mathjs"
 import { useAction } from "next-safe-action/hooks"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 
 type RequisitionSummaryTabProps = {
   requisition: NonNullable<Awaited<ReturnType<typeof getRequisitionByCode>>>
@@ -39,6 +41,23 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
   const salesPersons = requisition.salesPersons?.map((person) => person?.user?.name || person?.user?.email).filter(Boolean) || []
   const salesTeam = requisition.salesTeam?.map((person) => person?.user?.name || person?.user?.email).filter(Boolean) || []
   const omegaBuyers = requisition.omegaBuyers?.map((person) => person?.user?.name || person?.user?.email).filter(Boolean) || []
+
+  const {
+    execute: getCustomerPOHitRateExec,
+    isExecuting: isCustomerPOHitRateLoading,
+    result: { data: customerPOHitRate },
+  } = useAction(getCustomerPOHitRateClient)
+
+  const customerPoHitRatePercentage = useMemo((): string => {
+    const value = customerPOHitRate ?? 0
+    return mathFormat(value * 100, { notation: "fixed", precision: 2 })
+  }, [customerPOHitRate, isCustomerPOHitRateLoading])
+
+  useEffect(() => {
+    if (!requisition) return
+
+    getCustomerPOHitRateExec({ customerCode: requisition.customerCode })
+  }, [JSON.stringify(requisition)])
 
   return (
     <Card className='rounded-lg p-6 shadow-md'>
@@ -173,7 +192,12 @@ export default function RequisitionSummaryTab({ requisition }: RequisitionSummar
 
         <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='Contact - Full Name' value={contact} />
 
-        <ReadOnlyField className='col-span-12 md:col-span-6 lg:col-span-3' title='PO Hit Rate' value={"0.0%"} />
+        <ReadOnlyField
+          className='col-span-12 md:col-span-6 lg:col-span-3'
+          title='PO Hit Rate'
+          value={customerPoHitRatePercentage}
+          isLoading={isCustomerPOHitRateLoading}
+        />
       </div>
     </Card>
   )

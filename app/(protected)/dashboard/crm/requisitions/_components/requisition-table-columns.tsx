@@ -10,6 +10,7 @@ import { Icons } from "@/components/icons"
 import { Badge } from "@/components/badge"
 import { deleteRequisition, getRequisitions, RequestedItemsJSONData } from "@/actions/requisition"
 import { format } from "date-fns"
+import { format as mathFormat } from "mathjs"
 import ActionTooltipProvider from "@/components/provider/tooltip-provider"
 import {
   REQUISITION_PURCHASING_STATUS_OPTIONS,
@@ -74,8 +75,9 @@ export function getColumns(items: Awaited<ReturnType<typeof getItems>>): ColumnD
       id: "customer po hit rate",
       header: ({ column }) => <DataTableColumnHeader column={column} title='Customer PO Hit Rate' />,
       cell: ({ row }) => {
-        const customerPoHitRate = "0.0%"
-        return <Badge variant='soft-slate'>{customerPoHitRate}</Badge>
+        const customerPoHitRate = row.original?.customerPoHitRate ?? 0
+        const percentFormat = mathFormat(customerPoHitRate * 100, { notation: "fixed", precision: 2 })
+        return <div className='font-bold'>{percentFormat}%</div>
       },
     },
     {
