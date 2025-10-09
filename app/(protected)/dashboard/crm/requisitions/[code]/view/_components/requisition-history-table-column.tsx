@@ -156,7 +156,8 @@ export function getColumns(partialMpn: string): ColumnDef<RequisitionHistoryData
 
         if (!requestedItems || requestedItems.length < 1) return null
 
-        const matchedMpns = requestedItems
+        const matchedItems = requestedItems
+          .map((rqi, i) => ({ ...rqi, isPrimary: i === 0 }))
           .filter((rqi) => {
             const basedText = rqi.code
 
@@ -165,13 +166,12 @@ export function getColumns(partialMpn: string): ColumnDef<RequisitionHistoryData
 
             return x.startsWith(y)
           })
-          .map((rqi) => rqi.code)
 
         return (
           <div className='flex min-w-[200px] flex-col justify-center gap-1 text-xs text-muted-foreground'>
-            {matchedMpns.map((mpn, i) => (
-              <Badge className='w-fit' key={`${mpn}-${i}`} variant={i === 0 ? "soft-sky" : "soft-amber"}>
-                {mpn}
+            {matchedItems.map((item, i) => (
+              <Badge className='w-fit' key={`${item}-${i}`} variant={item.isPrimary ? "soft-sky" : "soft-amber"}>
+                {item.code}
               </Badge>
             ))}
           </div>
